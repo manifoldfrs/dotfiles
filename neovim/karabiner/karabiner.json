@@ -14,7 +14,73 @@
           "basic.to_if_held_down_threshold_milliseconds": 500,
           "mouse_motion_to_scroll.speed": 100
         },
-        "rules": []
+        "rules": [
+          {
+            "description": "Hai HHKB: fn+`j`=arrow_left, fn+`k`==arrow_down, fn+`i`=arrow_up, fn+`l`=arrow_right",
+            "manipulators": [
+              {
+                "from": {
+                  "key_code": "a",
+                  "modifiers": {
+                    "mandatory": ["option"],
+                    "optional": []
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "left_arrow"
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "from": {
+                  "key_code": "s",
+                  "modifiers": {
+                    "mandatory": ["option"],
+                    "optional": []
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "down_arrow"
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "from": {
+                  "key_code": "w",
+                  "modifiers": {
+                    "mandatory": ["option"],
+                    "optional": []
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "up_arrow"
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "from": {
+                  "key_code": "d",
+                  "modifiers": {
+                    "mandatory": ["option"],
+                    "optional": []
+                  }
+                },
+                "to": [
+                  {
+                    "key_code": "right_arrow"
+                  }
+                ],
+                "type": "basic"
+              }
+            ]
+          }
+        ]
       },
       "devices": [
         {
@@ -364,3 +430,4 @@
     }
   ]
 }
+
