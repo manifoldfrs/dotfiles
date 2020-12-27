@@ -1,0 +1,26 @@
+{
+    "title": "Change Left-Shift+Up-Arrow to Caps-Lock",
+    "rules": [
+      {
+        "manipulators": [
+          {
+            "description": "bracket rule",
+            "type": "basic",
+            "from": {
+              "key_code": "left_shift",
+              "modifiers": {
+                "mandatory": [
+                  "up_arrow"
+                ]
+              }
+            },
+            "to": [
+              {
+                "key_code": "caps_lock"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
