@@ -1,18 +1,19 @@
 
 let g:startify_custom_header = [
-        \ '        _   ___    ________          __   ',
-        \ '       / | / / |  / / ____/___  ____/ /__ ',
-        \ '      /  |/ /| | / / /   / __ \/ __  / _ \',
-        \ '     / /|  / | |/ / /___/ /_/ / /_/ /  __/',
-        \ '    /_/ |_/  |___/\____/\____/\__,_/\___/ ',
+        \ ' _______                    .__         ',
+        \ ' \      \   ____  _______  _|__| _____  ',
+        \ ' /   |   \_/ __ \/  _ \  \/ /  |/     \ ',
+        \ '/    |    \  ___(  <_> )   /|  |  Y Y  \',
+        \ '\____|__  /\___  >____/ \_/ |__|__|_|  /',
+        \ '        \/     \/                    \/ ',
         \]
                                       
 let g:startify_session_dir = '~/.config/nvim/session'
 
 
 let g:startify_lists = [
+          \ { 'type': 'dir',       'header': ['   CWD: '. getcwd()]              },
           \ { 'type': 'files',     'header': ['   Files']                        },
-          \ { 'type': 'dir',       'header': ['   Current Directory '. getcwd()] },
           \ { 'type': 'sessions',  'header': ['   Sessions']                     },
           \ { 'type': 'bookmarks', 'header': ['   Bookmarks']                    },
           \ ]
@@ -31,12 +32,9 @@ function! StartifyEntryFormat()
     endfunction
 
 let g:startify_bookmarks = [
-            \ { 'c': '~/.config/i3/config' },
+            \ { 'b': '~/.bashrc' },
             \ { 'i': '~/.config/nvim/init.vim' },
-            \ { 'z': '~/.zshrc' },
-            \ '~/Blog',
-            \ '~/Code',
-            \ '~/Pics',
+            \ { 't': '~/.tmux.conf' },
             \ ]
 
 let g:startify_enable_special = 0

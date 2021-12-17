@@ -1,3 +1,5 @@
+set termguicolors
+
 " auto-install vim-plug
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
   silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
@@ -7,10 +9,32 @@ if empty(glob('~/.config/nvim/autoload/plug.vim'))
 endif
 
 call plug#begin('~/.config/nvim/autoload/plugged')
+    " Startify
+    Plug 'mhinz/vim-startify'
+    " Better Comments
+    Plug 'tpope/vim-commentary'
+    " Change dates fast
+    Plug 'tpope/vim-speeddating'
+    " Convert binary, hex, etc..
+    Plug 'glts/vim-radical'
+    " Repeat stuff
+    Plug 'tpope/vim-repeat'
+    " Text Navigation
+    Plug 'unblevable/quick-scope'
+    " Useful for React Commenting 
+    Plug 'suy/vim-context-commentstring'
+    " vim which key
+    Plug 'liuchengxu/vim-which-key'
+    " vim devicons
+    Plug 'ryanoasis/vim-devicons'
+    " NERD Commenter
+    Plug 'preservim/nerdcommenter'
     " Dracula theme
     Plug 'dracula/vim', { 'as': 'dracula' }
     " Intellisense
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    " Coc plugin manager
+    Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
     " NerdTree
     Plug 'scrooloose/nerdtree'
     " Tmux Navigator
@@ -20,6 +44,9 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     " Command Line Fuzzy Finder
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
+    " Preview window on the upper side of the window with 40% height,
+    " hidden by default, ctrl-/ to toggle
+    let g:fzf_preview_window = ['up:50%', 'ctrl-/']
     " Auto pairs for '(' '[' '{'
     Plug 'jiangmiao/auto-pairs'
     " Rainbow Brackets
@@ -34,6 +61,8 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     Plug 'tpope/vim-rhubarb'
     " Codi
     Plug 'metakirby5/codi.vim'
+    " Lightspeed
+    Plug 'ggandor/lightspeed.nvim'
 call plug#end()
 
 " Automatically install missing plugins on startup
