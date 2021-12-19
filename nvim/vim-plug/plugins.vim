@@ -13,8 +13,6 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     Plug 'mhinz/vim-startify'
     " Better Comments
     Plug 'tpope/vim-commentary'
-    " Change dates fast
-    Plug 'tpope/vim-speeddating'
     " Convert binary, hex, etc..
     Plug 'glts/vim-radical'
     " Repeat stuff
@@ -48,11 +46,12 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     " hidden by default, ctrl-/ to toggle
     let g:fzf_preview_window = ['up:50%', 'ctrl-/']
     " Auto pairs for '(' '[' '{'
-    Plug 'jiangmiao/auto-pairs'
+    Plug 'rstacruz/vim-closer'
     " Rainbow Brackets
     Plug 'luochen1990/rainbow'
     let g:rainbow_active = 1 "set to 0 if you want to enable it later via :RainbowToggle
-    Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
+    " vim-prettier for all formats
+    Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' }
     " Status line
     Plug 'vim-airline/vim-airline'
     Plug 'vim-airline/vim-airline-themes'
