@@ -16,10 +16,8 @@ set iskeyword+=-                      	" treat dash separated words as a word te
 set mouse=a                             " Enable your mouse
 set splitbelow                          " Horizontal splits will automatically be below
 set splitright                          " Vertical splits will automatically be to the right
-set t_Co=256                            " Support 256 colors
 set conceallevel=0                      " So that I can see `` in markdown files
 set tabstop=4                           " Insert 4 spaces for a tab
-"set softtabstop=4
 set shiftwidth=4                        " Change the number of space characters inserted for indentation
 set smarttab                            " Makes tabbing smarter will realize you have 2 vs 4
 set expandtab                           " Converts tabs to spaces
@@ -40,10 +38,9 @@ set nowritebackup                       " This is recommended by coc
 set signcolumn=yes                      " Always show the signcolumn, otherwise it would shift the text each time
 set updatetime=300                      " Faster completion
 set timeoutlen=500                      " By default timeoutlen is 1000 ms
-set formatoptions-=cro                  " Stop newline continution of comments
+set formatoptions=cro                  " Stop newline continution of comments
 set clipboard=unnamedplus               " Copy paste between vim and everything else
 set guifont=JetBrainsMonoNL\ Nerd\ Font
-"set autochdir                           " Your working directory will always be the same as your working directory
 
 au! BufWritePost $MYVIMRC source %      " auto source when writing to init.vm alternatively you can run :source $MYVIMRC
 
@@ -53,6 +50,8 @@ cmap w!! w !sudo tee %
 " Turn-on dracula color scheme
 syntax on
 color dracula
+set t_Co=256                            " Support 256 colors
+
 
 " Nerd tree startup settings
 nmap <C-t> :NERDTreeToggle<CR>
