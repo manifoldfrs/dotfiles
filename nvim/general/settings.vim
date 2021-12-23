@@ -57,6 +57,3 @@ set t_Co=256                            " Support 256 colors
 nmap <C-t> :NERDTreeToggle<CR>
 let NERDTreeShowHIdden=0
 let g:NERDDefaultAlign = 'start'
-
-" Turn on AutoPairs fly mode
-let g:AutoPairsFlyMode = 1
