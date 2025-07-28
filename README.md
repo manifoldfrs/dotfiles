@@ -67,6 +67,9 @@ To get powerline symbols working properly, you need Nerd Fonts installed:
 # Install fonts separately
 ./setup_fonts.sh
 
+# Verify fonts are working
+./verify_fonts.sh
+
 # Or install specific fonts manually
 brew install --cask font-jetbrains-mono-nerd-font
 brew install --cask font-meslo-lg-nerd-font
@@ -86,3 +89,9 @@ brew install --cask font-fira-code-nerd-font
 - Ensure your terminal is using a Nerd Font
 - Restart your terminal after font installation
 - Check that the font name matches exactly in your terminal settings
+
+**Font setup script errors?**
+
+- `fc-list: command not found` → The script will auto-install fontconfig via Homebrew
+- Manual font verification: `ls ~/Library/Fonts/*Nerd*`
+- Alternative font check: Open Font Book.app and search for "Nerd"
