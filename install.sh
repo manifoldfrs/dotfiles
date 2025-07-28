@@ -54,6 +54,10 @@ link_file "$DOTFILES_DIR/karabiner" "$HOME/.config/karabiner"
 # Link kitty configuration
 link_file "$DOTFILES_DIR/kitty" "$HOME/.config/kitty"
 
+# Link Cursor configuration
+mkdir -p "$HOME/Library/Application Support/Cursor/User"
+link_file "$DOTFILES_DIR/cursor/settings.json" "$HOME/Library/Application Support/Cursor/User/settings.json"
+
 echo "Dotfiles installation complete!"
 
 # Offer to install fonts

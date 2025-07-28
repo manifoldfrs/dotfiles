@@ -14,6 +14,7 @@ Configuration files for terminal, shell, and development tools.
 - **Keyboard Customization**: Karabiner-Elements (`karabiner/`)
 - **Shell Prompt**: Starship (`starship.toml`)
 - **Fonts**: Nerd Fonts for powerline symbols (`setup_fonts.sh`)
+- **Cursor IDE**: Settings and terminal font configuration (`cursor/`)
 
 ## Installation
 
@@ -79,6 +80,7 @@ brew install --cask font-fira-code-nerd-font
 **Configure your terminal:**
 
 - **Alacritty**: Already configured to use `JetBrainsMonoNL Nerd Font`
+- **Cursor IDE**: Integrated terminal automatically configured via `settings.json`
 - **iTerm2**: Preferences → Profiles → Text → Font → Search for "Nerd Font"
 - **Terminal.app**: Preferences → Profiles → Font → Select a Nerd Font
 
@@ -95,3 +97,9 @@ brew install --cask font-fira-code-nerd-font
 - `fc-list: command not found` → The script will auto-install fontconfig via Homebrew
 - Manual font verification: `ls ~/Library/Fonts/*Nerd*`
 - Alternative font check: Open Font Book.app and search for "Nerd"
+
+**Cursor IDE terminal issues?**
+
+- Font automatically configured via synced `settings.json`
+- Manual fix: Run `./setup_cursor_fonts.sh`
+- Verify in Cursor: Settings → Terminal → Integrated: Font Family
