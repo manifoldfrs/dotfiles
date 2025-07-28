@@ -4,56 +4,30 @@
             "complex_modifications": {
                 "rules": [
                     {
-                        "description": "Press twice caps_lock to activate caps_lock & otherwise held_down and use as CTRL",
+                        "description": "Toggle caps_lock by pressing left_shift + right_shift at the same time",
                         "manipulators": [
                             {
-                                "conditions": [
-                                    {
-                                        "name": "caps_lock pressed",
-                                        "type": "variable_if",
-                                        "value": 1
-                                    }
-                                ],
                                 "from": {
-                                    "key_code": "caps_lock",
-                                    "modifiers": { "optional": ["any"] }
+                                    "key_code": "left_shift",
+                                    "modifiers": {
+                                        "mandatory": ["right_shift"],
+                                        "optional": ["caps_lock"]
+                                    }
                                 },
                                 "to": [{ "key_code": "caps_lock" }],
+                                "to_if_alone": [{ "key_code": "left_shift" }],
                                 "type": "basic"
                             },
                             {
                                 "from": {
-                                    "key_code": "caps_lock",
-                                    "modifiers": { "optional": ["any"] }
-                                },
-                                "parameters": { "basic.to_if_held_down_threshold_milliseconds": 0 },
-                                "to": [
-                                    {
-                                        "set_variable": {
-                                            "name": "caps_lock pressed",
-                                            "value": 1
-                                        }
+                                    "key_code": "right_shift",
+                                    "modifiers": {
+                                        "mandatory": ["left_shift"],
+                                        "optional": ["caps_lock"]
                                     }
-                                ],
-                                "to_delayed_action": {
-                                    "to_if_canceled": [
-                                        {
-                                            "set_variable": {
-                                                "name": "caps_lock pressed",
-                                                "value": 0
-                                            }
-                                        }
-                                    ],
-                                    "to_if_invoked": [
-                                        {
-                                            "set_variable": {
-                                                "name": "caps_lock pressed",
-                                                "value": 0
-                                            }
-                                        }
-                                    ]
                                 },
-                                "to_if_held_down": [{ "key_code": "left_control" }],
+                                "to": [{ "key_code": "caps_lock" }],
+                                "to_if_alone": [{ "key_code": "right_shift" }],
                                 "type": "basic"
                             }
                         ]
@@ -266,6 +240,23 @@
                         "vendor_id": 1133
                     },
                     "manipulate_caps_lock_led": false
+                },
+                {
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "product_id": 835,
+                        "vendor_id": 1452
+                    },
+                    "simple_modifications": [
+                        {
+                            "from": { "consumer_key_code": "al_terminal_lock_or_screensaver" },
+                            "to": [{ "key_code": "vk_none" }]
+                        },
+                        {
+                            "from": { "key_code": "caps_lock" },
+                            "to": [{ "key_code": "left_control" }]
+                        }
+                    ]
                 },
                 {
                     "disable_built_in_keyboard_if_exists": true,
