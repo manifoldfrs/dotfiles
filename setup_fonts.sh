@@ -14,10 +14,10 @@ if ! command -v brew &> /dev/null; then
     exit 1
 fi
 
-# Check if Starship is installed
-if ! command -v starship &> /dev/null; then
-    echo "📦 Installing Starship prompt..."
-    brew install starship
+# Check if Oh My Zsh is installed (required for agnoster theme)
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "📦 Installing Oh My Zsh..."
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
 echo "📦 Installing JetBrains Mono Nerd Font..."
@@ -57,4 +57,4 @@ echo "💡 Next steps:"
 echo "   1. Restart Cursor and/or Warp terminal"
 echo "   2. Cursor: Fonts are pre-configured via settings.json"
 echo "   3. Warp: Fonts should auto-detect, or set in Settings > Appearance"
-echo "   4. Starship prompt should now display powerline symbols correctly"
+echo "   4. Oh My Zsh agnoster theme should now display powerline symbols correctly"

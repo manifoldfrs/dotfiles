@@ -30,20 +30,13 @@ mkdir -p ~/.config
 
 # Link shell configuration files
 link_file "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-link_file "$DOTFILES_DIR/.bashrc" "$HOME/.bashrc"
-link_file "$DOTFILES_DIR/.bash_profile" "$HOME/.bash_profile"
 
 # Link git configuration
-link_file "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
+link_file "$DOTFILES_DIR/git/gitconfig.symlink" "$HOME/.gitconfig"
+mkdir -p "$HOME/.config/git"
+link_file "$DOTFILES_DIR/git/gitignore_global.symlink" "$HOME/.config/git/ignore"
 
-# Link tmux configuration
-link_file "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
-
-# Link alacritty configuration
-link_file "$DOTFILES_DIR/alacritty.yml" "$HOME/.config/alacritty.yml"
-
-# Link starship configuration
-link_file "$DOTFILES_DIR/starship.toml" "$HOME/.config/starship.toml"
+# Note: tmux, alacritty, and starship configs removed as no longer used
 
 # Link neovim configuration
 link_file "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
@@ -51,8 +44,8 @@ link_file "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
 # Link karabiner configuration
 link_file "$DOTFILES_DIR/karabiner" "$HOME/.config/karabiner"
 
-# Link kitty configuration (fallback terminal)
-link_file "$DOTFILES_DIR/kitty" "$HOME/.config/kitty"
+# Link kitty configuration (fallback terminal) - uncomment if needed
+# link_file "$DOTFILES_DIR/kitty" "$HOME/.config/kitty"
 
 # Link Warp terminal configuration
 mkdir -p "$HOME/.warp"
@@ -83,12 +76,15 @@ echo ""
 echo "✅ Setup complete!"
 echo ""
 echo "🔧 Additional setup options:"
+echo "   • Install development tools: ./install_dev_tools.sh"
 echo "   • Install Cursor extensions: ./install_cursor_extensions.sh"
 echo "   • Sync current Cursor settings: ./sync_cursor_settings.sh"
+echo "   • Export current packages: ./export_brew_packages.sh"
 echo ""
 echo "💡 Next steps:"
 echo "   1. Restart Cursor (for integrated terminal) or Warp"
 echo "   2. If you see broken symbols, ensure Nerd Fonts are installed"
-echo "   3. Source your shell configuration: source ~/.zshrc"
+echo "   3. Source your zsh configuration: source ~/.zshrc"
 echo "   4. In Warp: Nord theme should be available in Settings > Appearance"
-echo "   5. Verify fonts with: ./verify_fonts.sh"
+echo "   5. Oh My Zsh agnoster theme should display powerline symbols correctly"
+echo "   6. Verify fonts with: ./verify_fonts.sh"

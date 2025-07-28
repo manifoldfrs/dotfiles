@@ -7,52 +7,59 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a personal dotfiles repository containing configuration files for development environments and terminal applications. The configurations are organized by application:
 
 - **Primary Terminals**: `cursor/` (Cursor IDE integrated terminal), `warp/` (Warp terminal themes)
-- **Shell Configuration**: `.zshrc`, `.bashrc`, `.bash_profile` (symlinked from home)
-- **Git**: `git/gitconfig.symlink` (symlinks to `~/.gitconfig`)
-- **Editor**: `nvim/` (comprehensive Neovim Lua configuration), `vim/vimrc.symlink`
+- **Shell Configuration**: `.zshrc` (Oh My Zsh + agnoster theme)
+- **Git**: `git/gitconfig.symlink`, `git/gitignore_global.symlink`
+- **Editor**: `nvim/` (vim configuration), `nvim_lua_config/` (modern Lua configuration)
 - **Keyboard**: `karabiner/` (macOS key remapping, caps lock → ctrl)
-- **Shell Prompt**: `starship.toml` (custom prompt configuration)
-- **Fallback Terminals**: `alacritty.yml`, `kitty/`, `iterm2/iterm2.symlink`
+- **Package Management**: `Brewfile`, `brew_*.txt` (Homebrew package lists)
+- **Fallback Terminals**: `kitty/`, `iterm2/iterm2.symlink` (optional)
 - **Terminal UI**: `gitui/` (Git TUI configuration)
 
 ## Installation Commands
 
-**Primary Setup:**
+**Complete New Mac Setup:**
 ```bash
-./install.sh              # Creates symlinks and offers font installation
+./setup_new_mac.sh        # Complete guided setup for new MacBook (recommended)
 ```
 
-**Font & Prompt Management:**
+**Individual Setup Scripts:**
 ```bash
-./setup_fonts.sh          # Install Nerd Fonts + Starship via Homebrew
+./install.sh              # Install dotfiles and create symlinks
+./setup_fonts.sh          # Install Nerd Fonts + Oh My Zsh via Homebrew
+./install_dev_tools.sh    # Install development tools (Python, Node, Ruby, AWS CLI, etc.)
 ./verify_fonts.sh         # Check if Nerd Fonts are installed correctly
-./setup_cursor_fonts.sh   # Configure Cursor IDE terminal fonts
 ```
 
 **Cursor IDE Setup:**
 ```bash
 ./sync_cursor_settings.sh      # Sync current Cursor settings to dotfiles
 ./install_cursor_extensions.sh # Install extensions from extensions.txt
+./setup_cursor_fonts.sh        # Configure Cursor IDE terminal fonts
+```
+
+**Package Management:**
+```bash
+./export_brew_packages.sh      # Export current Homebrew packages
+brew bundle install            # Install from Brewfile
 ```
 
 **Manual Sync (when dotfiles need updating):**
 ```bash
 # Copy current configs back to repository
 cp ~/.zshrc .
-cp ~/.config/alacritty/alacritty.yml .
-cp ~/.config/starship.toml .
 cp -r ~/.config/nvim .
 cp -r ~/.config/karabiner .
+cp -r ~/.warp/themes warp/
+./sync_cursor_settings.sh
 ```
 
 ## Configuration Architecture
 
 ### Font & Prompt Strategy
 - **Primary Font**: JetBrainsMonoNL Nerd Font (powerline symbols)
-- **Prompt**: Starship cross-shell prompt (replaces Oh My Zsh themes)
-- **Consistency**: Same font across Alacritty, Cursor IDE terminal, and editor
-- **Auto-configuration**: Scripts handle font/prompt installation and terminal setup
-- **Powerline Fix**: `.zshrc` loads Starship after Oh My Zsh to override agnoster theme
+- **Shell**: Zsh with Oh My Zsh agnoster theme (requires powerline fonts)
+- **Consistency**: Same font across Cursor IDE terminal, Warp, and editor
+- **Auto-configuration**: Scripts handle font/Oh My Zsh installation and terminal setup
 
 ### Symlink Pattern
 - Files ending in `.symlink` are linked to home directory without extension
@@ -79,10 +86,20 @@ cp -r ~/.config/karabiner .
 - **Complex Rules**: Double-tap caps lock for actual caps lock
 - **Assets**: Custom complex modifications in `assets/complex_modifications/`
 
+## Development Tools Included
+
+- **Languages**: Python (pyenv), Node.js (nvm), Ruby (rbenv)
+- **CLI Tools**: AWS CLI, bat, exa, fd, fzf, jq, tree, tldr, diff-so-fancy
+- **Databases**: PostgreSQL, Redis, SQLite
+- **Dev Tools**: Git LFS, Exercism, Pulumi, Tesseract, Repomix
+- **Package Managers**: Homebrew, npm/yarn, pip, gem
+
 ## Development Notes
 
 - **No Build Process**: Pure configuration files, no compilation needed
 - **Platform**: macOS-focused (Homebrew, Karabiner, Cursor paths)
 - **Primary Workflow**: Cursor IDE integrated terminal + Warp terminal
-- **Font Dependency**: Powerline symbols require Nerd Fonts installation
+- **Shell**: Zsh with Oh My Zsh agnoster theme (powerline symbols)
+- **Font Dependency**: agnoster theme requires Nerd Fonts for proper display
 - **Theme Consistency**: Nord theme across Cursor IDE, Warp, and terminal applications
+- **Package Management**: Brewfile for reproducible environments
