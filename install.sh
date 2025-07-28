@@ -53,8 +53,23 @@ link_file "$DOTFILES_DIR/warp/themes" "$HOME/.warp/themes"
 
 # Link Cursor configuration
 mkdir -p "$HOME/Library/Application Support/Cursor/User"
-link_file "$DOTFILES_DIR/cursor/settings.json" "$HOME/Library/Application Support/Cursor/User/settings.json"
-link_file "$DOTFILES_DIR/cursor/keybindings.json" "$HOME/Library/Application Support/Cursor/User/keybindings.json"
+
+# Check which Cursor settings to use (current vs nvim backup)
+CURSOR_SETTINGS="$DOTFILES_DIR/cursor/settings.json"
+CURSOR_KEYBINDINGS="$DOTFILES_DIR/cursor/keybindings.json"
+
+if [ -f "$DOTFILES_DIR/cursor/settings_nvim_config.json" ] && [ ! -f "$CURSOR_SETTINGS" ]; then
+    echo "Using nvim vscode settings as fallback..."
+    CURSOR_SETTINGS="$DOTFILES_DIR/cursor/settings_nvim_config.json"
+fi
+
+if [ -f "$DOTFILES_DIR/cursor/keybindings_nvim_config.json" ] && [ ! -f "$CURSOR_KEYBINDINGS" ]; then
+    echo "Using nvim vscode keybindings as fallback..."
+    CURSOR_KEYBINDINGS="$DOTFILES_DIR/cursor/keybindings_nvim_config.json"
+fi
+
+link_file "$CURSOR_SETTINGS" "$HOME/Library/Application Support/Cursor/User/settings.json"
+link_file "$CURSOR_KEYBINDINGS" "$HOME/Library/Application Support/Cursor/User/keybindings.json"
 
 # Link Cursor snippets if they exist
 if [ -d "$DOTFILES_DIR/cursor/snippets" ]; then

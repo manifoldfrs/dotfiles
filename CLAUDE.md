@@ -10,6 +10,9 @@ This is a personal dotfiles repository containing configuration files for develo
 - **Shell Configuration**: `.zshrc` (Oh My Zsh + agnoster theme)
 - **Git**: `git/gitconfig.symlink`, `git/gitignore_global.symlink`
 - **Editor**: `nvim/` (vim configuration), `nvim_lua_config/` (modern Lua configuration)
+- **IDE Configurations**: 
+  - `cursor/settings.json`, `cursor/keybindings.json` (current Cursor config)
+  - `cursor/settings_nvim_config.json`, `cursor/keybindings_nvim_config.json` (nvim-based VS Code config with whichkey)
 - **Keyboard**: `karabiner/` (macOS key remapping, caps lock → ctrl)
 - **Package Management**: `Brewfile`, `brew_*.txt` (Homebrew package lists)
 - **Fallback Terminals**: `kitty/`, `iterm2/iterm2.symlink` (optional)

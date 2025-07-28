@@ -53,6 +53,24 @@ else
     echo "   4. Save to cursor/extensions.txt"
 fi
 
+# Check for nvim vscode config and copy if it's newer/different
+echo "🔍 Checking for nvim vscode configs..."
+if [ -f "$DOTFILES_DIR/nvim/utils/vscode_config/settings.json" ]; then
+    echo "📋 Found nvim vscode settings, comparing with cursor settings..."
+    if [ ! -f "$DOTFILES_DIR/cursor/settings.json" ] || [ "$DOTFILES_DIR/nvim/utils/vscode_config/settings.json" -nt "$DOTFILES_DIR/cursor/settings.json" ]; then
+        echo "📋 Copying nvim vscode settings.json to cursor/ (newer/missing)"
+        cp "$DOTFILES_DIR/nvim/utils/vscode_config/settings.json" "$DOTFILES_DIR/cursor/settings_nvim_backup.json"
+    fi
+fi
+
+if [ -f "$DOTFILES_DIR/nvim/utils/vscode_config/keybindings.json" ]; then
+    echo "⌨️  Found nvim vscode keybindings, comparing with cursor keybindings..."
+    if [ ! -f "$DOTFILES_DIR/cursor/keybindings.json" ] || [ "$DOTFILES_DIR/nvim/utils/vscode_config/keybindings.json" -nt "$DOTFILES_DIR/cursor/keybindings.json" ]; then
+        echo "⌨️  Copying nvim vscode keybindings.json to cursor/ (newer/missing)"
+        cp "$DOTFILES_DIR/nvim/utils/vscode_config/keybindings.json" "$DOTFILES_DIR/cursor/keybindings_nvim_backup.json"
+    fi
+fi
+
 # Sync snippets if they exist
 if [ -d "$CURSOR_USER_DIR/snippets" ]; then
     echo "📝 Syncing snippets..."
