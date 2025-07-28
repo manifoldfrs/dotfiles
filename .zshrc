@@ -124,3 +124,6 @@ export NVM_DIR="$HOME/.nvm"
 . "/Users/frshbb/.deno/env"
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
+# Initialize Starship prompt (overrides Oh My Zsh theme)
+eval "$(starship init zsh)"

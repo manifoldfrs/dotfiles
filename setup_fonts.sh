@@ -14,6 +14,12 @@ if ! command -v brew &> /dev/null; then
     exit 1
 fi
 
+# Check if Starship is installed
+if ! command -v starship &> /dev/null; then
+    echo "📦 Installing Starship prompt..."
+    brew install starship
+fi
+
 echo "📦 Installing JetBrains Mono Nerd Font..."
 brew install --cask font-jetbrains-mono-nerd-font
 
@@ -48,7 +54,7 @@ fi
 echo ""
 echo "🎨 Font installation complete!"
 echo "💡 Next steps:"
-echo "   1. Restart your terminal application"
-echo "   2. Configure your terminal to use a Nerd Font"
-echo "   3. For Alacritty: Use 'JetBrainsMonoNL Nerd Font' or 'JetBrainsMono Nerd Font'"
-echo "   4. For iTerm2: Search for 'Nerd Font' in font preferences"
+echo "   1. Restart Cursor and/or Warp terminal"
+echo "   2. Cursor: Fonts are pre-configured via settings.json"
+echo "   3. Warp: Fonts should auto-detect, or set in Settings > Appearance"
+echo "   4. Starship prompt should now display powerline symbols correctly"

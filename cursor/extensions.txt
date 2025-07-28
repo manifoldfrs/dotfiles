@@ -1,0 +1,32 @@
+# Essential Extensions for Development
+# Copy this list and install manually via Cursor Extensions view (Cmd+Shift+X)
+
+# Language Support
+ms-python.python
+ms-python.black-formatter
+ms-python.pylance
+esbenp.prettier-vscode
+ms-vscode.vscode-json
+
+# Vim Mode
+vscodevim.vim
+vspacecode.vspacecode
+vspacecode.whichkey
+
+# Git Integration
+kahole.magit
+ms-vscode.git-graph
+
+# Visual Enhancements
+catppuccin.catppuccin-vscode-icons
+arcticicestudio.nord-visual-studio-code
+oderwat.indent-rainbow
+
+# Utilities
+ms-vscode.cpptools
+ms-vscode.js-debug
+ms-toolsai.vscode-ai
+rust-lang.rust-analyzer
+
+# Note: Run `cursor --list-extensions` to get your actual installed extensions
+# Then replace this file with your personal extension list

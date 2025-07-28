@@ -38,9 +38,9 @@ if [ "$NERD_FONTS_FOUND" = true ]; then
     echo ""
     echo "✅ Nerd Fonts are installed!"
     echo "💡 If symbols appear as boxes/question marks:"
-    echo "   - Restart your terminal"
-    echo "   - Configure terminal to use a Nerd Font"
-    echo "   - For Alacritty: Font is already configured"
+    echo "   - Restart Cursor or Warp terminal"
+    echo "   - Cursor: Font is pre-configured via settings.json"
+    echo "   - Warp: Check Settings > Appearance > Text > Font"
 else
     echo ""
     echo "❌ No Nerd Fonts found!"

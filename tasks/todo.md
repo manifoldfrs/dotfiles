@@ -1,0 +1,5 @@
+- [ ] Copy cursor extensions to cursor folder
+- [ ] Copy cursor configuration settings to cursor folder
+- [ ] Copy cursor keybindings to cursor folder
+- [ ] Copy all terminal settings in ~/.frshbb/ to dotfiles folder here
+- [ ] Copy all font settings in ~/.frshbb/ to dotfiles folder here
