@@ -55,4 +55,19 @@ link_file "$DOTFILES_DIR/karabiner" "$HOME/.config/karabiner"
 link_file "$DOTFILES_DIR/kitty" "$HOME/.config/kitty"
 
 echo "Dotfiles installation complete!"
-echo "You may need to restart your terminal or source your shell configuration files."
+
+# Offer to install fonts
+echo ""
+read -p "🔤 Would you like to install Nerd Fonts for powerline support? (y/n): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Installing fonts..."
+    ./setup_fonts.sh
+fi
+
+echo ""
+echo "✅ Setup complete!"
+echo "💡 Next steps:"
+echo "   1. Restart your terminal application"
+echo "   2. If you see broken symbols, ensure your terminal is using a Nerd Font"
+echo "   3. Source your shell configuration: source ~/.zshrc"

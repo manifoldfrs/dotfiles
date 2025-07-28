@@ -13,6 +13,7 @@ Configuration files for terminal, shell, and development tools.
 - **Editor**: Neovim configuration (`nvim/`)
 - **Keyboard Customization**: Karabiner-Elements (`karabiner/`)
 - **Shell Prompt**: Starship (`starship.toml`)
+- **Fonts**: Nerd Fonts for powerline symbols (`setup_fonts.sh`)
 
 ## Installation
 
@@ -29,6 +30,8 @@ Configuration files for terminal, shell, and development tools.
    ```
 
 This will create symlinks from your home directory to the dotfiles in this repository. Existing files will be backed up with a `.backup` extension.
+
+The installer will also offer to install Nerd Fonts for proper powerline symbol display.
 
 ## Manual Sync
 
@@ -55,3 +58,31 @@ After installation, restart your terminal or source the configuration files:
 ```bash
 source ~/.zshrc
 ```
+
+## Font Setup
+
+To get powerline symbols working properly, you need Nerd Fonts installed:
+
+```bash
+# Install fonts separately
+./setup_fonts.sh
+
+# Or install specific fonts manually
+brew install --cask font-jetbrains-mono-nerd-font
+brew install --cask font-meslo-lg-nerd-font
+brew install --cask font-fira-code-nerd-font
+```
+
+**Configure your terminal:**
+
+- **Alacritty**: Already configured to use `JetBrainsMonoNL Nerd Font`
+- **iTerm2**: Preferences → Profiles → Text → Font → Search for "Nerd Font"
+- **Terminal.app**: Preferences → Profiles → Font → Select a Nerd Font
+
+## Troubleshooting
+
+**Broken powerline symbols?**
+
+- Ensure your terminal is using a Nerd Font
+- Restart your terminal after font installation
+- Check that the font name matches exactly in your terminal settings
