@@ -1,0 +1,113 @@
+{
+  "name": "PACE",
+  "version": "1.0.0",
+  "compatibility": {
+    "coordinator": "1.0.0",
+    "gateway": "1.3.0"
+  },
+  "bindingIdRequired": false,
+  "identifiers": [
+    [
+      {
+        "name": "PACE_PARCEL_APN",
+        "variant": "normalized"
+      },
+      {
+        "name": "PACE_PARCEL_FIPS_COUNTY_CODE",
+        "variant": "normalized"
+      }
+    ],
+    [
+      {
+        "name": "PACE_ADDRESS_LINE1",
+        "variant": "normalized"
+      },
+      {
+        "name": "PACE_ADDRESS_CITY",
+        "variant": "normalized"
+      },
+      {
+        "name": "PACE_ADDRESS_STATE",
+        "variant": "normalized"
+      },
+      {
+        "name": "PACE_ADDRESS_ZIP",
+        "variant": "normalized"
+      }
+    ]
+  ],
+  "attributes": [
+    {
+      "name": "PACE_ADDRESS_LINE1",
+      "calculations": {
+        "MATCH_CALCULATION": "match_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    },
+    {
+      "name": "PACE_ADDRESS_LINE2",
+      "calculations": {
+        "MATCH_CALCULATION": "match_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    },
+    {
+      "name": "PACE_ADDRESS_CITY",
+      "calculations": {
+        "RAW_CALCULATION": "raw_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    },
+    {
+      "name": "PACE_ADDRESS_STATE",
+      "calculations": {
+        "RAW_CALCULATION": "raw_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    },
+    {
+      "name": "PACE_ADDRESS_ZIP",
+      "calculations": {
+        "RAW_CALCULATION": "raw_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    },
+    {
+      "name": "PACE_SIGNED_ASSESSMENT_CONTRACT",
+      "calculations": {
+        "RAW_CALCULATION": "raw_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    },
+    {
+      "name": "PACE_NOTICE_TO_PROCEED",
+      "calculations": {
+        "RAW_CALCULATION": "raw_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    },
+    {
+      "name": "PACE_FUNDED",
+      "calculations": {
+        "RAW_CALCULATION": "raw_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    },
+    {
+      "name": "PACE_CANCELED",
+      "calculations": {
+        "RAW_CALCULATION": "raw_calculation"
+      },
+      "ttl": "get_most_recent_if_not_expired('10950')",
+      "valueRequired": false
+    }
+  ]
+}

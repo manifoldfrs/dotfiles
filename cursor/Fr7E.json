@@ -1,0 +1,37 @@
+{
+    "name": "@delphi-companion/embed",
+    "version": "0.1.0",
+    "description": "Vanilla JS web component for embedding Delphi chat interfaces",
+    "main": "dist/index.js",
+    "module": "dist/index.esm.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "rollup -c",
+        "build:watch": "rollup -c -w",
+        "dev": "rollup -c -w",
+        "clean": "rimraf dist"
+    },
+    "keywords": [
+        "web-component",
+        "delphi",
+        "chat",
+        "embed",
+        "custom-element"
+    ],
+    "author": "Faris Habib",
+    "license": "MIT",
+    "dependencies": {
+        "lit": "^3.0.2"
+    },
+    "devDependencies": {
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "@rollup/plugin-typescript": "^11.1.5",
+        "rollup": "^4.5.0",
+        "rollup-plugin-minification": "^0.2.0",
+        "typescript": "^5.2.2",
+        "rimraf": "^5.0.5"
+    }
+}

@@ -1,0 +1,61 @@
+{
+    "PACE_FUNDED": {
+        "value": "24239.84",
+        "metadata": {
+            "timestamp": "2023-03-17T00:00:00-07:00"
+        },
+        "variants": {
+            "normalized": "24239.84"
+        }
+    },
+    "PACE_PARCEL_APN": {
+        "value": "5003-034-006",
+        "metadata": {},
+        "variants": {
+            "normalized": "5003034006"
+        }
+    },
+    "PACE_ADDRESS_ZIP": {
+        "value": "90062",
+        "metadata": {},
+        "variants": {
+            "normalized": "90062",
+            "internal_normalized": "90062"
+        }
+    },
+    "PACE_ADDRESS_CITY": {
+        "value": "Los Angeles",
+        "metadata": {},
+        "variants": {
+            "normalized": "losangeles",
+            "internal_normalized": "losangeles"
+        }
+    },
+    "PACE_ADDRESS_LINE1": {
+        "value": "1524 W 58Th St",
+        "metadata": {},
+        "variants": {
+            "normalized": "1524w58thst",
+            "street_name": "58th",
+            "street_number": "1524",
+            "internal_normalized": "1524w58thst",
+            "internal_street_name": "w 58th st",
+            "internal_street_number": "1524"
+        }
+    },
+    "PACE_ADDRESS_STATE": {
+        "value": "CA",
+        "metadata": {},
+        "variants": {
+            "normalized": "ca",
+            "internal_normalized": "ca"
+        }
+    },
+    "PACE_PARCEL_FIPS_COUNTY_CODE": {
+        "value": "06037",
+        "metadata": {},
+        "variants": {
+            "normalized": "06037"
+        }
+    }
+}

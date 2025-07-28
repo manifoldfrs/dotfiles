@@ -1,0 +1,31 @@
+{
+    "name": "llamalert",
+    "version": "0.1.0",
+    "private": true,
+    "description": "AI-Driven Behavioral Anomaly Detection Prototype",
+    "scripts": {
+        "lint": "pnpm --filter \"./apps/**\" lint",
+        "test": "pnpm --filter \"./apps/**\" test",
+        "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+        "dev:api": "pnpm --filter \"./apps/api\" dev",
+        "dev:frontend": "pnpm --filter \"./apps/frontend\" dev",
+        "dev": "pnpm -r --parallel dev"
+    },
+    "engines": {
+        "node": ">=18",
+        "pnpm": ">=8"
+    },
+    "keywords": [
+        "anomaly-detection",
+        "llm",
+        "llama",
+        "fraud-prevention",
+        "biometrics"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {},
+    "devDependencies": {
+        "prettier": "^3.0.0"
+    }
+}

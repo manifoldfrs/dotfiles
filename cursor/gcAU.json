@@ -1,0 +1,36 @@
+{
+  "name": "service",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "install:fast": "YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install --mode=skip-build",
+    "install:superfast": "YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install --mode=update-lockfile"
+  },
+  "devDependencies": {
+    "@types/mime": "^3.0.4",
+    "@types/node": "^18",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@pulumi/aws": "^6.71.0",
+    "@pulumi/awsx": "^2.4.0",
+    "@pulumi/cloudflare": "^5.18.1",
+    "@pulumi/docker": "^4.5.0",
+    "@pulumi/eks": "^2.5.2",
+    "@pulumi/kubernetes": "^4.12.0",
+    "@pulumi/pulumi": "^3.154.0",
+    "dotenv": "^16.3.1",
+    "glob": "^10.3.10",
+    "mime": "^3.0.0"
+  },
+  "bundleDependencies": [
+    "@pulumi/aws",
+    "@pulumi/awsx",
+    "@pulumi/cloudflare",
+    "@pulumi/docker",
+    "@pulumi/eks",
+    "@pulumi/kubernetes",
+    "@pulumi/pulumi"
+  ],
+  "packageManager": "yarn@4.7.0"
+}

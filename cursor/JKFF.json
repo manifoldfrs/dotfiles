@@ -1,0 +1,127 @@
+[
+    {
+        "timestamp": "2024-04-01T09:15:23Z",
+        "user": "alice@example.com",
+        "message": "Is there a way to reset my password without having to contact support? I can’t find the option anywhere."
+    },
+    {
+        "timestamp": "2024-04-01T10:42:57Z",
+        "user": "brandon@example.com",
+        "message": "Just wanted to say I love the new dashboard! It's way faster and cleaner."
+    },
+    {
+        "timestamp": "2024-04-01T12:30:12Z",
+        "user": "carla@example.com",
+        "message": "I was charged twice for my subscription this month. Can someone look into this please?"
+    },
+    {
+        "timestamp": "2024-04-01T14:00:00Z",
+        "user": "dave@example.com",
+        "message": "Every time I try to upload a CSV, I get a 500 error. It was working fine last week."
+    },
+    {
+        "timestamp": "2024-04-01T15:21:05Z",
+        "user": "erin@example.com",
+        "message": "Can you add support for two-factor authentication? Security is super important for us."
+    },
+    {
+        "timestamp": "2024-04-02T08:49:30Z",
+        "user": "felix@example.com",
+        "message": "I’m confused by the way team roles work. What’s the difference between 'admin' and 'manager'?"
+    },
+    {
+        "timestamp": "2024-04-02T11:11:11Z",
+        "user": "grace@example.com",
+        "message": "This app is buggy as hell. Buttons don’t work, pages crash randomly. Not usable in production."
+    },
+    {
+        "timestamp": "2024-04-02T13:35:45Z",
+        "user": "henry@example.com",
+        "message": "Great work on the latest update! The new analytics page is 🔥."
+    },
+    {
+        "timestamp": "2024-04-02T15:00:00Z",
+        "user": "isabel@example.com",
+        "message": "Please make dark mode the default for new users."
+    },
+    {
+        "timestamp": "2024-04-02T17:44:22Z",
+        "user": "jack@example.com",
+        "message": "Hey support—I need an invoice for March for tax purposes. Can you send it to me?"
+    },
+    {
+        "timestamp": "2024-04-03T07:23:10Z",
+        "user": "karen@example.com",
+        "message": "Why does the app sign me out every few hours? It’s really annoying."
+    },
+    {
+        "timestamp": "2024-04-03T09:45:55Z",
+        "user": "leo@example.com",
+        "message": "It would be awesome if you could integrate with Zapier. That’d save us a ton of time."
+    },
+    {
+        "timestamp": "2024-04-03T11:10:01Z",
+        "user": "maria@example.com",
+        "message": "I'm trying to invite a teammate but the invite email never shows up. Checked spam too."
+    },
+    {
+        "timestamp": "2024-04-03T13:00:00Z",
+        "user": "nathan@example.com",
+        "message": "Thanks for fixing the timezone bug. Really appreciate how quickly you guys responded!"
+    },
+    {
+        "timestamp": "2024-04-03T14:55:31Z",
+        "user": "olivia@example.com",
+        "message": "Your onboarding flow is confusing. Can you simplify the steps for setting up a new project?"
+    },
+    {
+        "timestamp": "2024-04-03T16:20:45Z",
+        "user": "peter@example.com",
+        "message": "I accidentally deleted a project—can you help me recover it? It's urgent."
+    },
+    {
+        "timestamp": "2024-04-04T08:35:20Z",
+        "user": "quinn@example.com",
+        "message": "When will your Android app support tablet layouts? Everything’s squished on my Pixel tablet."
+    },
+    {
+        "timestamp": "2024-04-04T10:10:10Z",
+        "user": "rachel@example.com",
+        "message": "Love this product. Just wish the graphs updated in real-time instead of refreshing manually."
+    },
+    {
+        "timestamp": "2024-04-04T12:00:00Z",
+        "user": "sam@example.com",
+        "message": "I just paid but my account is still marked as 'free user'. Please fix this ASAP."
+    },
+    {
+        "timestamp": "2024-04-04T13:47:18Z",
+        "user": "tina@example.com",
+        "message": "Why does your pricing page not mention the hidden fees for API usage? Feels misleading."
+    },
+    {
+        "timestamp": "2024-04-04T15:15:15Z",
+        "user": "uma@example.com",
+        "message": "Can you please add a shortcut to duplicate a dashboard layout?"
+    },
+    {
+        "timestamp": "2024-04-04T17:30:00Z",
+        "user": "victor@example.com",
+        "message": "We’re seeing huge latency spikes during peak hours. Any known issues on your end?"
+    },
+    {
+        "timestamp": "2024-04-05T07:05:05Z",
+        "user": "wendy@example.com",
+        "message": "I keep getting a '403 forbidden' error when calling your API with the right auth token."
+    },
+    {
+        "timestamp": "2024-04-05T09:09:09Z",
+        "user": "xavier@example.com",
+        "message": "Your new color scheme is a big improvement. Love the subtle gradients."
+    },
+    {
+        "timestamp": "2024-04-05T11:11:11Z",
+        "user": "yasmine@example.com",
+        "message": "Can you delete my account and confirm when it's done? Thanks."
+    }
+]

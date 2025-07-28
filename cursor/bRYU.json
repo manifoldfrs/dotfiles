@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "URL Analyzer",
+  "version": "1.0",
+  "permissions": [
+    "webRequest",
+    "*://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
+}

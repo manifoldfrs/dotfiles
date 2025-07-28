@@ -1,0 +1,254 @@
+{
+  "[javscript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
+  // increase font size for chat window
+  "apc.stylesheet": { ".anysphere-markdown-container-root": "font-size: 13px; line-height: 1.4;" },
+  "editor.accessibilitySupport": "off",
+  "editor.autoClosingBrackets": "always",
+  "editor.autoClosingOvertype": "always",
+  "editor.autoClosingQuotes": "always",
+  "editor.autoIndent": "full",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.detectIndentation": true,
+  "editor.find.addExtraSpaceOnTop": false,
+  "editor.formatOnSave": false,
+  "editor.inlineSuggest.enabled": true,
+  "editor.insertSpaces": true,
+  "editor.lineNumbers": "relative",
+  "editor.tabSize": 2,
+  "editor.fontSize": 13,
+  "editor.fontFamily": "'JetBrains Mono'",
+  "explorer.confirmDelete": false,
+  "editor.semanticHighlighting.enabled": true,
+  "extensions.ignoreRecommendations": true,
+  "files.trimTrailingWhitespace": true,
+  "indentRainbow.includedLanguages": ["python", "javascript", "yaml", "typescript", "rust"],
+  "indentRainbow.ignoreErrorLanguages": ["haskell", "markdown"],
+  "javascript.autoClosingTags": false,
+  "javascript.preferences.quoteStyle": "single",
+  "prettier.jsxSingleQuote": true,
+  "prettier.singleQuote": true,
+  "python.languageServer": "Pylance",
+  "security.workspace.trust.banner": "never",
+  "security.workspace.trust.emptyWindow": true,
+  "security.workspace.trust.enabled": false,
+  "security.workspace.trust.startupPrompt": "never",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontFamily": "'JetBrains Mono'",
+  "terminal.integrated.minimumContrastRatio": 1,
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "window.titleBarStyle": "custom",
+  "window.zoomLevel": -1.5,
+  "vim.easymotion": true,
+  "vim.easymotionKeys": "asdfghjkl;yuiopnm,qwertzxcvb",
+  "vim.hlsearch": true,
+  "vim.incsearch": true,
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "after": [":"],
+      "before": [";"]
+    },
+    {
+      "before": [","],
+      "commands": [
+        "vspacecode.space",
+        {
+          "args": "m",
+          "command": "whichkey.triggerKey"
+        }
+      ]
+    },
+    {
+      "before": ["<C-a>"],
+      "commands": ["errorLens.toggle"]
+    },
+    {
+      "before": ["<C-j>"],
+      "commands": ["workbench.action.terminal.focus"]
+    },
+    {
+      "before": ["<C-n>"],
+      "commands": [":nohl"]
+    },
+    {
+      "before": ["<C-t>"],
+      "commands": ["workbench.action.terminal.toggleTerminal"]
+    },
+    {
+      "before": ["<S-tab>"],
+      "commands": ["workbench.action.previousEditor"]
+    },
+    {
+      "before": ["<space>"],
+      "commands": ["vspacecode.space"]
+    },
+    {
+      "before": ["<tab>"],
+      "commands": ["workbench.action.nextEditor"]
+    }
+  ],
+  "vim.sneak": false,
+  "vim.surround": true,
+  "vim.useCtrlKeys": true,
+  "vim.useSystemClipboard": true,
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "after": ["<", "g", "v"],
+      "before": ["<"]
+    },
+    {
+      "after": [">", "g", "v"],
+      "before": [">"]
+    },
+    {
+      "before": [","],
+      "commands": [
+        "vspacecode.space",
+        {
+          "args": "m",
+          "command": "whichkey.triggerKey"
+        }
+      ]
+    },
+    {
+      "before": ["<space>"],
+      "commands": ["vspacecode.space"]
+    }
+  ],
+  "vsicons.dontShowNewVersionMessage": true,
+  "vspacecode.magitRefBindings": [
+    {
+      "args": {
+        "after": ["y", "y"]
+      },
+      "command": "vim.remap",
+      "key": "y",
+      "name": "Yank a line",
+      "type": "command"
+    },
+    {
+      "command": "magit.copy-buffer-revision",
+      "key": "b",
+      "name": "Copy buffer revision",
+      "type": "command"
+    },
+    {
+      "command": "magit.copy-section-value",
+      "key": "s",
+      "name": "Copy section value",
+      "type": "command"
+    },
+    {
+      "command": "magit.show-refs",
+      "key": "r",
+      "name": "Show Ref",
+      "type": "command"
+    }
+  ],
+  "window.openFoldersInNewWindow": "on",
+  "workbench.colorCustomizations": {
+    "terminal.background": "#2E3440",
+    "terminal.foreground": "#D8DEE9",
+    "terminalCursor.background": "#D8DEE9",
+    "terminalCursor.foreground": "#D8DEE9",
+    "terminal.ansiBlack": "#3B4252",
+    "terminal.ansiBlue": "#81A1C1",
+    "terminal.ansiBrightBlack": "#4C566A",
+    "terminal.ansiBrightBlue": "#81A1C1",
+    "terminal.ansiBrightCyan": "#8FBCBB",
+    "terminal.ansiBrightGreen": "#A3BE8C",
+    "terminal.ansiBrightMagenta": "#B48EAD",
+    "terminal.ansiBrightRed": "#BF616A",
+    "terminal.ansiBrightWhite": "#ECEFF4",
+    "terminal.ansiBrightYellow": "#EBCB8B",
+    "terminal.ansiCyan": "#88C0D0",
+    "terminal.ansiGreen": "#A3BE8C",
+    "terminal.ansiMagenta": "#B48EAD",
+    "terminal.ansiRed": "#BF616A",
+    "terminal.ansiWhite": "#E5E9F0",
+    "terminal.ansiYellow": "#EBCB8B"
+  },
+  "workbench.colorTheme": "Nord",
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "workbench.editor.showTabs": "multiple",
+  "workbench.sideBar.location": "left",
+  "workbench.startupEditor": "none",
+  "workbench.iconTheme": "catppuccin-macchiato",
+  "remote.SSH.configFile": "/Users/faris/.ssh/config",
+  "sync.gist": "6aebadc294a985c44c38534986fcccb7",
+  "explorer.confirmDragAndDrop": false,
+  "tabnine.experimentalAutoImports": true,
+  "accessibility.signals.lineHasError": {
+    "sound": "off"
+  },
+  "accessibility.signals.lineHasFoldedArea": {
+    "sound": "off"
+  },
+  "accessibility.signals.lineHasBreakpoint": {
+    "sound": "off"
+  },
+  "accessibility.signals.lineHasInlineSuggestion": {
+    "sound": "off"
+  },
+  "accessibility.signals.terminalQuickFix": {
+    "sound": "off"
+  },
+  "accessibility.signals.onDebugBreak": {
+    "sound": "off"
+  },
+  "accessibility.signals.noInlayHints": {
+    "sound": "off"
+  },
+  "accessibility.signals.taskCompleted": {
+    "sound": "off"
+  },
+  "accessibility.signals.taskFailed": {
+    "sound": "off"
+  },
+  "accessibility.signals.terminalCommandFailed": {
+    "sound": "off"
+  },
+  "accessibility.signals.notebookCellCompleted": {
+    "sound": "off"
+  },
+  "accessibility.signals.notebookCellFailed": {
+    "sound": "off"
+  },
+  "accessibility.signals.diffLineInserted": {
+    "sound": "off"
+  },
+  "accessibility.signals.diffLineDeleted": {
+    "sound": "off"
+  },
+  "accessibility.signals.diffLineModified": {
+    "sound": "off"
+  },
+  "accessibility.signals.progress": {
+    "sound": "off"
+  },
+  "remote.SSH.connectTimeout": 30,
+  "cursor.chat.collapseInputBoxPills": true,
+  "cursor.cpp.enablePartialAccepts": true,
+  "cursor.cmdk.useThemedDiffBackground": true,
+  "cursor.diffs.useCharacterLevelDiffs": true,
+  "gitlens.launchpad.indicator.enabled": false,
+
+}

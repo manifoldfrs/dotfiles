@@ -1,0 +1,11 @@
+{
+    "buildCommand": "cd frontend && npm run build",
+    "outputDirectory": "frontend/.next",
+    "framework": "nextjs",
+    "installCommand": "cd frontend && npm install",
+    "devCommand": "cd frontend && npm run dev",
+    "env": {
+        "OPENAI_API_KEY": "@openai_api_key",
+        "OPENAI_MODEL": "@openai_model"
+    }
+}

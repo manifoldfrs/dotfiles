@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "convex": "^1.17.0",
+    "fasthtml": "^0.1.0"
+  }
+}

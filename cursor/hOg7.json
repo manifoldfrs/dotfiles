@@ -1,0 +1,172 @@
+{
+    "items": [
+        {
+            "products": [
+                "LEGACY"
+            ],
+            "filterTimestamp": "2023-02-07T00:00:00+00:00",
+            "applicationId": "18131337",
+            "attributes": {
+                "SSN": {
+                    "value": "658-61-3140"
+                },
+                "FIRST_NAME": {
+                    "value": "ROSA"
+                },
+                "LAST_NAME": {
+                    "value": "DIAZ DE MARTINEZ"
+                },
+                "ADDRESS_CITY": {
+                    "value": "READING"
+                },
+                "FRAUD_TYPE": {
+                    "value": ""
+                },
+                "APPLICATION_STATUS": {
+                    "value": ""
+                },
+                "ADDRESS_STATE": {
+                    "value": "PA"
+                },
+                "ADDRESS_ZIP": {
+                    "value": "19604"
+                },
+                "DATE_OF_BIRTH": {
+                    "value": "1977-05-14"
+                },
+                "PHONE_NUMBER": {
+                    "value": "3472783976"
+                },
+                "INCOME_ANNUAL_GROSS": {
+                    "value": "4800"
+                }
+            }
+        },
+        {
+            "products": [
+                "LEGACY"
+            ],
+            "filterTimestamp": "2023-02-07T00:00:00+00:00",
+            "applicationId": "18131339",
+            "attributes": {
+                "SSN": {
+                    "value": "595-89-8891"
+                },
+                "FIRST_NAME": {
+                    "value": "HOPE"
+                },
+                "LAST_NAME": {
+                    "value": "LAWSON"
+                },
+                "ADDRESS_CITY": {
+                    "value": "HILLSBORO"
+                },
+                "FRAUD_TYPE": {
+                    "value": ""
+                },
+                "APPLICATION_STATUS": {
+                    "value": ""
+                },
+                "ADDRESS_STATE": {
+                    "value": "OH"
+                },
+                "ADDRESS_ZIP": {
+                    "value": "45133"
+                },
+                "DATE_OF_BIRTH": {
+                    "value": "2000-01-10"
+                },
+                "PHONE_NUMBER": {
+                    "value": "9378408165"
+                },
+                "INCOME_ANNUAL_GROSS": {
+                    "value": ""
+                }
+            }
+        },
+        {
+            "products": [
+                "LEGACY"
+            ],
+            "filterTimestamp": "2023-02-07T00:00:00+00:00",
+            "applicationId": "18131341",
+            "attributes": {
+                "SSN": {
+                    "value": "134-76-3750"
+                },
+                "FIRST_NAME": {
+                    "value": "GORMAN"
+                },
+                "LAST_NAME": {
+                    "value": "SAUNDERS"
+                },
+                "ADDRESS_CITY": {
+                    "value": "CARBONDALE"
+                },
+                "FRAUD_TYPE": {
+                    "value": ""
+                },
+                "APPLICATION_STATUS": {
+                    "value": ""
+                },
+                "ADDRESS_STATE": {
+                    "value": "IL"
+                },
+                "ADDRESS_ZIP": {
+                    "value": "62901"
+                },
+                "DATE_OF_BIRTH": {
+                    "value": "2001-01-01"
+                },
+                "PHONE_NUMBER": {
+                    "value": "7316936816"
+                },
+                "INCOME_ANNUAL_GROSS": {
+                    "value": "3100"
+                }
+            }
+        },
+        {
+            "products": [
+                "LEGACY"
+            ],
+            "filterTimestamp": "2023-02-07T00:00:00+00:00",
+            "applicationId": "18131343",
+            "attributes": {
+                "SSN": {
+                    "value": "270-82-0525"
+                },
+                "FIRST_NAME": {
+                    "value": "JASON"
+                },
+                "LAST_NAME": {
+                    "value": "MONDVILLEDAVIS"
+                },
+                "ADDRESS_CITY": {
+                    "value": "TOLEDO"
+                },
+                "FRAUD_TYPE": {
+                    "value": ""
+                },
+                "APPLICATION_STATUS": {
+                    "value": ""
+                },
+                "ADDRESS_STATE": {
+                    "value": "OH"
+                },
+                "ADDRESS_ZIP": {
+                    "value": "43615"
+                },
+                "DATE_OF_BIRTH": {
+                    "value": "1976-11-16"
+                },
+                "PHONE_NUMBER": {
+                    "value": "4199843446"
+                },
+                "INCOME_ANNUAL_GROSS": {
+                    "value": ""
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,91 @@
+---
+layout: none
+---
+[
+    {% assign first_item_written = false %
+    }
+  {% for post in site.posts %
+    }
+    {% if first_item_written %
+    },
+    {% endif %
+    }
+    {
+        "title": "{{ post.title | escape | replace: '"', '\\"' | replace: '
+', ' ' | replace: '
+', ' '
+    }
+}","category": "{
+    { post.categories | join: ', ' | escape | replace: '"', '\\"' | replace: '
+', ' ' | replace: '
+', ' '
+    }
+}","tags": "{
+    { post.tags | join: ', ' | escape | replace: '"', '\\"' | replace: '
+', ' ' | replace: '
+', ' '
+    }
+}","url": "{
+    { site.baseurl
+    }
+}{
+    { post.url
+    }
+}","date": "{{ post.date | date_to_string }}",
+"excerpt": "{{ post.excerpt | strip_html | strip_newlines | truncatewords: 50 | escape | replace: '"', '\\"' | replace: '
+', ' ' | replace: '
+', ' '
+}
+}"
+}
+    {% assign first_item_written = true %
+}
+  {% endfor %
+}
+
+  {% for page in site.pages %
+}
+    {% comment %
+} Exclude common non-content pages and pages without titles {% endcomment %
+}
+    {% if page.title and page.layout != 'home' and page.url != '/search/' and page.url != '/blog/' and page.url != '/archive/' and page.url != '/categories/' and page.url != '/portfolio/' and page.url != '/404.html' and page.url != '/feed.xml' and page.url != '/sitemap.xml' and page.name != 'search.json' and page.name != 'README.md' %
+}
+      {% if first_item_written %
+},
+{% endif %
+}
+      {
+"title": "{{ page.title | escape | replace: '"', '\\"' | replace: '
+', ' ' | replace: '
+', ' '
+}
+}","category": "{
+{ page.categories | join: ', ' | escape | replace: '"', '\\"' | replace: '
+', ' ' | replace: '
+', ' '
+}
+}","tags": "{
+{ page.tags | join: ', ' | escape | replace: '"', '\\"' | replace: '
+', ' ' | replace: '
+', ' '
+}
+}","url": "{
+{ site.baseurl
+}
+}{
+{ page.url
+}
+}","date": "{{ page.date | date_to_string }}",
+"excerpt": "{{ page.content | strip_html | strip_newlines | truncatewords: 50 | escape | replace: '"', '\\"' | replace: '
+', ' ' | replace: '
+', ' '
+}
+}"
+}
+      {% assign first_item_written = true %
+}
+    {% endif %
+}
+  {% endfor %
+}
+]

@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "VT Web Analyzer",
+  "version": "0.0.1",
+  "permissions": [
+    "webRequest",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

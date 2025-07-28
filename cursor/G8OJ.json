@@ -1,0 +1,156 @@
+{
+    "GET https://sandboxapi.ionia.app/Address/get-user-address?addressType=0": {
+        "operation": "reverse",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.data[:].address1": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].address2": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].zipCode": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].gpsLat": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].gpsLong": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "GET https://sandboxapi.ionia.app/Address/get-user-address?addressType=1": {
+        "operation": "reverse",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.data[:].address1": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].address2": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].zipCode": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].gpsLat": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].gpsLong": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "GET https://sandboxapi.ionia.app/Address/get-user-address?addressType=2": {
+        "operation": "reverse",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.data[:].address1": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].address2": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].zipCode": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].gpsLat": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].gpsLong": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "GET https://sandboxapi.ionia.app/User/get-current-user": {
+        "operation": "reverse",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.data[:].address1": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].address2": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].zipCode": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].firstName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].lastName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].middleName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].email": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "GET https://sandboxapi.ionia.app/UserPaymentMethod/get-payment-methods": {
+        "operation": "reverse",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.data[:].expireMonth": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].expireYear": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].firstName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.data[:].lastName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,60 @@
+{
+  "dev": {
+    "app_function": "backend.app.app",
+    "profile_name": "default",
+    "aws_region": "us-west-2",
+    "project_name": "financial-document-analyzer",
+    "runtime": "python3.9",
+    "s3_bucket": "financial-document-analyzer-zappa-deploys",
+    "environment_variables": {
+      "ENVIRONMENT": "dev",
+      "DEBUG": "False"
+    },
+    "memory_size": 512,
+    "timeout_seconds": 30,
+    "events": [
+      {
+        "function": "backend.app.app",
+        "event_source": {
+          "arn": "arn:aws:s3:::financial-document-analyzer",
+          "events": [
+            "s3:ObjectCreated:*"
+          ],
+          "key_filters": [
+            {
+              "type": "prefix",
+              "value": "uploads/"
+            }
+          ]
+        }
+      }
+    ],
+    "api_gateway_endpoint_configuration": {
+      "REGIONAL": "regional",
+      "EDGE": "edge",
+      "PRIVATE": "private"
+    },
+    "api_gateway_endpoint_type": "REGIONAL",
+    "cors": true,
+    "exception_handler": "backend.utils.error_handler.unhandled_exception_handler"
+  },
+  "prod": {
+    "extends": "dev",
+    "profile_name": "production",
+    "environment_variables": {
+      "ENVIRONMENT": "prod",
+      "DEBUG": "False"
+    },
+    "memory_size": 1024,
+    "timeout_seconds": 60,
+    "cache_cluster_enabled": true,
+    "cache_cluster_size": "0.5",
+    "cache_cluster_ttl": 300,
+    "certificate_arn": "your-certificate-arn",
+    "domain": "api.yourdomain.com",
+    "use_precompiled_packages": true,
+    "keep_warm": true,
+    "keep_warm_expression": "rate(5 minutes)",
+    "log_level": "WARNING"
+  }
+}

@@ -1,0 +1,164 @@
+{
+    "https://sandboxapi.ionia.app/api/v1/Address/add-user-address": {
+        "operation": "tokenize",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.address1": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.address2": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.city": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.zipCode": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.gpsLat": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.gpsLong": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "PUT https://sandboxapi.ionia.app/api/v1/Address/update-user-address": {
+        "operation": "tokenize",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.address1": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.address2": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.city": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.zipCode": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.gpsLat": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.gpsLong": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "https://sandboxapi.ionia.app/api/v1/Authentication/create-user": {
+        "operation": "tokenize",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.email": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.firstName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.middleName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.lastName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "https://sandboxapi.ionia.app/api/v1/Authentication/register-merchant": {
+        "operation": "tokenize",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.email": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.firstName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.lastName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "https://sandboxapi.ionia.app/api/v1/Authentication/confirm-mail": {
+        "operation": "tokenize",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.email": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "https://sandboxapi.ionia.app/api/v1/Authentication/login-delphius": {
+        "operation": "tokenize",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.email": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    },
+    "https://sandboxapi.ionia.app/api/v1/GiftCard/share-gift-card": {
+        "operation": "tokenize",
+        "configurations": {
+            "json": {
+                "strict": true,
+                "rules": {
+                    "$.recipientName": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    },
+                    "$.recipientEmail": {
+                        "scheme": "regular",
+                        "scopeId": "e"
+                    }
+                }
+            }
+        }
+    }
+}

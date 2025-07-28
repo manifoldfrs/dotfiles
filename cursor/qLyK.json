@@ -1,0 +1,47 @@
+{
+    "products": {
+        "ISI": {
+            "results": [
+                {
+                    "employerInfo": {
+                        "address": {
+                            "city": "Brea",
+                            "line1": "500 S Kraemer Blvd",
+                            "state": "CA",
+                            "zip": "92821"
+                        },
+                        "b2b": false,
+                        "b2c": false,
+                        "estimatedAge": 36,
+                        "headCount": 4,
+                        "industryDescription": "Portfolio Management and Investment Advice",
+                        "matchConfidence": 100,
+                        "msa": "31080",
+                        "msaDescription": "Los Angeles-Long Beach-Anaheim, CA Metropolitan Statistical Area",
+                        "msaType": 0,
+                        "naics": "523940",
+                        "name": "anchor financial group",
+                        "phoneNumber": "+1 8009348377",
+                        "resolutionStatus": 1,
+                        "revenue": 1263,
+                        "website": "anchorfg.com"
+                    },
+                    "indexes": {
+                        "imi": {
+                            "value": 599
+                        }
+                    },
+                    "metadata": {
+                        "application": {
+                            "id": "michael-test-112",
+                            "timestamp": "2024-06-18T22:25:56.201766+00:00"
+                        },
+                        "response": {
+                            "code": 2
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

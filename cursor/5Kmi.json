@@ -1,0 +1,50 @@
+{
+    "spring_id": "sid:1:7a01dbb97b7311966008517a7cfc75ecb4eab4addc6a5afe83539e567e62b251",
+    "timestamp": "2024-06-22T16:40:54.388985Z",
+    "request_id": "d4db8754-3107-4390-a5f5-7bae395c65ab",
+    "trace_id": "64370c52-4fe6-4624-b80a-3a7374b4294c",
+    "bi": {
+        "type": "response",
+        "body": {
+            "products": {
+                "BM": {
+                    "results": [
+                        {
+                            "metadata": {
+                                "response": {
+                                    "code": 2
+                                },
+                                "application": {
+                                    "id": "1719074453",
+                                    "timestamp": "2024-06-22T16:40:53+00:00"
+                                }
+                            },
+                            "business": {
+                                "name": "bahry appliance service llc",
+                                "naics": "811412",
+                                "naicsIndustryDescription": "Appliance Repair and Maintenance",
+                                "sic": "7629",
+                                "sicIndustryDescription": "Electrical and Electronic Repair Shops, Not Elsewhere Classified",
+                                "msa": "26420",
+                                "msaDescription": "Houston-The Woodlands-Sugar Land, TX Metropolitan Statistical Area",
+                                "estimatedAge": 3,
+                                "headCount": 6,
+                                "headCountBand": "6-10",
+                                "revenue": 295,
+                                "revenueBand": "$0M-$1M",
+                                "website": null,
+                                "inactiveFlag": false,
+                                "isSmallBusiness": true,
+                                "b2b": false,
+                                "b2c": false,
+                                "matchConfidence": 98,
+                                "industryCodeGrade": 2,
+                                "resolutionStatus": 1
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

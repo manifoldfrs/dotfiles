@@ -1,0 +1,75 @@
+{
+    "springId": "sid:1:f6495af574a959a49795b862201eaa4d82520277995880237659ddbd1e08fe05",
+    "endpoint": "https://esouu8fjdl-vpce-0b1e0033271339232.execute-api.us-west-2.amazonaws.com/sl-le-qa-west-release-gateway-7",
+    "ipAddresses": [
+        ""
+    ],
+    "organizationEmail": "gateway7@springlabs.network",
+    "credentials": {
+        "eth": "d8264362950713b77ae78d3c706ca6d250298d225e06c780bd564e0822285eab",
+        "jwt": {
+            "billable": {
+                "10004": {
+                    "raw": "3dd47c5c2101eca8bb41a63283cf41554243211ea3e0cd6407a82a5549379fb4",
+                    "hash": "24326224313224475378735a43626142455337306569557443314e77654e4352564c383869725747654a333670525576796a537935754f676a304271"
+                }
+            },
+            "nonBillable": {
+                "10005": {
+                    "raw": "838b1a2054ad8b0b00e300bab6a9673d627f34a2e23d87ddbcacee6c772aa838",
+                    "hash": "24326224313224475378735a43626142455337306569557443314e77656f566e4e6e743747717236544d356f4d2f675055586e617561514b5768512e"
+                }
+            }
+        },
+        "apiKeySalt": "$2b$12$GSxsZCbaBES70eiUtC1Nwe"
+    },
+    "roles": [
+        "ATTESTOR",
+        "REQUESTOR"
+    ],
+    "permissionsQuery": [
+        "queryISI",
+        "postingAP"
+    ],
+    "permissionsPosting": [
+        "AP"
+    ],
+    "model": "enova_v3",
+    "allowedModels": [
+        "af24",
+        "af24_v2",
+        "af24_v3",
+        "af24_v4",
+        "averisana_v1",
+        "bm_extended_v1",
+        "bm_screen_plus_v1",
+        "bm_screen_verify_plus_v1",
+        "bm_sos",
+        "bm_sos_state",
+        "bm_v1",
+        "cps_v1",
+        "cps_v2",
+        "ef2_ef3_no_model",
+        "ef2_no_model",
+        "ef3_erf_no_model_v1",
+        "ef3_internal_testing_v1",
+        "ef3_no_model",
+        "ein_only",
+        "enova",
+        "enova_v2",
+        "enova_v3",
+        "er_v1",
+        "er_v2",
+        "imi_internal_testing_v1",
+        "imi_v1",
+        "integra_v1",
+        "marlette_v1",
+        "marlette_v2",
+        "sos_full_kyb_v1",
+        "sos_only",
+        "test_ef3_zi_index",
+        "test_multi_model",
+        "tf_holdings_v1",
+        "tf_holdings_v2"
+    ]
+}

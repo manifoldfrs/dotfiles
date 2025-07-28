@@ -1,0 +1,9 @@
+{
+    "packageManager": "pnpm",
+    "workspaceRoot": ".",
+    "primaryLanguages": [
+        "typescript",
+        "python"
+    ],
+    "projectType": "monorepo"
+}
