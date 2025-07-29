@@ -20,6 +20,13 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
+# Install zsh-syntax-highlighting plugin if not present
+if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
+    echo "📦 Installing zsh-syntax-highlighting plugin..."
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+    echo "✅ zsh-syntax-highlighting plugin installed!"
+fi
+
 echo "📦 Installing JetBrains Mono Nerd Font..."
 brew install --cask font-jetbrains-mono-nerd-font
 
