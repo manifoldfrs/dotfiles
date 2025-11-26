@@ -1,0 +1,81 @@
+name: Test Dotfiles
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+      
+      - name: Validate script syntax
+        run: |
+          bash -n shell_setup.sh
+          bash -n cursor_setup.sh
+          echo "✓ Script syntax valid"
+      
+      - name: Check .gitconfig for SSH rewrite
+        run: |
+          if grep -E '^\s*insteadOf\s*=' .gitconfig; then
+            echo "✗ .gitconfig has uncommented SSH URL rewrite"
+            exit 1
+          fi
+          echo "✓ No active SSH URL rewrite"
+      
+      - name: Install Homebrew packages
+        run: |
+          brew bundle --file=Brewfile
+          echo "✓ Homebrew packages installed"
+      
+      - name: Install Oh My Zsh
+        run: |
+          sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc
+          [ -d "$HOME/.oh-my-zsh" ] && echo "✓ Oh My Zsh installed"
+      
+      - name: Install zsh-syntax-highlighting
+        run: |
+          git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+          echo "✓ zsh-syntax-highlighting installed"
+      
+      - name: Install nvm via HTTPS
+        run: |
+          export NVM_DIR="$HOME/.nvm"
+          mkdir -p "$NVM_DIR"
+          git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
+          cd "$NVM_DIR"
+          git checkout $(git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1))
+          [ -f "$NVM_DIR/nvm.sh" ] && echo "✓ nvm installed via HTTPS"
+      
+      - name: Copy config files
+        run: |
+          cp .zshrc ~/.zshrc
+          cp .gitconfig ~/.gitconfig
+          cp .zprofile ~/.zprofile 2>/dev/null || true
+          echo "✓ Config files copied"
+      
+      - name: Validate .zshrc configuration
+        run: |
+          grep -q 'ZSH_THEME="agnoster"' ~/.zshrc && echo "✓ Theme configured"
+          grep -q 'plugins=(git zsh-syntax-highlighting)' ~/.zshrc && echo "✓ Plugins configured"
+      
+      - name: Verify Nerd Fonts installed
+        run: |
+          brew list --cask | grep -q "font-jetbrains-mono-nerd-font" && echo "✓ JetBrainsMono Nerd Font installed"
+          brew list --cask | grep -q "font-meslo-lg-nerd-font" && echo "✓ Meslo Nerd Font installed"
+
+  test-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Docker tests
+        run: |
+          docker build -t dotfiles-test -f test/Dockerfile .
+          docker run --rm dotfiles-test
