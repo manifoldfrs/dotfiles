@@ -1,10 +1,9 @@
 [user]
-        name = Faris
+	name = Faris
 	email = frs@hbb.dev
 [core]
 	autocrlf = false
 	safecrlf = true
-	sshCommand = ssh -i ~/.ssh/id_ed25519
 	pager = diff-so-fancy | less --tabs=4 -RF
 [filter "lfs"]
 	clean = git-lfs clean -- %f
@@ -19,5 +18,9 @@
 	hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
 	type = cat-file -t
 	dump = cat-file -p
-[url "git@github.com:"]
-	insteadOf = https://github.com/
+
+# NOTE: Add these AFTER setting up SSH keys on a new machine:
+# [core]
+#     sshCommand = ssh -i ~/.ssh/id_ed25519
+# [url "git@github.com:"]
+#     insteadOf = https://github.com/

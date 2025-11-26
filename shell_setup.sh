@@ -151,10 +151,16 @@ install() {
         fi
     fi
 
-    # 10. Install nvm if not present
+    # 10. Install nvm if not present (using direct HTTPS clone to avoid SSH issues)
     if [ ! -d "$HOME/.nvm" ]; then
         info "Installing nvm..."
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+        export NVM_DIR="$HOME/.nvm"
+        mkdir -p "$NVM_DIR"
+        git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
+        cd "$NVM_DIR"
+        git checkout $(git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1))
+        cd "$DOTFILES_DIR"
+        info "nvm installed - run 'nvm install --lts' after restarting terminal"
     else
         info "nvm already installed"
     fi
