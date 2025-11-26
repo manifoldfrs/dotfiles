@@ -54,6 +54,7 @@ brew "pulumi/tap/esc"
 brew "pulumi/tap/pulumi"
 brew "withgraphite/tap/graphite"
 cask "font-jetbrains-mono-nerd-font"
+cask "font-meslo-lg-nerd-font"
 cask "notunes"
 
 # ngrok - install separately with: brew install ngrok/ngrok/ngrok
