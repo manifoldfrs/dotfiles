@@ -1,3 +1,0 @@
-Name          Status User File
-postgresql@14 none                 
-redis         none                 

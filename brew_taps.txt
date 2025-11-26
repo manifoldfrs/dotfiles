@@ -1,2 +1,0 @@
-homebrew/services
-pulumi/tap

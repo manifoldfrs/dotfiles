@@ -1,32 +1,36 @@
-# Essential Extensions for Development
-# Copy this list and install manually via Cursor Extensions view (Cmd+Shift+X)
-
-# Language Support
-ms-python.python
-ms-python.black-formatter
-ms-python.pylance
-esbenp.prettier-vscode
-ms-vscode.vscode-json
-
-# Vim Mode
-vscodevim.vim
-vspacecode.vspacecode
-vspacecode.whichkey
-
-# Git Integration
-kahole.magit
-ms-vscode.git-graph
-
-# Visual Enhancements
-catppuccin.catppuccin-vscode-icons
+anthropic.claude-code-2.0.53-darwin-arm64
+anysphere.pyright-1.1.327-universal
 arcticicestudio.nord-visual-studio-code
+bierner.markdown-mermaid-1.29.0-universal
+biomejs.biome-3.3.0-universal
+bodil.file-browser-0.2.11-universal
+catppuccin.catppuccin-vsc-icons-1.26.0-universal
+dbaeumer.vscode-eslint-3.0.16-universal
+dvirtz.parquet-viewer-3.0.1-universal
+eamodio.gitlens-17.7.1-universal
+ecmel.vscode-html-css
+esbenp.prettier-vscode
+extensions.json
+factory.factory-vscode-extension
+jacobdufault.fuzzy-search-0.0.3-universal
+johnpapa.vscode-peacock
+kahole.magit-0.6.67-universal
+kamikillerto.vscode-colorize
+ms-python.black-formatter
+ms-python.python-2025.6.1-darwin-arm64
+ms-python.vscode-pylance
+ms-vscode-remote.remote-ssh
+ms-vscode-remote.remote-ssh-edit
+ms-vscode.remote-explorer
 oderwat.indent-rainbow
-
-# Utilities
-ms-vscode.cpptools
-ms-vscode.js-debug
-ms-toolsai.vscode-ai
-rust-lang.rust-analyzer
-
-# Note: Run `cursor --list-extensions` to get your actual installed extensions
-# Then replace this file with your personal extension list
+openai.chatgpt-0.4.46-universal
+shan.code-settings-sync
+shd101wyy.markdown-preview-enhanced-0.8.20-universal
+steoates.autoimport
+vscodevim.vim-1.32.1-universal
+vspacecode.vspacecode-0.10.20-universal
+vspacecode.whichkey
+wayou.vscode-todo-highlight
+xabikos.javascriptsnippets
+yoavbls.pretty-ts-errors-0.6.3-universal
+zxh404.vscode-proto3

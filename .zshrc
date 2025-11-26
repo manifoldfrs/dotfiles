@@ -110,17 +110,7 @@ export FZF_CTRL_R_OPTS="
   --color header:italic
   --header 'Press CTRL-Y to copy command into clipboard'"
 
-# Load fzf key bindings and completion
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Alternative fzf paths for different installations
-if [ ! -f ~/.fzf.zsh ]; then
-    # Check for Homebrew fzf installation
-    if [ -f /opt/homebrew/opt/fzf/shell/key-bindings.zsh ]; then
-        source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
-        source /opt/homebrew/opt/fzf/shell/completion.zsh
-    fi
-fi
 
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
@@ -131,7 +121,14 @@ eval "$(rbenv init -)"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-# Load deno environment if it exists
-[ -f "$HOME/.deno/env" ] && source "$HOME/.deno/env"
+[ -f "$HOME/.deno/env" ] && . "$HOME/.deno/env"
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
+# bun completions
+[ -s "/Users/frshbb/.bun/_bun" ] && source "/Users/frshbb/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"

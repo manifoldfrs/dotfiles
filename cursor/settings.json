@@ -2,10 +2,13 @@
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.tabSize": 2,
-    "prettier.singleQuote": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.tabSize": 2
   },
   "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
@@ -18,14 +21,12 @@
     }
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "biomejs.biome",
     "editor.tabSize": 2,
-    "prettier.singleQuote": true
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "biomejs.biome",
     "editor.tabSize": 2,
-    "prettier.singleQuote": true
   },
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -89,13 +90,6 @@
   "typescript.preferences.includePackageJsonAutoImports": "on",
   "typescript.preferences.quoteStyle": "single",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "prettier.jsxSingleQuote": true,
-  "prettier.singleQuote": true,
-  "prettier.endOfLine": "auto",
-  "prettier.singleAttributePerLine": true,
-  "prettier.trailingComma": "none",
-  "prettier.withNodeModules": false,
-  "prettier.printWidth": 1000,
   "python.languageServer": "Pylance",
   "python.diagnostics.sourceMapsEnabled": true,
   "python.createEnvironment.trigger": "off",
@@ -306,5 +300,9 @@
   "json.schemaDownload.enable": false,
   "task.allowAutomaticTasks": "on",
   "debug.javascript.automaticallyTunnelRemoteServer": false,
-  "diffEditor.maxComputationTime": 0
+  "diffEditor.maxComputationTime": 0,
+  "biome.suggestInstallingGlobally": false,
+  "workbench.activityBar.orientation": "vertical",
+  "markdown-preview-enhanced.previewTheme": "atom-light.css",
+  "markdown-preview-enhanced.codeBlockTheme": "monokai.css"
 }

@@ -1,2 +1,9 @@
 neovim/karabiner/automatic_backups
 nvim/karabiner/automatic_backups
+
+# Cursor workspace storage files (random 4-char names)
+cursor/[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9].json
+cursor/entries.json
+
+# macOS
+.DS_Store
