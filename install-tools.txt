@@ -1,0 +1,8 @@
+# Additional CLI tools installed via curl/other methods
+# These need manual installation commands
+
+# Droid (Factory AI CLI)
+# Install: curl -fsSL https://app.factory.ai/install.sh | bash
+
+# Webi (webinstall.dev)
+# Install: curl -sS https://webi.sh/webi | sh

@@ -1,0 +1,7 @@
+# Global npm packages to install
+# Format: package-name (without version to get latest)
+# Run: xargs npm install -g < npm-global-packages.txt
+
+@anthropic-ai/claude-code
+@openai/codex
+vercel

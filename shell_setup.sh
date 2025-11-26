@@ -65,6 +65,19 @@ backup() {
         cp -r "$HOME/.warp/themes" "$DOTFILES_DIR/warp/"
     fi
 
+    # Export global npm packages
+    if command -v npm &> /dev/null; then
+        info "Exporting global npm packages..."
+        echo "# Global npm packages to install" > "$DOTFILES_DIR/npm-global-packages.txt"
+        echo "# Format: package-name (without version to get latest)" >> "$DOTFILES_DIR/npm-global-packages.txt"
+        echo "# Run: grep -v '^#' npm-global-packages.txt | grep -v '^\$' | xargs npm install -g" >> "$DOTFILES_DIR/npm-global-packages.txt"
+        echo "" >> "$DOTFILES_DIR/npm-global-packages.txt"
+        npm list -g --depth=0 2>/dev/null | tail -n +2 | awk '{print $2}' | cut -d'@' -f1 | grep -v "^npm$\|^corepack$\|^$" >> "$DOTFILES_DIR/npm-global-packages.txt"
+        info "npm-global-packages.txt updated"
+    else
+        warn "npm not installed, skipping npm packages export"
+    fi
+
     info "Backup complete!"
     echo ""
     echo "Files updated:"
@@ -73,6 +86,7 @@ backup() {
     [ -f "$DOTFILES_DIR/.zprofile" ] && echo "  - .zprofile"
     [ -f "$DOTFILES_DIR/.zshenv" ] && echo "  - .zshenv"
     [ -d "$DOTFILES_DIR/warp/themes" ] && echo "  - warp/themes/"
+    [ -f "$DOTFILES_DIR/npm-global-packages.txt" ] && echo "  - npm-global-packages.txt"
 }
 
 install() {
@@ -165,6 +179,21 @@ install() {
         info "nvm already installed"
     fi
 
+    # 11. Install global npm packages (after nvm is set up)
+    if [ -f "$DOTFILES_DIR/npm-global-packages.txt" ]; then
+        info "To install global npm packages after setting up Node, run:"
+        echo "  nvm install --lts"
+        echo "  grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm install -g"
+    fi
+
+    # 12. Install Droid CLI
+    if ! command -v droid &> /dev/null; then
+        info "Installing Droid CLI..."
+        curl -fsSL https://app.factory.ai/install.sh | bash || warn "Droid installation failed - install manually"
+    else
+        info "Droid already installed"
+    fi
+
     echo ""
     info "Shell setup complete!"
     echo ""
@@ -178,9 +207,10 @@ install() {
     echo ""
     echo "Then restart your terminal or run: source ~/.zshrc"
     echo ""
-    echo "Optional next steps:"
-    echo "  - Install Python: pyenv install 3.12 && pyenv global 3.12"
-    echo "  - Install Node: nvm install --lts"
+    echo "Next steps:"
+    echo "  1. Install Node: nvm install --lts"
+    echo "  2. Install npm packages: grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm install -g"
+    echo "  3. Install Python: pyenv install 3.12 && pyenv global 3.12"
 }
 
 usage() {
