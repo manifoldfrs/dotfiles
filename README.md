@@ -10,7 +10,7 @@ Configuration files for zsh, Homebrew, Warp terminal, and Cursor IDE.
 # 1. Clone the repo
 git clone https://github.com/manifoldfrs/dotfiles.git ~/dotfiles
 
-# 2. Run shell setup
+# 2. Run shell setup (installs Homebrew, oh-my-zsh, nvm, Droid CLI, etc.)
 cd ~/dotfiles
 ./shell_setup.sh install
 
@@ -19,7 +19,10 @@ cd ~/dotfiles
 # 4. Install Node.js
 nvm install --lts
 
-# 5. (Optional) Set up Cursor IDE
+# 5. Install global npm packages (claude-code, codex, vercel)
+grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm install -g
+
+# 6. (Optional) Set up Cursor IDE
 ./cursor_setup.sh install
 ```
 
@@ -31,8 +34,15 @@ nvm install --lts
 - **Oh My Zsh** with `agnoster` theme
 - **zsh-syntax-highlighting** plugin
 - **nvm** (Node Version Manager) via HTTPS
+- **Droid CLI** (Factory AI)
 - **Nerd Fonts**: JetBrainsMono, Meslo LG
-- **Config files**: `.zshrc`, `.zprofile`, `.gitconfig`, `starship.toml`
+- **Config files**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `starship.toml`
+
+### npm Global Packages (`npm-global-packages.txt`)
+
+- `@anthropic-ai/claude-code` - Claude Code CLI
+- `@openai/codex` - OpenAI Codex CLI
+- `vercel` - Vercel CLI
 
 ### Cursor Setup (`cursor_setup.sh install`)
 
@@ -55,7 +65,7 @@ Before migrating, back up your existing configs:
 ```bash
 cd ~/dotfiles
 
-# Backup shell configs and Brewfile
+# Backup shell configs, Brewfile, and npm packages
 ./shell_setup.sh backup
 
 # Backup Cursor settings and extensions
@@ -66,6 +76,12 @@ git add -A
 git commit -m "Backup from old Mac"
 git push
 ```
+
+This exports:
+- `Brewfile` - Homebrew packages
+- `npm-global-packages.txt` - Global npm packages
+- `.zshrc`, `.zprofile`, `.zshenv` - Shell configs
+- `warp/themes/` - Warp terminal themes
 
 ## Post-Install: Set Up SSH Keys
 
@@ -110,23 +126,26 @@ Run tests locally before deploying:
 
 ```
 dotfiles/
-├── shell_setup.sh      # Main shell/brew/zsh installer
-├── cursor_setup.sh     # Cursor IDE settings installer
-├── Brewfile            # Homebrew packages
-├── .zshrc              # Zsh configuration
-├── .zprofile           # Zsh profile
-├── .gitconfig          # Git configuration
-├── starship.toml       # Starship prompt config
-├── cursor/             # Cursor IDE settings
+├── shell_setup.sh          # Main shell/brew/zsh installer
+├── cursor_setup.sh         # Cursor IDE settings installer
+├── Brewfile                # Homebrew packages
+├── npm-global-packages.txt # Global npm packages (claude-code, codex, etc.)
+├── install-tools.txt       # Documentation for curl-installed tools
+├── .zshrc                  # Zsh configuration
+├── .zprofile               # Zsh profile
+├── .zshenv                 # Zsh environment (cargo, etc.)
+├── .gitconfig              # Git configuration
+├── starship.toml           # Starship prompt config
+├── cursor/                 # Cursor IDE settings
 │   ├── settings.json
 │   ├── keybindings.json
 │   ├── extensions.txt
 │   └── snippets/
-├── test/               # Test suite
+├── test/                   # Test suite
 │   ├── Dockerfile
 │   ├── run_tests.sh
 │   └── docker_test.sh
-└── old/                # Legacy scripts (archived)
+└── old/                    # Legacy scripts (archived)
 ```
 
 ## Troubleshooting
