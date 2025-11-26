@@ -55,6 +55,7 @@ brew "pulumi/tap/esc"
 brew "pulumi/tap/pulumi"
 brew "withgraphite/tap/graphite"
 cask "font-jetbrains-mono-nerd-font"
-cask "ngrok"
 cask "notunes"
-go "github.com/bootdotdev/bootdev"
+
+# ngrok - install separately with: brew install ngrok/ngrok/ngrok
+# bootdev - install separately with: go install github.com/bootdotdev/bootdev@latest
