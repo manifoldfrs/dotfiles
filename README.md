@@ -24,6 +24,9 @@ grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm insta
 
 # 6. (Optional) Set up Cursor IDE
 ./cursor_setup.sh install
+
+# 7. (Optional) Set up MCP configs for AI tools
+./mcp_setup.sh install
 ```
 
 ## What Gets Installed
@@ -50,6 +53,16 @@ grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm insta
 - All extensions from `cursor/extensions.txt`
 - Code snippets
 
+### MCP Setup (`mcp_setup.sh install`)
+
+MCP (Model Context Protocol) configs for AI coding assistants:
+- **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Cursor**: `~/.cursor/mcp.json`
+- **Codex**: `~/.codex/config.toml`
+- **Droid/Factory**: `~/.factory/mcp.json`
+
+See `mcp/README.md` for setup instructions and API key configuration.
+
 ## Configure Warp Terminal Font
 
 After installation, manually set the font in Warp:
@@ -71,6 +84,9 @@ cd ~/dotfiles
 # Backup Cursor settings and extensions
 ./cursor_setup.sh backup
 
+# Backup MCP configs (Claude, Cursor, Codex, Droid)
+./mcp_setup.sh backup
+
 # Commit and push
 git add -A
 git commit -m "Backup from old Mac"
@@ -82,6 +98,7 @@ This exports:
 - `npm-global-packages.txt` - Global npm packages
 - `.zshrc`, `.zprofile`, `.zshenv` - Shell configs
 - `warp/themes/` - Warp terminal themes
+- `mcp/` - MCP configs for AI tools (gitignored, contains API keys)
 
 ## Post-Install: Set Up SSH Keys
 
@@ -141,6 +158,11 @@ dotfiles/
 │   ├── keybindings.json
 │   ├── extensions.txt
 │   └── snippets/
+├── mcp/                    # MCP configs for AI tools
+│   ├── *.example           # Template configs (committed)
+│   ├── *.json/toml         # Actual configs (gitignored)
+│   └── README.md
+├── mcp_setup.sh            # MCP config backup/install
 ├── test/                   # Test suite
 │   ├── Dockerfile
 │   ├── run_tests.sh
