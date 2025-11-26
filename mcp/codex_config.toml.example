@@ -1,0 +1,23 @@
+model = "gpt-5.1-codex-max"
+model_reasoning_effort = "xhigh"
+tool_output_token_limit = 25000
+
+# Add trusted project paths after installation:
+# [projects."/Users/YOUR_USERNAME/github"]
+# trust_level = "trusted"
+
+[mcp_servers.RepoPrompt]
+command = "/Applications/RepoPrompt.app/Contents/MacOS/repoprompt-mcp"
+args = []
+tool_timeout_sec = 1000
+enabled = true
+
+[mcp_servers.Ref]
+type = "http"
+url = "https://api.ref.tools/mcp?apiKey=YOUR_REF_API_KEY"
+enabled = true
+
+[mcp_servers.Exa]
+type = "http"
+url = "https://mcp.exa.ai/mcp?exaApiKey=YOUR_EXA_API_KEY"
+enabled = true

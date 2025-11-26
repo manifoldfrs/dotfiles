@@ -7,3 +7,9 @@ cursor/entries.json
 
 # macOS
 .DS_Store
+
+# MCP configs with API keys (use mcp/*.example files as templates)
+mcp/claude_desktop_config.json
+mcp/cursor_mcp.json
+mcp/codex_config.toml
+mcp/factory_mcp.json

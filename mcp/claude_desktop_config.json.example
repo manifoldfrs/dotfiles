@@ -1,0 +1,21 @@
+{
+    "mcpServers": {
+        "RepoPrompt": {
+            "command": "/Users/YOUR_USERNAME/RepoPrompt/repoprompt_cli",
+            "args": []
+        },
+        "posthog": {
+          "command": "npx",
+          "args": [
+            "-y",
+            "mcp-remote@latest",
+            "mcp.posthog.com/sse",
+            "--header",
+            "Authorization:${POSTHOG_AUTH_HEADER}"
+          ],
+          "env": {
+            "POSTHOG_AUTH_HEADER": "Bearer YOUR_POSTHOG_TOKEN"
+          }
+        }
+    }
+}
