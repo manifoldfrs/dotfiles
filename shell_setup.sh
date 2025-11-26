@@ -17,17 +17,15 @@ info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 
-link_file() {
+copy_file() {
     local src=$1
     local dest=$2
-    if [ -L "$dest" ]; then
-        rm "$dest"
-    elif [ -f "$dest" ] || [ -d "$dest" ]; then
+    if [ -f "$dest" ] || [ -d "$dest" ]; then
         mv "$dest" "$dest.backup.$(date +%Y%m%d%H%M%S)"
         warn "Backed up existing: $dest"
     fi
-    ln -sf "$src" "$dest"
-    info "Linked: $src -> $dest"
+    cp -r "$src" "$dest"
+    info "Copied: $src -> $dest"
 }
 
 backup() {
@@ -80,7 +78,7 @@ backup() {
 install() {
     info "Installing shell environment..."
 
-    # Install Homebrew
+    # 1. Install Homebrew
     if ! command -v brew &> /dev/null; then
         info "Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -93,23 +91,28 @@ install() {
         info "Homebrew already installed"
     fi
 
-    # Install packages from Brewfile
+    # 2. Install packages from Brewfile
     if [ -f "$DOTFILES_DIR/Brewfile" ]; then
         info "Installing packages from Brewfile..."
-        brew bundle install --file="$DOTFILES_DIR/Brewfile"
+        brew bundle install --file="$DOTFILES_DIR/Brewfile" || warn "Some Brewfile packages failed to install"
     else
         warn "No Brewfile found, skipping package installation"
     fi
 
-    # Install Oh My Zsh
+    # 3. Install Nerd Fonts explicitly (required for powerline/agnoster theme)
+    info "Installing Nerd Fonts for powerline symbols..."
+    brew install --cask font-jetbrains-mono-nerd-font || warn "JetBrains Mono Nerd Font may already be installed"
+    brew install --cask font-meslo-lg-nerd-font || warn "Meslo Nerd Font may already be installed"
+
+    # 4. Install Oh My Zsh (with --keep-zshrc to preserve our config)
     if [ ! -d "$HOME/.oh-my-zsh" ]; then
         info "Installing Oh My Zsh..."
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc
     else
         info "Oh My Zsh already installed"
     fi
 
-    # Install zsh-syntax-highlighting plugin
+    # 5. Install zsh-syntax-highlighting plugin
     ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
     if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
         info "Installing zsh-syntax-highlighting plugin..."
@@ -118,28 +121,29 @@ install() {
         info "zsh-syntax-highlighting already installed"
     fi
 
-    # Symlink shell configs
-    info "Linking shell configuration files..."
-    link_file "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+    # 6. COPY shell configs (not symlink - creates independent files)
+    info "Copying shell configuration files..."
+    copy_file "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
     
-    [ -f "$DOTFILES_DIR/.zprofile" ] && link_file "$DOTFILES_DIR/.zprofile" "$HOME/.zprofile"
-    [ -f "$DOTFILES_DIR/.zshenv" ] && link_file "$DOTFILES_DIR/.zshenv" "$HOME/.zshenv"
+    [ -f "$DOTFILES_DIR/.zprofile" ] && copy_file "$DOTFILES_DIR/.zprofile" "$HOME/.zprofile"
+    [ -f "$DOTFILES_DIR/.zshenv" ] && copy_file "$DOTFILES_DIR/.zshenv" "$HOME/.zshenv"
 
-    # Link git config
+    # 7. Copy git config
     if [ -f "$DOTFILES_DIR/.gitconfig" ]; then
-        link_file "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
+        copy_file "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
     elif [ -f "$DOTFILES_DIR/git/gitconfig.symlink" ]; then
-        link_file "$DOTFILES_DIR/git/gitconfig.symlink" "$HOME/.gitconfig"
+        copy_file "$DOTFILES_DIR/git/gitconfig.symlink" "$HOME/.gitconfig"
     fi
 
-    # Link Warp themes
+    # 8. Copy Warp themes
     if [ -d "$DOTFILES_DIR/warp/themes" ]; then
-        info "Linking Warp themes..."
+        info "Copying Warp themes..."
         mkdir -p "$HOME/.warp"
-        link_file "$DOTFILES_DIR/warp/themes" "$HOME/.warp/themes"
+        cp -r "$DOTFILES_DIR/warp/themes" "$HOME/.warp/"
+        info "Warp themes copied to ~/.warp/themes"
     fi
 
-    # Setup fzf
+    # 9. Setup fzf keybindings
     if command -v fzf &> /dev/null; then
         info "Setting up fzf keybindings..."
         if [ -f /opt/homebrew/opt/fzf/install ]; then
@@ -147,17 +151,7 @@ install() {
         fi
     fi
 
-    # Setup pyenv
-    if command -v pyenv &> /dev/null; then
-        info "Pyenv detected - initialize with: eval \"\$(pyenv init -)\""
-    fi
-
-    # Setup rbenv
-    if command -v rbenv &> /dev/null; then
-        info "Rbenv detected - initialize with: eval \"\$(rbenv init -)\""
-    fi
-
-    # Install nvm if not present
+    # 10. Install nvm if not present
     if [ ! -d "$HOME/.nvm" ]; then
         info "Installing nvm..."
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -168,11 +162,19 @@ install() {
     echo ""
     info "Shell setup complete!"
     echo ""
-    echo "Next steps:"
-    echo "  1. Restart your terminal or run: source ~/.zshrc"
-    echo "  2. Warp: Settings Sync available in Settings > Account"
-    echo "  3. Install Python: pyenv install 3.12 && pyenv global 3.12"
-    echo "  4. Install Node: nvm install --lts"
+    echo "=========================================="
+    echo "IMPORTANT - Configure Warp font manually:"
+    echo "=========================================="
+    echo "  1. Open Warp"
+    echo "  2. Go to: Settings > Appearance > Text"
+    echo "  3. Set Font to: JetBrainsMono Nerd Font"
+    echo "  4. Restart Warp"
+    echo ""
+    echo "Then restart your terminal or run: source ~/.zshrc"
+    echo ""
+    echo "Optional next steps:"
+    echo "  - Install Python: pyenv install 3.12 && pyenv global 3.12"
+    echo "  - Install Node: nvm install --lts"
 }
 
 usage() {
@@ -180,7 +182,7 @@ usage() {
     echo ""
     echo "Commands:"
     echo "  backup   Export current Brewfile and copy shell configs to dotfiles"
-    echo "  install  Install Homebrew, packages, oh-my-zsh, and link configs"
+    echo "  install  Install Homebrew, packages, oh-my-zsh, and COPY configs to home"
     exit 1
 }
 

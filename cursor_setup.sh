@@ -19,17 +19,15 @@ info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 
-link_file() {
+copy_file() {
     local src=$1
     local dest=$2
-    if [ -L "$dest" ]; then
-        rm "$dest"
-    elif [ -f "$dest" ]; then
+    if [ -f "$dest" ]; then
         mv "$dest" "$dest.backup.$(date +%Y%m%d%H%M%S)"
         warn "Backed up existing: $dest"
     fi
-    ln -sf "$src" "$dest"
-    info "Linked: $src -> $dest"
+    cp -r "$src" "$dest"
+    info "Copied: $src -> $dest"
 }
 
 backup() {
@@ -100,23 +98,28 @@ install() {
     # Create Cursor User directory
     mkdir -p "$CURSOR_USER_DIR"
 
-    # Link settings.json
+    # COPY settings.json (not symlink)
     if [ -f "$CURSOR_DIR/settings.json" ]; then
-        link_file "$CURSOR_DIR/settings.json" "$CURSOR_USER_DIR/settings.json"
+        copy_file "$CURSOR_DIR/settings.json" "$CURSOR_USER_DIR/settings.json"
     else
         warn "settings.json not found in dotfiles"
     fi
 
-    # Link keybindings.json
+    # COPY keybindings.json (not symlink)
     if [ -f "$CURSOR_DIR/keybindings.json" ]; then
-        link_file "$CURSOR_DIR/keybindings.json" "$CURSOR_USER_DIR/keybindings.json"
+        copy_file "$CURSOR_DIR/keybindings.json" "$CURSOR_USER_DIR/keybindings.json"
     else
         warn "keybindings.json not found in dotfiles"
     fi
 
-    # Link snippets
+    # Copy snippets
     if [ -d "$CURSOR_DIR/snippets" ]; then
-        link_file "$CURSOR_DIR/snippets" "$CURSOR_USER_DIR/snippets"
+        if [ -d "$CURSOR_USER_DIR/snippets" ]; then
+            rm -rf "$CURSOR_USER_DIR/snippets.backup.$(date +%Y%m%d%H%M%S)"
+            mv "$CURSOR_USER_DIR/snippets" "$CURSOR_USER_DIR/snippets.backup.$(date +%Y%m%d%H%M%S)"
+        fi
+        cp -r "$CURSOR_DIR/snippets" "$CURSOR_USER_DIR/snippets"
+        info "Copied snippets"
     fi
 
     # Install extensions
@@ -152,7 +155,7 @@ usage() {
     echo ""
     echo "Commands:"
     echo "  backup   Copy Cursor settings, keybindings, and extensions to dotfiles"
-    echo "  install  Link settings/keybindings and install extensions"
+    echo "  install  COPY settings/keybindings to Cursor and install extensions"
     exit 1
 }
 
