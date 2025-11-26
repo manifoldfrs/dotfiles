@@ -1,105 +1,147 @@
 # dotfiles
 
-Configuration files for terminal, shell, and development tools.
+Configuration files for zsh, Homebrew, Warp terminal, and Cursor IDE.
 
-## What's Included
+[![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
-- **Shell Configuration**: `.zshrc`, `.bashrc`, `.bash_profile`
-- **Git Configuration**: `.gitconfig`
-- **Terminal Multiplexer**: `.tmux.conf`
-- **Terminal Emulators**:
-  - Alacritty (`alacritty.yml`)
-  - Kitty (`kitty/`)
-- **Editor**: Neovim configuration (`nvim/`)
-- **Keyboard Customization**: Karabiner-Elements (`karabiner/`)
-- **Shell Prompt**: Starship (`starship.toml`)
-- **Fonts**: Nerd Fonts for powerline symbols (`setup_fonts.sh`)
-- **Cursor IDE**: Settings and terminal font configuration (`cursor/`)
-
-## Installation
-
-1. Clone this repository:
-
-   ```bash
-   git clone <repository-url> ~/dotfiles
-   cd ~/dotfiles
-   ```
-
-2. Run the installation script:
-   ```bash
-   ./install.sh
-   ```
-
-This will create symlinks from your home directory to the dotfiles in this repository. Existing files will be backed up with a `.backup` extension.
-
-The installer will also offer to install Nerd Fonts for proper powerline symbol display.
-
-## Manual Sync
-
-To sync your current configurations to this repository:
+## Quick Start (New Mac)
 
 ```bash
-# Copy current configs to dotfiles directory
-cp ~/.zshrc .
-cp ~/.bashrc .
-cp ~/.bash_profile .
-cp ~/.gitconfig .
-cp ~/.tmux.conf .
-cp ~/.config/alacritty/alacritty.yml .
-cp ~/.config/starship.toml .
-cp -r ~/.config/nvim .
-cp -r ~/.config/karabiner .
-cp -r ~/.config/kitty .
+# 1. Clone the repo
+git clone https://github.com/manifoldfrs/dotfiles.git ~/dotfiles
+
+# 2. Run shell setup
+cd ~/dotfiles
+./shell_setup.sh install
+
+# 3. Restart your terminal (quit and reopen)
+
+# 4. Install Node.js
+nvm install --lts
+
+# 5. (Optional) Set up Cursor IDE
+./cursor_setup.sh install
 ```
 
-## Usage
+## What Gets Installed
 
-After installation, restart your terminal or source the configuration files:
+### Shell Setup (`shell_setup.sh install`)
+
+- **Homebrew** + all packages from `Brewfile`
+- **Oh My Zsh** with `agnoster` theme
+- **zsh-syntax-highlighting** plugin
+- **nvm** (Node Version Manager) via HTTPS
+- **Nerd Fonts**: JetBrainsMono, Meslo LG
+- **Config files**: `.zshrc`, `.zprofile`, `.gitconfig`, `starship.toml`
+
+### Cursor Setup (`cursor_setup.sh install`)
+
+- `settings.json` and `keybindings.json`
+- All extensions from `cursor/extensions.txt`
+- Code snippets
+
+## Configure Warp Terminal Font
+
+After installation, manually set the font in Warp:
+
+1. Open Warp
+2. Go to **Settings → Appearance → Text**
+3. Set **Font** to `JetBrainsMono Nerd Font` or `MesloLGS NF`
+
+## Backup Your Current Mac
+
+Before migrating, back up your existing configs:
 
 ```bash
-source ~/.zshrc
+cd ~/dotfiles
+
+# Backup shell configs and Brewfile
+./shell_setup.sh backup
+
+# Backup Cursor settings and extensions
+./cursor_setup.sh backup
+
+# Commit and push
+git add -A
+git commit -m "Backup from old Mac"
+git push
 ```
 
-## Font Setup
+## Post-Install: Set Up SSH Keys
 
-To get powerline symbols working properly, you need Nerd Fonts installed:
+After the initial setup, configure SSH for GitHub:
 
 ```bash
-# Install fonts separately
-./setup_fonts.sh
+# Generate SSH key
+ssh-keygen -t ed25519 -C "your-email@example.com"
 
-# Verify fonts are working
-./verify_fonts.sh
+# Start ssh-agent and add key
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
 
-# Or install specific fonts manually
-brew install --cask font-jetbrains-mono-nerd-font
-brew install --cask font-meslo-lg-nerd-font
-brew install --cask font-fira-code-nerd-font
+# Copy public key to clipboard
+pbcopy < ~/.ssh/id_ed25519.pub
+
+# Add to GitHub: https://github.com/settings/keys
 ```
 
-**Configure your terminal:**
+Then uncomment the SSH config in `~/.gitconfig`:
 
-- **Alacritty**: Already configured to use `JetBrainsMonoNL Nerd Font`
-- **Cursor IDE**: Integrated terminal automatically configured via `settings.json`
-- **iTerm2**: Preferences → Profiles → Text → Font → Search for "Nerd Font"
-- **Terminal.app**: Preferences → Profiles → Font → Select a Nerd Font
+```ini
+[core]
+    sshCommand = ssh -i ~/.ssh/id_ed25519
+[url "git@github.com:"]
+    insteadOf = https://github.com/
+```
+
+## Testing
+
+Run tests locally before deploying:
+
+```bash
+# Docker tests (Linux)
+./test/docker_test.sh
+
+# Or run on GitHub Actions (macOS + Docker)
+# Push to master and check: https://github.com/manifoldfrs/dotfiles/actions
+```
+
+## File Structure
+
+```
+dotfiles/
+├── shell_setup.sh      # Main shell/brew/zsh installer
+├── cursor_setup.sh     # Cursor IDE settings installer
+├── Brewfile            # Homebrew packages
+├── .zshrc              # Zsh configuration
+├── .zprofile           # Zsh profile
+├── .gitconfig          # Git configuration
+├── starship.toml       # Starship prompt config
+├── cursor/             # Cursor IDE settings
+│   ├── settings.json
+│   ├── keybindings.json
+│   ├── extensions.txt
+│   └── snippets/
+├── test/               # Test suite
+│   ├── Dockerfile
+│   ├── run_tests.sh
+│   └── docker_test.sh
+└── old/                # Legacy scripts (archived)
+```
 
 ## Troubleshooting
 
-**Broken powerline symbols?**
+**Powerline symbols not showing?**
+- Ensure Warp/terminal is using a Nerd Font
+- Restart terminal after font installation
 
-- Ensure your terminal is using a Nerd Font
-- Restart your terminal after font installation
-- Check that the font name matches exactly in your terminal settings
+**nvm not found after install?**
+- Restart your terminal or run `source ~/.zshrc`
 
-**Font setup script errors?**
+**Homebrew packages failing?**
+- Run `brew doctor` to diagnose
+- Some casks may need manual installation
 
-- `fc-list: command not found` → The script will auto-install fontconfig via Homebrew
-- Manual font verification: `ls ~/Library/Fonts/*Nerd*`
-- Alternative font check: Open Font Book.app and search for "Nerd"
-
-**Cursor IDE terminal issues?**
-
-- Font automatically configured via synced `settings.json`
-- Manual fix: Run `./setup_cursor_fonts.sh`
-- Verify in Cursor: Settings → Terminal → Integrated: Font Family
+**Git clone fails with SSH error?**
+- You're on a fresh Mac without SSH keys
+- Use HTTPS clone: `git clone https://github.com/...`
