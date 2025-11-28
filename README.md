@@ -63,6 +63,28 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 
 See `mcp/README.md` for setup instructions and API key configuration.
 
+### Karabiner Elements (Keyboard Remapping)
+
+Karabiner Elements is installed via Brewfile. To restore your keyboard settings:
+
+```bash
+# Copy config to Karabiner directory
+mkdir -p ~/.config/karabiner
+cp ~/dotfiles/karabiner/karabiner.json ~/.config/karabiner/
+cp -r ~/dotfiles/karabiner/assets ~/.config/karabiner/
+```
+
+Current keybindings:
+- **Caps Lock → Control** (system-level remap)
+- **Tab + hjkl → Arrow keys** (vim-style navigation)
+- **Fn + Tab → Toggle Caps Lock**
+
+To backup your Karabiner config:
+```bash
+cp ~/.config/karabiner/karabiner.json ~/dotfiles/karabiner/
+cp -r ~/.config/karabiner/assets ~/dotfiles/karabiner/
+```
+
 ## Configure Warp Terminal Font
 
 After installation, manually set the font in Warp:
@@ -158,6 +180,9 @@ dotfiles/
 │   ├── keybindings.json
 │   ├── extensions.txt
 │   └── snippets/
+├── karabiner/              # Karabiner Elements keyboard remapping
+│   ├── karabiner.json
+│   └── assets/
 ├── mcp/                    # MCP configs for AI tools
 │   ├── *.example           # Template configs (committed)
 │   ├── *.json/toml         # Actual configs (gitignored)
