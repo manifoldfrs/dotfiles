@@ -45,7 +45,6 @@ return {
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
-      local lspconfig = require("lspconfig")
       local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
       local capabilities = cmp_nvim_lsp.default_capabilities()
@@ -97,7 +96,7 @@ return {
 
       for _, server_name in ipairs(servers) do
         if server_name == "lua_ls" then
-          lspconfig.lua_ls.setup({
+          vim.lsp.config(server_name, {
             capabilities = capabilities,
             settings = {
               Lua = {
@@ -111,10 +110,11 @@ return {
             },
           })
         else
-          lspconfig[server_name].setup({
+          vim.lsp.config(server_name, {
             capabilities = capabilities,
           })
         end
+        vim.lsp.enable(server_name)
       end
     end,
   },
