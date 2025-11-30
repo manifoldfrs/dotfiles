@@ -149,15 +149,34 @@ install() {
         copy_file "$DOTFILES_DIR/git/gitconfig.symlink" "$HOME/.gitconfig"
     fi
 
-    # 8. Copy Warp themes
-    if [ -d "$DOTFILES_DIR/warp/themes" ]; then
-        info "Copying Warp themes..."
-        mkdir -p "$HOME/.warp"
-        cp -r "$DOTFILES_DIR/warp/themes" "$HOME/.warp/"
-        info "Warp themes copied to ~/.warp/themes"
+    # Copy Ghostty config
+    if [ -f "$DOTFILES_DIR/ghostty/config" ]; then
+        info "Copying Ghostty config..."
+        mkdir -p "$HOME/.config/ghostty"
+        copy_file "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
     fi
 
-    # 9. Setup fzf keybindings
+    # Copy tmux config and install TPM
+    if [ -f "$DOTFILES_DIR/tmux/tmux.conf" ]; then
+        info "Copying tmux configuration..."
+        copy_file "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+    fi
+
+    if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+        info "Installing tmux plugin manager (TPM)..."
+        git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" || warn "TPM installation failed - install manually"
+    else
+        info "TPM already installed"
+    fi
+
+    # Copy Neovim config
+    if [ -d "$DOTFILES_DIR/nvim" ]; then
+        info "Copying Neovim config..."
+        mkdir -p "$HOME/.config"
+        copy_file "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+    fi
+
+    # Setup fzf keybindings
     if command -v fzf &> /dev/null; then
         info "Setting up fzf keybindings..."
         if [ -f /opt/homebrew/opt/fzf/install ]; then
@@ -198,12 +217,19 @@ install() {
     info "Shell setup complete!"
     echo ""
     echo "=========================================="
-    echo "IMPORTANT - Configure Warp font manually:"
+    echo "Ghostty"
     echo "=========================================="
-    echo "  1. Open Warp"
-    echo "  2. Go to: Settings > Appearance > Text"
-    echo "  3. Set Font to: JetBrainsMono Nerd Font"
-    echo "  4. Restart Warp"
+    echo "  Config copied to: ~/.config/ghostty/config"
+    echo "  Font: JetBrainsMono Nerd Font (installed via Brewfile)"
+    echo ""
+    echo "tmux"
+    echo "=========================================="
+    echo "  Config copied to: ~/.tmux.conf"
+    echo "  TPM: ~/.tmux/plugins/tpm (run ~/.tmux/plugins/tpm/bin/install_plugins after first launch)"
+    echo ""
+    echo "Neovim"
+    echo "=========================================="
+    echo "  Config copied to: ~/.config/nvim"
     echo ""
     echo "Then restart your terminal or run: source ~/.zshrc"
     echo ""

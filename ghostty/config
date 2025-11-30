@@ -1,0 +1,49 @@
+# Ghostty configuration
+
+# Font
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+
+# macOS
+macos-option-as-alt = true
+macos-titlebar-style = transparent
+
+# Shell integration and clipboard
+shell-integration = detect
+copy-on-select = clipboard
+
+# Appearance (Nord)
+background = 2E3440
+foreground = D8DEE9
+cursor-color = D8DEE9
+selection-background = 4C566A
+
+palette = 0=#3B4252
+palette = 1=#BF616A
+palette = 2=#A3BE8C
+palette = 3=#EBCB8B
+palette = 4=#81A1C1
+palette = 5=#B48EAD
+palette = 6=#88C0D0
+palette = 7=#E5E9F0
+palette = 8=#4C566A
+palette = 9=#BF616A
+palette = 10=#A3BE8C
+palette = 11=#EBCB8B
+palette = 12=#81A1C1
+palette = 13=#B48EAD
+palette = 14=#8FBCBB
+palette = 15=#ECEFF4
+
+# Window behavior
+window-inherit-working-directory = true
+unfocused-split-opacity = 0.9
+
+# Keybindings (cmd+s prefix for splits/navigation)
+keybind = cmd+s>h=new_split:left
+keybind = cmd+s>v=new_split:down
+keybind = cmd+s>x=close_surface
+keybind = cmd+s>left=goto_split:left
+keybind = cmd+s>right=goto_split:right
+keybind = cmd+s>up=goto_split:up
+keybind = cmd+s>down=goto_split:down

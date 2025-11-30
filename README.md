@@ -1,6 +1,15 @@
 # dotfiles
 
-Configuration files for zsh, Homebrew, Warp terminal, and Cursor IDE.
+Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, and Cursor IDE.
+
+## Requirements
+
+| Tool | Minimum Version | Notes |
+|------|-----------------|-------|
+| **Neovim** | >= 0.10.0 | Required for nvim-treesitter and lazy.nvim compatibility |
+| **Git** | >= 2.19.0 | Required for lazy.nvim partial clones |
+| **Ghostty** | Latest | Uses `macos-option-as-alt` syntax |
+| **Node.js** | LTS | For LSP servers via Mason |
 
 [![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
@@ -10,36 +19,25 @@ Configuration files for zsh, Homebrew, Warp terminal, and Cursor IDE.
 # 1. Clone the repo
 git clone https://github.com/manifoldfrs/dotfiles.git ~/dotfiles
 
-# 2. Run shell setup (installs Homebrew, oh-my-zsh, nvm, Droid CLI, etc.)
+# 2. Run shell setup (installs Homebrew, oh-my-zsh, Ghostty, tmux, Neovim config, etc.)
 cd ~/dotfiles
 ./shell_setup.sh install
 
 # 3. Restart your terminal (quit and reopen)
-
 # 4. Install Node.js
 nvm install --lts
-
-# 5. Install global npm packages (claude-code, codex, vercel)
-grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm install -g
-
-# 6. (Optional) Set up Cursor IDE
-./cursor_setup.sh install
-
-# 7. (Optional) Set up MCP configs for AI tools
-./mcp_setup.sh install
 ```
 
 ## What Gets Installed
 
 ### Shell Setup (`shell_setup.sh install`)
 
-- **Homebrew** + all packages from `Brewfile`
+- **Homebrew** + all packages from `Brewfile` (includes Ghostty, tmux, Nerd Fonts)
 - **Oh My Zsh** with `agnoster` theme
 - **zsh-syntax-highlighting** plugin
 - **nvm** (Node Version Manager) via HTTPS
 - **Droid CLI** (Factory AI)
-- **Nerd Fonts**: JetBrainsMono, Meslo LG
-- **Config files**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `starship.toml`
+- **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/.config/ghostty/config`, `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`
 
 ### npm Global Packages (`npm-global-packages.txt`)
 
@@ -85,13 +83,65 @@ cp ~/.config/karabiner/karabiner.json ~/dotfiles/karabiner/
 cp -r ~/.config/karabiner/assets ~/dotfiles/karabiner/
 ```
 
-## Configure Warp Terminal Font
+## Ghostty Configuration
+Config is copied to `~/.config/ghostty/config` and uses JetBrainsMono Nerd Font with the Nord palette. Restart Ghostty after installation to pick up the config.
 
-After installation, manually set the font in Warp:
+## tmux Setup
+Prefix is `C-a` with vim-style navigation. Plugins are managed by TPM at `~/.tmux/plugins/tpm` (auto-installed by `shell_setup.sh`). After launching tmux the first time, run `~/.tmux/plugins/tpm/bin/install_plugins` to fetch plugins.
 
-1. Open Warp
-2. Go to **Settings → Appearance → Text**
-3. Set **Font** to `JetBrainsMono Nerd Font` or `MesloLGS NF`
+## Terminal-First Workflow Tips
+
+### Neovim essentials
+Keymaps live in `nvim/lua/user/keymaps.lua`, Telescope in `nvim/lua/user/plugins/editor.lua`, LSP in `nvim/lua/user/plugins/lsp.lua`, and Git helpers in `nvim/lua/user/plugins/git.lua`.
+
+| Keys | Action |
+|------|--------|
+| `Space` | Leader key (all leader maps start here, VSpaceCode-style) |
+| `jk` (insert) | Quick escape to Normal |
+| `<C-h/j/k/l>` | Move between windows (mirrors tmux Navigator) |
+| `<S-h>` / `<S-l>` | Previous/next buffer |
+| `<leader>ff` / `<leader>fg` / `<leader>fb` / `<leader>fh` / `<leader>fc` / `<C-p>` | Telescope: files / live grep / buffers / help tags / colorschemes / quick file find |
+| `<leader>fr` / `<leader>fk` | Telescope: recent files / keymaps |
+| `gd`, `K`, `gi`, `gD`, `gr`, `<C-k>` | LSP: definition / hover / implementation / declaration / references / signature help |
+| `<leader>rn` / `<leader>ca` | LSP: rename / code action |
+| `gl` / `[d` / `]d` | Diagnostics: float / prev / next |
+| `<leader>gg` / `<leader>gs` / `<leader>gr` / `<leader>gb` / `<leader>gS` / `<leader>gu` / `<leader>gR` / `<leader>gp` / `<leader>gd` | Git: fugitive status / gitsigns stage hunk / reset hunk / blame line / stage buffer / undo stage hunk / reset buffer / preview hunk / diff this |
+| `]c` / `[c` | Git: next/prev hunk (gitsigns) |
+| `<C-\>` / `<leader>tf` / `<leader>th` / `<leader>tv` | ToggleTerm: toggle / float / horizontal / vertical |
+
+### tmux essentials
+Configured in `tmux/tmux.conf`; navigation matches Neovim.
+
+| Keys/Command | Action |
+|--------------|--------|
+| `C-a` | Prefix |
+| `C-a d` / `C-a s` | Detach / session list |
+| `tmux ls` / `tmux attach -t <name>` | List / attach sessions |
+| `C-a "` / `C-a %` | Split vertical / horizontal (inherits current dir) |
+| `<C-h/j/k/l>` | Move panes (vim-tmux-navigator) |
+| `Alt-Left/Right/Up/Down` | Resize panes |
+| `C-l` | Clear screen in pane |
+
+### Ghostty essentials
+Settings in `ghostty/config`.
+
+| Keys | Action |
+|------|--------|
+| `cmd+s>h` / `cmd+s>v` / `cmd+s>x` | Split left / split down / close split |
+| `cmd+s>left/right/up/down` | Move between splits |
+| `macos-option-as-alt = true` | Option behaves as Alt for Neovim/tmux shortcuts |
+| `window-inherit-working-directory = true` | New windows/splits start in current dir |
+
+### Migrating from Cursor IDE
+| Cursor habit | Neovim / tmux / Ghostty equivalent |
+|--------------|------------------------------------|
+| Space leader (VSpaceCode) | Same: `Space` is leader across Neovim keymaps |
+| `Ctrl-P` quick open | Telescope `C-p` or `<leader>ff` |
+| `Ctrl-j/k` in suggestions | Already mapped in `nvim/lua/user/plugins/cmp.lua` for completion navigation (Cursor-style) |
+| Format on save | null-ls formatters (prettier/stylua/black) in `nvim/lua/user/plugins/lsp.lua`; add a `vim.lsp.buf.format()` on `BufWritePre` to mirror Cursor |
+| Relative numbers | Enable in `nvim/lua/user/options.lua` (`relativenumber` + `number`) |
+| Integrated terminal | ToggleTerm (`<C-\>`, `<leader>tf/th/tv`) instead of Cursor’s panel |
+| Visual consistency | Nord palette + JetBrainsMono Nerd Font across Ghostty/tmux/Neovim |
 
 ## Backup Your Current Mac
 
