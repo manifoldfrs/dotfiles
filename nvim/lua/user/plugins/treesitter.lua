@@ -6,8 +6,11 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
+      "JoosepAlviste/nvim-ts-context-commentstring",
     },
     config = function()
+      -- Skip deprecated module warning for ts-context-commentstring
+      vim.g.skip_ts_context_commentstring_module = true
       require("nvim-treesitter.configs").setup({
         ensure_installed = {
           "lua",

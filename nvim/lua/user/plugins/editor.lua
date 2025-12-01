@@ -42,6 +42,7 @@ return {
       { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent files" },
       { "<leader>fc", "<cmd>Telescope colorscheme<cr>", desc = "Colorschemes" },
       { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
+      { "<leader>fp", "<cmd>Telescope projects<cr>", desc = "Projects" },
       { "<C-p>", "<cmd>Telescope find_files<cr>", desc = "Find files" },
     },
     config = function()
@@ -137,8 +138,11 @@ return {
   {
     "numToStr/Comment.nvim",
     event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "JoosepAlviste/nvim-ts-context-commentstring" },
     config = function()
-      require("Comment").setup()
+      require("Comment").setup({
+        pre_hook = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook(),
+      })
     end,
   },
 
@@ -163,4 +167,16 @@ return {
 
   -- Plenary (dependency for many plugins)
   { "nvim-lua/plenary.nvim", lazy = true },
+
+  -- Project management
+  {
+    "ahmedkhalf/project.nvim",
+    config = function()
+      require("project_nvim").setup({
+        detection_methods = { "pattern", "lsp" },
+        patterns = { ".git", "Makefile", "package.json", "Cargo.toml" },
+      })
+      require("telescope").load_extension("projects")
+    end,
+  },
 }
