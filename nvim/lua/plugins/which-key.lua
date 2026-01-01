@@ -20,6 +20,7 @@ return {
       { "<leader>l", group = "LSP" },
       { "<leader>t", group = "Test" },
       { "<leader>b", group = "Buffer" },
+      { "<leader>d", group = "Debug" },
     })
   end,
 }

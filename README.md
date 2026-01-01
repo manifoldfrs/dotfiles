@@ -93,6 +93,7 @@ Current keybindings:
 | lualine | Status line |
 | bufferline | Buffer tabs |
 | vim-test + vimux | Test runner |
+| nvim-dap | Debugging (Go, Python) |
 
 ### LSP Servers (auto-installed via Mason)
 
@@ -126,6 +127,38 @@ Current keybindings:
 | `<leader>tt` / `<leader>tf` / `<leader>ts` | Test: nearest / file / suite |
 | `<leader>gp` / `<leader>gt` | Git: preview hunk / toggle blame |
 | `]h` / `[h` | Git: next/prev hunk |
+
+### Debugging (nvim-dap)
+
+| Keys | Action |
+|------|--------|
+| `<leader>dc` | Continue / Start debugging |
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dB` | Conditional breakpoint |
+| `<leader>di` | Step into |
+| `<leader>do` | Step over |
+| `<leader>dO` | Step out |
+| `<leader>dr` | Toggle REPL |
+| `<leader>dl` | Run last |
+| `<leader>du` | Toggle DAP UI |
+| `<leader>dx` | Terminate session |
+| `<leader>de` | Eval expression |
+
+**Supported languages:** Go (delve), Python (debugpy)
+
+**First-time setup:**
+```bash
+# Debug adapters are auto-installed via Mason, or manually:
+:MasonInstall delve debugpy
+```
+
+**Basic workflow:**
+1. Open a Go or Python file
+2. `<leader>db` to set a breakpoint on a line
+3. `<leader>dc` to start debugging
+4. DAP UI opens automatically
+5. Use step commands to navigate
+6. `<leader>dx` to terminate
 
 ### tmux
 
@@ -213,3 +246,8 @@ git push
 
 **nvm not found?**
 - Restart terminal or `source ~/.zshrc`
+
+**Debugging not working?**
+- Run `:MasonInstall delve debugpy` to install adapters
+- Check `:checkhealth dap` for adapter status
+- Ensure you have a valid debug configuration for your language
