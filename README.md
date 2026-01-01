@@ -167,8 +167,10 @@ Current keybindings:
 | `C-a` | Prefix |
 | `C-a d` / `C-a s` | Detach / session list |
 | `C-a "` / `C-a %` | Split vertical / horizontal |
-| `<C-h/j/k/l>` | Navigate panes (vim-tmux-navigator) |
+| `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
+
+**Note:** Pane navigation uses a manual `is_vim` script (not the TPM plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
 
 ### Ghostty
 
@@ -243,6 +245,10 @@ git push
 
 **tmux plugins not loading?**
 - Run `~/.tmux/plugins/tpm/bin/install_plugins`
+
+**C-h/j/k/l not working between nvim and tmux?**
+- Ensure `nvim-tmux-navigation` plugin is installed in Neovim
+- Reload tmux config: `tmux source-file ~/.tmux.conf`
 
 **nvm not found?**
 - Restart terminal or `source ~/.zshrc`

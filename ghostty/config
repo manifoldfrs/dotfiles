@@ -54,3 +54,6 @@ keybind = cmd+s>left=goto_split:left
 keybind = cmd+s>right=goto_split:right
 keybind = cmd+s>up=goto_split:up
 keybind = cmd+s>down=goto_split:down
+
+# Send literal newline without executing (for multi-line input)
+keybind = shift+enter=text:\x1b\r

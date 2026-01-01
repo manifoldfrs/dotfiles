@@ -90,8 +90,10 @@ cat .github/workflows/test.yml
 | Bash script pattern | `shell_setup.sh` |
 | Lua plugin pattern | `nvim/lua/plugins/telescope.lua` |
 | LSP with keymaps | `nvim/lua/plugins/lsp-config.lua` |
+| Debugging (DAP) | `nvim/lua/plugins/debugging.lua` |
 | Vim options | `nvim/lua/vim-options.lua` |
 | tmux config | `tmux/tmux.conf` |
+| Change history | `CHANGELOG.md` |
 
 ## Definition of Done
 

@@ -77,6 +77,9 @@ fi
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git zsh-syntax-highlighting)
 
+# Disable auto cd (typing directory name changes to it)
+unsetopt autocd
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -134,3 +137,6 @@ export NVM_DIR="$HOME/.nvm"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
+
+# OpenCode
+export PATH="$HOME/.opencode/bin:$PATH"
