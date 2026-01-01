@@ -7,9 +7,7 @@ Model Context Protocol (MCP) server configurations for AI coding assistants.
 | Tool | Config File |
 |------|-------------|
 | **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| **Cursor** | `~/.cursor/mcp.json` |
 | **Codex** | `~/.codex/config.toml` |
-| **Droid/Factory** | `~/.factory/mcp.json` |
 
 ## Setup
 
@@ -18,9 +16,7 @@ Model Context Protocol (MCP) server configurations for AI coding assistants.
 ```bash
 cd ~/dotfiles/mcp
 cp claude_desktop_config.json.example claude_desktop_config.json
-cp cursor_mcp.json.example cursor_mcp.json
 cp codex_config.toml.example codex_config.toml
-cp factory_mcp.json.example factory_mcp.json
 ```
 
 ### 2. Add your API keys
@@ -39,7 +35,7 @@ Edit each file and replace placeholders:
 
 ### 4. Restart applications
 
-Restart Claude Desktop, Cursor, Codex, and Droid to apply changes.
+Restart Claude Desktop and Codex to apply changes.
 
 ## Backup
 
@@ -58,4 +54,3 @@ To backup your current MCP configs (with API keys):
 - **Ref** - Documentation search
 - **Exa** - Web search
 - **Context7** - Library documentation
-- **Linear** - Issue tracking (disabled by default)

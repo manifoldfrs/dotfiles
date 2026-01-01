@@ -1,12 +1,12 @@
 # dotfiles
 
-Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, and Cursor IDE.
+Configuration files for zsh, Homebrew, Ghostty terminal, tmux, and Neovim.
 
 ## Requirements
 
 | Tool | Minimum Version | Notes |
 |------|-----------------|-------|
-| **Neovim** | >= 0.10.0 | Required for nvim-treesitter and lazy.nvim compatibility |
+| **Neovim** | >= 0.11.0 | Required for mason-lspconfig v2 and vim.lsp.config() |
 | **Git** | >= 2.19.0 | Required for lazy.nvim partial clones |
 | **Ghostty** | Latest | Uses `macos-option-as-alt` syntax |
 | **Node.js** | LTS | For LSP servers via Mason |
@@ -36,7 +36,6 @@ nvm install --lts
 - **Oh My Zsh** with `agnoster` theme
 - **zsh-syntax-highlighting** plugin
 - **nvm** (Node Version Manager) via HTTPS
-- **Droid CLI** (Factory AI)
 - **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/.config/ghostty/config`, `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`
 
 ### npm Global Packages (`npm-global-packages.txt`)
@@ -45,19 +44,11 @@ nvm install --lts
 - `@openai/codex` - OpenAI Codex CLI
 - `vercel` - Vercel CLI
 
-### Cursor Setup (`cursor_setup.sh install`)
-
-- `settings.json` and `keybindings.json`
-- All extensions from `cursor/extensions.txt`
-- Code snippets
-
 ### MCP Setup (`mcp_setup.sh install`)
 
 MCP (Model Context Protocol) configs for AI coding assistants:
 - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Cursor**: `~/.cursor/mcp.json`
 - **Codex**: `~/.codex/config.toml`
-- **Droid/Factory**: `~/.factory/mcp.json`
 
 See `mcp/README.md` for setup instructions and API key configuration.
 
@@ -77,138 +68,89 @@ Current keybindings:
 - **Tab + hjkl → Arrow keys** (vim-style navigation)
 - **Fn + Tab → Toggle Caps Lock**
 
-To backup your Karabiner config:
-```bash
-cp ~/.config/karabiner/karabiner.json ~/dotfiles/karabiner/
-cp -r ~/.config/karabiner/assets ~/dotfiles/karabiner/
-```
+## Development Environment
 
-## Ghostty Configuration
-Config is copied to `~/.config/ghostty/config` and uses JetBrainsMono Nerd Font with the Nord palette. Restart Ghostty after installation to pick up the config.
+### Primary Tools
 
-## tmux Setup
-Prefix is `C-a` with vim-style navigation. Plugins are managed by TPM at `~/.tmux/plugins/tpm` (auto-installed by `shell_setup.sh`). After launching tmux the first time, run `~/.tmux/plugins/tpm/bin/install_plugins` to fetch plugins.
+| Tool | Purpose |
+|------|---------|
+| **Neovim** | Primary editor (lazy.nvim + Nord theme) |
+| **OpenCode** | AI-assisted coding CLI |
+| **Ghostty** | Terminal emulator |
+| **tmux** | Terminal multiplexer |
 
-## Terminal-First Workflow Tips
+### Neovim Plugins
 
-### Neovim essentials
-Keymaps live in `nvim/lua/user/keymaps.lua`, Telescope in `nvim/lua/user/plugins/editor.lua`, LSP in `nvim/lua/user/plugins/lsp.lua`, and Git helpers in `nvim/lua/user/plugins/git.lua`.
+| Plugin | Purpose |
+|--------|---------|
+| neo-tree | File explorer |
+| oil.nvim | Buffer-based file editing |
+| telescope | Fuzzy finder |
+| nvim-cmp | Autocompletion |
+| mason + lspconfig | LSP support |
+| treesitter | Syntax highlighting |
+| gitsigns | Git integration |
+| lualine | Status line |
+| bufferline | Buffer tabs |
+| vim-test + vimux | Test runner |
+
+### LSP Servers (auto-installed via Mason)
+
+- `lua_ls` - Lua
+- `ts_ls` - TypeScript/JavaScript
+- `pyright` - Python
+- `gopls` - Go
+- `clangd` - C/C++
+
+## Keybindings
+
+### Neovim
 
 | Keys | Action |
 |------|--------|
-| `Space` | Leader key (all leader maps start here, VSpaceCode-style) |
-| `jk` (insert) | Quick escape to Normal |
-| `<C-h/j/k/l>` | Move between windows (mirrors tmux Navigator) |
+| `Space` | Leader key |
+| `jk` (insert) | Escape to Normal |
+| `<C-n>` | Toggle neo-tree |
+| `-` | Open oil.nvim (float) |
+| `<C-p>` / `<leader>ff` | Find files |
+| `<leader>fg` | Live grep |
+| `<leader>fb` | Buffers |
+| `<leader><leader>` | Recent files |
+| `<C-h/j/k/l>` | Navigate windows/tmux panes |
 | `<S-h>` / `<S-l>` | Previous/next buffer |
-| `<leader>ff` / `<leader>fg` / `<leader>fb` / `<leader>fh` / `<leader>fc` / `<C-p>` | Telescope: files / live grep / buffers / help tags / colorschemes / quick file find |
-| `<leader>fr` / `<leader>fk` | Telescope: recent files / keymaps |
-| `gd`, `K`, `gi`, `gD`, `gr`, `<C-k>` | LSP: definition / hover / implementation / declaration / references / signature help |
+| `gd` / `gr` / `gi` | LSP: definition / references / implementation |
+| `K` | LSP: hover documentation |
 | `<leader>rn` / `<leader>ca` | LSP: rename / code action |
+| `<leader>lf` | Format file |
 | `gl` / `[d` / `]d` | Diagnostics: float / prev / next |
-| `<leader>gg` / `<leader>gs` / `<leader>gr` / `<leader>gb` / `<leader>gS` / `<leader>gu` / `<leader>gR` / `<leader>gp` / `<leader>gd` | Git: fugitive status / gitsigns stage hunk / reset hunk / blame line / stage buffer / undo stage hunk / reset buffer / preview hunk / diff this |
-| `]c` / `[c` | Git: next/prev hunk (gitsigns) |
-| `<C-\>` / `<leader>tf` / `<leader>th` / `<leader>tv` | ToggleTerm: toggle / float / horizontal / vertical |
+| `<leader>tt` / `<leader>tf` / `<leader>ts` | Test: nearest / file / suite |
+| `<leader>gp` / `<leader>gt` | Git: preview hunk / toggle blame |
+| `]h` / `[h` | Git: next/prev hunk |
 
-### tmux essentials
-Configured in `tmux/tmux.conf`; navigation matches Neovim.
+### tmux
 
-| Keys/Command | Action |
-|--------------|--------|
+| Keys | Action |
+|------|--------|
 | `C-a` | Prefix |
 | `C-a d` / `C-a s` | Detach / session list |
-| `tmux ls` / `tmux attach -t <name>` | List / attach sessions |
-| `C-a "` / `C-a %` | Split vertical / horizontal (inherits current dir) |
-| `<C-h/j/k/l>` | Move panes (vim-tmux-navigator) |
-| `Alt-Left/Right/Up/Down` | Resize panes |
-| `C-l` | Clear screen in pane |
+| `C-a "` / `C-a %` | Split vertical / horizontal |
+| `<C-h/j/k/l>` | Navigate panes (vim-tmux-navigator) |
+| `Alt-Arrow` | Resize panes |
 
-### Ghostty essentials
-Settings in `ghostty/config`.
+### Ghostty
 
 | Keys | Action |
 |------|--------|
-| `cmd+s>h` / `cmd+s>v` / `cmd+s>x` | Split left / split down / close split |
-| `cmd+s>left/right/up/down` | Move between splits |
-| `macos-option-as-alt = true` | Option behaves as Alt for Neovim/tmux shortcuts |
-| `window-inherit-working-directory = true` | New windows/splits start in current dir |
+| `cmd+s>h` / `cmd+s>v` | Split left / down |
+| `cmd+s>x` | Close split |
+| `cmd+s>Arrow` | Move between splits |
 
-### Migrating from Cursor IDE
-| Cursor habit | Neovim / tmux / Ghostty equivalent |
-|--------------|------------------------------------|
-| Space leader (VSpaceCode) | Same: `Space` is leader across Neovim keymaps |
-| `Ctrl-P` quick open | Telescope `C-p` or `<leader>ff` |
-| `Ctrl-j/k` in suggestions | Already mapped in `nvim/lua/user/plugins/cmp.lua` for completion navigation (Cursor-style) |
-| Format on save | null-ls formatters (prettier/stylua/black) in `nvim/lua/user/plugins/lsp.lua`; add a `vim.lsp.buf.format()` on `BufWritePre` to mirror Cursor |
-| Relative numbers | Enable in `nvim/lua/user/options.lua` (`relativenumber` + `number`) |
-| Integrated terminal | ToggleTerm (`<C-\>`, `<leader>tf/th/tv`) instead of Cursor’s panel |
-| Visual consistency | Nord palette + JetBrainsMono Nerd Font across Ghostty/tmux/Neovim |
-
-## Backup Your Current Mac
-
-Before migrating, back up your existing configs:
+## Shell Aliases
 
 ```bash
-cd ~/dotfiles
-
-# Backup shell configs, Brewfile, and npm packages
-./shell_setup.sh backup
-
-# Backup Cursor settings and extensions
-./cursor_setup.sh backup
-
-# Backup MCP configs (Claude, Cursor, Codex, Droid)
-./mcp_setup.sh backup
-
-# Commit and push
-git add -A
-git commit -m "Backup from old Mac"
-git push
-```
-
-This exports:
-- `Brewfile` - Homebrew packages
-- `npm-global-packages.txt` - Global npm packages
-- `.zshrc`, `.zprofile`, `.zshenv` - Shell configs
-- `warp/themes/` - Warp terminal themes
-- `mcp/` - MCP configs for AI tools (gitignored, contains API keys)
-
-## Post-Install: Set Up SSH Keys
-
-After the initial setup, configure SSH for GitHub:
-
-```bash
-# Generate SSH key
-ssh-keygen -t ed25519 -C "your-email@example.com"
-
-# Start ssh-agent and add key
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-
-# Copy public key to clipboard
-pbcopy < ~/.ssh/id_ed25519.pub
-
-# Add to GitHub: https://github.com/settings/keys
-```
-
-Then uncomment the SSH config in `~/.gitconfig`:
-
-```ini
-[core]
-    sshCommand = ssh -i ~/.ssh/id_ed25519
-[url "git@github.com:"]
-    insteadOf = https://github.com/
-```
-
-## Testing
-
-Run tests locally before deploying:
-
-```bash
-# Docker tests (Linux)
-./test/docker_test.sh
-
-# Or run on GitHub Actions (macOS + Docker)
-# Push to master and check: https://github.com/manifoldfrs/dotfiles/actions
+v       # nvim
+vim     # nvim
+oc      # opencode
 ```
 
 ## File Structure
@@ -216,48 +158,58 @@ Run tests locally before deploying:
 ```
 dotfiles/
 ├── shell_setup.sh          # Main shell/brew/zsh installer
-├── cursor_setup.sh         # Cursor IDE settings installer
+├── mcp_setup.sh            # MCP config backup/install
 ├── Brewfile                # Homebrew packages
-├── npm-global-packages.txt # Global npm packages (claude-code, codex, etc.)
-├── install-tools.txt       # Documentation for curl-installed tools
+├── npm-global-packages.txt # Global npm packages
 ├── .zshrc                  # Zsh configuration
 ├── .zprofile               # Zsh profile
-├── .zshenv                 # Zsh environment (cargo, etc.)
+├── .zshenv                 # Zsh environment
 ├── .gitconfig              # Git configuration
-├── starship.toml           # Starship prompt config
-├── cursor/                 # Cursor IDE settings
-│   ├── settings.json
-│   ├── keybindings.json
-│   ├── extensions.txt
-│   └── snippets/
-├── karabiner/              # Karabiner Elements keyboard remapping
-│   ├── karabiner.json
-│   └── assets/
+├── ghostty/                # Ghostty terminal config
+│   └── config
+├── tmux/                   # tmux configuration (Nord theme)
+│   └── tmux.conf
+├── nvim/                   # Neovim config (lazy.nvim + Nord)
+│   ├── init.lua
+│   └── lua/
+│       ├── vim-options.lua
+│       └── plugins/
+├── karabiner/              # Keyboard remapping
 ├── mcp/                    # MCP configs for AI tools
-│   ├── *.example           # Template configs (committed)
-│   ├── *.json/toml         # Actual configs (gitignored)
-│   └── README.md
-├── mcp_setup.sh            # MCP config backup/install
-├── test/                   # Test suite
-│   ├── Dockerfile
-│   ├── run_tests.sh
-│   └── docker_test.sh
-└── old/                    # Legacy scripts (archived)
+├── gitui/                  # GitUI terminal client
+└── old/                    # Archived/deprecated configs
+```
+
+## Backup Your Current Mac
+
+```bash
+cd ~/dotfiles
+
+# Backup shell configs and Brewfile
+./shell_setup.sh backup
+
+# Backup MCP configs
+./mcp_setup.sh backup
+
+# Commit and push
+git add -A
+git commit -m "Backup configs"
+git push
 ```
 
 ## Troubleshooting
 
+**Neovim LSP not working?**
+- Requires Neovim >= 0.11.0 for mason-lspconfig v2
+- Run `:Mason` to check installed servers
+- Run `:LspInfo` to verify attachment
+
 **Powerline symbols not showing?**
-- Ensure Warp/terminal is using a Nerd Font
+- Ensure terminal uses a Nerd Font (JetBrainsMono Nerd Font)
 - Restart terminal after font installation
 
-**nvm not found after install?**
-- Restart your terminal or run `source ~/.zshrc`
+**tmux plugins not loading?**
+- Run `~/.tmux/plugins/tpm/bin/install_plugins`
 
-**Homebrew packages failing?**
-- Run `brew doctor` to diagnose
-- Some casks may need manual installation
-
-**Git clone fails with SSH error?**
-- You're on a fresh Mac without SSH keys
-- Use HTTPS clone: `git clone https://github.com/...`
+**nvm not found?**
+- Restart terminal or `source ~/.zshrc`

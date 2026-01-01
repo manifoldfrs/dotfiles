@@ -6,19 +6,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a personal dotfiles repository containing configuration files for development environments and terminal applications. The configurations are organized by application:
 
-- **Primary Terminals**: `ghostty/` (Ghostty terminal), `warp/` (Warp terminal themes)
+- **Terminal**: `ghostty/` (Ghostty terminal)
 - **Terminal Multiplexer**: `tmux/` (tmux configuration with TPM plugins)
 - **Shell Configuration**: `.zshrc`, `.zprofile`, `.zshenv` (Oh My Zsh + agnoster theme)
 - **Git**: `git/gitconfig.symlink`, `git/gitignore_global.symlink`, `.gitconfig`
-- **Editor**: `nvim/` (Neovim with lazy.nvim + Lua configuration)
-- **IDE Configurations**:
-  - `cursor/settings.json`, `cursor/keybindings.json` (current Cursor config)
-  - `cursor/settings_nvim_config.json`, `cursor/keybindings_nvim_config.json` (nvim-based config with whichkey)
-  - `cursor/extensions.txt` (installed extensions list)
+- **Editor**: `nvim/` (Neovim with lazy.nvim + Nord theme)
 - **Keyboard**: `karabiner/` (macOS key remapping, device-specific configs)
 - **Package Management**: `Brewfile`, `npm-global-packages.txt`
-- **MCP Configuration**: `mcp/` (Model Context Protocol configs for Claude/Cursor/Codex/Droid)
-- **Legacy/Optional**: `old/` (archived setup scripts), `kitty/`, `iterm2/`, `gitui/`
+- **MCP Configuration**: `mcp/` (Model Context Protocol configs for Claude/Codex)
+- **Legacy/Optional**: `old/` (archived setup scripts and deprecated configs)
+
+## Primary Development Tools
+
+| Tool | Purpose |
+|------|---------|
+| **Neovim** | Primary editor (lazy.nvim + Nord theme) |
+| **OpenCode** | AI-assisted coding CLI |
+| **Ghostty** | Terminal emulator |
+| **tmux** | Terminal multiplexer |
 
 ## Installation Commands
 
@@ -28,15 +33,9 @@ This is a personal dotfiles repository containing configuration files for develo
 ./shell_setup.sh backup     # Backup current shell configs to repository
 ```
 
-**Cursor IDE:**
-```bash
-./cursor_setup.sh install   # Install Cursor settings, keybindings, extensions
-./cursor_setup.sh backup    # Backup current Cursor config to repository
-```
-
 **MCP (AI Assistant Tools):**
 ```bash
-./mcp_setup.sh install      # Install MCP configs for Claude Desktop, Cursor, Codex, Droid
+./mcp_setup.sh install      # Install MCP configs for Claude Desktop, Codex
 ./mcp_setup.sh backup       # Backup MCP configs (remember to sanitize API keys!)
 ```
 
@@ -50,7 +49,7 @@ brew bundle install         # Install from Brewfile
 ### Font & Prompt Strategy
 - **Primary Font**: JetBrainsMono Nerd Font (powerline symbols)
 - **Shell**: Zsh with Oh My Zsh agnoster theme (requires Nerd Fonts)
-- **Consistency**: Same font across Ghostty, Cursor IDE, Warp, and editor
+- **Consistency**: Same font across Ghostty, tmux, and Neovim
 - **Auto-configuration**: `shell_setup.sh` handles font/Oh My Zsh installation
 
 ### Configuration Strategy
@@ -60,11 +59,18 @@ brew bundle install         # Install from Brewfile
 - **Design decision**: Copies allow independent local modifications without affecting repository
 
 ### Neovim Configuration
-- **Structure**: Modular Lua configuration in `nvim/lua/user/`
+- **Structure**: Typecraft-style flat plugin structure in `nvim/lua/plugins/`
 - **Plugin Manager**: lazy.nvim (modern, lazy-loading)
-- **Key Modules**: LSP (Mason), telescope, treesitter, nvim-cmp, gitsigns
+- **Key Plugins**: neo-tree, oil.nvim, telescope, nvim-cmp, mason + lspconfig, treesitter, gitsigns, vim-test + vimux
 - **Leader Key**: Space
 - **Theme**: Nord
+
+### LSP Servers (auto-installed via Mason)
+- `lua_ls` - Lua
+- `ts_ls` - TypeScript/JavaScript
+- `pyright` - Python
+- `gopls` - Go
+- `clangd` - C/C++
 
 ### Ghostty Terminal
 - **Config**: `ghostty/config` → `~/.config/ghostty/config`
@@ -83,25 +89,43 @@ brew bundle install         # Install from Brewfile
 - **Theme**: Nord with custom status bar
 - **Session Persistence**: Auto-save every 15 minutes, auto-restore on startup
 
-### Cursor IDE Integration
-- **Theme**: Nord with custom terminal colors
-- **Font**: JetBrainsMonoNL Nerd Font
-- **Vim Features**: Easymotion, surround, relative line numbers
-- **Formatters**: Prettier (JS/HTML/CSS), Biome (TSX/JSON), Black (Python)
-- **Extensions**: 36 extensions including GitLens, Magit, Claude Code
-
 ### Karabiner Configuration
 - **Primary Function**: Caps Lock → Control modifier
 - **Complex Rules**: Tab+hjkl for arrow keys, Fn+Tab for actual caps lock
-- **Device-Specific**: Custom mappings for 9 different keyboards
+- **Device-Specific**: Custom mappings for different keyboards
 - **Layout Remapping**: Command/Option swaps for external keyboards
 
 ### MCP Configuration
 Supports Model Context Protocol for AI assistants:
 - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Cursor**: `~/.cursor/mcp.json`
 - **Codex**: `~/.codex/config.toml`
-- **Droid/Factory**: `~/.factory/mcp.json`
+
+## Neovim Keybindings
+
+| Keys | Action |
+|------|--------|
+| `Space` | Leader key |
+| `jk` (insert) | Escape to Normal |
+| `<C-n>` | Toggle neo-tree |
+| `-` | Open oil.nvim (float) |
+| `<C-p>` / `<leader>ff` | Find files |
+| `<leader>fg` | Live grep |
+| `<leader><leader>` | Recent files |
+| `<C-h/j/k/l>` | Navigate windows/tmux panes |
+| `<S-h>` / `<S-l>` | Previous/next buffer |
+| `gd` / `gr` / `gi` | LSP: definition / references / implementation |
+| `K` | LSP: hover documentation |
+| `<leader>rn` / `<leader>ca` | LSP: rename / code action |
+| `<leader>lf` | Format file |
+| `<leader>tt` / `<leader>tf` / `<leader>ts` | Test: nearest / file / suite |
+
+## Shell Aliases
+
+```bash
+v       # nvim
+vim     # nvim
+oc      # opencode
+```
 
 ## Development Tools Included
 
@@ -109,17 +133,17 @@ Supports Model Context Protocol for AI assistants:
 - **CLI Tools**: AWS CLI, bat, eza, fd, fzf, jq, tree, tldr, diff-so-fancy, repomix
 - **Terminals**: Ghostty, tmux
 - **Databases**: PostgreSQL@14, Redis, SQLite
-- **Dev Tools**: Neovim, Git LFS, Exercism, Pulumi, Tesseract
-- **AI Tools**: Claude Code, Codex, Droid
+- **Dev Tools**: Neovim, Git LFS, Pulumi
+- **AI Tools**: OpenCode, Claude Code, Codex
 - **Package Managers**: Homebrew, npm/yarn, pip, gem
 
 ## Development Notes
 
 - **No Build Process**: Pure configuration files, no compilation needed
 - **Platform**: macOS-focused (Homebrew, Karabiner, Ghostty, Darwin checks)
-- **Primary Workflow**: Ghostty + tmux + Neovim / Cursor IDE
+- **Primary Workflow**: Ghostty + tmux + Neovim + OpenCode
 - **Shell**: Zsh with Oh My Zsh agnoster theme (powerline symbols)
 - **Font Dependency**: agnoster theme requires Nerd Fonts for proper display
-- **Theme Consistency**: Nord theme across all terminals and editors
+- **Theme Consistency**: Nord theme across Ghostty, tmux, and Neovim
 - **Package Management**: Brewfile for reproducible environments
 - **Copy vs Symlink**: Shell configs are copied (not symlinked) for easier local customization

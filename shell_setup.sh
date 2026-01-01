@@ -205,12 +205,11 @@ install() {
         echo "  grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm install -g"
     fi
 
-    # 12. Install Droid CLI
-    if ! command -v droid &> /dev/null; then
-        info "Installing Droid CLI..."
-        curl -fsSL https://app.factory.ai/install.sh | bash || warn "Droid installation failed - install manually"
+    # 12. Install OpenCode
+    if ! command -v opencode &> /dev/null; then
+        info "To install OpenCode, run: npm install -g opencode"
     else
-        info "Droid already installed"
+        info "OpenCode already installed"
     fi
 
     echo ""

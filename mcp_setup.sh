@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # MCP Configuration Setup Script
-# Handles: Claude Desktop, Claude Code, Cursor, Codex, Droid/Factory MCP configs
+# Handles: Claude Desktop, Codex MCP configs
 # Usage: ./mcp_setup.sh [backup|install]
 
 set -e
@@ -20,10 +20,7 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 
 # MCP config file locations
 CLAUDE_DESKTOP_CONFIG="$HOME/Library/Application Support/Claude/claude_desktop_config.json"
-CLAUDE_CODE_CONFIG="$HOME/.claude.json"
-CURSOR_MCP_CONFIG="$HOME/.cursor/mcp.json"
 CODEX_CONFIG="$HOME/.codex/config.toml"
-FACTORY_MCP_CONFIG="$HOME/.factory/mcp.json"
 
 backup() {
     info "Backing up MCP configurations..."
@@ -37,28 +34,12 @@ backup() {
         warn "Claude Desktop config not found"
     fi
 
-    # Cursor
-    if [ -f "$CURSOR_MCP_CONFIG" ]; then
-        info "Backing up Cursor MCP config..."
-        cp "$CURSOR_MCP_CONFIG" "$MCP_DIR/cursor_mcp.json"
-    else
-        warn "Cursor MCP config not found"
-    fi
-
     # Codex
     if [ -f "$CODEX_CONFIG" ]; then
         info "Backing up Codex config..."
         cp "$CODEX_CONFIG" "$MCP_DIR/codex_config.toml"
     else
         warn "Codex config not found"
-    fi
-
-    # Factory/Droid
-    if [ -f "$FACTORY_MCP_CONFIG" ]; then
-        info "Backing up Factory/Droid MCP config..."
-        cp "$FACTORY_MCP_CONFIG" "$MCP_DIR/factory_mcp.json"
-    else
-        warn "Factory MCP config not found"
     fi
 
     info "Backup complete!"
@@ -86,28 +67,12 @@ install() {
         info "Installed: $CLAUDE_DESKTOP_CONFIG"
     fi
 
-    # Cursor
-    if [ -f "$MCP_DIR/cursor_mcp.json" ]; then
-        info "Installing Cursor MCP config..."
-        mkdir -p "$(dirname "$CURSOR_MCP_CONFIG")"
-        cp "$MCP_DIR/cursor_mcp.json" "$CURSOR_MCP_CONFIG"
-        info "Installed: $CURSOR_MCP_CONFIG"
-    fi
-
     # Codex
     if [ -f "$MCP_DIR/codex_config.toml" ]; then
         info "Installing Codex config..."
         mkdir -p "$(dirname "$CODEX_CONFIG")"
         cp "$MCP_DIR/codex_config.toml" "$CODEX_CONFIG"
         info "Installed: $CODEX_CONFIG"
-    fi
-
-    # Factory/Droid
-    if [ -f "$MCP_DIR/factory_mcp.json" ]; then
-        info "Installing Factory/Droid MCP config..."
-        mkdir -p "$(dirname "$FACTORY_MCP_CONFIG")"
-        cp "$MCP_DIR/factory_mcp.json" "$FACTORY_MCP_CONFIG"
-        info "Installed: $FACTORY_MCP_CONFIG"
     fi
 
     echo ""
@@ -119,9 +84,7 @@ install() {
     echo ""
     echo "Edit the following files and replace placeholders with your actual API keys:"
     echo "  - Claude Desktop: $CLAUDE_DESKTOP_CONFIG"
-    echo "  - Cursor: $CURSOR_MCP_CONFIG"
     echo "  - Codex: $CODEX_CONFIG"
-    echo "  - Droid: $FACTORY_MCP_CONFIG"
     echo ""
     echo "Then restart each application to apply changes."
 }
@@ -135,9 +98,7 @@ usage() {
     echo ""
     echo "Config locations:"
     echo "  Claude Desktop: ~/Library/Application Support/Claude/claude_desktop_config.json"
-    echo "  Cursor:         ~/.cursor/mcp.json"
     echo "  Codex:          ~/.codex/config.toml"
-    echo "  Droid/Factory:  ~/.factory/mcp.json"
     exit 1
 }
 
