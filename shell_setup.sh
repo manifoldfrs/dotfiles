@@ -193,23 +193,33 @@ install() {
         cd "$NVM_DIR"
         git checkout $(git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1))
         cd "$DOTFILES_DIR"
-        info "nvm installed - run 'nvm install --lts' after restarting terminal"
     else
         info "nvm already installed"
     fi
 
-    # 11. Install global npm packages (after nvm is set up)
-    if [ -f "$DOTFILES_DIR/npm-global-packages.txt" ]; then
-        info "To install global npm packages after setting up Node, run:"
-        echo "  nvm install --lts"
-        echo "  grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm install -g"
+    # 11. Source nvm and ensure Node.js LTS is installed
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+    if ! command -v node &> /dev/null; then
+        info "Installing Node.js LTS via nvm..."
+        nvm install --lts
+        nvm use --lts
+    else
+        info "Node.js already installed: $(node --version)"
     fi
 
-    # 12. Install OpenCode
-    if ! command -v opencode &> /dev/null; then
-        info "To install OpenCode, run: npm install -g opencode"
-    else
-        info "OpenCode already installed"
+    # 12. Install global npm packages
+    if [ -f "$DOTFILES_DIR/npm-global-packages.txt" ]; then
+        info "Installing global npm packages..."
+        grep -v '^#' "$DOTFILES_DIR/npm-global-packages.txt" | grep -v '^$' | while read -r package; do
+            if ! npm list -g "$package" &> /dev/null; then
+                info "Installing $package..."
+                npm install -g "$package" || warn "Failed to install $package"
+            else
+                info "$package already installed"
+            fi
+        done
     fi
 
     echo ""
@@ -233,9 +243,7 @@ install() {
     echo "Then restart your terminal or run: source ~/.zshrc"
     echo ""
     echo "Next steps:"
-    echo "  1. Install Node: nvm install --lts"
-    echo "  2. Install npm packages: grep -v '^#' ~/dotfiles/npm-global-packages.txt | grep -v '^$' | xargs npm install -g"
-    echo "  3. Install Python: pyenv install 3.12 && pyenv global 3.12"
+    echo "  1. Install Python: pyenv install 3.12 && pyenv global 3.12"
 }
 
 usage() {
