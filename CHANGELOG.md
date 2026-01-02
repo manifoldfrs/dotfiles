@@ -32,6 +32,13 @@ All notable changes to this dotfiles repository are documented here.
 
 - **zshrc**: Added `unsetopt autocd` to prevent directory name commands from triggering cd
 
+- **tmux**: Replaced manual Nord theme styles with `nordtheme/tmux` TPM plugin
+  - Removed: 12 lines of hand-coded status bar styles
+  - Added: `set -g @plugin 'nordtheme/tmux'`
+  - Benefits: Official theme, powerline-style status bar, maintained upstream
+
+- **tmux**: Added reload keybind (`C-a r` to source ~/.tmux.conf)
+
 ### Removed
 
 - **ghostty**: Removed split keybindings (`cmd+s>h/j/k/l/x`, `cmd+s>Arrow`, `shift+enter`)
