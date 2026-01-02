@@ -15,9 +15,6 @@ All notable changes to this dotfiles repository are documented here.
   - DAP UI auto-opens when debugging starts
   - See `nvim/lua/plugins/debugging.lua`
 
-- **ghostty**: Added `shift+enter` keybind (`keybind = shift+enter=text:\x1b\r`)
-  - Sends literal newline in terminal apps that interpret shift+enter differently
-
 - **zshrc**: Added OpenCode to PATH (`export PATH="$HOME/.opencode/bin:$PATH"`)
 
 ### Changed
@@ -34,6 +31,12 @@ All notable changes to this dotfiles repository are documented here.
 - **Brewfile**: Removed `starship` prompt (deprecated, using oh-my-zsh agnoster theme)
 
 - **zshrc**: Added `unsetopt autocd` to prevent directory name commands from triggering cd
+
+### Removed
+
+- **ghostty**: Removed split keybindings (`cmd+s>h/j/k/l/x`, `cmd+s>Arrow`, `shift+enter`)
+  - Using tmux for all split/pane management instead
+  - Simplifies config, avoids redundant functionality
 
 ### Documentation
 

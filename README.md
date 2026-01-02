@@ -172,14 +172,6 @@ Current keybindings:
 
 **Note:** Pane navigation uses a manual `is_vim` script (not the TPM plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
 
-### Ghostty
-
-| Keys | Action |
-|------|--------|
-| `cmd+s>h` / `cmd+s>v` | Split left / down |
-| `cmd+s>x` | Close split |
-| `cmd+s>Arrow` | Move between splits |
-
 ## Shell Aliases
 
 ```bash
