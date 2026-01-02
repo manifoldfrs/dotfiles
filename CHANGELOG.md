@@ -39,6 +39,13 @@ All notable changes to this dotfiles repository are documented here.
 
 - **tmux**: Added reload keybind (`C-a r` to source ~/.tmux.conf)
 
+- **tmux**: Status bar positioned at top (`status-position top`)
+
+- **zshrc**: Enhanced history settings
+  - `HISTSIZE=10000`, `SAVEHIST=50000`
+  - `inc_append_history` - save immediately, not on exit
+  - `share_history` - share between terminal sessions
+
 ### Removed
 
 - **ghostty**: Removed split keybindings (`cmd+s>h/j/k/l/x`, `cmd+s>Arrow`, `shift+enter`)

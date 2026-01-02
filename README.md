@@ -165,19 +165,23 @@ Current keybindings:
 | Keys | Action |
 |------|--------|
 | `C-a` | Prefix |
+| `C-a r` | Reload tmux.conf |
 | `C-a d` / `C-a s` | Detach / session list |
 | `C-a "` / `C-a %` | Split vertical / horizontal |
 | `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
 
-**Note:** Pane navigation uses a manual `is_vim` script (not the TPM plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+**Note:** Status bar is positioned at top. Pane navigation uses a manual `is_vim` script (not the TPM plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
 
-## Shell Aliases
+## Shell Configuration
+
+### History Settings
 
 ```bash
-v       # nvim
-vim     # nvim
-oc      # opencode
+HISTSIZE=10000           # Commands in memory
+SAVEHIST=50000           # Commands saved to file
+setopt inc_append_history  # Save immediately, not on exit
+setopt share_history       # Share between terminals
 ```
 
 ## File Structure
@@ -249,3 +253,28 @@ git push
 - Run `:MasonInstall delve debugpy` to install adapters
 - Check `:checkhealth dap` for adapter status
 - Ensure you have a valid debug configuration for your language
+
+## Future Considerations
+
+### zoxide - Smarter Directory Navigation
+
+[zoxide](https://github.com/ajeetdsouza/zoxide) is a smarter `cd` command that learns your habits. It uses "frecency" (frequency + recency) to jump to directories with minimal typing.
+
+```bash
+# Instead of:
+cd ~/github/dotfiles
+
+# You can just type:
+z dotfiles
+```
+
+**Installation (when ready):**
+```bash
+# Add to Brewfile
+brew "zoxide"
+
+# Add to .zshrc (after oh-my-zsh sourcing)
+eval "$(zoxide init zsh)"
+```
+
+Currently not using this because `cd` + fzf works well enough, but worth revisiting if directory jumping becomes a bottleneck.

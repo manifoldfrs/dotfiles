@@ -77,10 +77,16 @@ fi
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git zsh-syntax-highlighting)
 
-# Disable auto cd (typing directory name changes to it)
+source $ZSH/oh-my-zsh.sh
+
+# Turn off auto cd
 unsetopt autocd
 
-source $ZSH/oh-my-zsh.sh
+# Update History settings
+HISTSIZE=10000
+SAVEHIST=50000
+setopt inc_append_history
+setopt share_history
 
 # User configuration
 
@@ -89,9 +95,12 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
-# Editor
-export EDITOR="nvim"
-export VISUAL="nvim"
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -101,10 +110,10 @@ export VISUAL="nvim"
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 #
-# Aliases
-alias v="nvim"
-alias vim="nvim"
-alias oc="opencode"
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
+alias brew install="arch -arm64 brew install"
 
 # CTRL-/ to toggle small preview window to see the full command
 # CTRL-Y to copy the command into clipboard using pbcopy
@@ -137,6 +146,7 @@ export NVM_DIR="$HOME/.nvm"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
+export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
 
-# OpenCode
-export PATH="$HOME/.opencode/bin:$PATH"
+# opencode
+export PATH=/Users/frshbb/.opencode/bin:$PATH
