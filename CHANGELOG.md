@@ -6,6 +6,8 @@ All notable changes to this dotfiles repository are documented here.
 
 ### Added
 
+- **npm-global-packages.txt**: Added `tree-sitter-cli` as a required dependency
+
 - **nvim**: Debugging support via nvim-dap ecosystem
   - `nvim-dap` + `nvim-dap-ui` + `nvim-dap-virtual-text`
   - `mason-nvim-dap` for auto-installing debug adapters
@@ -25,6 +27,15 @@ All notable changes to this dotfiles repository are documented here.
   - Benefits: Reduces dependencies, same functionality, transparent implementation
   - Still works seamlessly with `nvim-tmux-navigation` Neovim plugin
   - C-h/j/k/l switches between vim splits and tmux panes as before
+
+- **nvim**: Migrated nvim-treesitter to `main` branch (breaking change from `master`)
+  - `master` branch is now frozen; `main` branch is a complete rewrite
+  - Replaced `require("nvim-treesitter.configs").setup()` with new API
+  - Now uses `require("nvim-treesitter").install()` for parser installation
+  - Highlighting/indentation enabled via `FileType` autocmd (`vim.treesitter.start()`)
+  - Added treesitter-based folding (`vim.opt.foldexpr`)
+  - Requires `tree-sitter-cli` >= 0.26.1 (install via `npm install -g tree-sitter-cli`)
+  - See `nvim/lua/plugins/treesitter.lua`
 
 - **Brewfile**: Added `ripgrep` (required for Telescope live grep)
 

@@ -6,3 +6,4 @@
 @openai/codex
 opencode-ai
 vercel
+tree-sitter-cli

@@ -10,6 +10,7 @@ Configuration files for zsh, Homebrew, Ghostty terminal, tmux, and Neovim.
 | **Git** | >= 2.19.0 | Required for lazy.nvim partial clones |
 | **Ghostty** | Latest | Uses `macos-option-as-alt` syntax |
 | **Node.js** | LTS | For LSP servers via Mason |
+| **tree-sitter-cli** | >= 0.26.1 | Required for nvim-treesitter `main` branch parser compilation |
 
 [![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
@@ -43,6 +44,7 @@ nvm install --lts
 - `@anthropic-ai/claude-code` - Claude Code CLI
 - `@openai/codex` - OpenAI Codex CLI
 - `vercel` - Vercel CLI
+- `tree-sitter-cli` - Parser generator for nvim-treesitter
 
 ### MCP Setup (`mcp_setup.sh install`)
 
@@ -234,6 +236,11 @@ git push
 - Requires Neovim >= 0.11.0 for mason-lspconfig v2
 - Run `:Mason` to check installed servers
 - Run `:LspInfo` to verify attachment
+
+**Treesitter parsers not compiling?**
+- Requires `tree-sitter-cli` >= 0.26.1 for nvim-treesitter `main` branch
+- Run `:checkhealth nvim-treesitter` to verify CLI is found
+- Install via: `npm install -g tree-sitter-cli`
 
 **Powerline symbols not showing?**
 - Ensure terminal uses a Nerd Font (JetBrainsMono Nerd Font)
