@@ -28,6 +28,16 @@ All notable changes to this dotfiles repository are documented here.
   - Still works seamlessly with `nvim-tmux-navigation` Neovim plugin
   - C-h/j/k/l switches between vim splits and tmux panes as before
 
+- **nvim/telescope**: Migrated telescope.nvim from `0.1.x` to `master` branch
+  - The `0.1.x` branch is incompatible with nvim-treesitter `main` branch
+  - `0.1.x` uses deprecated `nvim-treesitter.parsers.ft_to_lang()` which no longer exists
+  - `master` branch uses built-in `vim.treesitter.language.get_lang()` (requires Neovim >= 0.9)
+  - Fix for error: `attempt to call field 'ft_to_lang' (a nil value)`
+
+- **nvim/treesitter**: Disabled folding by default (`vim.opt.foldenable = false`)
+  - Treesitter-based folding was collapsing all code blocks on file open
+  - Users can still use `zR` to open all folds or toggle with `:set foldenable`
+
 - **nvim**: Migrated nvim-treesitter to `main` branch (breaking change from `master`)
   - `master` branch is now frozen; `main` branch is a complete rewrite
   - Replaced `require("nvim-treesitter.configs").setup()` with new API

@@ -11,6 +11,7 @@ Configuration files for zsh, Homebrew, Ghostty terminal, tmux, and Neovim.
 | **Ghostty** | Latest | Uses `macos-option-as-alt` syntax |
 | **Node.js** | LTS | For LSP servers via Mason |
 | **tree-sitter-cli** | >= 0.26.1 | Required for nvim-treesitter `main` branch parser compilation |
+| **telescope.nvim** | `master` branch | Required for compatibility with nvim-treesitter `main` branch |
 
 [![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
