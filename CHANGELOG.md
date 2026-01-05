@@ -6,6 +6,13 @@ All notable changes to this dotfiles repository are documented here.
 
 ### Added
 
+- **nvim**: Git merge conflict resolution via `git-conflict.nvim`
+  - VSCode-like visual highlighting of conflict regions
+  - Keymaps: `co` (ours), `ct` (theirs), `cb` (both), `c0` (none)
+  - Navigation: `]x` / `[x` to jump between conflicts
+  - `:GitConflictListQf` to list all conflicts in quickfix
+  - See `nvim/lua/plugins/git.lua`
+
 - **npm-global-packages.txt**: Added `tree-sitter-cli` as a required dependency
 
 - **nvim**: Debugging support via nvim-dap ecosystem

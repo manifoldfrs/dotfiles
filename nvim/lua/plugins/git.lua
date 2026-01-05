@@ -27,4 +27,9 @@ return {
     "tpope/vim-fugitive",
     cmd = { "Git", "Gstatus", "Gblame", "Gpush", "Gpull" },
   },
+  {
+    "akinsho/git-conflict.nvim",
+    version = "*",
+    config = true,
+  },
 }
