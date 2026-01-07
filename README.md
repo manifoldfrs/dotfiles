@@ -35,10 +35,10 @@ nvm install --lts
 ### Shell Setup (`shell_setup.sh install`)
 
 - **Homebrew** + all packages from `Brewfile` (includes Ghostty, tmux, Nerd Fonts)
-- **Oh My Zsh** with `agnoster` theme
+- **Oh My Zsh** with `robbyrussell` theme (minimal, fast)
 - **zsh-syntax-highlighting** plugin
 - **nvm** (Node Version Manager) via HTTPS
-- **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/.config/ghostty/config`, `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`
+- **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/.config/ghostty/config`, `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`, `bin/tmux-sessionizer` → `~/.local/bin/tmux-sessionizer`
 
 ### npm Global Packages (`npm-global-packages.txt`)
 
@@ -77,7 +77,7 @@ Current keybindings:
 
 | Tool | Purpose |
 |------|---------|
-| **Neovim** | Primary editor (lazy.nvim + Nord theme) |
+| **Neovim** | Primary editor (lazy.nvim) |
 | **OpenCode** | AI-assisted coding CLI |
 | **Ghostty** | Terminal emulator |
 | **tmux** | Terminal multiplexer |
@@ -169,12 +169,22 @@ Current keybindings:
 |------|--------|
 | `C-a` | Prefix |
 | `C-a r` | Reload tmux.conf |
+| `C-a f` | **tmux-sessionizer** (fuzzy find projects) |
 | `C-a d` / `C-a s` | Detach / session list |
 | `C-a "` / `C-a %` | Split vertical / horizontal |
 | `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
 
-**Note:** Status bar is positioned at top. Pane navigation uses a manual `is_vim` script (not the TPM plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+**Note:** Status bar is positioned at top with Catppuccin Mocha theme. Pane navigation uses a manual `is_vim` script (not the TPM plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+
+### tmux-sessionizer
+
+Quick project switching via fzf. Press `C-a f` to:
+1. See subdirectories of your current path
+2. Fuzzy-select a project
+3. Create/switch to a tmux session named after that project
+
+The session name appears in the tmux status bar, providing project context without needing a fancy shell prompt.
 
 ## Shell Configuration
 
@@ -201,7 +211,9 @@ dotfiles/
 ├── .gitconfig              # Git configuration
 ├── ghostty/                # Ghostty terminal config
 │   └── config
-├── tmux/                   # tmux configuration (Nord theme)
+├── bin/                    # Shell scripts
+│   └── tmux-sessionizer    # Project switcher (fzf-based)
+├── tmux/                   # tmux configuration (Catppuccin Mocha)
 │   └── tmux.conf
 ├── nvim/                   # Neovim config (lazy.nvim + Nord)
 │   ├── init.lua

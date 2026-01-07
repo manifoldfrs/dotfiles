@@ -6,6 +6,20 @@ All notable changes to this dotfiles repository are documented here.
 
 ### Added
 
+- **Brewfile**: Added `btop` system monitor for performance monitoring
+
+- **opencode**: Added opencode.jsonc configuration
+  - Catppuccin theme
+  - MCP server configs (RepoPrompt, Ref, Exa)
+  - API keys redacted with `****` - replace with your own
+
+- **bin/tmux-sessionizer**: New fzf-based project switcher script
+  - Fuzzy find and switch between project directories
+  - Creates named tmux sessions for each project
+  - Session name visible in status bar provides project context
+  - Bound to `C-a f` in tmux
+  - Inspired by ThePrimeagen's workflow
+
 - **nvim**: Git merge conflict resolution via `git-conflict.nvim`
   - VSCode-like visual highlighting of conflict regions
   - Keymaps: `co` (ours), `ct` (theirs), `cb` (both), `c0` (none)
@@ -27,6 +41,26 @@ All notable changes to this dotfiles repository are documented here.
 - **zshrc**: Added OpenCode to PATH (`export PATH="$HOME/.opencode/bin:$PATH"`)
 
 ### Changed
+
+- **nvim**: Switched colorscheme from Nord to Catppuccin Mocha
+  - Replaced `shaunsingh/nord.nvim` with `catppuccin/nvim`
+  - Updated lualine theme from `nord` to `catppuccin`
+  - See `nvim/lua/plugins/colorscheme.lua` and `nvim/lua/plugins/lualine.lua`
+
+- **ghostty**: Switched from manual Nord palette to Catppuccin Mocha
+  - Replaced 20+ lines of manual color definitions with `theme = Catppuccin Mocha`
+  - Uses Ghostty's built-in theme support for cleaner config
+
+- **tmux**: Switched from Nord theme to Catppuccin Mocha
+  - Replaced: `set -g @plugin 'nordtheme/tmux'`
+  - Added: `set -g @plugin 'catppuccin/tmux'` with mocha flavor
+  - Status bar shows directory + session name for project context
+  - Rounded window status style
+
+- **zshrc**: Switched from `agnoster` to `robbyrussell` theme
+  - Faster prompt rendering (no powerline overhead)
+  - Project context now provided by tmux session name instead of prompt
+  - Part of "speed-focused" terminal setup
 
 - **tmux**: Replaced `vim-tmux-navigator` TPM plugin with manual `is_vim` script
   - Removed: `set -g @plugin 'christoomey/vim-tmux-navigator'`
@@ -75,6 +109,8 @@ All notable changes to this dotfiles repository are documented here.
   - `share_history` - share between terminal sessions
 
 ### Removed
+
+- **warp**: Removed `themes/nord.yaml` (deprecated, switched to Catppuccin)
 
 - **ghostty**: Removed split keybindings (`cmd+s>h/j/k/l/x`, `cmd+s>Arrow`, `shift+enter`)
   - Using tmux for all split/pane management instead

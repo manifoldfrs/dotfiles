@@ -162,6 +162,14 @@ install() {
         copy_file "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
     fi
 
+    # Copy tmux-sessionizer script
+    if [ -f "$DOTFILES_DIR/bin/tmux-sessionizer" ]; then
+        info "Copying tmux-sessionizer script..."
+        mkdir -p "$HOME/.local/bin"
+        cp "$DOTFILES_DIR/bin/tmux-sessionizer" "$HOME/.local/bin/tmux-sessionizer"
+        chmod +x "$HOME/.local/bin/tmux-sessionizer"
+    fi
+
     if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
         info "Installing tmux plugin manager (TPM)..."
         git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" || warn "TPM installation failed - install manually"

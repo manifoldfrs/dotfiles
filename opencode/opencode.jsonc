@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "catppuccin",
+  "autoupdate": true,
+  "mcp": {
+    "RepoPrompt": {
+      "type": "local",
+      "command": ["/Applications/RepoPrompt.app/Contents/MacOS/repoprompt-mcp"],
+      "enabled": true,
+      "timeout": 3600000
+    },
+    "Ref": {
+      "type": "remote",
+      "url": "https://api.ref.tools/mcp?apiKey=****",
+      "enabled": true,
+      "timeout": 10000
+    },
+    "exa": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp?exaApiKey=****",
+      "enabled": true,
+      "timeout": 10000
+    }
+  }
+}

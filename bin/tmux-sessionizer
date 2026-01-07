@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# tmux-sessionizer: Quick project switching via fzf
+# Usage: tmux-sessionizer [path]
+#   - If path provided, searches that directory
+#   - Otherwise searches current directory
+# Bound to: Ctrl-a + f in tmux
+
+# Use passed path as search root, or current directory if not provided
+search_path="${1:-.}"
+
+selected=$(find "$search_path" -mindepth 1 -maxdepth 1 -type d | fzf)
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+selected_name=$(basename "$selected" | tr . _)
+tmux_running=$(pgrep tmux)
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s $selected_name -c $selected
+    exit 0
+fi
+
+if ! tmux has-session -t=$selected_name 2> /dev/null; then
+    tmux new-session -ds $selected_name -c $selected
+fi
+
+tmux switch-client -t $selected_name
