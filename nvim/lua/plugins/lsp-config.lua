@@ -28,7 +28,7 @@ return {
         ensure_installed = {
           "lua_ls",
           "ts_ls",
-          "pyright",
+          -- "pyright",  -- Disabled: using ty for Python instead (installed as fallback)
           "gopls",
           "clangd",
         },
@@ -50,6 +50,20 @@ return {
         lspconfig.util.default_config,
         { capabilities = require("cmp_nvim_lsp").default_capabilities() }
       )
+
+      -- Configure ty type checker for Python (Neovim 0.11+)
+      -- NOTE: ty is in BETA (Dec 2025) but production-ready per Astral
+      vim.lsp.config('ty', {
+        cmd = { 'ty', 'server' },
+        filetypes = { 'python' },
+        root_dir = vim.fs.root(0, {'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt', '.git'}),
+        settings = {
+          ty = {}
+        }
+      })
+      
+      -- Enable ty language server
+      vim.lsp.enable('ty')
 
       vim.diagnostic.config({
         virtual_text = false,

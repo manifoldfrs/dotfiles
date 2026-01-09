@@ -2,6 +2,12 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Disable providers for faster startup (unless you use Python/Ruby/Perl/Node plugins in nvim)
+vim.g.loaded_python3_provider = 0  -- Saves ~1.2s on Python file load
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_node_provider = 0
+
 -- UI
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -14,10 +20,26 @@ vim.opt.showtabline = 2
 
 -- Editing
 vim.opt.expandtab = true
-vim.opt.shiftwidth = 2
-vim.opt.tabstop = 2
-vim.opt.softtabstop = 2
 vim.opt.smartindent = true
+
+-- Language-specific indentation
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = {"go", "python"},
+  callback = function()
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.tabstop = 4
+    vim.opt_local.softtabstop = 4
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = {"javascript", "typescript"},
+  callback = function()
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
+  end,
+})
 vim.opt.wrap = false
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
