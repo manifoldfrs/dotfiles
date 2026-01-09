@@ -77,6 +77,9 @@ rg -A5 "test-macos|test-docker" ../.github/workflows/test.yml
 
 # Find security checks
 rg "insteadOf|sshCommand" run_tests.sh
+
+# Count number of tests
+rg -c "\[TEST" run_tests.sh
 ```
 
 ## Common Gotchas
@@ -84,12 +87,15 @@ rg "insteadOf|sshCommand" run_tests.sh
 1. **Docker test fails but local works?** Ubuntu vs macOS differences
 2. **SSH check failing?** Uncommented `insteadOf` in `.gitconfig` breaks fresh clones
 3. **nvm test failing?** Must use HTTPS clone, not SSH
+4. **Test hangs?** Oh My Zsh install might be waiting for input - ensure `--unattended`
 
 ## Pre-PR Checks
 
 ```bash
 # Full validation (from repo root)
-bash -n shell_setup.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
+bash -n shell_setup.sh && bash -n mcp_setup.sh && \
+docker build -t dotfiles-test -f test/Dockerfile . && \
+docker run --rm dotfiles-test
 ```
 
 ## Adding a New Test
@@ -99,3 +105,4 @@ bash -n shell_setup.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test 
 3. Exit with code 1 on failure
 4. Test locally: `bash test/run_tests.sh`
 5. Test in Docker: `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test`
+6. Update `.github/workflows/test.yml` if test requires specific tools

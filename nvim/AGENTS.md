@@ -22,6 +22,9 @@ nvim
 
 # Install/update LSP servers
 :Mason
+
+# Update all plugins
+:Lazy sync
 ```
 
 ## Patterns & Conventions
@@ -42,7 +45,7 @@ nvim/
 Every plugin file must return a table following lazy.nvim spec:
 
 ```lua
--- ✅ DO: Follow this pattern (see plugins/telescope.lua)
+-- ✅ DO: Follow this pattern (see plugins/telescope.lua:1-32)
 return {
   "author/plugin-name",
   dependencies = { "dep/name" },
@@ -52,21 +55,23 @@ return {
     })
     
     -- Keymaps inside config function
-    vim.keymap.set("n", "<leader>xx", function_ref, { desc = "Description" })
+    local builtin = require("telescope.builtin")
+    vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
   end,
 }
 ```
 
 ```lua
--- ❌ DON'T: Use old Vimscript patterns (see old/iterm2/nvim/)
+-- ❌ DON'T: Use old Vimscript patterns (old/iterm2/nvim/)
 -- ❌ DON'T: Forget desc in keymaps
--- ❌ DON'T: Put multiple plugins in one file (except related like mason + lspconfig)
+-- ❌ DON'T: Put multiple unrelated plugins in one file
+-- ⚠️  EXCEPTION: Related plugins can share (mason + lspconfig in lsp-config.lua)
 ```
 
 ### Keymaps
-- **Always include `{ desc = "..." }`** for which-key integration
+- **Always include `{ desc = "..." }`** for which-key integration (see `telescope.lua:24`)
 - Leader key is `<Space>` (set in `vim-options.lua:2`)
-- Buffer-local keymaps use `{ buffer = args.buf }` (see `lsp-config.lua:73`)
+- Buffer-local keymaps use `{ buffer = bufnr }` (see `lsp-config.lua:73`)
 
 ```lua
 -- ✅ DO: Include description
@@ -81,6 +86,11 @@ vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
 - **Double quotes** for strings
 - **Comments** use `--`
 - Group related options with comment headers (see `vim-options.lua`)
+
+### LSP Configuration
+- LSP servers defined in `lsp-config.lua:28-34`
+- Auto-installed via Mason when missing
+- Keybindings set on `LspAttach` event (see `lsp-config.lua:71-85`)
 
 ## Touch Points / Key Files
 
@@ -121,23 +131,26 @@ rg "<leader>f" lua/
 
 # Find debugging config
 rg "dap" lua/plugins/debugging.lua
+
+# Find all plugin dependencies
+rg "dependencies" lua/plugins/
 ```
 
 ## Debugging Keybindings (nvim-dap)
 
-| Keys | Action |
-|------|--------|
-| `<leader>dc` | Continue / Start |
-| `<leader>db` | Toggle breakpoint |
-| `<leader>dB` | Conditional breakpoint |
-| `<leader>di` | Step into |
-| `<leader>do` | Step over |
-| `<leader>dO` | Step out |
-| `<leader>dr` | Toggle REPL |
-| `<leader>dl` | Run last |
-| `<leader>du` | Toggle DAP UI |
-| `<leader>dx` | Terminate |
-| `<leader>de` | Eval expression |
+| Keys | Action | File |
+|------|--------|------|
+| `<leader>dc` | Continue / Start | `debugging.lua:91` |
+| `<leader>db` | Toggle breakpoint | `debugging.lua:92` |
+| `<leader>dB` | Conditional breakpoint | `debugging.lua:93` |
+| `<leader>di` | Step into | `debugging.lua:95` |
+| `<leader>do` | Step over | `debugging.lua:96` |
+| `<leader>dO` | Step out | `debugging.lua:97` |
+| `<leader>dr` | Toggle REPL | `debugging.lua:99` |
+| `<leader>dl` | Run last | `debugging.lua:100` |
+| `<leader>du` | Toggle DAP UI | `debugging.lua:102` |
+| `<leader>dx` | Terminate | `debugging.lua:103` |
+| `<leader>de` | Eval expression | `debugging.lua:94` |
 
 **Supported:** Go (delve), Python (debugpy). Auto-installed via Mason.
 
@@ -148,6 +161,7 @@ rg "dap" lua/plugins/debugging.lua
 3. **Keymaps not showing in which-key?** Add `{ desc = "..." }` to keymap
 4. **Plugin not loading?** Check lazy.nvim output (`:Lazy`)
 5. **Debugging not working?** Run `:MasonInstall delve debugpy` and check `:checkhealth dap`
+6. **Treesitter errors?** Ensure tree-sitter-cli >= 0.26.1 (`tree-sitter --version`)
 
 ## Pre-PR Checks
 
@@ -165,3 +179,4 @@ nvim
 2. Follow the lazy.nvim spec pattern from `telescope.lua`
 3. Include keymaps with descriptions
 4. Test: `nvim` then `:Lazy` to verify installation
+5. Document any non-obvious keybindings in this file
