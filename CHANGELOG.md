@@ -4,6 +4,32 @@ All notable changes to this dotfiles repository are documented here.
 
 ## January 2025
 
+### Changed
+
+- **nvim/lsp-config**: Replaced deprecated `sign_define()` with `vim.diagnostic.config()`
+  - Diagnostic signs now configured via `signs.text` table in `vim.diagnostic.config()`
+  - Fixes deprecation warning: "Defining diagnostic signs with :sign-define or sign_define() is deprecated"
+  - See `nvim/lua/plugins/lsp-config.lua`
+
+- **nvim/lsp-config**: Added `virtual_lines` for inline diagnostic messages
+  - Shows full diagnostic message below the error line when cursor is on it
+  - Configured with `virtual_lines = { current_line = true }`
+  - Requires Neovim 0.11+
+
+- **nvim/lsp-config**: Added descriptions to all LSP keymaps
+  - `gd` → "Go to definition", `gD` → "Go to declaration", etc.
+  - Descriptions now appear in which-key popup
+  - See `nvim/lua/plugins/lsp-config.lua`
+
+- **nvim/which-key**: Disabled icon rules to fix blue square glyphs
+  - Added `icons = { rules = false }` to which-key setup
+  - Prevents filetype icon fallback that caused rendering issues
+  - See `nvim/lua/plugins/which-key.lua`
+
+- **nvim/vim-options**: Enabled relative line numbers
+  - Changed `vim.opt.relativenumber` from `false` to `true`
+  - See `nvim/lua/vim-options.lua`
+
 ### Added
 
 - **Brewfile**: Added `btop` system monitor for performance monitoring

@@ -45,6 +45,7 @@ docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-t
 - Never commit real secrets
 
 ### Commits
+- **NEVER commit without explicit user permission** - always ask first
 - No enforced format, but prefer descriptive messages
 - Run `bash -n <script>.sh` before committing shell changes
 
@@ -61,8 +62,10 @@ docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-t
 |------|---------|---------|
 | `nvim/` | Neovim config (lazy.nvim) | [nvim/AGENTS.md](nvim/AGENTS.md) |
 | `test/` | Docker tests, CI | [test/AGENTS.md](test/AGENTS.md) |
-| `tmux/tmux.conf` | tmux config | Single file, Nord theme |
-| `ghostty/config` | Terminal config | Single file, Nord theme |
+| `tmux/tmux.conf` | tmux config | Single file, Catppuccin Mocha theme |
+| `ghostty/config` | Terminal config | Single file, Catppuccin Mocha theme |
+| `opencode/` | OpenCode AI config | Catppuccin theme, MCP servers |
+| `bin/` | Custom scripts | `tmux-sessionizer` (C-a f) |
 | `mcp/` | AI tool configs | See `mcp/README.md` |
 | `old/` | Archived configs | **Do not reference** |
 

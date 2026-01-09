@@ -4,7 +4,7 @@ vim.g.maplocalleader = " "
 
 -- UI
 vim.opt.number = true
-vim.opt.relativenumber = false
+vim.opt.relativenumber = true
 vim.opt.cursorline = true
 vim.opt.signcolumn = "yes"
 vim.opt.showmode = false

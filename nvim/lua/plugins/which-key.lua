@@ -12,6 +12,9 @@ return {
       win = {
         border = "rounded",
       },
+      icons = {
+        rules = false, -- Disable filetype icon fallback (fixes blue squares)
+      },
     })
 
     wk.add({

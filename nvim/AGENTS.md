@@ -2,7 +2,7 @@
 
 ## Package Identity
 
-Neovim configuration using **lazy.nvim** plugin manager with **Nord** theme.
+Neovim configuration using **lazy.nvim** plugin manager with **Catppuccin Mocha** theme.
 Requires Neovim >= 0.11.0 for `vim.lsp.config()` API.
 
 ## Setup & Run
