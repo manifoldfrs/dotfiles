@@ -148,6 +148,12 @@ All notable changes to this dotfiles repository are documented here.
 - Removed deprecated `CLAUDE.md` files (replaced by `AGENTS.md`)
 - Added this CHANGELOG
 
+## January 2026
+
+### Changed
+
+- **opencode**: Switched MCP web search tool from Exa to Tavily
+
 ## Previous (Undated)
 
 Initial dotfiles setup with:

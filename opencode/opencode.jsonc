@@ -15,9 +15,9 @@
       "enabled": true,
       "timeout": 10000
     },
-    "exa": {
+    "tavily": {
       "type": "remote",
-      "url": "https://mcp.exa.ai/mcp?exaApiKey=****",
+      "url": "https://mcp.tavily.com/mcp/?tavilyApiKey=****",
       "enabled": true,
       "timeout": 10000
     }
