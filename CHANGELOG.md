@@ -180,6 +180,10 @@ All notable changes to this dotfiles repository are documented here.
   - ty is now the primary Python LSP, pyright available as fallback
   - Prevents double LSP attachment (both ty and pyright attaching to same file)
 
+- **nvim/completions**: Prevented Enter from auto-accepting first completion
+  - `cmp.mapping.confirm({ select = false })` now requires explicit selection
+  - See `nvim/lua/plugins/completions.lua`
+
 - **nvim/vim-options**: Added language-specific indentation rules
   - **Python/Go**: 4 spaces (shiftwidth, tabstop, softtabstop = 4)
   - **JavaScript/TypeScript**: 2 spaces (shiftwidth, tabstop, softtabstop = 2)
