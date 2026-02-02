@@ -8,13 +8,14 @@ All notable changes to this dotfiles repository are documented here.
 
 - **nvim**: Synced live config from `~/.config/nvim` to dotfiles repo
   - Added `lazy-lock.json` for plugin version locking
-  - Updated `treesitter.lua` to new nvim-treesitter API (migrated from `master` to `main` branch)
-    - Replaced `nvim-treesitter.configs` with `nvim-treesitter` module
-    - Uses `FileType` autocmd for highlighting/indentation
-    - Added treesitter-based folding configuration
-  - Updated `telescope.lua` branch from `0.1.x` to `master`
-    - Fixes compatibility with nvim-treesitter `main` branch
+  - Verified `treesitter.lua` uses STABLE configuration:
+    - `nvim-treesitter/nvim-treesitter` on `master` branch (frozen at v0.10.0)
+    - Uses `require("nvim-treesitter.configs").setup()` API
+    - `master` branch is archived but stable and functional
+  - Verified `telescope.lua` on `0.1.x` branch (stable, compatible with treesitter master)
   - Minor formatting fix in `git.lua`
+
+**Note**: The January 2025 entries below documenting migration to treesitter `main` branch and telescope `master` were attempted but REVERTED. The stable working configuration uses treesitter `master` (frozen) + telescope `0.1.x`.
 
 ## January 2025
 
@@ -109,17 +110,18 @@ All notable changes to this dotfiles repository are documented here.
   - Still works seamlessly with `nvim-tmux-navigation` Neovim plugin
   - C-h/j/k/l switches between vim splits and tmux panes as before
 
-- **nvim/telescope**: Migrated telescope.nvim from `0.1.x` to `master` branch
+- **nvim/telescope**: [ATTEMPTED, REVERTED] Migrated telescope.nvim from `0.1.x` to `master` branch
   - The `0.1.x` branch is incompatible with nvim-treesitter `main` branch
   - `0.1.x` uses deprecated `nvim-treesitter.parsers.ft_to_lang()` which no longer exists
   - `master` branch uses built-in `vim.treesitter.language.get_lang()` (requires Neovim >= 0.9)
   - Fix for error: `attempt to call field 'ft_to_lang' (a nil value)`
+  - **REVERTED**: Back to `0.1.x` for stability (see February 2026)
 
 - **nvim/treesitter**: Disabled folding by default (`vim.opt.foldenable = false`)
   - Treesitter-based folding was collapsing all code blocks on file open
   - Users can still use `zR` to open all folds or toggle with `:set foldenable`
 
-- **nvim**: Migrated nvim-treesitter to `main` branch (breaking change from `master`)
+- **nvim**: [ATTEMPTED, REVERTED] Migrated nvim-treesitter to `main` branch (breaking change from `master`)
   - `master` branch is now frozen; `main` branch is a complete rewrite
   - Replaced `require("nvim-treesitter.configs").setup()` with new API
   - Now uses `require("nvim-treesitter").install()` for parser installation
@@ -127,6 +129,7 @@ All notable changes to this dotfiles repository are documented here.
   - Added treesitter-based folding (`vim.opt.foldexpr`)
   - Requires `tree-sitter-cli` >= 0.26.1 (install via `npm install -g tree-sitter-cli`)
   - See `nvim/lua/plugins/treesitter.lua`
+  - **REVERTED**: Back to `master` branch with old API for stability (see February 2026)
 
 - **Brewfile**: Added `ripgrep` (required for Telescope live grep)
 
