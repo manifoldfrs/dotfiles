@@ -2,6 +2,20 @@
 
 All notable changes to this dotfiles repository are documented here.
 
+## February 2026
+
+### Synced
+
+- **nvim**: Synced live config from `~/.config/nvim` to dotfiles repo
+  - Added `lazy-lock.json` for plugin version locking
+  - Updated `treesitter.lua` to new nvim-treesitter API (migrated from `master` to `main` branch)
+    - Replaced `nvim-treesitter.configs` with `nvim-treesitter` module
+    - Uses `FileType` autocmd for highlighting/indentation
+    - Added treesitter-based folding configuration
+  - Updated `telescope.lua` branch from `0.1.x` to `master`
+    - Fixes compatibility with nvim-treesitter `main` branch
+  - Minor formatting fix in `git.lua`
+
 ## January 2025
 
 ### Changed
