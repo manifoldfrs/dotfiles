@@ -24,6 +24,12 @@ return {
       { "<leader>t", group = "Test" },
       { "<leader>b", group = "Buffer" },
       { "<leader>d", group = "Debug" },
+      { "<leader>o", group = "opencode" },
+      { "<leader>s", group = "Search" },
+      { "<leader>u", group = "Toggle" },
+      { "<leader>sn", group = "Notifications" },
+      { "<leader>ss", group = "LSP Symbols" },
+      { "<leader>sg", group = "Git Search" },
     })
   end,
 }

@@ -11,7 +11,8 @@ Configuration files for zsh, Homebrew, Ghostty terminal, tmux, and Neovim.
 | **Ghostty** | Latest | Uses `macos-option-as-alt` syntax |
 | **Node.js** | LTS | For LSP servers via Mason |
 | **tree-sitter-cli** | >= 0.26.1 | Required for nvim-treesitter `main` branch parser compilation |
-| **telescope.nvim** | `master` branch | Required for compatibility with nvim-treesitter `main` branch |
+| **lazygit** | >= 0.40 | Required for snacks.lazygit keymap (`<leader>gg`) |
+| **imagemagick** | >= 7.0 | Required for snacks.image preview support |
 
 [![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
@@ -28,6 +29,9 @@ cd ~/dotfiles
 # 3. Restart your terminal (quit and reopen)
 # 4. Install Node.js
 nvm install --lts
+
+# 5. Install OpenCode (optional, for AI features)
+curl -fsSL https://opencode.ai/install | bash
 ```
 
 ## What Gets Installed
@@ -86,10 +90,11 @@ Current keybindings:
 
 | Plugin | Purpose |
 |--------|---------|
+| snacks.nvim | Modern QoL plugins (replaces telescope, alpha, indent-blankline, nvim-surround, Comment.nvim) |
 | neo-tree | File explorer |
 | oil.nvim | Buffer-based file editing |
-| telescope | Fuzzy finder |
-| nvim-cmp | Autocompletion |
+| blink.cmp | High-performance autocompletion (Rust-based fuzzy matching) |
+| opencode.nvim | AI coding assistant integration (opencode CLI + tmux) |
 | mason + lspconfig | LSP support |
 | treesitter | Syntax highlighting |
 | gitsigns | Git integration |
@@ -98,13 +103,18 @@ Current keybindings:
 | vim-test + vimux | Test runner |
 | nvim-dap | Debugging (Go, Python) |
 
+**Key plugins explained:**
+- **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), and more
+- **blink.cmp**: Rust-based completion engine with 0.5-4ms response time, typo-resistant fuzzy matching, and native LuaSnip support
+- **opencode.nvim**: Integrates opencode AI assistant via tmux split pane, with context-aware prompts and blink.cmp completion
+
 ### LSP Servers (auto-installed via Mason)
 
 - `lua_ls` - Lua
 - `ts_ls` - TypeScript/JavaScript
-- `pyright` - Python
 - `gopls` - Go
 - `clangd` - C/C++
+- `ty` - Python (Beta type checker from Astral)
 
 ## Keybindings
 
@@ -116,17 +126,38 @@ Current keybindings:
 | `jk` (insert) | Escape to Normal |
 | `<C-n>` | Toggle neo-tree |
 | `-` | Open oil.nvim (float) |
-| `<C-p>` / `<leader>ff` | Find files |
-| `<leader>fg` | Live grep |
-| `<leader>fb` | Buffers |
-| `<leader><leader>` | Recent files |
+| **snacks.picker (Search)** ||
+| `<C-p>` / `<leader>sf` | Find files |
+| `<leader>sg` | Live grep |
+| `<leader>sb` | Buffers |
+| `<leader>sr` | Recent files |
+| `<leader>sh` | Help pages |
+| `<leader>sk` | Keymaps |
+| `<leader>sc` | Colorschemes |
+| `<leader>sn` | Notification history |
+| `<leader><space>` | Smart find files |
+| `gd` / `gr` / `gI` | LSP: definition / references / implementation |
+| **opencode.nvim (AI)** ||
+| `<leader>oa` | Ask opencode about current context |
+| `<leader>os` | Select opencode action |
+| `<leader>ot` | Toggle opencode (tmux split) |
+| `<leader>oo` | Add visual range to opencode |
+| `<leader>og` | Add current line to opencode |
+| **snacks (Utilities)** ||
+| `<leader>bd` | Delete buffer |
+| `<leader>gg` | Lazygit |
+| `<leader>z` | Zen mode |
+| `<leader>.` | Toggle scratch buffer |
+| `]]` / `[[` | Next/prev LSP reference |
+| **Navigation** ||
 | `<C-h/j/k/l>` | Navigate windows/tmux panes |
 | `<S-h>` / `<S-l>` | Previous/next buffer |
-| `gd` / `gr` / `gi` | LSP: definition / references / implementation |
+| **LSP** ||
 | `K` | LSP: hover documentation |
 | `<leader>rn` / `<leader>ca` | LSP: rename / code action |
 | `<leader>lf` | Format file |
 | `gl` / `[d` / `]d` | Diagnostics: float / prev / next |
+| **Testing & Git** ||
 | `<leader>tt` / `<leader>tf` / `<leader>ts` | Test: nearest / file / suite |
 | `<leader>gp` / `<leader>gt` | Git: preview hunk / toggle blame |
 | `]h` / `[h` | Git: next/prev hunk |
@@ -209,20 +240,28 @@ dotfiles/
 ├── .zprofile               # Zsh profile
 ├── .zshenv                 # Zsh environment
 ├── .gitconfig              # Git configuration
+├── CHANGELOG.md            # Change history
 ├── ghostty/                # Ghostty terminal config
 │   └── config
 ├── bin/                    # Shell scripts
 │   └── tmux-sessionizer    # Project switcher (fzf-based)
 ├── tmux/                   # tmux configuration (Catppuccin Mocha)
 │   └── tmux.conf
-├── nvim/                   # Neovim config (lazy.nvim + Nord)
+├── nvim/                   # Neovim config (lazy.nvim + Catppuccin Mocha)
 │   ├── init.lua
+│   ├── lazy-lock.json      # Plugin version lock
 │   └── lua/
 │       ├── vim-options.lua
-│       └── plugins/
+│       └── plugins/        # Plugin configurations
+│           ├── snacks.lua      # QoL plugins + picker
+│           ├── blink.lua       # Autocompletion (Rust)
+│           ├── opencode.lua    # AI assistant integration
+│           ├── lsp-config.lua  # LSP configuration
+│           └── ...
 ├── karabiner/              # Keyboard remapping
 ├── mcp/                    # MCP configs for AI tools
-├── gitui/                  # GitUI terminal client
+├── opencode/               # OpenCode configuration
+│   └── opencode.jsonc
 └── old/                    # Archived/deprecated configs
 ```
 

@@ -4,6 +4,48 @@ All notable changes to this dotfiles repository are documented here.
 
 ## February 2026
 
+### Major Neovim Migration: snacks.nvim + blink.cmp + opencode.nvim
+
+- **nvim**: Complete plugin ecosystem overhaul
+  - **ADDED** `folke/snacks.nvim` - Modern QoL plugin collection
+    - Replaces: `alpha.nvim`, `nvim-bbye`, `indent-blankline.nvim`, `nvim-surround`, `Comment.nvim`
+    - New features: `dashboard`, `bufdelete`, `indent`, `scope`, `notifier`, `lazygit`, `scratch`, `words`, `git`, `zen`, `toggle`, `quickfile`, `bigfile`
+    - Enabled `input` and `picker` for opencode.nvim integration
+    - Keymaps: `<leader>s` prefix for search/picker, `<leader>u` for toggles, `<leader>bd` for buffer delete
+    - File: `nvim/lua/plugins/snacks.lua`
+  
+  - **ADDED** `saghen/blink.cmp` - High-performance completion engine
+    - Replaces: `nvim-cmp`, `cmp-nvim-lsp`, `cmp-buffer`, `cmp-path`, `cmp_luasnip`
+    - Rust-based fuzzy matching (0.5-4ms response time)
+    - Native LuaSnip integration maintained
+    - `super-tab` preset for Tab-to-accept behavior
+    - File: `nvim/lua/plugins/blink.lua`
+  
+  - **ADDED** `NickvanDyke/opencode.nvim` - AI coding assistant integration
+    - New plugin for opencode CLI integration within Neovim
+    - Uses tmux provider (horizontal split, focus stays in Neovim)
+    - Keymaps: `<leader>o` prefix (oa=ask, os=select, ot=toggle, oo=operator, og=line)
+    - blink.cmp completion support in ask() input
+    - File: `nvim/lua/plugins/opencode.lua`
+  
+  - **REMOVED** deprecated plugins:
+    - `alpha.nvim` → replaced by snacks dashboard
+    - `nvim-cmp` ecosystem → replaced by blink.cmp
+    - `telescope.nvim` → replaced by snacks.picker
+    - `editor.lua` (vim-bbye, indent-blankline, surround, comment) → replaced by snacks
+  
+  - **UPDATED** `nvim/lua/plugins/lsp-config.lua`
+    - Changed dependency from `cmp-nvim-lsp` to `saghen/blink.cmp`
+    - Updated LSP capabilities to use `blink.cmp.get_lsp_capabilities()`
+  
+  - **UPDATED** `nvim/lua/plugins/which-key.lua`
+    - Added keymap groups: `<leader>o` (opencode), `<leader>s` (Search), `<leader>u` (Toggle)
+    - Added subgroups: `<leader>sn` (Notifications), `<leader>ss` (LSP Symbols), `<leader>sg` (Git Search)
+
+- **Brewfile**: Added new dependencies
+  - `lazygit` - Terminal UI for git (required for snacks.lazygit keymap `<leader>gg`)
+  - `imagemagick` - Image manipulation (required for snacks.image preview support)
+
 ### Synced
 
 - **nvim**: Synced live config from `~/.config/nvim` to dotfiles repo

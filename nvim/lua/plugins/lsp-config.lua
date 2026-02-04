@@ -40,7 +40,7 @@ return {
     "neovim/nvim-lspconfig",
     lazy = false,
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp",
+      "saghen/blink.cmp",
     },
     config = function()
       local lspconfig = require("lspconfig")
@@ -48,7 +48,7 @@ return {
       lspconfig.util.default_config = vim.tbl_deep_extend(
         "force",
         lspconfig.util.default_config,
-        { capabilities = require("cmp_nvim_lsp").default_capabilities() }
+        { capabilities = require("blink.cmp").get_lsp_capabilities() }
       )
 
       -- Configure ty type checker for Python (Neovim 0.11+)
