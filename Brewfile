@@ -59,7 +59,6 @@ brew "withgraphite/tap/graphite"
 cask "font-jetbrains-mono-nerd-font"
 cask "font-meslo-lg-nerd-font"
 cask "ghostty"
-cask "karabiner-elements"
 cask "notunes"
 
 # ngrok - install separately with: brew install ngrok/ngrok/ngrok

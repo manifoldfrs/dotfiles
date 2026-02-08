@@ -3,7 +3,7 @@
 ## Project Snapshot
 Personal macOS dotfiles repository (single project, not monorepo).
 Primary tech: Bash/Zsh scripts, Lua (Neovim), JSON/TOML/YAML configs, Docker tests.
-Sub-areas with their own AGENTS.md: `nvim/`, `mcp/`, `test/`, `karabiner/`.
+Sub-areas with their own AGENTS.md: `nvim/`, `mcp/`, `test/`.
 
 ## Build/Lint/Test Commands
 
@@ -33,9 +33,6 @@ rg 'insteadOf\s*=' .gitconfig             # Test 2: SSH rewrite check
 bash -n shell_setup.sh
 bash -n mcp_setup.sh
 bash -n test/run_tests.sh
-
-# JSON validation
-python -m json.tool karabiner/karabiner.json > /dev/null
 
 # Lua syntax (via nvim)
 nvim --headless -c "luafile init.lua" -c "qa" 2>&1 | rg -i "error"
@@ -122,18 +119,16 @@ vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
 - Neovim config: `nvim/` → [nvim/AGENTS.md](nvim/AGENTS.md)
 - MCP configs: `mcp/` → [mcp/AGENTS.md](mcp/AGENTS.md)
 - Tests/CI: `test/` → [test/AGENTS.md](test/AGENTS.md)
-- Karabiner mappings: `karabiner/` → [karabiner/AGENTS.md](karabiner/AGENTS.md)
 - Tmux config: `tmux/tmux.conf`
 - Ghostty config: `ghostty/config`
 - OpenCode config: `opencode/opencode.jsonc`
-- Archive (avoid): `old/`
+- Archive (avoid): `old/`, `karabiner/`
 
 ### Quick Find Commands
 ```bash
 rg '^[a-z_]+\(\)' shell_setup.sh mcp_setup.sh
 rg 'vim.keymap.set' nvim/lua
 rg 'mcpServers' mcp/*.json.example
-rg '"description"' karabiner/karabiner.json
 rg '\[TEST|\[PASS|\[FAIL' test/run_tests.sh
 ```
 
@@ -154,5 +149,4 @@ rg -v '^\s*#' shell_setup.sh | rg '\$[A-Z]' | head -20
 - Docker tests run on Ubuntu; macOS-only assumptions can fail
 - Oh My Zsh install must stay `--unattended` to avoid hanging tests
 - `~/.zshenv` may contain real secrets; never copy actual content to repo
-- JSON in Karabiner must be valid or Karabiner ignores changes entirely
 - Neovim requires >= 0.11.0 for mason-lspconfig v2 compatibility

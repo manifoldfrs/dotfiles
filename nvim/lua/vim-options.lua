@@ -74,7 +74,7 @@ vim.opt.completeopt = { "menuone", "noselect" }
 -- Basic keymaps (not plugin-specific)
 vim.keymap.set("n", ";", ":")
 vim.keymap.set("i", "jk", "<ESC>")
-vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>")
+vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -- Resize with arrows
 vim.keymap.set("n", "<C-Up>", ":resize -2<CR>")

@@ -59,21 +59,10 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 
 See `mcp/README.md` for setup instructions and API key configuration.
 
-### Karabiner Elements (Keyboard Remapping)
+### Karabiner Status
 
-Karabiner Elements is installed via Brewfile. To restore your keyboard settings:
-
-```bash
-# Copy config to Karabiner directory
-mkdir -p ~/.config/karabiner
-cp ~/dotfiles/karabiner/karabiner.json ~/.config/karabiner/
-cp -r ~/dotfiles/karabiner/assets ~/.config/karabiner/
-```
-
-Current keybindings:
-- **Caps Lock → Control** (system-level remap)
-- **Tab + hjkl → Arrow keys** (vim-style navigation)
-- **Fn + Tab → Toggle Caps Lock**
+Karabiner is deprecated in this repo and no longer installed by `shell_setup.sh`/`Brewfile`.
+Existing configs remain archived under `karabiner/` and `old/` for historical reference.
 
 ## Development Environment
 
@@ -126,9 +115,10 @@ Current keybindings:
 | `jk` (insert) | Escape to Normal |
 | `<C-n>` | Toggle neo-tree |
 | `-` | Open oil.nvim (float) |
+| `<leader>h` | Clear search highlight |
 | **snacks.picker (Search)** ||
 | `<C-p>` / `<leader>sf` | Find files |
-| `<leader>sg` | Live grep |
+| `<leader>sg` | Grep |
 | `<leader>sb` | Buffers |
 | `<leader>sr` | Recent files |
 | `<leader>sh` | Help pages |
@@ -258,7 +248,7 @@ dotfiles/
 │           ├── opencode.lua    # AI assistant integration
 │           ├── lsp-config.lua  # LSP configuration
 │           └── ...
-├── karabiner/              # Keyboard remapping
+├── karabiner/              # Deprecated keyboard remapping archive
 ├── mcp/                    # MCP configs for AI tools
 ├── opencode/               # OpenCode configuration
 │   └── opencode.jsonc

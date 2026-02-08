@@ -4,6 +4,30 @@ All notable changes to this dotfiles repository are documented here.
 
 ## February 2026
 
+### Deprecated: Karabiner
+
+- **Brewfile**: Removed `karabiner-elements` cask from managed installs
+- **README**: Replaced Karabiner setup instructions with deprecation note
+- **AGENTS docs**: Removed Karabiner from active root guidance; kept `karabiner/` as archive reference
+
+### Documentation + which-key label corrections
+
+- **nvim/which-key**: Corrected label accuracy for active keymaps
+  - Removed stale groups with no active mappings: `<leader>f` (Find), `<leader>l` (LSP)
+  - Fixed incorrect label: `<leader>sg` changed from "Git Search" to "Grep"
+  - Converted leaf entries from `group` to `desc` for proper which-key rendering:
+    - `<leader>sn` -> "Notification History"
+    - `<leader>ss` -> "LSP Symbols"
+  - File: `nvim/lua/plugins/which-key.lua`
+
+- **nvim/vim-options**: Added keymap description for search highlight clear
+  - `<leader>h` now has `desc = "Clear search highlight"`
+  - File: `nvim/lua/vim-options.lua`
+
+- **README**: Updated keybinding docs to match current mappings
+  - `<leader>sg` documented as "Grep" (instead of "Live grep")
+  - Added `<leader>h` -> "Clear search highlight"
+
 ### Major Neovim Migration: snacks.nvim + blink.cmp + opencode.nvim
 
 - **nvim**: Complete plugin ecosystem overhaul
@@ -40,7 +64,7 @@ All notable changes to this dotfiles repository are documented here.
   
   - **UPDATED** `nvim/lua/plugins/which-key.lua`
     - Added keymap groups: `<leader>o` (opencode), `<leader>s` (Search), `<leader>u` (Toggle)
-    - Added subgroups: `<leader>sn` (Notifications), `<leader>ss` (LSP Symbols), `<leader>sg` (Git Search)
+    - Added labels for `<leader>sn` (Notifications), `<leader>ss` (LSP Symbols), `<leader>sg` (Grep)
 
 - **Brewfile**: Added new dependencies
   - `lazygit` - Terminal UI for git (required for snacks.lazygit keymap `<leader>gg`)
