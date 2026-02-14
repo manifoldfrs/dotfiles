@@ -4,6 +4,21 @@ All notable changes to this dotfiles repository are documented here.
 
 ## February 2026
 
+### Theme update: switched back to Nord (Neovim + Ghostty)
+
+- **nvim**: Switched colorscheme from Catppuccin back to Nord
+  - Replaced `catppuccin/nvim` with `shaunsingh/nord.nvim`
+  - Updated lualine theme from `catppuccin` to `nord`
+  - Files: `nvim/lua/plugins/colorscheme.lua`, `nvim/lua/plugins/lualine.lua`
+
+- **ghostty**: Switched terminal theme from Catppuccin Mocha to Nord
+  - Updated `theme = Nord`
+  - File: `ghostty/config`
+
+- **docs**: Updated theme references to match current configuration
+  - Updated Neovim and Ghostty theme labels in `README.md`
+  - Updated Neovim package identity in `nvim/AGENTS.md`
+
 ### Deprecated: Karabiner
 
 - **Brewfile**: Removed `karabiner-elements` cask from managed installs

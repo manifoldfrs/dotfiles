@@ -231,13 +231,13 @@ dotfiles/
 ├── .zshenv                 # Zsh environment
 ├── .gitconfig              # Git configuration
 ├── CHANGELOG.md            # Change history
-├── ghostty/                # Ghostty terminal config
+├── ghostty/                # Ghostty terminal config (Nord)
 │   └── config
 ├── bin/                    # Shell scripts
 │   └── tmux-sessionizer    # Project switcher (fzf-based)
 ├── tmux/                   # tmux configuration (Catppuccin Mocha)
 │   └── tmux.conf
-├── nvim/                   # Neovim config (lazy.nvim + Catppuccin Mocha)
+├── nvim/                   # Neovim config (lazy.nvim + Nord)
 │   ├── init.lua
 │   ├── lazy-lock.json      # Plugin version lock
 │   └── lua/
