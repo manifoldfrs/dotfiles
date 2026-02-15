@@ -182,6 +182,14 @@ install() {
         info "Copying Neovim config..."
         mkdir -p "$HOME/.config"
         copy_file "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+        
+        # Install Neovim plugins via lazy.nvim (headless)
+        if command -v nvim &> /dev/null; then
+            info "Installing Neovim plugins (Lazy sync)..."
+            nvim --headless -c "Lazy! sync" -c "qa" 2>&1 | tail -20 || warn "Lazy sync may have encountered issues"
+        else
+            warn "Neovim not found, skipping plugin installation"
+        fi
     fi
 
     # Setup fzf keybindings

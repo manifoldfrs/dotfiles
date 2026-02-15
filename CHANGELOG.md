@@ -4,6 +4,28 @@ All notable changes to this dotfiles repository are documented here.
 
 ## February 2026
 
+### Neovim: migrated nvim-treesitter to `main` rewrite
+
+- **nvim/treesitter**: Migrated from frozen `master` API to `main` API
+  - Replaced `require("nvim-treesitter.configs").setup(...)` with `require("nvim-treesitter").setup({})`
+  - Added parser bootstrap via `require("nvim-treesitter").install(...)`
+  - Enabled highlighting + indentation via `FileType` autocmd (`vim.treesitter.start()` + `indentexpr`)
+  - Set plugin spec to `branch = "main"` and `lazy = false` per upstream `main` guidance
+  - Files: `nvim/lua/plugins/treesitter.lua`, `nvim/lazy-lock.json`
+
+### Setup: auto-sync Neovim plugins during install
+
+- **shell setup**: Added headless Lazy sync after copying Neovim config
+  - Runs: `nvim --headless -c "Lazy! sync" -c "qa"`
+  - Prevents startup errors on fresh machines where plugin modules are not installed yet
+  - File: `shell_setup.sh`
+
+### Neovim: added markdown rendering plugin
+
+- **nvim/markdown**: Added `MeanderingProgrammer/render-markdown.nvim` for in-buffer markdown rendering
+  - Lazy-loads for markdown buffers
+  - File: `nvim/lua/plugins/render-markdown.lua`
+
 ### Neovim: added Diffview + Spectre workflows
 
 - **nvim/git review**: Added `sindrets/diffview.nvim` for tabbed diff review and file history
@@ -101,18 +123,17 @@ All notable changes to this dotfiles repository are documented here.
   - `lazygit` - Terminal UI for git (required for snacks.lazygit keymap `<leader>gg`)
   - `imagemagick` - Image manipulation (required for snacks.image preview support)
 
-### Synced
+### Synced (Historical snapshot)
 
 - **nvim**: Synced live config from `~/.config/nvim` to dotfiles repo
   - Added `lazy-lock.json` for plugin version locking
-  - Verified `treesitter.lua` uses STABLE configuration:
-    - `nvim-treesitter/nvim-treesitter` on `master` branch (frozen at v0.10.0)
-    - Uses `require("nvim-treesitter.configs").setup()` API
-    - `master` branch is archived but stable and functional
-  - Verified `telescope.lua` on `0.1.x` branch (stable, compatible with treesitter master)
+  - At that time, `treesitter.lua` used the frozen `master` API:
+    - `nvim-treesitter/nvim-treesitter` on `master` branch (v0.10-era)
+    - `require("nvim-treesitter.configs").setup()`
+  - At that time, `telescope.lua` was on `0.1.x`
   - Minor formatting fix in `git.lua`
 
-**Note**: The January 2025 entries below documenting migration to treesitter `main` branch and telescope `master` were attempted but REVERTED. The stable working configuration uses treesitter `master` (frozen) + telescope `0.1.x`.
+**Historical note**: The January 2025 migration to treesitter `main` was attempted and reverted at that time. As of February 2026, treesitter is migrated to `main` with the new API (see entries above).
 
 ## January 2025
 

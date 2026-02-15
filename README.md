@@ -29,8 +29,8 @@ cd ~/dotfiles
 ./shell_setup.sh install
 
 # 3. Restart your terminal (quit and reopen)
-# 4. Install Node.js
-nvm install --lts
+# 4. Verify Node.js (installed by setup when missing)
+node --version
 
 # 5. Install OpenCode (optional, for AI features)
 curl -fsSL https://opencode.ai/install | bash
@@ -44,7 +44,9 @@ curl -fsSL https://opencode.ai/install | bash
 - **Oh My Zsh** with `robbyrussell` theme (minimal, fast)
 - **zsh-syntax-highlighting** plugin
 - **nvm** (Node Version Manager) via HTTPS
+- **Node.js LTS** via nvm (installed if missing)
 - **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/.config/ghostty/config`, `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`, `bin/tmux-sessionizer` → `~/.local/bin/tmux-sessionizer`
+- **Neovim plugins synced** headlessly via lazy.nvim (`nvim --headless -c "Lazy! sync" -c "qa"`)
 
 ### npm Global Packages (`npm-global-packages.txt`)
 
@@ -87,7 +89,8 @@ Existing configs remain archived under `karabiner/` and `old/` for historical re
 | blink.cmp | High-performance autocompletion (Rust-based fuzzy matching) |
 | opencode.nvim | AI coding assistant integration (opencode CLI + tmux) |
 | mason + lspconfig | LSP support |
-| treesitter | Syntax highlighting |
+| treesitter | Syntax highlighting + parser management |
+| render-markdown.nvim | In-buffer markdown rendering |
 | gitsigns | Git integration |
 | diffview.nvim | Git diff review and file history UI |
 | nvim-spectre | Project-wide search and replace panel |
@@ -257,8 +260,10 @@ dotfiles/
 │       └── plugins/        # Plugin configurations
 │           ├── snacks.lua      # QoL plugins + picker
 │           ├── blink.lua       # Autocompletion (Rust)
-│           ├── opencode.lua    # AI assistant integration
-│           ├── lsp-config.lua  # LSP configuration
+│           ├── opencode.lua         # AI assistant integration
+│           ├── lsp-config.lua       # LSP configuration
+│           ├── treesitter.lua       # Treesitter main-branch config
+│           ├── render-markdown.lua  # Markdown rendering
 │           └── ...
 ├── karabiner/              # Deprecated keyboard remapping archive
 ├── mcp/                    # MCP configs for AI tools
@@ -295,6 +300,11 @@ git push
 - Requires `tree-sitter-cli` >= 0.26.1 for nvim-treesitter `main` branch
 - Run `:checkhealth nvim-treesitter` to verify CLI is found
 - Install via: `npm install -g tree-sitter-cli`
+
+**Seeing `module 'nvim-treesitter.configs' not found`?**
+- This usually means old treesitter `master`-style config is mixed with `main`-branch plugin files
+- Re-copy your dotfiles Neovim config and rerun setup: `./shell_setup.sh install`
+- The setup script runs headless `Lazy! sync` to install/update plugin files
 
 **Powerline symbols not showing?**
 - Ensure terminal uses a Nerd Font (JetBrainsMono Nerd Font)
