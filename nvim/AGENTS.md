@@ -33,6 +33,7 @@ nvim/
 - ✅ DO: Keep base options in `nvim/lua/vim-options.lua`
 - ✅ DO: LSP servers + keymaps in `nvim/lua/plugins/lsp-config.lua`
 - ✅ DO: Keymaps with `{ desc = "..." }` (see `nvim/lua/plugins/telescope.lua`)
+- ✅ DO: Keep leader namespaces consistent: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>d` Debug, `<leader>o` opencode, `<leader>u` Toggle
 - ❌ DON'T: Use legacy Vimscript from `old/iterm2/nvim/init.vim`
 - ❌ DON'T: Put multiple unrelated plugins in one file (use `nvim/lua/plugins/*.lua`)
 - ❌ DON'T: Omit keymap descriptions (reference `nvim/lua/plugins/telescope.lua`)

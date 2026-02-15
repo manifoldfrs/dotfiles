@@ -4,6 +4,22 @@ All notable changes to this dotfiles repository are documented here.
 
 ## February 2026
 
+### Neovim: added Diffview + Spectre workflows
+
+- **nvim/git review**: Added `sindrets/diffview.nvim` for tabbed diff review and file history
+  - Keymaps: `<leader>gD`, `<leader>gC`, `<leader>gh`, `<leader>gH`
+  - File: `nvim/lua/plugins/diffview.lua`
+
+- **nvim/search + replace**: Added `nvim-pack/nvim-spectre` for project and file-scoped search/replace
+  - Keymaps: `<leader>sR`, `<leader>sw` (normal + visual), `<leader>sW`
+  - File: `nvim/lua/plugins/spectre.lua`
+
+- **nvim/which-key**: Added labels for new Diffview and Spectre keymaps
+  - File: `nvim/lua/plugins/which-key.lua`
+
+- **docs**: Updated Neovim plugin list, requirements, and keybindings
+  - File: `README.md`
+
 ### Theme update: switched back to Nord (Neovim + Ghostty)
 
 - **nvim**: Switched colorscheme from Catppuccin back to Nord

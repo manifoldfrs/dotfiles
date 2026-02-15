@@ -1,152 +1,161 @@
 # AGENTS.md - Dotfiles Repository
 
-## Project Snapshot
-Personal macOS dotfiles repository (single project, not monorepo).
-Primary tech: Bash/Zsh scripts, Lua (Neovim), JSON/TOML/YAML configs, Docker tests.
-Sub-areas with their own AGENTS.md: `nvim/`, `mcp/`, `test/`.
+## Scope and Intent
+This repository manages personal macOS dotfiles and setup automation.
+It includes shell bootstrap scripts, Neovim Lua config, MCP templates, and Docker-based validation.
+This file is the top-level guide for coding agents working in `/Users/frshbb/github/dotfiles`.
 
-## Build/Lint/Test Commands
+## Rule File Discovery (Cursor/Copilot)
+Checked locations:
+- `.cursor/rules/`
+- `.cursorrules`
+- `.github/copilot-instructions.md`
 
-### All Tests
+Current status:
+- No Cursor rule files found.
+- No Copilot instruction file found.
+
+Agent behavior:
+- If any of these files are added later, treat them as high-priority local instructions.
+- Keep this AGENTS.md in sync with those rule files.
+
+## Repository Layout
+- `shell_setup.sh` - main shell/dev environment install + backup script
+- `mcp_setup.sh` - MCP config install + backup script
+- `nvim/` - Neovim config (lazy.nvim + Lua plugins)
+- `mcp/` - MCP template configs (`*.example`) and docs
+- `test/` - Docker test harness + shell test runner
+- `tmux/`, `ghostty/`, `.zsh*`, `.gitconfig` - user config files
+- `old/`, `karabiner/` - archived or legacy areas (avoid unless explicitly requested)
+
+Subdirectory guides:
+- `nvim/AGENTS.md`
+- `mcp/AGENTS.md`
+- `test/AGENTS.md`
+
+## Build, Lint, and Test Commands
+
+### Fast Preflight (recommended before PR)
 ```bash
-# Full test suite (syntax + Docker)
-bash -n shell_setup.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
-
-# CI equivalent
-bash test/run_tests.sh
-```
-
-### Single Test
-```bash
-# Run specific test by editing test/run_tests.sh temporarily:
-# Comment out unwanted tests, keep [TEST N] you want
-bash test/run_tests.sh
-
-# Or run specific checks directly:
-bash -n shell_setup.sh                    # Test 1: Syntax check
-rg 'insteadOf\s*=' .gitconfig             # Test 2: SSH rewrite check
-```
-
-### Linting
-```bash
-# Bash syntax validation
 bash -n shell_setup.sh
 bash -n mcp_setup.sh
 bash -n test/run_tests.sh
-
-# Lua syntax (via nvim)
-nvim --headless -c "luafile init.lua" -c "qa" 2>&1 | rg -i "error"
+(cd nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
 ```
 
-## Root Setup Commands
+### Full Test Suite (closest to CI behavior)
 ```bash
-./shell_setup.sh install
-./shell_setup.sh backup
-./mcp_setup.sh install
-./mcp_setup.sh backup
+# local CI-like sequence
+bash -n shell_setup.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
+
+# test script only
+bash test/run_tests.sh
+```
+
+### Run a Single Test/Check (important)
+`test/run_tests.sh` is sequential and not parameterized. For one check, run the equivalent command directly:
+
+```bash
+# TEST 1 equivalent: shell syntax
+bash -n shell_setup.sh
+
+# MCP script syntax gate
+bash -n mcp_setup.sh
+
+# TEST 2 equivalent: ensure no active SSH rewrite in .gitconfig
+if grep -E '^\s*insteadOf\s*=' .gitconfig || grep -E '^\s*sshCommand\s*=' .gitconfig; then
+  echo "FAIL: active SSH rewrite present"
+  exit 1
+fi
+
+# nvim config loads without Lua errors
+(cd nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
+```
+
+To run a single check in the Docker test environment:
+```bash
+docker build -t dotfiles-test -f test/Dockerfile .
+docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n shell_setup.sh'
 ```
 
 ## Code Style Guidelines
 
-### Bash Scripts
-- **Shebang**: `#!/bin/bash` at line 1
-- **Strict mode**: `set -e` immediately after shebang
-- **Variable naming**: `UPPERCASE` for constants, `lowercase` for locals
-- **Quote variables**: Always use `"$VAR"` (see `shell_setup.sh:35`)
-- **Command checks**: Use `command -v` not `which` (see `shell_setup.sh:76`)
-- **Function order**: Helpers before main logic, `usage()` last
-- **Error handling**: `error()` function exits 1 with red prefix
-- **Colors**: Use `RED`, `GREEN`, `YELLOW`, `NC` constants
-- **Logging**: `info()`, `warn()`, `error()` helper functions
+### General
+- Keep changes minimal and scoped; do not refactor unrelated areas.
+- Match existing file style before introducing new patterns.
+- Prefer explicit, readable code over clever shortcuts.
+- Do not introduce secrets in tracked files.
 
-**Example pattern from shell_setup.sh:**
-```bash
-info() { echo -e "${GREEN}[INFO]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
-```
+### Bash Style (`shell_setup.sh`, `mcp_setup.sh`, `test/*.sh`)
+- Shebang: `#!/bin/bash` at line 1.
+- Strict mode: keep `set -e` near top-level.
+- Constants: uppercase (`DOTFILES_DIR`, `MCP_DIR`).
+- Locals: lowercase (`src`, `dest`).
+- Quote variable expansions: `"$VAR"`.
+- Use `command -v` for tool checks.
+- Keep helper functions (`info`, `warn`, `error`) consistent.
+- Preserve color constants: `RED`, `GREEN`, `YELLOW`, `NC`.
+- Use early failure (`exit 1`) for critical checks.
+- For optional installs, warn and continue rather than hard-fail.
 
-### Lua (Neovim)
-- **Indent**: 2 spaces (no tabs)
-- **Quotes**: Double quotes for strings
-- **Function calls**: No space between function name and `(`
-- **Trailing commas**: Required in tables
-- **Plugin files**: One plugin per file in `nvim/lua/plugins/`
-- **Keymaps**: Must include `{ desc = "..." }` for which-key
-- **Requires**: Local variables for requires (see `telescope.lua:15`)
+### Lua Style (`nvim/**/*.lua`)
+- Indentation: 2 spaces, no tabs.
+- Prefer double quotes for strings in new code.
+- Keep one plugin spec per file under `nvim/lua/plugins/`.
+- Keymaps should include `desc` for which-key discoverability.
+- Use local imports: `local mod = require("mod")`.
+- Keep plugin setup in `config = function()` or `opts = {}` patterns.
+- Use trailing commas in multiline tables.
+- Preserve existing lazy-loading triggers (`event`, `cmd`, `keys`, `ft`).
+- Optional: use EmmyLua type annotations where useful (for complex opts tables).
 
-**Example from telescope.lua:**
-```lua
-local telescope = require("telescope")
-telescope.setup({ defaults = { ... } })
-vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
-```
+### JSON / TOML / YAML / Markdown
+- JSON: 2-space indent, double-quoted keys/values, no comments.
+- TOML: use native TOML structures (`[[mcpServers]]`), not JSON-like arrays.
+- YAML: keep key ordering logical and avoid noisy reformatting.
+- Markdown: concise sections, runnable code blocks, avoid stale examples.
 
-### JSON/TOML/YAML
-- **Indent**: 2 spaces
-- **Quotes**: Double quotes for JSON keys and string values
-- **TOML arrays**: Use `[[mcpServers]]` format, not JSON-style
-- **Comments**: JSON = none (or use .example templates), TOML = use `#`
+## Naming and File Conventions
+- Shell scripts: `snake_case.sh`.
+- Neovim plugin files: kebab-case or existing repo convention (`nvim/lua/plugins/*.lua`).
+- Templates with placeholders: `.example` suffix.
+- Backup filenames: `.backup.YYYYMMDDhhmmss`.
+- Keep user/runtime files out of git unless explicitly intended.
 
-### File Naming
-- **Shell scripts**: `snake_case.sh` with `.sh` extension
-- **Lua modules**: `kebab-case.lua` for plugin configs
-- **Config files**: Use symlinks (`.symlink` suffix) or direct names
-- **Templates**: `.example` suffix for files with placeholders
-- **Backups**: `.backup.YYYYMMDDhhmmss` format
+## Error Handling and Safety
+- Bash: fail fast for critical operations, warn for optional operations.
+- Validate paths and command availability before destructive actions.
+- Prefer idempotent setup logic (safe to rerun).
+- In Lua, avoid crashing startup for optional integrations; guard risky calls when needed.
 
-## Universal Conventions
+## Security and Secrets
+- Never commit API keys/tokens or real local credentials.
+- Real MCP configs (`mcp/*.json`, `mcp/*.toml`) are local; keep templates in `mcp/*.example`.
+- Preserve placeholders like `YOUR_*` in examples.
+- Treat `~/.zshenv` as sensitive content.
 
-### Security & Secrets
-- **Never commit**: API keys, tokens, real configs
-- **Real configs**: Live in `mcp/*.json` and `mcp/*.toml` (gitignored)
-- **Templates**: Use `.example` suffix with `YOUR_*` placeholders
-- **Secrets storage**: `~/.zshenv` for shell, `.example` for templates
-- **CI check**: Blocks SSH URL rewrites in `.gitconfig`
+## Change Management Expectations
+- Update `README.md` when user-facing commands/keymaps/setup behavior changes.
+- Update `CHANGELOG.md` for notable features or workflow changes.
+- Do not commit unless explicitly asked.
+- Do not revert unrelated local changes you did not author.
 
-### Git Workflow
-- **Commits**: Descriptive messages, never commit without explicit user permission
-- **CI**: Runs on push/PR to master via `.github/workflows/test.yml`
-- **Definition of Done**:
-  1. `bash -n` passes for modified scripts
-  2. Docker tests pass
-  3. No secrets or real configs staged
-  4. `CHANGELOG.md` updated for new features
+## Known Gotchas
+- Docker tests run on Ubuntu; macOS-only assumptions can break CI parity.
+- Oh My Zsh install must remain unattended in automated contexts.
+- Legacy references to `cursor_setup.sh` may appear in older test/workflow paths; verify current intended script before changing CI logic.
 
-## JIT Index
+## Agent Checklist Before Hand-off
+1. Syntax-check modified shell scripts with `bash -n`.
+2. Run targeted validation for touched area (nvim/mcp/test).
+3. Confirm no secrets or real credentials are staged.
+4. Update docs/changelog when behavior changes.
+5. Report exactly what was changed and where.
 
-### Directory Map
-- Neovim config: `nvim/` → [nvim/AGENTS.md](nvim/AGENTS.md)
-- MCP configs: `mcp/` → [mcp/AGENTS.md](mcp/AGENTS.md)
-- Tests/CI: `test/` → [test/AGENTS.md](test/AGENTS.md)
-- Tmux config: `tmux/tmux.conf`
-- Ghostty config: `ghostty/config`
-- OpenCode config: `opencode/opencode.jsonc`
-- Archive (avoid): `old/`, `karabiner/`
-
-### Quick Find Commands
+## Quick Search Commands
 ```bash
 rg '^[a-z_]+\(\)' shell_setup.sh mcp_setup.sh
-rg 'vim.keymap.set' nvim/lua
-rg 'mcpServers' mcp/*.json.example
+rg 'vim.keymap.set|desc\s*=\s*"' nvim/lua
+rg 'mcpServers|YOUR_' mcp/*.example
 rg '\[TEST|\[PASS|\[FAIL' test/run_tests.sh
 ```
-
-### Key File Patterns
-```bash
-# Find all plugin configs
-rg --files -g 'nvim/lua/plugins/*.lua'
-
-# Find all keymaps with descriptions
-rg 'desc = "' nvim/lua
-
-# Check for unquoted variables
-rg -v '^\s*#' shell_setup.sh | rg '\$[A-Z]' | head -20
-```
-
-## Common Gotchas
-
-- Docker tests run on Ubuntu; macOS-only assumptions can fail
-- Oh My Zsh install must stay `--unattended` to avoid hanging tests
-- `~/.zshenv` may contain real secrets; never copy actual content to repo
-- Neovim requires >= 0.11.0 for mason-lspconfig v2 compatibility

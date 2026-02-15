@@ -12,6 +12,8 @@ Configuration files for zsh, Homebrew, Ghostty terminal, tmux, and Neovim.
 | **Node.js** | LTS | For LSP servers via Mason |
 | **tree-sitter-cli** | >= 0.26.1 | Required for nvim-treesitter `main` branch parser compilation |
 | **lazygit** | >= 0.40 | Required for snacks.lazygit keymap (`<leader>gg`) |
+| **ripgrep** | >= 13.0 | Required for nvim-spectre search backend |
+| **gnu-sed** | Latest | Recommended on macOS for nvim-spectre replace engine (`brew install gnu-sed`) |
 | **imagemagick** | >= 7.0 | Required for snacks.image preview support |
 
 [![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
@@ -87,6 +89,8 @@ Existing configs remain archived under `karabiner/` and `old/` for historical re
 | mason + lspconfig | LSP support |
 | treesitter | Syntax highlighting |
 | gitsigns | Git integration |
+| diffview.nvim | Git diff review and file history UI |
+| nvim-spectre | Project-wide search and replace panel |
 | lualine | Status line |
 | bufferline | Buffer tabs |
 | vim-test + vimux | Test runner |
@@ -109,6 +113,8 @@ Existing configs remain archived under `karabiner/` and `old/` for historical re
 
 ### Neovim
 
+Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>d` Debug, `<leader>o` opencode, `<leader>u` Toggle.
+
 | Keys | Action |
 |------|--------|
 | `Space` | Leader key |
@@ -126,6 +132,9 @@ Existing configs remain archived under `karabiner/` and `old/` for historical re
 | `<leader>sc` | Colorschemes |
 | `<leader>sn` | Notification history |
 | `<leader><space>` | Smart find files |
+| `<leader>sR` | Spectre: replace in project |
+| `<leader>sw` / visual `<leader>sw` | Spectre: search current word / selection |
+| `<leader>sW` | Spectre: search current file |
 | `gd` / `gr` / `gI` | LSP: definition / references / implementation |
 | **opencode.nvim (AI)** ||
 | `<leader>oa` | Ask opencode about current context |
@@ -150,6 +159,9 @@ Existing configs remain archived under `karabiner/` and `old/` for historical re
 | **Testing & Git** ||
 | `<leader>tt` / `<leader>tf` / `<leader>ts` | Test: nearest / file / suite |
 | `<leader>gp` / `<leader>gt` | Git: preview hunk / toggle blame |
+| `<leader>gd` | Git: picker diff |
+| `<leader>gD` / `<leader>gC` | Diffview: open / close |
+| `<leader>gh` / `<leader>gH` | Diffview: file history (current/repo) |
 | `]h` / `[h` | Git: next/prev hunk |
 
 ### Debugging (nvim-dap)

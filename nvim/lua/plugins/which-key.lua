@@ -25,9 +25,16 @@ return {
       { "<leader>o", group = "opencode" },
       { "<leader>s", group = "Search" },
       { "<leader>u", group = "Toggle" },
+      { "<leader>gD", desc = "Diffview Open" },
+      { "<leader>gC", desc = "Diffview Close" },
+      { "<leader>gh", desc = "File History (Current)" },
+      { "<leader>gH", desc = "File History (Repo)" },
       { "<leader>sg", desc = "Grep" },
       { "<leader>sn", desc = "Notification History" },
       { "<leader>ss", desc = "LSP Symbols" },
+      { "<leader>sR", desc = "Replace in Project" },
+      { "<leader>sw", desc = "Search Current Word" },
+      { "<leader>sW", desc = "Search Current File" },
     })
   end,
 }
