@@ -4,6 +4,16 @@ All notable changes to this dotfiles repository are documented here.
 
 ## February 2026
 
+### tmux: smart pane switching and improved UX
+
+- **tmux/tmux.conf**: Added Vim-aware pane navigation and usability improvements
+  - Smart pane switching: C-h/j/k/l detects if pane is running vim/nvim and sends keys appropriately
+  - Copy-mode navigation: C-h/j/k/l works in copy-mode without vim detection
+  - Pane resize: M-Arrow keys for quick resizing (5px horizontal, 2px vertical)
+  - Utilities: C-k clears history, C-a R toggles switch-client
+  - Copy-mode selection styling: Nord-themed yellow highlight for better visibility
+  - Files: `tmux/tmux.conf`
+
 ### Neovim: migrated nvim-treesitter to `main` rewrite
 
 - **nvim/treesitter**: Migrated from frozen `master` API to `main` API
