@@ -211,7 +211,7 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
 
-**Note:** Status bar is positioned at top with Catppuccin Mocha theme. Pane navigation uses a manual `is_vim` script (not the TPM plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+**Note:** Status bar is positioned at the top with Nord theme (`nordtheme/tmux`). Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
 
 ### tmux-sessionizer
 
@@ -312,6 +312,21 @@ git push
 
 **tmux plugins not loading?**
 - Run `~/.tmux/plugins/tpm/bin/install_plugins`
+- If the bar still looks plain, ensure a Nerd Font is enabled in Ghostty and restart the terminal
+
+**Pretty tmux bar not rendering?**
+- Kill and restart tmux first so no old server state is cached: `tmux kill-server && tmux`
+- Reload config after restart: `tmux source-file ~/.tmux.conf`
+- Ensure the plugin variables are set in `~/.tmux.conf`:
+  - `set -g @nord_tmux_show_status_content "1"`
+  - `set -g @nord_tmux_no_patched_font "0"`
+- Confirm plugin/theme values are active:
+  - `tmux show -g @nord_tmux_show_status_content`
+  - `tmux show -g @nord_tmux_no_patched_font`
+- Verify theme content is being applied:
+  - `tmux show -g status-left`
+  - `tmux show -g status-right`
+- If symbols are still wrong, re-run plugin install and keep Nerd Font enabled in terminal
 
 **C-h/j/k/l not working between nvim and tmux?**
 - Ensure `nvim-tmux-navigation` plugin is installed in Neovim

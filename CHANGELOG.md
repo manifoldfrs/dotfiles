@@ -30,6 +30,14 @@ All notable changes to this dotfiles repository are documented here.
   - Prevents startup errors on fresh machines where plugin modules are not installed yet
   - File: `shell_setup.sh`
 
+### Setup: backup tmux config and sessionizer
+
+- **shell setup**: Included tmux assets in backup flow so changes are persisted to dotfiles
+  - `~/.tmux.conf` now backs up to `tmux/tmux.conf`
+  - `~/.local/bin/tmux-sessionizer` now backs up to `bin/tmux-sessionizer`
+  - Updated backup summary to include both files
+  - File: `shell_setup.sh`
+
 ### Neovim: added markdown rendering plugin
 
 - **nvim/markdown**: Added `MeanderingProgrammer/render-markdown.nvim` for in-buffer markdown rendering

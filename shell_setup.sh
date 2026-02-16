@@ -58,6 +58,20 @@ backup() {
         cp "$HOME/.zshenv" "$DOTFILES_DIR/.zshenv"
     fi
 
+    # Copy tmux config
+    if [ -f "$HOME/.tmux.conf" ]; then
+        info "Copying tmux config..."
+        mkdir -p "$DOTFILES_DIR/tmux"
+        cp "$HOME/.tmux.conf" "$DOTFILES_DIR/tmux/tmux.conf"
+    fi
+
+    # Copy tmux-sessionizer script
+    if [ -f "$HOME/.local/bin/tmux-sessionizer" ]; then
+        info "Copying tmux-sessionizer script..."
+        mkdir -p "$DOTFILES_DIR/bin"
+        cp "$HOME/.local/bin/tmux-sessionizer" "$DOTFILES_DIR/bin/tmux-sessionizer"
+    fi
+
     # Copy Warp themes
     if [ -d "$HOME/.warp/themes" ]; then
         info "Copying Warp themes..."
@@ -85,6 +99,8 @@ backup() {
     echo "  - .zshrc"
     [ -f "$DOTFILES_DIR/.zprofile" ] && echo "  - .zprofile"
     [ -f "$DOTFILES_DIR/.zshenv" ] && echo "  - .zshenv"
+    [ -f "$DOTFILES_DIR/tmux/tmux.conf" ] && echo "  - tmux/tmux.conf"
+    [ -f "$DOTFILES_DIR/bin/tmux-sessionizer" ] && echo "  - bin/tmux-sessionizer"
     [ -d "$DOTFILES_DIR/warp/themes" ] && echo "  - warp/themes/"
     [ -f "$DOTFILES_DIR/npm-global-packages.txt" ] && echo "  - npm-global-packages.txt"
 }
