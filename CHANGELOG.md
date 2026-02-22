@@ -4,6 +4,18 @@ All notable changes to this dotfiles repository are documented here.
 
 ## February 2026
 
+### Cursor: track personal settings in dotfiles
+
+- **cursor config backup**: Added a first-class `cursor/` folder for personal Cursor settings
+  - Added `cursor/settings.json` and `cursor/keybindings.json` from local Cursor user config
+  - Added `cursor/extensions.txt` with installed extension IDs
+  - Added `cursor/README.md` documenting source paths and refresh commands
+  - Files: `cursor/settings.json`, `cursor/keybindings.json`, `cursor/extensions.txt`, `cursor/README.md`
+
+- **security hygiene**: Prevented accidental commits of sensitive Cursor files
+  - Ignored potential secret-bearing files under repo `cursor/`: `syncLocalSettings.json`, `mcp.json`, `argv.json`
+  - File: `.gitignore`
+
 ### tmux: smart pane switching and improved UX
 
 - **tmux/tmux.conf**: Added Vim-aware pane navigation and usability improvements
