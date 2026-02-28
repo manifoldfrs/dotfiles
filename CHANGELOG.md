@@ -4,6 +4,103 @@ All notable changes to this dotfiles repository are documented here.
 
 ## February 2026
 
+### Theme switch: Catppuccin Macchiato across the stack
+
+- **nvim/colorscheme**: Switched from Nord to Catppuccin Macchiato
+  - Replaced `shaunsingh/nord.nvim` with `catppuccin/nvim` (flavour `macchiato`)
+  - Updated lualine theme from `nord` to `catppuccin`
+  - Files: `nvim/lua/plugins/colorscheme.lua`, `nvim/lua/plugins/lualine.lua`
+
+- **ghostty**: Switched terminal theme from Nord to Catppuccin Macchiato
+  - Updated `theme = Catppuccin Macchiato`
+  - File: `ghostty/config`
+
+- **tmux**: Switched from Nord theme to Catppuccin Macchiato
+  - Replaced `nordtheme/tmux` with `catppuccin/tmux`
+  - Added `@catppuccin_flavor "macchiato"` and `@catppuccin_window_status_style "rounded"`
+  - Status bar shows directory + session name via Catppuccin status modules
+  - Updated copy-mode selection colors to Macchiato palette
+  - File: `tmux/tmux.conf`
+
+- **opencode**: Updated OpenCode TUI theme to `catppuccin-macchiato`
+  - File: `opencode/opencode.jsonc`
+
+### Neovim: added flash.nvim for motion/jump
+
+- **nvim/motion**: Added `folke/flash.nvim` for fast navigation
+  - Jump to character: `<leader>jj`
+  - Jump to word: `<leader>jw`
+  - Jump to line: `<leader>jl`
+  - Lazy-loaded on `VeryLazy`
+  - File: `nvim/lua/plugins/flash.lua`
+
+### Neovim: opencode.nvim API migration (provider -> server)
+
+- **nvim/opencode**: Rewrote opencode.nvim configuration for new server-based API
+  - Migrated from deprecated `provider` config to `server` config with custom tmux state management
+  - Added `event = "VeryLazy"` for lazy loading
+  - Custom tmux split management: persistent pane state via file, pane existence checks, graceful toggle/stop
+  - Falls back to terminal if not running inside tmux
+  - Keymaps unchanged (`<leader>o` prefix)
+  - File: `nvim/lua/plugins/opencode.lua`
+
+### Neovim: snacks.nvim updates
+
+- **nvim/snacks**: Disabled background toggle to prevent OptionSet recursion
+  - Removed `Snacks.toggle.option("background", ...)` mapping (`<leader>ub`) that caused startup loop risk
+  - File: `nvim/lua/plugins/snacks.lua`
+
+### Cleanup: Karabiner files removed from repo root
+
+- **karabiner**: Deleted deprecated Karabiner configs from tracked files
+  - Removed `karabiner/AGENTS.md`, `karabiner/karabiner.json`, and all complex modification JSON files
+  - Archived copies available under `old/karabiner/`
+
+### Neovim rollback: keep noice, remove recent visual additions
+
+- **rollback**: Removed recently added visual plugins from repo and live config, keeping only `noice.nvim`
+  - Removed plugin specs:
+    - `nvim/lua/plugins/colorizer.lua`
+    - `nvim/lua/plugins/tiny-devicons-auto-colors.lua`
+    - `nvim/lua/plugins/todo-comments.lua`
+    - `nvim/lua/plugins/indent-rainbowline.lua`
+  - Restored Snacks indentation ownership (`indent = { enabled = true }`) after removing rainbowline integration
+  - Uninstalled local plugin directories:
+    - `~/.local/share/nvim/lazy/nvim-colorizer.lua`
+    - `~/.local/share/nvim/lazy/tiny-devicons-auto-colors.nvim`
+    - `~/.local/share/nvim/lazy/todo-comments.nvim`
+    - `~/.local/share/nvim/lazy/indent-rainbowline.nvim`
+    - `~/.local/share/nvim/lazy/indent-blankline.nvim`
+
+- **incident log**: Documented root cause of markdown crashes
+  - Crash signature: `CODESIGNING Invalid Page` while loading Tree-sitter language parsers via `uv_dlopen`
+  - Root cause: stale parser artifacts (`markdown.so.disabled`, `markdown_inline.so.disabled`) remained in `~/.local/share/nvim/site/parser` and were still discovered by runtime parser globbing
+  - Recovery: moved stale parser artifacts out of runtime path
+
+- **docs**: Added incident and recovery documentation
+  - `README.md` now includes a Feb 2026 Neovim incident log and markdown crash troubleshooting steps
+
+### Neovim safety: isolated plugin regression harness
+
+- **test harness**: Added `test/nvim_plugin_safety.sh` to validate plugin changes safely
+  - Runs startup in an isolated throwaway XDG profile (never touches live `~/.config/nvim`)
+  - Performs one-by-one rollout checks for changed plugin files (`nvim/lua/plugins/*.lua`) relative to a base ref
+  - Validates terminal startup and optional tmux startup behavior
+  - Enforces lockfile discipline by failing if `nvim/lazy-lock.json` checksum changes (unless explicitly allowed)
+  - Adds guardrails for known startup traps:
+    - blocks `Snacks.toggle.option("background", ...)`
+    - blocks `OptionSet` + `background` autocmd patterns in plugin specs
+    - requires lazy-loading triggers for high-risk integrations (`opencode.lua`, `noice.lua`)
+  - Captures an `nvim/` snapshot artifact in `/tmp` for fast rollback context during test runs
+  - File: `test/nvim_plugin_safety.sh`
+
+- **test runner**: Added best-effort Neovim safety test stage
+  - `test/run_tests.sh` now runs `bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux` when `nvim` exists
+  - File: `test/run_tests.sh`
+
+- **docs**: Added usage docs for the Neovim safety harness
+  - File: `README.md`
+
 ### Cursor: track personal settings in dotfiles
 
 - **cursor config backup**: Added a first-class `cursor/` folder for personal Cursor settings

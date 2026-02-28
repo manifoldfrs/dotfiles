@@ -1,6 +1,6 @@
 # dotfiles
 
-Configuration files for zsh, Homebrew, Ghostty terminal, tmux, and Neovim.
+Configuration files for zsh, Homebrew, Ghostty terminal, tmux, and Neovim. Currently using the **Catppuccin Macchiato** theme across Neovim, Ghostty, and tmux.
 
 ## Requirements
 
@@ -66,7 +66,7 @@ See `mcp/README.md` for setup instructions and API key configuration.
 ### Karabiner Status
 
 Karabiner is deprecated in this repo and no longer installed by `shell_setup.sh`/`Brewfile`.
-Existing configs remain archived under `karabiner/` and `old/` for historical reference.
+Existing configs have been moved to `old/karabiner/` for historical reference.
 
 ## Development Environment
 
@@ -88,9 +88,11 @@ Existing configs remain archived under `karabiner/` and `old/` for historical re
 | oil.nvim | Buffer-based file editing |
 | blink.cmp | High-performance autocompletion (Rust-based fuzzy matching) |
 | opencode.nvim | AI coding assistant integration (opencode CLI + tmux) |
+| flash.nvim | Motion/jump plugin (character, word, line jumps) |
 | mason + lspconfig | LSP support |
 | treesitter | Syntax highlighting + parser management |
 | render-markdown.nvim | In-buffer markdown rendering |
+| noice.nvim | Command-line, message, and LSP UI |
 | gitsigns | Git integration |
 | diffview.nvim | Git diff review and file history UI |
 | nvim-spectre | Project-wide search and replace panel |
@@ -100,9 +102,10 @@ Existing configs remain archived under `karabiner/` and `old/` for historical re
 | nvim-dap | Debugging (Go, Python) |
 
 **Key plugins explained:**
-- **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), and more
+- **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
 - **blink.cmp**: Rust-based completion engine with 0.5-4ms response time, typo-resistant fuzzy matching, and native LuaSnip support
-- **opencode.nvim**: Integrates opencode AI assistant via tmux split pane, with context-aware prompts and blink.cmp completion
+- **opencode.nvim**: Integrates opencode AI assistant via tmux split pane with custom state management (server-based API), context-aware prompts, and blink.cmp completion
+- **flash.nvim**: Fast motion plugin for jumping to characters (`<leader>jj`), words (`<leader>jw`), and lines (`<leader>jl`)
 
 ### LSP Servers (auto-installed via Mason)
 
@@ -116,7 +119,7 @@ Existing configs remain archived under `karabiner/` and `old/` for historical re
 
 ### Neovim
 
-Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>d` Debug, `<leader>o` opencode, `<leader>u` Toggle.
+Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>d` Debug, `<leader>j` Jump, `<leader>o` opencode, `<leader>u` Toggle.
 
 | Keys | Action |
 |------|--------|
@@ -135,22 +138,41 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `<leader>sc` | Colorschemes |
 | `<leader>sn` | Notification history |
 | `<leader><space>` | Smart find files |
+| `<leader>ss` | LSP symbols |
+| `<leader>sS` | LSP workspace symbols |
+| `<leader>sd` | Diagnostics |
+| `<leader>sj` | Jumps |
+| `<leader>sm` | Marks |
+| `<leader>sq` | Quickfix list |
+| `<leader>su` | Undo history |
 | `<leader>sR` | Spectre: replace in project |
 | `<leader>sw` / visual `<leader>sw` | Spectre: search current word / selection |
 | `<leader>sW` | Spectre: search current file |
-| `gd` / `gr` / `gI` | LSP: definition / references / implementation |
+| `gd` / `gr` / `gI` / `gy` | LSP: definition / references / implementation / type definition |
 | **opencode.nvim (AI)** ||
 | `<leader>oa` | Ask opencode about current context |
 | `<leader>os` | Select opencode action |
 | `<leader>ot` | Toggle opencode (tmux split) |
 | `<leader>oo` | Add visual range to opencode |
 | `<leader>og` | Add current line to opencode |
+| **flash.nvim (Jump)** ||
+| `<leader>jj` | Jump to character |
+| `<leader>jw` | Jump to word |
+| `<leader>jl` | Jump to line |
 | **snacks (Utilities)** ||
 | `<leader>bd` | Delete buffer |
+| `<leader>e` | File explorer |
 | `<leader>gg` | Lazygit |
 | `<leader>z` | Zen mode |
 | `<leader>.` | Toggle scratch buffer |
+| `<leader>S` | Select scratch buffer |
+| `<leader>cR` | Rename file |
 | `]]` / `[[` | Next/prev LSP reference |
+| **snacks (Git)** ||
+| `<leader>gb` | Git branches |
+| `<leader>gl` | Git log |
+| `<leader>gs` | Git status |
+| `<leader>gB` | Git browse (opens in browser) |
 | **Navigation** ||
 | `<C-h/j/k/l>` | Navigate windows/tmux panes |
 | `<S-h>` / `<S-l>` | Previous/next buffer |
@@ -211,7 +233,7 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
 
-**Note:** Status bar is positioned at the top with Nord theme (`nordtheme/tmux`). Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+**Note:** Status bar is positioned at the top with Catppuccin Macchiato theme (`catppuccin/tmux`). Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
 
 ### tmux-sessionizer
 
@@ -246,13 +268,13 @@ dotfiles/
 ├── .zshenv                 # Zsh environment
 ├── .gitconfig              # Git configuration
 ├── CHANGELOG.md            # Change history
-├── ghostty/                # Ghostty terminal config (Nord)
+├── ghostty/                # Ghostty terminal config (Catppuccin Macchiato)
 │   └── config
 ├── bin/                    # Shell scripts
 │   └── tmux-sessionizer    # Project switcher (fzf-based)
-├── tmux/                   # tmux configuration (Catppuccin Mocha)
+├── tmux/                   # tmux configuration (Catppuccin Macchiato)
 │   └── tmux.conf
-├── nvim/                   # Neovim config (lazy.nvim + Nord)
+├── nvim/                   # Neovim config (lazy.nvim + Catppuccin Macchiato)
 │   ├── init.lua
 │   ├── lazy-lock.json      # Plugin version lock
 │   └── lua/
@@ -261,16 +283,38 @@ dotfiles/
 │           ├── snacks.lua      # QoL plugins + picker
 │           ├── blink.lua       # Autocompletion (Rust)
 │           ├── opencode.lua         # AI assistant integration
+│           ├── flash.lua            # Motion/jump plugin
+│           ├── noice.lua            # Command-line + message UI
 │           ├── lsp-config.lua       # LSP configuration
 │           ├── treesitter.lua       # Treesitter main-branch config
 │           ├── render-markdown.lua  # Markdown rendering
 │           └── ...
-├── karabiner/              # Deprecated keyboard remapping archive
+├── old/karabiner/           # Deprecated keyboard remapping archive
 ├── mcp/                    # MCP configs for AI tools
 ├── opencode/               # OpenCode configuration
 │   └── opencode.jsonc
 └── old/                    # Archived/deprecated configs
 ```
+
+## Neovim Plugin Safety Harness
+
+Use this before and after plugin edits to catch startup regressions without touching your live `~/.config/nvim`.
+
+```bash
+# Full safety pass (isolated profile + one-by-one plugin rollout + tmux check)
+bash test/nvim_plugin_safety.sh --base-ref HEAD
+
+# Same checks without tmux validation
+bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux
+```
+
+What it enforces:
+- no explicit lockfile-changing lazy commands (`sync`/`update`/`restore`) inside the harness
+- `nvim/lazy-lock.json` checksum must stay unchanged unless `--allow-lockfile-change` is explicitly passed
+- isolated startup checks in a throwaway XDG profile
+- one-by-one rollout for changed plugin files under `nvim/lua/plugins/*.lua`
+- guardrails against known `background`/`OptionSet` loop traps
+- high-risk plugin lazy-loading checks (`opencode.lua`, `noice.lua`)
 
 ## Backup Your Current Mac
 
@@ -289,6 +333,21 @@ git commit -m "Backup configs"
 git push
 ```
 
+## Recent Neovim Incident Log (Feb 2026)
+
+- Plugin update happened during aesthetic changes and introduced startup instability.
+- `opencode.nvim` changed API (`provider` removed), which caused blocking startup prompts.
+- Background toggle/autocmd interactions (`OptionSet background`) created startup loop risk in some plugin combinations.
+- Markdown crashes were traced to stale parser artifacts under `~/.local/share/nvim/site/parser` named `markdown.so.disabled` and `markdown_inline.so.disabled`.
+  - Even with `.disabled` suffix, Neovim runtime parser discovery still picked them up.
+  - macOS killed Neovim with `CODESIGNING Invalid Page` while loading parser via `uv_dlopen`.
+- Recovery that restored stability:
+  - removed stale parser artifacts from runtime path
+  - rolled back recent visual plugins
+  - kept only `noice.nvim` from recent additions
+  - retained the safety harness (`test/nvim_plugin_safety.sh`) for one-by-one rollout checks
+- Post-recovery: switched theme from Nord to Catppuccin Macchiato across Neovim, Ghostty, and tmux. Added `flash.nvim` for motion/jump support.
+
 ## Troubleshooting
 
 **Neovim LSP not working?**
@@ -300,6 +359,14 @@ git push
 - Requires `tree-sitter-cli` >= 0.26.1 for nvim-treesitter `main` branch
 - Run `:checkhealth nvim-treesitter` to verify CLI is found
 - Install via: `npm install -g tree-sitter-cli`
+
+**Markdown files crash Neovim with `CODESIGNING Invalid Page`?**
+- Check for stale parser files in `~/.local/share/nvim/site/parser`:
+  - `markdown.so.disabled`
+  - `markdown_inline.so.disabled`
+- Move those files out of parser runtime path (for example to `/tmp`) and retry.
+- Confirm active runtime parser paths with:
+  - `nvim --noplugin --headless "+lua for _,f in ipairs(vim.api.nvim_get_runtime_file('parser/markdown*', true)) do print(f) end" +qa`
 
 **Seeing `module 'nvim-treesitter.configs' not found`?**
 - This usually means old treesitter `master`-style config is mixed with `main`-branch plugin files
@@ -317,12 +384,9 @@ git push
 **Pretty tmux bar not rendering?**
 - Kill and restart tmux first so no old server state is cached: `tmux kill-server && tmux`
 - Reload config after restart: `tmux source-file ~/.tmux.conf`
-- Ensure the plugin variables are set in `~/.tmux.conf`:
-  - `set -g @nord_tmux_show_status_content "1"`
-  - `set -g @nord_tmux_no_patched_font "0"`
-- Confirm plugin/theme values are active:
-  - `tmux show -g @nord_tmux_show_status_content`
-  - `tmux show -g @nord_tmux_no_patched_font`
+- Ensure the Catppuccin plugin variables are set in `~/.tmux.conf`:
+  - `set -g @catppuccin_flavor "macchiato"`
+  - `set -g @catppuccin_window_status_style "rounded"`
 - Verify theme content is being applied:
   - `tmux show -g status-left`
   - `tmux show -g status-right`

@@ -40,4 +40,5 @@ rg 'test-docker' .github/workflows/test.yml
 ## Pre-PR Checks
 ```bash
 bash -n shell_setup.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
+bash test/nvim_plugin_safety.sh --base-ref HEAD
 ```

@@ -88,6 +88,21 @@ else
 fi
 echo ""
 
+# Test 8: Neovim plugin safety checks (best-effort)
+echo "[TEST 8] Running Neovim plugin safety checks..."
+if command -v nvim >/dev/null 2>&1; then
+    if bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux > /tmp/nvim-plugin-safety.log 2>&1; then
+        echo "[PASS] Neovim plugin safety checks passed"
+    else
+        echo "[FAIL] Neovim plugin safety checks failed"
+        echo "       See /tmp/nvim-plugin-safety.log for details"
+        exit 1
+    fi
+else
+    echo "[SKIP] nvim not installed; skipped plugin safety checks"
+fi
+echo ""
+
 echo "==========================================="
 echo "=== ALL TESTS PASSED ==="
 echo "==========================================="
