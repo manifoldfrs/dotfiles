@@ -2,6 +2,19 @@
 
 All notable changes to this dotfiles repository are documented here.
 
+## March 2026
+
+### Cursor: sync refresh + cross-machine apply docs
+
+- **cursor config sync**: Refreshed tracked Cursor settings from local machine
+  - Synced `cursor/settings.json` and `cursor/keybindings.json` with current local Cursor user config
+  - Added keybinding: `alt+cmd+s` -> `workbench.action.toggleUnifiedSidebarFromKeyboard`
+  - Regenerated `cursor/extensions.txt` from installed extensions (adds/removals reflected)
+
+- **cursor docs**: Documented restore flow for other machines
+  - Added an "Apply on another machine" section with copy/install steps and optional extension cleanup
+  - File: `cursor/README.md`
+
 ## February 2026
 
 ### Theme switch: Catppuccin Macchiato across the stack

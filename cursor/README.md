@@ -33,3 +33,31 @@ out.write_text("\n".join(sorted(ids)) + "\n")
 print(f"Wrote {len(ids)} extensions to {out}")
 PY
 ```
+
+## Apply on another machine
+
+From repo root:
+
+```bash
+CURSOR_USER_DIR="$HOME/Library/Application Support/Cursor/User"
+mkdir -p "$CURSOR_USER_DIR"
+
+cp cursor/settings.json "$CURSOR_USER_DIR/settings.json"
+cp cursor/keybindings.json "$CURSOR_USER_DIR/keybindings.json"
+
+while IFS= read -r ext; do
+  [ -n "$ext" ] && cursor --install-extension "$ext" --force
+done < cursor/extensions.txt
+```
+
+Optional: remove installed extensions not tracked in this repo:
+
+```bash
+comm -23 <(cursor --list-extensions | sort) <(sort cursor/extensions.txt) | while IFS= read -r ext; do
+  [ -n "$ext" ] && cursor --uninstall-extension "$ext"
+done
+```
+
+Notes:
+- Restart Cursor after applying settings.
+- If usernames differ between machines, update machine-specific paths in `settings.json` (for example `remote.SSH.configFile`).
