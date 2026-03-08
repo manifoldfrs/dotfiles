@@ -15,6 +15,22 @@ All notable changes to this dotfiles repository are documented here.
   - Added an "Apply on another machine" section with copy/install steps and optional extension cleanup
   - File: `cursor/README.md`
 
+### Neovim: remove oil.nvim file editor
+
+- **nvim/files**: Removed `stevearc/oil.nvim` to standardize on a sidebar-first file tree workflow
+  - Deleted `nvim/lua/plugins/oil.lua`
+  - Removed the `-` keybinding that opened Oil in a floating directory buffer
+  - Removed the `oil.nvim` lock entry from `nvim/lazy-lock.json`
+  - Kept `neo-tree.nvim` as the single built-in file explorer
+
+### Neovim: remove DAP stack in favor of terminal-first debugging
+
+- **nvim/debugging**: Removed the in-editor DAP stack to keep Neovim leaner
+  - Deleted `nvim/lua/plugins/debugging.lua`
+  - Removed the `<leader>d` which-key group and debugging docs
+  - Removed DAP-related lock entries from `nvim/lazy-lock.json`
+  - Standardized on terminal-first debugging with `dlv` / `debugpy` plus tests and print/log debugging
+
 ### Neovim: remove opencode.nvim integration
 
 - **nvim/plugins**: Removed `NickvanDyke/opencode.nvim` from the Neovim setup

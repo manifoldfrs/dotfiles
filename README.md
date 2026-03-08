@@ -85,7 +85,6 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 |--------|---------|
 | snacks.nvim | Modern QoL plugins (replaces telescope, alpha, indent-blankline, nvim-surround, Comment.nvim) |
 | neo-tree | File explorer |
-| oil.nvim | Buffer-based file editing |
 | blink.cmp | High-performance autocompletion (Rust-based fuzzy matching) |
 | flash.nvim | Motion/jump plugin (character, word, line jumps) |
 | mason + lspconfig | LSP support |
@@ -98,7 +97,6 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 | lualine | Status line |
 | bufferline | Buffer tabs |
 | vim-test + vimux | Test runner |
-| nvim-dap | Debugging (Go, Python) |
 
 **Key plugins explained:**
 - **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
@@ -117,14 +115,13 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 
 ### Neovim
 
-Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>d` Debug, `<leader>j` Jump, `<leader>u` Toggle.
+Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>j` Jump, `<leader>u` Toggle.
 
 | Keys | Action |
 |------|--------|
 | `Space` | Leader key |
 | `jk` (insert) | Escape to Normal |
 | `<C-n>` | Toggle neo-tree |
-| `-` | Open oil.nvim (float) |
 | `<leader>h` | Clear search highlight |
 | **snacks.picker (Search)** ||
 | `<C-p>` / `<leader>sf` | Find files |
@@ -181,37 +178,13 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `<leader>gh` / `<leader>gH` | Diffview: file history (current/repo) |
 | `]h` / `[h` | Git: next/prev hunk |
 
-### Debugging (nvim-dap)
+### Debugging
 
-| Keys | Action |
-|------|--------|
-| `<leader>dc` | Continue / Start debugging |
-| `<leader>db` | Toggle breakpoint |
-| `<leader>dB` | Conditional breakpoint |
-| `<leader>di` | Step into |
-| `<leader>do` | Step over |
-| `<leader>dO` | Step out |
-| `<leader>dr` | Toggle REPL |
-| `<leader>dl` | Run last |
-| `<leader>du` | Toggle DAP UI |
-| `<leader>dx` | Terminate session |
-| `<leader>de` | Eval expression |
+Use a terminal-first debugging flow instead of an in-editor DAP stack.
 
-**Supported languages:** Go (delve), Python (debugpy)
-
-**First-time setup:**
-```bash
-# Debug adapters are auto-installed via Mason, or manually:
-:MasonInstall delve debugpy
-```
-
-**Basic workflow:**
-1. Open a Go or Python file
-2. `<leader>db` to set a breakpoint on a line
-3. `<leader>dc` to start debugging
-4. DAP UI opens automatically
-5. Use step commands to navigate
-6. `<leader>dx` to terminate
+- Go: use `dlv debug`, `dlv test`, or `dlv attach` directly in tmux/terminal
+- Python: use `python -m debugpy --listen localhost:5678 ...` when you need an attachable debugger
+- Day to day: prefer tests, logs, and targeted print statements for fast iteration
 
 ### tmux
 
@@ -391,10 +364,10 @@ git push
 **nvm not found?**
 - Restart terminal or `source ~/.zshrc`
 
-**Debugging not working?**
-- Run `:MasonInstall delve debugpy` to install adapters
-- Check `:checkhealth dap` for adapter status
-- Ensure you have a valid debug configuration for your language
+**Terminal debugging workflow**
+- Go: run `dlv debug` or `dlv test` in tmux/terminal
+- Python: run `python -m debugpy --listen localhost:5678 --wait-for-client myfile.py`
+- Prefer tests and print/log debugging first; reach for `dlv` or `debugpy` when the bug is stubborn
 
 ## Future Considerations
 

@@ -33,7 +33,7 @@ nvim/
 - ✅ DO: Keep base options in `nvim/lua/vim-options.lua`
 - ✅ DO: LSP servers + keymaps in `nvim/lua/plugins/lsp-config.lua`
 - ✅ DO: Keymaps with `{ desc = "..." }` (see `nvim/lua/plugins/telescope.lua`)
-- ✅ DO: Keep leader namespaces consistent: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>d` Debug, `<leader>j` Jump, `<leader>u` Toggle
+- ✅ DO: Keep leader namespaces consistent: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>j` Jump, `<leader>u` Toggle
 - ❌ DON'T: Use legacy Vimscript from `old/iterm2/nvim/init.vim`
 - ❌ DON'T: Put multiple unrelated plugins in one file (use `nvim/lua/plugins/*.lua`)
 - ❌ DON'T: Omit keymap descriptions (reference `nvim/lua/plugins/telescope.lua`)
@@ -44,14 +44,12 @@ nvim/
 - LSP config: `nvim/lua/plugins/lsp-config.lua`
 - Telescope: `nvim/lua/plugins/telescope.lua`
 - Treesitter: `nvim/lua/plugins/treesitter.lua`
-- Debugging: `nvim/lua/plugins/debugging.lua`
 
 ## JIT Index Hints
 ```bash
 rg --files -g 'nvim/lua/plugins/*.lua'
 rg 'vim.keymap.set' nvim/lua
 rg 'servers' nvim/lua/plugins/lsp-config.lua
-rg 'dap' nvim/lua/plugins/debugging.lua
 ```
 
 ## Common Gotchas

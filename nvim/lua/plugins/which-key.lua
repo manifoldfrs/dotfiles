@@ -21,7 +21,6 @@ return {
       { "<leader>g", group = "Git" },
       { "<leader>t", group = "Test" },
       { "<leader>b", group = "Buffer" },
-      { "<leader>d", group = "Debug" },
       { "<leader>j", group = "Jump" },
       { "<leader>s", group = "Search" },
       { "<leader>u", group = "Toggle" },
