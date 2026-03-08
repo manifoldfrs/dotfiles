@@ -15,6 +15,26 @@ All notable changes to this dotfiles repository are documented here.
   - Added an "Apply on another machine" section with copy/install steps and optional extension cleanup
   - File: `cursor/README.md`
 
+### Theme switch: One Dark across the stack
+
+- **nvim/colorscheme**: Switched from Catppuccin Macchiato to One Dark
+  - Replaced `catppuccin/nvim` with `navarasu/onedark.nvim`
+  - Updated lualine theme from `catppuccin` to `onedark`
+  - Files: `nvim/lua/plugins/colorscheme.lua`, `nvim/lua/plugins/lualine.lua`
+
+- **ghostty**: Switched terminal theme from Catppuccin Macchiato to Atom One Dark
+  - Updated `theme = Atom One Dark`
+  - File: `ghostty/config`
+
+- **tmux**: Switched from `catppuccin/tmux` to `odedlaz/tmux-onedark-theme`
+  - Replaced Catppuccin status modules with the One Dark tmux plugin widget system
+  - Added `@onedark_widgets "#{b:pane_current_path}"`
+  - Updated copy-mode selection colors to the One Dark palette
+  - File: `tmux/tmux.conf`
+
+- **opencode**: Updated OpenCode theme to built-in `one-dark`
+  - Updated both `opencode/opencode.jsonc` and `opencode/tui.json`
+
 ## February 2026
 
 ### Theme switch: Catppuccin Macchiato across the stack

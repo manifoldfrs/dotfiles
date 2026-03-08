@@ -1,7 +1,7 @@
 # AGENTS.md - Neovim Configuration
 
 ## Package Identity
-Neovim config using lazy.nvim with Nord.
+Neovim config using lazy.nvim with One Dark.
 Requires Neovim >= 0.11.0 for `vim.lsp.config()`.
 
 ## Setup & Run

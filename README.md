@@ -1,6 +1,6 @@
 # dotfiles
 
-Configuration files for zsh, Homebrew, Ghostty terminal, tmux, and Neovim. Currently using the **Catppuccin Macchiato** theme across Neovim, Ghostty, and tmux.
+Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, and OpenCode. Currently using the **One Dark** theme family across Neovim, Ghostty, tmux, and OpenCode.
 
 ## Requirements
 
@@ -233,7 +233,7 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
 
-**Note:** Status bar is positioned at the top with Catppuccin Macchiato theme (`catppuccin/tmux`). Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+**Note:** Status bar is positioned at the top with the One Dark tmux theme (`odedlaz/tmux-onedark-theme`) plus a current-directory widget. Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
 
 ### tmux-sessionizer
 
@@ -268,13 +268,13 @@ dotfiles/
 ├── .zshenv                 # Zsh environment
 ├── .gitconfig              # Git configuration
 ├── CHANGELOG.md            # Change history
-├── ghostty/                # Ghostty terminal config (Catppuccin Macchiato)
+├── ghostty/                # Ghostty terminal config (Atom One Dark)
 │   └── config
 ├── bin/                    # Shell scripts
 │   └── tmux-sessionizer    # Project switcher (fzf-based)
-├── tmux/                   # tmux configuration (Catppuccin Macchiato)
+├── tmux/                   # tmux configuration (One Dark)
 │   └── tmux.conf
-├── nvim/                   # Neovim config (lazy.nvim + Catppuccin Macchiato)
+├── nvim/                   # Neovim config (lazy.nvim + navarasu/onedark.nvim)
 │   ├── init.lua
 │   ├── lazy-lock.json      # Plugin version lock
 │   └── lua/
@@ -291,8 +291,9 @@ dotfiles/
 │           └── ...
 ├── old/karabiner/           # Deprecated keyboard remapping archive
 ├── mcp/                    # MCP configs for AI tools
-├── opencode/               # OpenCode configuration
-│   └── opencode.jsonc
+├── opencode/               # OpenCode configuration (built-in one-dark theme)
+│   ├── opencode.jsonc
+│   └── tui.json
 └── old/                    # Archived/deprecated configs
 ```
 
@@ -384,9 +385,9 @@ git push
 **Pretty tmux bar not rendering?**
 - Kill and restart tmux first so no old server state is cached: `tmux kill-server && tmux`
 - Reload config after restart: `tmux source-file ~/.tmux.conf`
-- Ensure the Catppuccin plugin variables are set in `~/.tmux.conf`:
-  - `set -g @catppuccin_flavor "macchiato"`
-  - `set -g @catppuccin_window_status_style "rounded"`
+- Ensure the One Dark plugin is configured in `~/.tmux.conf`:
+  - `set -g @plugin 'odedlaz/tmux-onedark-theme'`
+  - `set -g @onedark_widgets "#{b:pane_current_path}"`
 - Verify theme content is being applied:
   - `tmux show -g status-left`
   - `tmux show -g status-right`
