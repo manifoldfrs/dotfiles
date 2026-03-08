@@ -4,6 +4,16 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### Setup: integrate Amp CLI into shell install script
+
+- **shell_setup.sh**: Added Amp CLI installation as step 13 of the install process
+  - Runs the official install script: `curl -fsSL https://ampcode.com/install.sh | bash`
+  - Skips installation if Amp is already present
+  - Displays Amp version on first run for verification
+  - Updated header comment to include Amp in the tool list
+  - Added Amp CLI section to the final setup summary with sign-in instructions
+  - File: `shell_setup.sh`
+
 ### Cursor: sync refresh + cross-machine apply docs
 
 - **cursor config sync**: Refreshed tracked Cursor settings from local machine

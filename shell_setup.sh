@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Shell Setup Script
-# Handles: Homebrew, Brewfile, zsh, oh-my-zsh, Warp, fzf, pyenv, rbenv, nvm
+# Handles: Homebrew, Brewfile, zsh, oh-my-zsh, Warp, fzf, pyenv, rbenv, nvm, Amp
 # Usage: ./shell_setup.sh [backup|install]
 
 set -e
@@ -254,10 +254,23 @@ install() {
         done
     fi
 
+    # 13. Install Amp CLI
+    if ! command -v amp &> /dev/null; then
+        info "Installing Amp CLI..."
+        curl -fsSL https://ampcode.com/install.sh | bash || warn "Amp CLI installation failed"
+    else
+        info "Amp CLI already installed: $(amp --version)"
+    fi
+
     echo ""
     info "Shell setup complete!"
     echo ""
     echo "=========================================="
+    echo "Amp CLI"
+    echo "=========================================="
+    echo "  Installed to: ~/.local/bin/amp (or via npm if preferred)"
+    echo "  Sign in on first run: amp"
+    echo ""
     echo "Ghostty"
     echo "=========================================="
     echo "  Config copied to: ~/.config/ghostty/config"
