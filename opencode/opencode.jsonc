@@ -1,25 +1,26 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "theme": "one-dark",
-  "autoupdate": true,
-  "mcp": {
-    "RepoPrompt": {
-      "type": "local",
-      "command": ["/Applications/RepoPrompt.app/Contents/MacOS/repoprompt-mcp"],
-      "enabled": true,
-      "timeout": 3600000
-    },
-    "Ref": {
-      "type": "remote",
-      "url": "https://api.ref.tools/mcp?apiKey=****",
-      "enabled": true,
-      "timeout": 10000
-    },
-    "tavily": {
-      "type": "remote",
-      "url": "https://mcp.tavily.com/mcp/?tavilyApiKey=****",
-      "enabled": true,
-      "timeout": 10000
-    }
-  }
+        "$schema": "https://opencode.ai/config.json",
+        "autoupdate": true,
+        "mcp": {
+                "RepoPrompt": {
+                        "type": "local",
+                        "command": [
+                                "/Applications/RepoPrompt.app/Contents/MacOS/repoprompt-mcp"
+                        ],
+                        "enabled": true,
+                        "timeout": 3600000
+                },
+                "Ref": {
+                        "type": "remote",
+                        "url": "https://api.ref.tools/mcp?apiKey=****",
+                        "enabled": true,
+                        "timeout": 10000
+                },
+                "tavily": {
+                        "type": "remote",
+                        "url": "https://mcp.tavily.com/mcp/?tavilyApiKey=****",
+                        "enabled": true,
+                        "timeout": 10000
+                }
+        }
 }
