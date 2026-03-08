@@ -15,6 +15,13 @@ All notable changes to this dotfiles repository are documented here.
   - Added an "Apply on another machine" section with copy/install steps and optional extension cleanup
   - File: `cursor/README.md`
 
+### Neovim: restore flash.nvim jump mappings
+
+- **nvim/motion**: Restored tracked `folke/flash.nvim` config so docs and live config match again
+  - Re-added `nvim/lua/plugins/flash.lua`
+  - Restored which-key jump group and mappings: `<leader>jj`, `<leader>jw`, `<leader>jl`
+  - Updated `nvim/lazy-lock.json` with `flash.nvim`
+
 ### Theme switch: One Dark across the stack
 
 - **nvim/colorscheme**: Switched from Catppuccin Macchiato to One Dark

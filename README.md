@@ -105,7 +105,7 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 - **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
 - **blink.cmp**: Rust-based completion engine with 0.5-4ms response time, typo-resistant fuzzy matching, and native LuaSnip support
 - **opencode.nvim**: Integrates opencode AI assistant via tmux split pane with custom state management (server-based API), context-aware prompts, and blink.cmp completion
-- **flash.nvim**: Fast motion plugin for jumping to characters (`<leader>jj`), words (`<leader>jw`), and lines (`<leader>jl`)
+- **flash.nvim**: Fast motion plugin under the `<leader>j` group for jumping to characters (`<leader>jj`), words (`<leader>jw`), and lines (`<leader>jl`)
 
 ### LSP Servers (auto-installed via Mason)
 
