@@ -15,6 +15,14 @@ All notable changes to this dotfiles repository are documented here.
   - Added an "Apply on another machine" section with copy/install steps and optional extension cleanup
   - File: `cursor/README.md`
 
+### Neovim: remove opencode.nvim integration
+
+- **nvim/plugins**: Removed `NickvanDyke/opencode.nvim` from the Neovim setup
+  - Deleted `nvim/lua/plugins/opencode.lua`
+  - Removed the `<leader>o` which-key group and AI keybinding docs
+  - Removed the `opencode.nvim` lock entry from `nvim/lazy-lock.json`
+  - Updated safety harness/docs references that still assumed the plugin existed
+
 ### Neovim: restore flash.nvim jump mappings
 
 - **nvim/motion**: Restored tracked `folke/flash.nvim` config so docs and live config match again
@@ -130,7 +138,7 @@ All notable changes to this dotfiles repository are documented here.
   - Adds guardrails for known startup traps:
     - blocks `Snacks.toggle.option("background", ...)`
     - blocks `OptionSet` + `background` autocmd patterns in plugin specs
-    - requires lazy-loading triggers for high-risk integrations (`opencode.lua`, `noice.lua`)
+      - requires lazy-loading triggers for high-risk integrations (`noice.lua`)
   - Captures an `nvim/` snapshot artifact in `/tmp` for fast rollback context during test runs
   - File: `test/nvim_plugin_safety.sh`
 
@@ -283,7 +291,7 @@ All notable changes to this dotfiles repository are documented here.
     - Updated LSP capabilities to use `blink.cmp.get_lsp_capabilities()`
   
   - **UPDATED** `nvim/lua/plugins/which-key.lua`
-    - Added keymap groups: `<leader>o` (opencode), `<leader>s` (Search), `<leader>u` (Toggle)
+    - Added keymap groups: `<leader>o` (historical), `<leader>s` (Search), `<leader>u` (Toggle)
     - Added labels for `<leader>sn` (Notifications), `<leader>ss` (LSP Symbols), `<leader>sg` (Grep)
 
 - **Brewfile**: Added new dependencies

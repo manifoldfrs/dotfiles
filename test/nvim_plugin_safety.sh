@@ -108,7 +108,7 @@ echo "[PASS] No background mutation traps found"
 echo ""
 
 echo "[CHECK 2] Guard high-risk plugins from eager startup..."
-for plugin_file in nvim/lua/plugins/opencode.lua nvim/lua/plugins/noice.lua; do
+for plugin_file in nvim/lua/plugins/noice.lua; do
   if [[ -f "$plugin_file" ]]; then
     if grep -q 'lazy\s*=\s*false' "$plugin_file"; then
       echo "[FAIL] $plugin_file sets lazy = false"

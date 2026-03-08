@@ -87,7 +87,6 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 | neo-tree | File explorer |
 | oil.nvim | Buffer-based file editing |
 | blink.cmp | High-performance autocompletion (Rust-based fuzzy matching) |
-| opencode.nvim | AI coding assistant integration (opencode CLI + tmux) |
 | flash.nvim | Motion/jump plugin (character, word, line jumps) |
 | mason + lspconfig | LSP support |
 | treesitter | Syntax highlighting + parser management |
@@ -104,7 +103,6 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 **Key plugins explained:**
 - **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
 - **blink.cmp**: Rust-based completion engine with 0.5-4ms response time, typo-resistant fuzzy matching, and native LuaSnip support
-- **opencode.nvim**: Integrates opencode AI assistant via tmux split pane with custom state management (server-based API), context-aware prompts, and blink.cmp completion
 - **flash.nvim**: Fast motion plugin under the `<leader>j` group for jumping to characters (`<leader>jj`), words (`<leader>jw`), and lines (`<leader>jl`)
 
 ### LSP Servers (auto-installed via Mason)
@@ -119,7 +117,7 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 
 ### Neovim
 
-Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>d` Debug, `<leader>j` Jump, `<leader>o` opencode, `<leader>u` Toggle.
+Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>d` Debug, `<leader>j` Jump, `<leader>u` Toggle.
 
 | Keys | Action |
 |------|--------|
@@ -149,12 +147,6 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `<leader>sw` / visual `<leader>sw` | Spectre: search current word / selection |
 | `<leader>sW` | Spectre: search current file |
 | `gd` / `gr` / `gI` / `gy` | LSP: definition / references / implementation / type definition |
-| **opencode.nvim (AI)** ||
-| `<leader>oa` | Ask opencode about current context |
-| `<leader>os` | Select opencode action |
-| `<leader>ot` | Toggle opencode (tmux split) |
-| `<leader>oo` | Add visual range to opencode |
-| `<leader>og` | Add current line to opencode |
 | **flash.nvim (Jump)** ||
 | `<leader>jj` | Jump to character |
 | `<leader>jw` | Jump to word |
@@ -282,8 +274,7 @@ dotfiles/
 │       └── plugins/        # Plugin configurations
 │           ├── snacks.lua      # QoL plugins + picker
 │           ├── blink.lua       # Autocompletion (Rust)
-│           ├── opencode.lua         # AI assistant integration
-│           ├── flash.lua            # Motion/jump plugin
+│           ├── flash.lua       # Motion/jump plugin
 │           ├── noice.lua            # Command-line + message UI
 │           ├── lsp-config.lua       # LSP configuration
 │           ├── treesitter.lua       # Treesitter main-branch config
@@ -315,7 +306,7 @@ What it enforces:
 - isolated startup checks in a throwaway XDG profile
 - one-by-one rollout for changed plugin files under `nvim/lua/plugins/*.lua`
 - guardrails against known `background`/`OptionSet` loop traps
-- high-risk plugin lazy-loading checks (`opencode.lua`, `noice.lua`)
+- high-risk plugin lazy-loading checks (`noice.lua`)
 
 ## Backup Your Current Mac
 

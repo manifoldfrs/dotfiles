@@ -4,11 +4,8 @@ return {
   lazy = false,
   ---@type snacks.Config
   opts = {
-    -- REQUIRED for opencode.nvim
     input = { enabled = true },
     picker = { enabled = true },
-    
-    -- DISABLED: using tmux for opencode instead of snacks.terminal
     terminal = { enabled = false },
     
     -- REPLACEMENTS for existing plugins

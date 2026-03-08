@@ -22,7 +22,6 @@ return {
       { "<leader>t", group = "Test" },
       { "<leader>b", group = "Buffer" },
       { "<leader>d", group = "Debug" },
-      { "<leader>o", group = "opencode" },
       { "<leader>j", group = "Jump" },
       { "<leader>s", group = "Search" },
       { "<leader>u", group = "Toggle" },
