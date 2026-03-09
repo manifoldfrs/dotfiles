@@ -4,6 +4,15 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### Ghostty: make the live macOS config path canonical
+
+- **shell setup**: Ghostty config now installs to `~/Library/Application Support/com.mitchellh.ghostty/config` on macOS
+  - Matches the path Ghostty is actively reading on this machine
+  - Avoids stale `~/.config/ghostty/config` copies making theme changes look unapplied
+  - Deprecates the old macOS path by moving `~/.config/ghostty/config` to `~/.config/ghostty/config.deprecated.*`
+  - Updated `shell_setup.sh` final output to print the actual target path
+  - Updated `README.md` to call out the canonical macOS Ghostty config location
+
 ### Neovim: simplify editing defaults and move indentation into ftplugins
 
 - **nvim/editing**: Moved language-specific indentation out of global autocmds and into filetype-local config

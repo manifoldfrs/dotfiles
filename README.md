@@ -65,6 +65,11 @@ What this already handles for you:
 - installs tmux TPM if needed and installs tmux plugins automatically
 - runs Neovim headless plugin sync automatically
 
+Ghostty note on this macOS setup:
+- the canonical live config path is `~/Library/Application Support/com.mitchellh.ghostty/config`
+- the legacy path `~/.config/ghostty/config` is deprecated on macOS
+- `./shell_setup.sh install` now moves any legacy file aside to `~/.config/ghostty/config.deprecated.*`
+
 What is still separate:
 - `./mcp_setup.sh install` for Claude/Codex MCP configs
 - OpenCode install/config if you use it on that machine
@@ -78,7 +83,8 @@ What is still separate:
 - **zsh-syntax-highlighting** plugin
 - **nvm** (Node Version Manager) via HTTPS
 - **Node.js LTS** via nvm (installed if missing)
-- **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/.config/ghostty/config`, `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`, `bin/tmux-sessionizer` → `~/.local/bin/tmux-sessionizer`
+- **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/Library/Application Support/com.mitchellh.ghostty/config` on macOS (`~/.config/ghostty/config` fallback elsewhere), `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`, `bin/tmux-sessionizer` → `~/.local/bin/tmux-sessionizer`
+- **Ghostty legacy cleanup on macOS**: if `~/.config/ghostty/config` exists, the installer moves it aside as `~/.config/ghostty/config.deprecated.*` so there is one canonical live path
 - **tmux TPM + plugins**: TPM is installed if missing, then tmux plugins are installed automatically
 - **Neovim plugins synced** headlessly via lazy.nvim (`nvim --headless -c "Lazy! sync" -c "qa"`)
 

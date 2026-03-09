@@ -108,6 +108,12 @@ backup() {
 install() {
     info "Installing shell environment..."
 
+    GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
+    LEGACY_GHOSTTY_CONFIG="$HOME/.config/ghostty/config"
+    if [ "$(uname)" = "Darwin" ]; then
+        GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+    fi
+
     # 1. Install Homebrew
     if ! command -v brew &> /dev/null; then
         info "Installing Homebrew..."
@@ -168,8 +174,14 @@ install() {
     # Copy Ghostty config
     if [ -f "$DOTFILES_DIR/ghostty/config" ]; then
         info "Copying Ghostty config..."
-        mkdir -p "$HOME/.config/ghostty"
-        copy_file "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+        mkdir -p "$GHOSTTY_CONFIG_DIR"
+        copy_file "$DOTFILES_DIR/ghostty/config" "$GHOSTTY_CONFIG_DIR/config"
+
+        if [ "$(uname)" = "Darwin" ] && [ -f "$LEGACY_GHOSTTY_CONFIG" ]; then
+            legacy_ghostty_backup="$LEGACY_GHOSTTY_CONFIG.deprecated.$(date +%Y%m%d%H%M%S)"
+            mv "$LEGACY_GHOSTTY_CONFIG" "$legacy_ghostty_backup"
+            warn "Deprecated legacy Ghostty config path: $LEGACY_GHOSTTY_CONFIG -> $legacy_ghostty_backup"
+        fi
     fi
 
     # Copy tmux config and install TPM
@@ -280,7 +292,7 @@ install() {
     echo ""
     echo "Ghostty"
     echo "=========================================="
-    echo "  Config copied to: ~/.config/ghostty/config"
+    echo "  Config copied to: $GHOSTTY_CONFIG_DIR/config"
     echo "  Font: JetBrainsMono Nerd Font (installed via Brewfile)"
     echo ""
     echo "tmux"
