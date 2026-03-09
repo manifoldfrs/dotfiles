@@ -4,6 +4,14 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### tmux: fix One Dark status bar rendering on modern tmux
+
+- **tmux/theme**: Fixed the top status bar fallback background so One Dark renders cleanly on tmux 3.x+
+  - Added `set -g status-style "fg=#aab2bf,bg=#282c34"` after TPM initialization
+  - Prevents the default green `status-style` filler from showing through behind themed segments
+  - Clarified tmux troubleshooting docs to check plugin installation and the modern `status-style` override
+  - File: `tmux/tmux.conf`
+
 ### Setup: integrate Amp CLI into shell install script
 
 - **shell_setup.sh**: Added Amp CLI installation as step 13 of the install process

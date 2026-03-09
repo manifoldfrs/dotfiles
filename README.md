@@ -349,9 +349,11 @@ git push
 **Pretty tmux bar not rendering?**
 - Kill and restart tmux first so no old server state is cached: `tmux kill-server && tmux`
 - Reload config after restart: `tmux source-file ~/.tmux.conf`
+- Ensure the theme plugin is actually present: `ls ~/.tmux/plugins/tmux-onedark-theme`
 - Ensure the One Dark plugin is configured in `~/.tmux.conf`:
   - `set -g @plugin 'odedlaz/tmux-onedark-theme'`
   - `set -g @onedark_widgets "#{b:pane_current_path}"`
+- On tmux 3.x+, keep `set -g status-style "fg=#aab2bf,bg=#282c34"` after TPM init so the unused status background does not stay default green
 - Verify theme content is being applied:
   - `tmux show -g status-left`
   - `tmux show -g status-right`
