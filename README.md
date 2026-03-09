@@ -145,6 +145,13 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 - `clangd` - C/C++
 - `ty` - Python (Beta type checker from Astral)
 
+### Neovim Editing Defaults
+
+- Per-language indentation now lives in `nvim/ftplugin/*.lua` for simpler ownership and less global autocmd logic
+- Go uses real tabs; Python, JavaScript, and TypeScript stay space-based
+- Incremental search and autoread are enabled for faster search feedback and cleaner external file reloads
+- Visible whitespace (`listchars`) and an 80-column guide (`colorcolumn`) are enabled globally
+
 ## Keybindings
 
 ### Neovim
@@ -155,6 +162,7 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 |------|--------|
 | `Space` | Leader key |
 | `jk` (insert) | Escape to Normal |
+| `%%` (command) | Insert current file directory |
 | `<C-n>` | Toggle neo-tree |
 | `<leader>h` | Clear search highlight |
 | **snacks.picker (Search)** ||
@@ -276,15 +284,20 @@ dotfiles/
 ├── nvim/                   # Neovim config (lazy.nvim + navarasu/onedark.nvim)
 │   ├── init.lua
 │   ├── lazy-lock.json      # Plugin version lock
+│   ├── ftplugin/           # Filetype-specific editing defaults
+│   │   ├── go.lua
+│   │   ├── python.lua
+│   │   ├── javascript.lua
+│   │   └── typescript.lua
 │   └── lua/
-│       ├── vim-options.lua
+│       ├── vim-options.lua # Global options and base keymaps
 │       └── plugins/        # Plugin configurations
 │           ├── snacks.lua      # QoL plugins + picker
 │           ├── blink.lua       # Autocompletion (Rust)
 │           ├── flash.lua       # Motion/jump plugin
-│           ├── noice.lua            # Command-line + message UI
-│           ├── lsp-config.lua       # LSP configuration
-│           ├── treesitter.lua       # Treesitter main-branch config
+│           ├── noice.lua       # Command-line + message UI
+│           ├── lsp-config.lua  # LSP configuration
+│           ├── treesitter.lua  # Treesitter main-branch config
 │           ├── render-markdown.lua  # Markdown rendering
 │           └── ...
 ├── old/karabiner/           # Deprecated keyboard remapping archive

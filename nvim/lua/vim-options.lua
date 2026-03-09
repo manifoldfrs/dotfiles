@@ -17,39 +17,25 @@ vim.opt.showmode = false
 vim.opt.termguicolors = true
 vim.opt.pumheight = 10
 vim.opt.showtabline = 2
+vim.opt.colorcolumn = "80"
+vim.opt.list = true
+vim.opt.listchars = { tab = "> ", trail = ".", nbsp = "+" }
 
 -- Editing
 vim.opt.expandtab = true
 vim.opt.smartindent = true
-
--- Language-specific indentation
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = {"go", "python"},
-  callback = function()
-    vim.opt_local.shiftwidth = 4
-    vim.opt_local.tabstop = 4
-    vim.opt_local.softtabstop = 4
-  end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = {"javascript", "typescript"},
-  callback = function()
-    vim.opt_local.shiftwidth = 2
-    vim.opt_local.tabstop = 2
-    vim.opt_local.softtabstop = 2
-  end,
-})
 vim.opt.wrap = false
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
 
 -- Search
 vim.opt.hlsearch = true
+vim.opt.incsearch = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
 -- Files
+vim.opt.autoread = true
 vim.opt.backup = false
 vim.opt.swapfile = false
 vim.opt.undofile = true
@@ -74,6 +60,10 @@ vim.opt.completeopt = { "menuone", "noselect" }
 -- Basic keymaps (not plugin-specific)
 vim.keymap.set("n", ";", ":")
 vim.keymap.set("i", "jk", "<ESC>")
+vim.keymap.set("c", "%%", function()
+  local path = vim.fn.expand("%:h")
+  return path == "" and "" or path .. "/"
+end, { expr = true, desc = "Insert current file directory" })
 vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -- Resize with arrows

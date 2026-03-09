@@ -4,6 +4,15 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### Neovim: simplify editing defaults and move indentation into ftplugins
+
+- **nvim/editing**: Moved language-specific indentation out of global autocmds and into filetype-local config
+  - Added `nvim/ftplugin/go.lua`, `nvim/ftplugin/python.lua`, `nvim/ftplugin/javascript.lua`, and `nvim/ftplugin/typescript.lua`
+  - Go now uses real tabs (`expandtab = false`); Python, JavaScript, and TypeScript remain space-based
+  - Added `autoread`, `incsearch`, global `listchars`, and `colorcolumn` in `nvim/lua/vim-options.lua`
+  - Added the `%%` command-line shortcut to expand the current file directory
+  - Updated `README.md` to document the new editing defaults and `ftplugin/` layout
+
 ### Setup: auto-install tmux plugins and clarify work-laptop update flow
 
 - **shell setup**: `./shell_setup.sh install` now installs tmux plugins automatically when TPM is available
