@@ -193,6 +193,13 @@ install() {
         info "TPM already installed"
     fi
 
+    if [ -x "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then
+        info "Installing tmux plugins..."
+        "$HOME/.tmux/plugins/tpm/bin/install_plugins" || warn "tmux plugin installation failed - run manually"
+    else
+        warn "TPM install script not found - run tmux plugin installation manually"
+    fi
+
     # Copy Neovim config
     if [ -d "$DOTFILES_DIR/nvim" ]; then
         info "Copying Neovim config..."
@@ -279,7 +286,8 @@ install() {
     echo "tmux"
     echo "=========================================="
     echo "  Config copied to: ~/.tmux.conf"
-    echo "  TPM: ~/.tmux/plugins/tpm (run ~/.tmux/plugins/tpm/bin/install_plugins after first launch)"
+    echo "  TPM: ~/.tmux/plugins/tpm"
+    echo "  Plugins: installed automatically when TPM is available"
     echo ""
     echo "Neovim"
     echo "=========================================="

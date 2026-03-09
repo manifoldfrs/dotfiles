@@ -9,7 +9,7 @@ theme = Atom One Dark
 
 # Cursor
 cursor-style = block
-cursor-style-blink = false
+cursor-style-blink = true
 
 
 # Font

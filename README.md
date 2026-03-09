@@ -24,17 +24,50 @@ Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, and OpenC
 # 1. Clone the repo
 git clone https://github.com/manifoldfrs/dotfiles.git ~/dotfiles
 
-# 2. Run shell setup (installs Homebrew, oh-my-zsh, Ghostty, tmux, Neovim config, etc.)
+# 2. Run the installer
 cd ~/dotfiles
 ./shell_setup.sh install
 
-# 3. Restart your terminal (quit and reopen)
-# 4. Verify Node.js (installed by setup when missing)
+# 3. Fully quit and reopen your terminal
+
+# 4. Verify Node.js works
 node --version
 
 # 5. Install OpenCode (optional, for AI features)
 curl -fsSL https://opencode.ai/install | bash
 ```
+
+## Update an Existing Mac / Work Laptop
+
+Use this when the repo is already on the machine and you just want the latest dotfiles applied.
+
+```bash
+# 1. Get the latest committed dotfiles
+cd ~/dotfiles
+git pull
+
+# 2. Reapply all tracked shell/editor/terminal config
+./shell_setup.sh install
+
+# 3. Fully quit and reopen your terminal
+
+# 4. Restart tmux so the new config/theme is guaranteed to load cleanly
+tmux kill-server
+
+# 5. Verify the basics
+node --version
+tmux -V
+```
+
+What this already handles for you:
+- recopies your zsh, Ghostty, tmux, and Neovim config
+- installs Homebrew packages from `Brewfile`
+- installs tmux TPM if needed and installs tmux plugins automatically
+- runs Neovim headless plugin sync automatically
+
+What is still separate:
+- `./mcp_setup.sh install` for Claude/Codex MCP configs
+- OpenCode install/config if you use it on that machine
 
 ## What Gets Installed
 
@@ -46,6 +79,7 @@ curl -fsSL https://opencode.ai/install | bash
 - **nvm** (Node Version Manager) via HTTPS
 - **Node.js LTS** via nvm (installed if missing)
 - **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/.config/ghostty/config`, `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`, `bin/tmux-sessionizer` → `~/.local/bin/tmux-sessionizer`
+- **tmux TPM + plugins**: TPM is installed if missing, then tmux plugins are installed automatically
 - **Neovim plugins synced** headlessly via lazy.nvim (`nvim --headless -c "Lazy! sync" -c "qa"`)
 
 ### npm Global Packages (`npm-global-packages.txt`)
@@ -198,7 +232,7 @@ Use a terminal-first debugging flow instead of an in-editor DAP stack.
 | `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
 
-**Note:** Status bar is positioned at the top with the One Dark tmux theme (`odedlaz/tmux-onedark-theme`) plus a current-directory widget. Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+**Note:** Status bar is positioned at the top with the One Dark tmux theme (`odedlaz/tmux-onedark-theme`) plus a current-directory widget. The terminal/tmux cursor uses a blinking block. Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
 
 ### tmux-sessionizer
 
@@ -343,7 +377,8 @@ git push
 - Restart terminal after font installation
 
 **tmux plugins not loading?**
-- Run `~/.tmux/plugins/tpm/bin/install_plugins`
+- First rerun the installer from repo root: `./shell_setup.sh install`
+- If you want to force just the tmux plugin step, run `~/.tmux/plugins/tpm/bin/install_plugins`
 - If the bar still looks plain, ensure a Nerd Font is enabled in Ghostty and restart the terminal
 
 **Pretty tmux bar not rendering?**

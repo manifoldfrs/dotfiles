@@ -4,6 +4,22 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### Setup: auto-install tmux plugins and clarify work-laptop update flow
+
+- **shell setup**: `./shell_setup.sh install` now installs tmux plugins automatically when TPM is available
+  - Runs `~/.tmux/plugins/tpm/bin/install_plugins` after TPM install/detection
+  - Keeps going with a warning if TPM plugin install fails instead of aborting the whole setup
+  - Updated `README.md` with a step-by-step "existing Mac / work laptop" flow
+  - Updated docs so tmux plugin install is no longer described as a required manual post-step
+  - File: `shell_setup.sh`
+
+### Terminal UX: restore blinking block cursor in Ghostty and tmux
+
+- **cursor behavior**: Enabled a blinking block cursor consistently in both the terminal and tmux panes
+  - Set `cursor-style-blink = true` in `ghostty/config`
+  - Added `setw -g cursor-style blinking-block` to `tmux/tmux.conf`
+  - Updated tmux docs to reflect the intended cursor behavior
+
 ### tmux: fix One Dark status bar rendering on modern tmux
 
 - **tmux/theme**: Fixed the top status bar fallback background so One Dark renders cleanly on tmux 3.x+
