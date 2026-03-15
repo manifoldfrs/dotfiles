@@ -6,34 +6,42 @@
 // To see the default key bindings run `zed: open default keymap`
 // from the command palette.
 [
-    {
-        "context": "Workspace",
-        "bindings": {
-            // "shift shift": "file_finder::Toggle"
+        {
+                "context": "Editor",
+                "bindings": {
+                        "cmd-k": "assistant::InlineAssist",
+                },
         },
-    },
-    {
-        "context": "Editor && vim_mode == insert",
-        "bindings": {
-            // "j k": "vim::NormalBefore"
+        {
+                "context": "Workspace",
+                "bindings": {
+                        "ctrl-`": [
+                                "task::Spawn",
+                                {
+                                        "task_name": "open_in_ghostty"
+                                }
+                        ],
+                },
         },
-    },
-    {
-        "context": "Editor",
-        "bindings": {
-            "cmd-k": "assistant::InlineAssist",
+        // =========================================================================
+        // Pane splits — tmux-style (ctrl-a prefix)
+        //
+        // Mirrors tmux bindings: prefix + " = split down, prefix + % = split right.
+        //
+        // Note: ctrl-a is bound in the Editor context to MoveToBeginningOfLine.
+        // Zed will wait ~1s after ctrl-a for the second key before falling through
+        // to that action — intentional tmux-prefix behavior. In vim normal mode
+        // you'd use 0/^ anyway, so the delay is rarely felt.
+        // =========================================================================
+        {
+                "context": "Pane",
+                "bindings": {
+                        // tmux: ctrl-a + "  →  horizontal split (new pane below)
+                        "ctrl-a \"": "pane::SplitDown",
+                        // tmux: ctrl-a + %  →  vertical split (new pane to the right)
+                        "ctrl-a %": "pane::SplitRight",
+                        // tmux: ctrl-a + c  →  new window  (Zed: new file tab)
+                        "ctrl-a c": "workspace::NewFile",
+                },
         },
-    },
-    {
-        "context": "Workspace",
-        "bindings": {
-            "ctrl-`": ["task::Spawn", { "task_name": "open_in_ghostty" }],
-        },
-    },
-    {
-        "context": "Editor && vim_mode == normal",
-        "bindings": {
-            ";s": "workspace::Save",
-        },
-    },
 ]
