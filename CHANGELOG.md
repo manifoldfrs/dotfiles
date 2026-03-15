@@ -4,6 +4,10 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### Zed
+
+ - Add zed configurations
+
 ### Neovim: simplify editing defaults and move indentation into ftplugins
 
 - **nvim/editing**: Moved language-specific indentation out of global autocmds and into filetype-local config

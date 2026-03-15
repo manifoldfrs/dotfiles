@@ -262,6 +262,14 @@ setopt inc_append_history  # Save immediately, not on exit
 setopt share_history       # Share between terminals
 ```
 
+## Zed Configuration
+
+```bash
+ln -sf ~/dotfiles/zed/settings.json ~/.config/zed/settings.json
+ln -sf ~/dotfiles/zed/keymap.json   ~/.config/zed/keymap.json
+ln -sf ~/dotfiles/zed/tasks.json    ~/.config/zed/tasks.json
+```
+
 ## File Structure
 
 ```
