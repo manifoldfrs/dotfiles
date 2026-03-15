@@ -1,5 +1,19 @@
 {
+    "toolbar": {
+        "code_actions": false
+    },
+    "indent_guides": {
+        "background_coloring": "disabled",
+        "coloring": "indent_aware"
+    },
+    "vim": {
+        "toggle_relative_line_numbers": true
+    },
+    "prettier": {
+        "allowed": true
+    },
     "agent": {
+        "show_turn_stats": true,
         "default_model": {
             "provider": "zed.dev",
             "model": "claude-sonnet-4-6",
@@ -65,6 +79,6 @@
     "soft_wrap": "none",
     "hard_tabs": false,
     "tab_size": 4,
-    "base_keymap": "VSCode",
+    "base_keymap": "Cursor",
     "context_servers": {},
 }
