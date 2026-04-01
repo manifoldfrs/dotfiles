@@ -16,7 +16,7 @@
         "show_turn_stats": true,
         "default_model": {
             "provider": "zed.dev",
-            "model": "claude-sonnet-4-6",
+            "model": "claude-opus-4-6",
             "enable_thinking": true,
             "effort": "high",
         },
