@@ -3,7 +3,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- Disable providers for faster startup (unless you use Python/Ruby/Perl/Node plugins in nvim)
-vim.g.loaded_python3_provider = 0  -- Saves ~1.2s on Python file load
+vim.g.loaded_python3_provider = 0 -- Saves ~1.2s on Python file load
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
@@ -17,7 +17,6 @@ vim.opt.showmode = false
 vim.opt.termguicolors = true
 vim.opt.pumheight = 10
 vim.opt.showtabline = 2
-vim.opt.colorcolumn = "80"
 vim.opt.list = true
 vim.opt.listchars = { tab = "> ", trail = ".", nbsp = "+" }
 
@@ -61,8 +60,8 @@ vim.opt.completeopt = { "menuone", "noselect" }
 vim.keymap.set("n", ";", ":")
 vim.keymap.set("i", "jk", "<ESC>")
 vim.keymap.set("c", "%%", function()
-  local path = vim.fn.expand("%:h")
-  return path == "" and "" or path .. "/"
+        local path = vim.fn.expand("%:h")
+        return path == "" and "" or path .. "/"
 end, { expr = true, desc = "Insert current file directory" })
 vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlight" })
 
