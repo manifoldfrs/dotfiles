@@ -97,6 +97,10 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 
 See `mcp/README.md` for setup instructions and API key configuration.
 
+Preferred tool usage after setup:
+- Use `RepoPrompt_*` tools for repo discovery, file reads, selection management, planning, review, and git context whenever RepoPrompt is available.
+- Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
+
 ### Karabiner Status
 
 Karabiner is deprecated in this repo and no longer installed by `shell_setup.sh`/`Brewfile`.
@@ -367,6 +371,61 @@ git push
   - kept only `noice.nvim` from recent additions
   - retained the safety harness (`test/nvim_plugin_safety.sh`) for one-by-one rollout checks
 - Post-recovery: switched theme from Nord to Catppuccin Macchiato across Neovim, Ghostty, and tmux. Added `flash.nvim` for motion/jump support.
+
+## cbcode HOME Sandbox
+
+`cbcode` (Coinbase's Claude Code wrapper) overwrites `~/.codex/config.toml` on every launch with Coinbase LLM Gateway settings. This conflicts with running a personal Codex CLI using your own OpenAI account.
+
+**Solution:** Sandbox cbcode's `HOME` so it writes its Codex config to `~/.cbcode-home/.codex/` instead of `~/.codex/`. All other dotfiles are symlinked back to the real `$HOME`, so Claude Code config and everything else remains shared.
+
+### Setup
+
+```bash
+# 1. Create the sandboxed home
+mkdir -p ~/.cbcode-home
+
+# 2. Symlink everything cbcode needs (NOT .codex — that's the whole point)
+cd ~/.cbcode-home
+ln -s ~/.claude .claude
+ln -s ~/.claude.json .claude.json
+ln -s ~/.cbcode .cbcode
+ln -s ~/.config .config
+ln -s ~/.cache .cache
+ln -s ~/.nvm .nvm
+ln -s ~/.zshrc .zshrc
+ln -s ~/.zprofile .zprofile
+ln -s ~/.pyenv .pyenv
+ln -s ~/.rbenv .rbenv
+ln -s ~/.bun .bun
+ln -s ~/.oh-my-zsh .oh-my-zsh
+ln -s ~/.fzf.zsh .fzf.zsh
+ln -s ~/.deno .deno
+ln -s ~/.local .local
+ln -s ~/go go
+ln -s ~/.opencode .opencode
+ln -s ~/.gitconfig .gitconfig
+ln -s ~/.ssh .ssh
+ln -s ~/.gnupg .gnupg
+ln -s ~/.npmrc .npmrc
+ln -s ~/Library Library
+
+# 3. Add the wrapper function to .zshrc
+cbcode() {
+  ( HOME="$HOME/.cbcode-home" command cbcode "$@" )
+}
+```
+
+### How it works
+
+| Path | cbcode sees | Personal codex sees |
+|------|-------------|---------------------|
+| `~/.codex/config.toml` | `~/.cbcode-home/.codex/config.toml` (isolated) | `~/.codex/config.toml` (yours) |
+| `~/.claude/` | `~/.cbcode-home/.claude` → `~/.claude/` (shared) | N/A |
+| `~/.cbcode/` | `~/.cbcode-home/.cbcode` → `~/.cbcode/` (shared) | N/A |
+
+### Why this is necessary
+
+cbcode's `ensureCodexConfigToml()` in `packages/code-agent/src/onboarding/config.ts` runs on every launch and force-updates `model`, `model_provider`, `model_providers.cbhq-gateway`, and `features` in `config.toml`. The path is hardcoded to `os.homedir() + '/.codex'` with no env var override. Sandboxing `HOME` is the only way to isolate it without patching the binary.
 
 ## Troubleshooting
 
