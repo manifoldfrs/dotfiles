@@ -5,7 +5,7 @@ shell-integration-features = no-cursor
 copy-on-select = clipboard
 
 # theme
-theme = Tokyo Night
+theme = TokyoNight Night
 
 # Cursor
 cursor-style = block
