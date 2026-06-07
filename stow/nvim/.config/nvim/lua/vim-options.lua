@@ -1,6 +1,6 @@
 -- Leader key (must be set before lazy)
 vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+vim.g.maplocalleader = ","
 
 -- Disable providers for faster startup (unless you use Python/Ruby/Perl/Node plugins in nvim)
 vim.g.loaded_python3_provider = 0 -- Saves ~1.2s on Python file load
