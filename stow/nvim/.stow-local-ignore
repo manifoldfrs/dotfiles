@@ -1,0 +1,2 @@
+# Repo-local agent guidance for this package; do not link into $HOME.
+^AGENTS\.md$
