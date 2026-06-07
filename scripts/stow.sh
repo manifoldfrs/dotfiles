@@ -1,14 +1,30 @@
 #!/bin/bash
 
 # Apply or remove GNU Stow-managed dotfiles.
-# Usage: ./scripts/stow.sh [apply|dry-run|delete]
+# Usage: ./scripts/stow.sh [--cb] [apply|dry-run|delete]
 
 set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
-STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude)
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+TPM_REPO=https://github.com/tmux-plugins/tpm
+DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude)
+CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
+CB_BACKUP_TARGETS=(
+    "$HOME/.zshrc"
+    "$HOME/.zshrc.local"
+    "$HOME/.zprofile"
+    "$HOME/.zshenv"
+    "$HOME/.gitconfig"
+    "$HOME/.gitconfig.local"
+    "$HOME/.gitignore_global"
+    "$HOME/.tmux.conf"
+    "$HOME/.config/nvim"
+    "$HOME/.config/ghostty/config"
+    "$HOME/.local/bin/tmux-sessionizer"
+)
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,6 +34,21 @@ NC='\033[0m'
 info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+
+usage() {
+    local status=${1:-1}
+
+    echo "Usage: $0 [--cb] [apply|dry-run|delete]"
+    echo ""
+    echo "Commands:"
+    echo "  apply    Restow managed dotfiles into home"
+    echo "  dry-run  Preview Stow changes without modifying files"
+    echo "  delete   Remove Stow-managed symlinks from home"
+    echo ""
+    echo "Options:"
+    echo "  --cb     Use Coinbase laptop package profile"
+    exit "$status"
+}
 
 require_stow() {
     if ! command -v stow &> /dev/null; then
@@ -29,50 +60,176 @@ require_stow() {
     fi
 }
 
+backup_stow_target() {
+    local target=$1
+
+    if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+        return
+    fi
+
+    if is_stow_managed_tree "$target"; then
+        return
+    fi
+
+    mv "$target" "$target.backup.$(date +%Y%m%d%H%M%S)"
+    warn "Backed up existing before Stow: $target"
+}
+
+is_stow_managed_link() {
+    local target=$1
+    local link_dest
+
+    if [ ! -L "$target" ]; then
+        return 1
+    fi
+
+    link_dest="$(readlink "$target")"
+    case "$link_dest" in
+        *dotfiles/stow/*|*"$DOTFILES_DIR/stow"*)
+            return 0
+            ;;
+    esac
+
+    return 1
+}
+
+is_stow_managed_tree() {
+    local target=$1
+    local entry
+    local saw_entry=0
+
+    if is_stow_managed_link "$target"; then
+        return 0
+    fi
+
+    if [ ! -d "$target" ]; then
+        return 1
+    fi
+
+    for entry in "$target"/* "$target"/.[!.]* "$target"/..?*; do
+        if [ ! -e "$entry" ] && [ ! -L "$entry" ]; then
+            continue
+        fi
+
+        saw_entry=1
+        if ! is_stow_managed_tree "$entry"; then
+            return 1
+        fi
+    done
+
+    [ "$saw_entry" -eq 1 ]
+}
+
+backup_cb_stow_targets() {
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.local/bin"
+
+    for target in "${CB_BACKUP_TARGETS[@]}"; do
+        backup_stow_target "$target"
+    done
+}
+
+install_tpm() {
+    if [ -d "$TPM_DIR" ]; then
+        info "TPM already installed"
+        return 0
+    fi
+
+    if ! command -v git &> /dev/null; then
+        warn "git not found, skipping TPM installation"
+        return 1
+    fi
+
+    info "Installing tmux plugin manager (TPM)..."
+    mkdir -p "$(dirname "$TPM_DIR")"
+    git clone "$TPM_REPO" "$TPM_DIR" || {
+        warn "TPM installation failed - install manually"
+        return 1
+    }
+}
+
+install_tmux_plugins() {
+    if ! command -v tmux &> /dev/null; then
+        warn "tmux not found, skipping tmux plugin installation"
+        return
+    fi
+
+    if ! install_tpm; then
+        return
+    fi
+
+    if [ ! -x "$TPM_DIR/bin/install_plugins" ]; then
+        warn "TPM install script not found - run tmux plugin installation manually"
+        return
+    fi
+
+    info "Installing tmux plugins from ~/.tmux.conf..."
+    "$TPM_DIR/bin/install_plugins" || warn "tmux plugin installation failed - run manually"
+}
+
+parse_args() {
+    ACTION=apply
+    PROFILE=default
+
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --cb)
+                PROFILE=cb
+                ;;
+            apply|dry-run|delete)
+                ACTION=$1
+                ;;
+            help|--help|-h)
+                usage 0
+                ;;
+            *)
+                usage
+                ;;
+        esac
+        shift
+    done
+}
+
+select_packages() {
+    if [ "$PROFILE" = "cb" ]; then
+        STOW_PACKAGES=("${CB_STOW_PACKAGES[@]}")
+        return
+    fi
+
+    STOW_PACKAGES=("${DEFAULT_STOW_PACKAGES[@]}")
+}
+
 apply_dotfiles() {
-    info "Applying Stow packages into $HOME..."
+    if [ "$PROFILE" = "cb" ]; then
+        backup_cb_stow_targets
+    fi
+
+    info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
     stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
+    install_tmux_plugins
 }
 
 dry_run_dotfiles() {
-    info "Previewing Stow changes for $HOME..."
+    info "Previewing Stow changes for $HOME: ${STOW_PACKAGES[*]}"
     stow -n "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
 }
 
 delete_dotfiles() {
-    warn "Removing Stow-managed symlinks from $HOME..."
+    warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
 }
 
-usage() {
-    local status=${1:-1}
+parse_args "$@"
+require_stow
+select_packages
 
-    echo "Usage: $0 [apply|dry-run|delete]"
-    echo ""
-    echo "Commands:"
-    echo "  apply    Restow all managed dotfiles into home"
-    echo "  dry-run  Preview Stow changes without modifying files"
-    echo "  delete   Remove Stow-managed symlinks from home"
-    exit "$status"
-}
-
-case "${1:-apply}" in
+case "$ACTION" in
     apply)
-        require_stow
         apply_dotfiles
         ;;
     dry-run)
-        require_stow
         dry_run_dotfiles
         ;;
     delete)
-        require_stow
         delete_dotfiles
-        ;;
-    help|--help|-h)
-        usage 0
-        ;;
-    *)
-        usage
         ;;
 esac

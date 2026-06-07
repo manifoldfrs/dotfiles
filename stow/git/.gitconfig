@@ -24,3 +24,6 @@
 #     sshCommand = ssh -i ~/.ssh/id_ed25519
 # [url "git@github.com:"]
 #     insteadOf = https://github.com/
+
+[include]
+	path = ~/.gitconfig.local

@@ -1,0 +1,6 @@
+[user]
+	name = Faris Habib
+	email = faris.habib@coinbase.com
+	signingkey = 8C0E52F6D6318A2A
+[commit]
+	gpgsign = true

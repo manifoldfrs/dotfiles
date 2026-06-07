@@ -140,13 +140,14 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 
 # bun completions
-[ -s "/Users/frshbb/.bun/_bun" ] && source "/Users/frshbb/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
-export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
 
 # opencode
-export PATH=/Users/frshbb/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"
+
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

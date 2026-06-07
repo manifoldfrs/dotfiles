@@ -1,0 +1,19 @@
+# Coinbase local overrides
+export PATH="/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.rbenv/shims:$PATH"
+
+export GO111MODULE=on
+export GOPROXY=https://gomods.cbhq.net/
+export GONOSUMDB=github.cbhq.net,coinbase.ghe.com
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
+
+# pnpm uses the registry configured in ~/.npmrc.
+
+[ -f "$GOPATH/bin/assume-role" ] && eval "$($GOPATH/bin/assume-role -init)"
+export PATH="$HOME/go/bin:$PATH"
+
+cbcode() {
+  ( HOME="$HOME/.cbcode-home" command cbcode "$@" )
+}
