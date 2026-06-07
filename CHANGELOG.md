@@ -2,6 +2,24 @@
 
 All notable changes to this dotfiles repository are documented here.
 
+## June 2026
+
+### Setup: fix Coinbase GHE SSH authentication
+
+- **setup/ssh-cb**: Added new `stow/ssh-cb/` Stow package containing `~/.ssh/config`
+  - Pins `User coinbase` for `coinbase.ghe.com` — this GHE instance uses `coinbase` as the SSH user, not `git`
+  - Sets `IdentityFile ~/.ssh/id_ed25519` and `IdentitiesOnly yes` to avoid offering unrelated keys
+  - Package is symlinked manually by `scripts/stow.sh` (`link_ssh_config`) because Stow cannot fold into a pre-existing `~/.ssh` directory
+
+- **setup/git-cb**: Fixed `stow/git-cb/.gitconfig.local` SSH URL rewrite
+  - Corrected rewrite target from `git@coinbase.ghe.com:` to `coinbase@coinbase.ghe.com:` to match the actual GHE SSH user
+  - Added commented-out HTTPS fallback via `gh auth git-credential` for bootstrapping before the SSH key is registered
+
+- **setup/stow**: Added `link_ssh_config()` to `scripts/stow.sh`
+  - Runs during `--cb apply` to symlink `stow/ssh-cb/.ssh/config` into `~/.ssh/config`
+  - Backs up any existing non-stow `~/.ssh/config` before symlinking
+  - No-ops if the symlink already points to the dotfiles source
+
 ## March 2026
 
 ### Docs: clarify cbcode sandbox safety

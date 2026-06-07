@@ -117,7 +117,30 @@ cd ~/dotfiles
 ./scripts/stow.sh --cb apply
 ```
 
-The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `tmux`, `nvim`, and `bin`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched.
+The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `tmux`, `nvim`, and `bin`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched. It also symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` using a dedicated step in `scripts/stow.sh` because Stow cannot fold into a pre-existing `~/.ssh` directory.
+
+### Coinbase Git Authentication Setup
+
+`stow/git-cb/.gitconfig.local` rewrites `https://coinbase.ghe.com/` URLs to SSH using `coinbase@coinbase.ghe.com:` (the SSH user for this GHE instance is `coinbase`, not `git`). `stow/ssh-cb/.ssh/config` pins `~/.ssh/id_ed25519` for this host.
+
+On a new machine, register your public key and authorize it for SSO before the URL rewrite will work:
+
+**Step 1.** Copy your public key:
+
+```bash
+cat ~/.ssh/id_ed25519.pub | pbcopy
+```
+
+**Step 2.** Open [https://coinbase.ghe.com/settings/ssh/new](https://coinbase.ghe.com/settings/ssh/new), paste the key, then click **Configure SSO** and **Authorize** for the `commerce` organization.
+
+**Step 3.** Verify:
+
+```bash
+ssh -T coinbase@coinbase.ghe.com
+# Hi faris-habib! You've successfully authenticated...
+```
+
+If SSH is not working yet, the commented-out HTTPS fallback in `stow/git-cb/.gitconfig.local` works once `gh auth login` has been run for `coinbase.ghe.com`.
 
 ### Run Stow Without Scripts
 
@@ -329,7 +352,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 - **zsh-syntax-highlighting** plugin
 - **Node.js** from `Brewfile`
 - **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/tmux`, `stow/nvim`, `stow/bin`, `stow/opencode`, and `stow/claude` into `$HOME`
-- **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb` and `stow/git-cb` while skipping account-specific AI tool configs
+- **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb` and `stow/git-cb`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
 - **tmux TPM + plugins**: `scripts/stow.sh` installs TPM if missing, then installs tmux plugins from the stowed `~/.tmux.conf`
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
@@ -577,7 +600,8 @@ dotfiles/
 │   ├── zsh/                # .zshrc, .zprofile, .zshenv
 │   ├── zsh-cb/             # Coinbase-only .zshrc.local
 │   ├── git/                # .gitconfig, .gitignore_global
-│   ├── git-cb/             # Coinbase-only .gitconfig.local
+│   ├── git-cb/             # Coinbase-only .gitconfig.local (SSH URL rewrite + HTTPS fallback)
+│   ├── ssh-cb/             # Coinbase-only .ssh/config (symlinked manually, not via Stow)
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── tmux/               # .tmux.conf
 │   ├── bin/                # .local/bin/tmux-sessionizer

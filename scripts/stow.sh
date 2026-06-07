@@ -198,9 +198,32 @@ select_packages() {
     STOW_PACKAGES=("${DEFAULT_STOW_PACKAGES[@]}")
 }
 
+link_ssh_config() {
+    local src="$DOTFILES_DIR/stow/ssh-cb/.ssh/config"
+    local dest="$HOME/.ssh/config"
+
+    if [ ! -f "$src" ]; then
+        return
+    fi
+
+    if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+        info "SSH config already linked: $dest"
+        return
+    fi
+
+    if [ -e "$dest" ] && [ ! -L "$dest" ]; then
+        mv "$dest" "$dest.backup.$(date +%Y%m%d%H%M%S)"
+        warn "Backed up existing SSH config: $dest"
+    fi
+
+    ln -sf "$src" "$dest"
+    info "Linked SSH config: $dest -> $src"
+}
+
 apply_dotfiles() {
     if [ "$PROFILE" = "cb" ]; then
         backup_cb_stow_targets
+        link_ssh_config
     fi
 
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"

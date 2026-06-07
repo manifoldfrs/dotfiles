@@ -4,3 +4,9 @@
 	signingkey = 8C0E52F6D6318A2A
 [commit]
 	gpgsign = true
+[url "coinbase@coinbase.ghe.com:"]
+	insteadOf = https://coinbase.ghe.com/
+
+# Fallback: HTTPS via gh token when SSH is unavailable
+# [credential "https://coinbase.ghe.com"]
+# 	helper = !gh auth git-credential
