@@ -13,6 +13,9 @@ STOW_TARGETS=(
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"
+    "$HOME/.config/opencode/opencode.json"
+    "$HOME/.config/opencode/tui.json"
+    "$HOME/.claude/settings.local.json"
     "$HOME/.tmux.conf"
     "$HOME/.config/nvim"
     "$HOME/.local/bin/tmux-sessionizer"
@@ -90,7 +93,7 @@ backup_stow_target() {
 }
 
 backup_existing_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
 
     for target in "${STOW_TARGETS[@]}"; do
         backup_stow_target "$target"

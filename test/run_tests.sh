@@ -8,20 +8,22 @@ cd ~/dotfiles
 
 # Test 1: Verify no syntax errors
 echo "[TEST 1] Checking shell script syntax..."
-bash -n shell_setup.sh
-bash -n cursor_setup.sh
+bash -n scripts/bootstrap.sh
+bash -n scripts/backup.sh
+bash -n scripts/stow.sh
+bash -n mcp_setup.sh
 echo "[PASS] No syntax errors"
 echo ""
 
 # Test 2: Test git config doesn't force SSH (check for UNCOMMENTED lines only)
 echo "[TEST 2] Checking .gitconfig for SSH rewrite..."
 # Match lines that start with whitespace then 'insteadOf' (not commented)
-if grep -E '^\s*insteadOf\s*=' .gitconfig; then
+if grep -E '^\s*insteadOf\s*=' stow/git/.gitconfig; then
     echo "[FAIL] .gitconfig has uncommented SSH URL rewrite!"
     exit 1
 fi
 # Match lines that start with whitespace then 'sshCommand' (not commented)
-if grep -E '^\s*sshCommand\s*=' .gitconfig; then
+if grep -E '^\s*sshCommand\s*=' stow/git/.gitconfig; then
     echo "[FAIL] .gitconfig has uncommented sshCommand!"
     exit 1
 fi
@@ -39,24 +41,8 @@ else
 fi
 echo ""
 
-# Test 4: Test nvm installation via HTTPS
-echo "[TEST 4] Installing nvm via HTTPS..."
-export NVM_DIR="$HOME/.nvm"
-mkdir -p "$NVM_DIR"
-git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
-cd "$NVM_DIR"
-git checkout $(git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1))
-if [ -f "$NVM_DIR/nvm.sh" ]; then
-    echo "[PASS] nvm installed via HTTPS"
-else
-    echo "[FAIL] nvm installation failed"
-    exit 1
-fi
-cd ~/dotfiles
-echo ""
-
-# Test 5: Test zsh-syntax-highlighting plugin
-echo "[TEST 5] Installing zsh-syntax-highlighting..."
+# Test 4: Test zsh-syntax-highlighting plugin
+echo "[TEST 4] Installing zsh-syntax-highlighting..."
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 if [ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
     echo "[PASS] zsh-syntax-highlighting installed"
@@ -66,21 +52,27 @@ else
 fi
 echo ""
 
-# Test 6: Test file copy function
-echo "[TEST 6] Testing file copy to home..."
-cp ~/dotfiles/.zshrc ~/.zshrc
-cp ~/dotfiles/.gitconfig ~/.gitconfig
-if [ -f ~/.zshrc ] && [ -f ~/.gitconfig ]; then
-    echo "[PASS] Files copied successfully"
+# Test 5: Test Stow package layout
+echo "[TEST 5] Testing GNU Stow package layout..."
+STOW_TEST_HOME="$(mktemp -d)"
+stow --no-folding -R -t "$STOW_TEST_HOME" -d ~/dotfiles/stow zsh git ghostty tmux nvim bin opencode claude
+if [ -L "$STOW_TEST_HOME/.zshrc" ] \
+    && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
+    && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
+    && [ -L "$STOW_TEST_HOME/.config/opencode/opencode.json" ] \
+    && [ -L "$STOW_TEST_HOME/.config/opencode/tui.json" ] \
+    && [ -L "$STOW_TEST_HOME/.claude/settings.local.json" ] \
+    && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
+    echo "[PASS] Stow symlinks created successfully"
 else
-    echo "[FAIL] File copy failed"
+    echo "[FAIL] Stow symlink creation failed"
     exit 1
 fi
 echo ""
 
-# Test 7: Verify .zshrc has correct oh-my-zsh config
-echo "[TEST 7] Checking .zshrc configuration..."
-if grep -q 'ZSH_THEME="agnoster"' ~/.zshrc && grep -q 'plugins=(git zsh-syntax-highlighting)' ~/.zshrc; then
+# Test 6: Verify .zshrc has correct oh-my-zsh config
+echo "[TEST 6] Checking .zshrc configuration..."
+if grep -q 'ZSH_THEME="robbyrussell"' "$STOW_TEST_HOME/.zshrc" && grep -q 'plugins=(git zsh-syntax-highlighting)' "$STOW_TEST_HOME/.zshrc"; then
     echo "[PASS] .zshrc has correct theme and plugins"
 else
     echo "[FAIL] .zshrc missing theme or plugins config"
@@ -88,8 +80,8 @@ else
 fi
 echo ""
 
-# Test 8: Neovim plugin safety checks (best-effort)
-echo "[TEST 8] Running Neovim plugin safety checks..."
+# Test 7: Neovim plugin safety checks (best-effort)
+echo "[TEST 7] Running Neovim plugin safety checks..."
 if command -v nvim >/dev/null 2>&1; then
     if bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux > /tmp/nvim-plugin-safety.log 2>&1; then
         echo "[PASS] Neovim plugin safety checks passed"

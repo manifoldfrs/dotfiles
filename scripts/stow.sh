@@ -7,7 +7,7 @@ set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
-STOW_PACKAGES=(zsh git ghostty tmux nvim bin)
+STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 
 RED='\033[0;31m'

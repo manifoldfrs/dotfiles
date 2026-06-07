@@ -17,14 +17,20 @@ jobs:
       
       - name: Validate script syntax
         run: |
-          bash -n shell_setup.sh
-          bash -n cursor_setup.sh
+          bash -n scripts/bootstrap.sh
+          bash -n scripts/backup.sh
+          bash -n scripts/stow.sh
+          bash -n mcp_setup.sh
           echo "✓ Script syntax valid"
       
       - name: Check .gitconfig for SSH rewrite
         run: |
-          if grep -E '^\s*insteadOf\s*=' .gitconfig; then
+          if grep -E '^\s*insteadOf\s*=' stow/git/.gitconfig; then
             echo "✗ .gitconfig has uncommented SSH URL rewrite"
+            exit 1
+          fi
+          if grep -E '^\s*sshCommand\s*=' stow/git/.gitconfig; then
+            echo "✗ .gitconfig has uncommented sshCommand"
             exit 1
           fi
           echo "✓ No active SSH URL rewrite"
@@ -44,26 +50,29 @@ jobs:
           git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
           echo "✓ zsh-syntax-highlighting installed"
       
-      - name: Install nvm via HTTPS
+      - name: Verify Node.js from Brewfile
         run: |
-          export NVM_DIR="$HOME/.nvm"
-          mkdir -p "$NVM_DIR"
-          git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
-          cd "$NVM_DIR"
-          git checkout $(git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1))
-          [ -f "$NVM_DIR/nvm.sh" ] && echo "✓ nvm installed via HTTPS"
+          node --version
+          npm --version
+          echo "✓ Node.js available"
       
-      - name: Copy config files
+      - name: Stow config files
         run: |
-          cp .zshrc ~/.zshrc
-          cp .gitconfig ~/.gitconfig
-          cp .zprofile ~/.zprofile 2>/dev/null || true
-          echo "✓ Config files copied"
+          tmp_home="$(mktemp -d)"
+          stow --no-folding -R -t "$tmp_home" -d stow zsh git ghostty tmux nvim bin opencode claude
+          test -L "$tmp_home/.zshrc"
+          test -L "$tmp_home/.gitconfig"
+          test -L "$tmp_home/.config/nvim/init.lua"
+          test -L "$tmp_home/.config/opencode/opencode.json"
+          test -L "$tmp_home/.config/opencode/tui.json"
+          test -L "$tmp_home/.claude/settings.local.json"
+          test ! -e "$tmp_home/AGENTS.md"
+          echo "✓ Config files stowed"
       
       - name: Validate .zshrc configuration
         run: |
-          grep -q 'ZSH_THEME="agnoster"' ~/.zshrc && echo "✓ Theme configured"
-          grep -q 'plugins=(git zsh-syntax-highlighting)' ~/.zshrc && echo "✓ Plugins configured"
+          grep -q 'ZSH_THEME="robbyrussell"' stow/zsh/.zshrc && echo "✓ Theme configured"
+          grep -q 'plugins=(git zsh-syntax-highlighting)' stow/zsh/.zshrc && echo "✓ Plugins configured"
       
       - name: Verify Nerd Fonts installed
         run: |

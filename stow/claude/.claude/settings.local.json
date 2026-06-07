@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/frshbb/.claude -name *.json -maxdepth 2)",
+      "Bash(claude mcp *)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 *)",
+      "mcp__Ref__ref_search_documentation",
+      "mcp__exa__web_search_exa",
+      "mcp__RepoPrompt__file_search"
+    ]
+  }
+}
