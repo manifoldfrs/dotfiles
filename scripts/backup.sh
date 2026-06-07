@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Snapshot current machine config back into tracked dotfile sources.
-# Usage: ./scripts/backup.sh
+# Usage: ./scripts/backup.sh [--cb]
 
 set -e
 
@@ -16,6 +16,35 @@ NC='\033[0m'
 info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
+usage() {
+    local status=${1:-1}
+
+    echo "Usage: $0 [--cb]"
+    echo ""
+    echo "Options:"
+    echo "  --cb     Backup only Coinbase local override files"
+    exit "$status"
+}
+
+parse_args() {
+    PROFILE=default
+
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --cb)
+                PROFILE=cb
+                ;;
+            help|--help|-h)
+                usage 0
+                ;;
+            *)
+                usage
+                ;;
+        esac
+        shift
+    done
+}
+
 copy_file() {
     local src=$1
     local dest=$2
@@ -27,6 +56,12 @@ copy_file() {
 
     info "Copying $label..."
     mkdir -p "$(dirname "$dest")"
+
+    if [ -f "$dest" ] && cmp -s "$src" "$dest"; then
+        info "$label already current"
+        return
+    fi
+
     cp -L "$src" "$dest"
 }
 
@@ -66,7 +101,7 @@ backup_warp_themes() {
     cp -R "$HOME/.warp/themes" "$DOTFILES_DIR/warp/"
 }
 
-main() {
+backup_shared_config() {
     info "Backing up shell/editor configuration..."
 
     export_brewfile
@@ -80,9 +115,26 @@ main() {
     copy_file "$HOME/.config/ghostty/config" "$STOW_DIR/ghostty/.config/ghostty/config" "Ghostty config"
     backup_warp_themes
     export_npm_globals
+}
+
+backup_coinbase_config() {
+    info "Backing up Coinbase local override configuration..."
+
+    copy_file "$HOME/.zshrc.local" "$STOW_DIR/zsh-cb/.zshrc.local" ".zshrc.local"
+    copy_file "$HOME/.gitconfig.local" "$STOW_DIR/git-cb/.gitconfig.local" ".gitconfig.local"
+}
+
+main() {
+    parse_args "$@"
+
+    if [ "$PROFILE" = "cb" ]; then
+        backup_coinbase_config
+    else
+        backup_shared_config
+    fi
 
     echo ""
     info "Backup complete. Review changes with: git status --short && git diff"
 }
 
-main
+main "$@"
