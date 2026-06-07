@@ -48,7 +48,7 @@ Use the daily Stow wrapper when the repo is already on the machine and you just 
 cd ~/dotfiles
 git pull
 
-# 2. Reapply all tracked shell/editor/terminal config
+# 2. Reapply all tracked shell/editor/terminal config and tmux plugins
 ./scripts/stow.sh
 
 # 3. Fully quit and reopen your terminal
@@ -61,15 +61,26 @@ node --version
 tmux -V
 ```
 
-Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Oh My Zsh, Node.js, tmux plugins, and Neovim plugins.
+On Coinbase laptops, use the Coinbase Stow profile instead. It applies shared shell/editor/terminal packages plus `stow/zsh-cb` and `stow/git-cb`, while leaving OpenCode, Claude Code, and Codex account state alone.
+
+```bash
+cd ~/dotfiles
+git pull
+./scripts/stow.sh --cb dry-run
+./scripts/stow.sh --cb apply
+tmux kill-server
+```
+
+Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Oh My Zsh, Node.js, and Neovim plugins. Do not use bootstrap on Coinbase laptops until the script has Coinbase profile pass-through.
 
 What this already handles for you:
 - stows your zsh, Git, Ghostty, tmux, Neovim, OpenCode, Claude Code, and local bin config
+- supports `--cb` for Coinbase laptops, which uses `zsh-cb` and `git-cb` without stowing OpenCode or Claude Code
+- installs TPM if missing, then installs tmux plugins from `~/.tmux.conf`
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
 What `./scripts/bootstrap.sh` additionally handles for you:
 - installs Homebrew packages from `Brewfile`
-- installs tmux TPM if needed and installs tmux plugins automatically
 - runs Neovim headless plugin sync automatically
 
 What is still separate:
@@ -97,6 +108,16 @@ This defaults to `apply`. The equivalent direct Stow command is:
 cd ~/dotfiles
 stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
 ```
+
+### Apply Coinbase Laptop Profile
+
+```bash
+cd ~/dotfiles
+./scripts/stow.sh --cb dry-run
+./scripts/stow.sh --cb apply
+```
+
+The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `tmux`, `nvim`, and `bin`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched.
 
 ### Apply One Package
 
@@ -242,12 +263,22 @@ cd ~/dotfiles
 
 `scripts/backup.sh` follows symlinks with `cp -L`, so it captures the configured shell/editor files into `stow/*`. It intentionally does not copy live OpenCode or Claude account/runtime state because those files can contain API keys, session data, or local machine history.
 
+On Coinbase laptops, use the Coinbase backup profile so only local work overrides are copied back into the Coinbase Stow packages:
+
+```bash
+cd ~/dotfiles
+./scripts/backup.sh --cb
+```
+
+The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.local` and `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`. It intentionally does not copy shared shell, Git, tmux, Ghostty, Neovim, OpenCode, Claude Code, or Model Context Protocol files.
+
 ## Command Cheatsheet
 
 | Task | Command |
 |------|---------|
 | Full install/update | `./scripts/bootstrap.sh` |
 | Backup shell/editor config | `./scripts/backup.sh` |
+| Backup Coinbase overrides | `./scripts/backup.sh --cb` |
 | Apply all Stow packages | `./scripts/stow.sh` |
 | Preview all Stow changes | `./scripts/stow.sh dry-run` |
 | Remove all Stow symlinks | `./scripts/stow.sh delete` |
@@ -257,6 +288,7 @@ cd ~/dotfiles
 | Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
 | Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
 | Reload tmux config | `tmux source-file ~/.tmux.conf` |
+| Install tmux plugins | `~/.tmux/plugins/tpm/bin/install_plugins` |
 | Restart tmux cleanly | `tmux kill-server && tmux` |
 | Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
 | Open Lazy UI | `nvim +Lazy` |
@@ -275,7 +307,8 @@ cd ~/dotfiles
 - **zsh-syntax-highlighting** plugin
 - **Node.js** from `Brewfile`
 - **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/tmux`, `stow/nvim`, `stow/bin`, `stow/opencode`, and `stow/claude` into `$HOME`
-- **tmux TPM + plugins**: TPM is installed if missing, then tmux plugins are installed automatically
+- **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb` and `stow/git-cb` while skipping account-specific AI tool configs
+- **tmux TPM + plugins**: `scripts/stow.sh` installs TPM if missing, then installs tmux plugins from the stowed `~/.tmux.conf`
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
 - **Global npm packages** from `npm-global-packages.txt`
@@ -520,7 +553,9 @@ dotfiles/
 ├── CHANGELOG.md            # Change history
 ├── stow/                   # GNU Stow packages, each mirroring $HOME
 │   ├── zsh/                # .zshrc, .zprofile, .zshenv
+│   ├── zsh-cb/             # Coinbase-only .zshrc.local
 │   ├── git/                # .gitconfig, .gitignore_global
+│   ├── git-cb/             # Coinbase-only .gitconfig.local
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── tmux/               # .tmux.conf
 │   ├── bin/                # .local/bin/tmux-sessionizer
@@ -739,7 +774,8 @@ Backups created by the installer are named like `.zshrc.backup.YYYYMMDDhhmmss`.
 - Restart terminal after font installation
 
 **tmux plugins not loading?**
-- First rerun the installer from repo root: `./scripts/bootstrap.sh`
+- First rerun the Stow apply flow from repo root: `./scripts/stow.sh`
+- On Coinbase laptops, rerun the Coinbase profile instead: `./scripts/stow.sh --cb apply`
 - If you want to force just the tmux plugin step, run `~/.tmux/plugins/tpm/bin/install_plugins`
 - If the bar still looks plain, ensure a Nerd Font is enabled in Ghostty and restart the terminal
 - Tokyo Night tmux requires Bash 4.2+; `brew "bash"` is included in `Brewfile`

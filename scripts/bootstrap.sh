@@ -147,23 +147,6 @@ setup_fzf() {
     "$fzf_install" --key-bindings --completion --no-update-rc --no-bash --no-fish
 }
 
-install_tmux_plugins() {
-    if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
-        info "Installing tmux plugin manager (TPM)..."
-        mkdir -p "$HOME/.tmux/plugins"
-        git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" || warn "TPM installation failed - install manually"
-    else
-        info "TPM already installed"
-    fi
-
-    if [ -x "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then
-        info "Installing tmux plugins..."
-        "$HOME/.tmux/plugins/tpm/bin/install_plugins" || warn "tmux plugin installation failed - run manually"
-    else
-        warn "TPM install script not found - run tmux plugin installation manually"
-    fi
-}
-
 sync_neovim_plugins() {
     if ! command -v nvim &> /dev/null; then
         warn "Neovim not found, skipping plugin installation"
@@ -217,7 +200,6 @@ main() {
     install_oh_my_zsh
     install_zsh_syntax_highlighting
     setup_fzf
-    install_tmux_plugins
     sync_neovim_plugins
     install_npm_globals
     install_amp

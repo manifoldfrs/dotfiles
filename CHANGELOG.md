@@ -4,6 +4,36 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### Setup: add Coinbase backup profile
+
+- **setup/backup**: Added `./scripts/backup.sh --cb` for Coinbase laptops
+  - Copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.local`
+  - Copies `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`
+  - Leaves shared shell, Git, tmux, Ghostty, Neovim, OpenCode, Claude Code, and Model Context Protocol files untouched
+
+### Setup: install tmux plugins from Stow apply
+
+- **setup/stow**: Moved TPM and tmux plugin installation into `scripts/stow.sh`
+  - Installs `tmux-plugins/tpm` under `~/.tmux/plugins/tpm` when missing
+  - Runs `~/.tmux/plugins/tpm/bin/install_plugins` after Stow links `~/.tmux.conf`
+  - Gives the default, Coinbase, and bootstrap flows one shared tmux plugin install path
+
+### tmux: use maintained Tokyo Night plugin
+
+- **tmux/theme**: Standardized Tokyo Night tmux theming on `janoamaral/tokyo-night-tmux`
+  - Replaced the less-maintained `cappyzawa/tmux-tokyonight` plugin declaration
+  - Restored the documented Tokyo Night widget settings for path display and optional widgets
+  - Keeps the tmux theme aligned with README troubleshooting guidance and plugin support history
+
+### Setup: add Coinbase Stow profile
+
+- **setup/stow**: Added `./scripts/stow.sh --cb` for Coinbase laptops
+  - Applies shared `zsh`, `git`, `ghostty`, `tmux`, `nvim`, and `bin` packages plus `zsh-cb` and `git-cb`
+  - Skips OpenCode, Claude Code, and Model Context Protocol configs so personal Codex and local account state remain untouched
+  - Adds Coinbase-specific `.zshrc.local` and `.gitconfig.local` Stow packages
+  - Makes shared Zsh paths use `$HOME` instead of hard-coded user paths
+  - Adds `lazygit` to `Brewfile` for the Snacks lazygit keymap
+
 ### Setup: add OpenCode and Claude Code Stow packages
 
 - **setup/stow**: Moved tracked OpenCode config into `stow/opencode/.config/opencode/`
