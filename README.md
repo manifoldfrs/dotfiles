@@ -650,7 +650,9 @@ git push
 
 `cbcode` (Coinbase's Claude Code wrapper) overwrites `~/.codex/config.toml` on every launch with Coinbase LLM Gateway settings. This conflicts with running a personal Codex CLI using your own OpenAI account.
 
-**Solution:** Sandbox cbcode's `HOME` so it writes its Codex config to `~/.cbcode-home/.codex/` instead of `~/.codex/`. All other dotfiles are symlinked back to the real `$HOME`, so Claude Code config and everything else remains shared.
+**Solution:** Sandbox cbcode's `HOME` so it writes its Codex config to `~/.cbcode-home/.codex/` instead of `~/.codex/`. Most other dotfiles are symlinked back to the real `$HOME`, so Claude Code config and user-level tool state remains shared.
+
+**Important safety note:** `~/.cbcode-home` is only a Codex config sandbox. It is not a disposable home directory. Paths such as `~/.cbcode-home/.local`, `~/.cbcode-home/.claude`, and `~/.cbcode-home/.config` are symlinks to the real `$HOME`. Deleting `~/.cbcode-home/.local/share/claude` deletes the real `~/.local/share/claude` install.
 
 ### Setup
 
@@ -696,6 +698,21 @@ cbcode() {
 | `~/.codex/config.toml` | `~/.cbcode-home/.codex/config.toml` (isolated) | `~/.codex/config.toml` (yours) |
 | `~/.claude/` | `~/.cbcode-home/.claude` → `~/.claude/` (shared) | N/A |
 | `~/.cbcode/` | `~/.cbcode-home/.cbcode` → `~/.cbcode/` (shared) | N/A |
+| `~/.local/` | `~/.cbcode-home/.local` → `~/.local/` (shared) | N/A |
+| `~/.config/` | `~/.cbcode-home/.config` → `~/.config/` (shared) | N/A |
+
+### Safe cleanup rules
+
+Never treat `~/.cbcode-home` as fully isolated. Only `~/.cbcode-home/.codex` is intentionally separate from your personal `~/.codex` directory.
+
+Before deleting or cleaning a path under `~/.cbcode-home`, resolve the real path:
+
+```bash
+readlink ~/.cbcode-home/.local
+python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' ~/.cbcode-home/.local/share/claude
+```
+
+If the resolved path starts with your real home directory, such as `/Users/farishabib/.local`, then the target is shared state. Do not delete it as sandbox-only cleanup. In particular, never remove `~/.cbcode-home/.local/share/claude` unless you intend to remove the real standalone Claude install.
 
 ### Why this is necessary
 

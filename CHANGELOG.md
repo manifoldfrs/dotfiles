@@ -4,6 +4,13 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### Docs: clarify cbcode sandbox safety
+
+- **docs/cbcode**: Documented that `~/.cbcode-home` is only a Codex config sandbox
+  - Calls out that `~/.cbcode-home/.local`, `.claude`, and `.config` are symlinks into the real home directory
+  - Adds a cleanup checklist that resolves real paths before deleting anything under `~/.cbcode-home`
+  - Warns that deleting `~/.cbcode-home/.local/share/claude` removes the real standalone Claude install
+
 ### Setup: add Coinbase backup profile
 
 - **setup/backup**: Added `./scripts/backup.sh --cb` for Coinbase laptops

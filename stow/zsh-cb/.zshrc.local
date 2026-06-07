@@ -14,6 +14,8 @@ export PATH="$GOPATH/bin:$PATH"
 [ -f "$GOPATH/bin/assume-role" ] && eval "$($GOPATH/bin/assume-role -init)"
 export PATH="$HOME/go/bin:$PATH"
 
+# This only isolates cbcode's Codex config. Symlinked paths under
+# ~/.cbcode-home, including .local, still point at the real home.
 cbcode() {
   ( HOME="$HOME/.cbcode-home" command cbcode "$@" )
 }
