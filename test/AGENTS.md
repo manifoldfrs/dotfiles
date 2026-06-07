@@ -8,7 +8,7 @@ Runs `test/run_tests.sh` inside `test/Dockerfile`.
 ```bash
 docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
 bash test/run_tests.sh
-bash -n shell_setup.sh && bash -n mcp_setup.sh
+bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n mcp_setup.sh
 ```
 
 ## Patterns & Conventions
@@ -23,7 +23,7 @@ bash -n shell_setup.sh && bash -n mcp_setup.sh
 - Docker image: `test/Dockerfile`
 - Docker wrapper: `test/docker_test.sh`
 - CI workflow: `.github/workflows/test.yml`
-- Scripts under test: `shell_setup.sh`, `mcp_setup.sh`
+- Scripts under test: `scripts/bootstrap.sh`, `scripts/backup.sh`, `scripts/stow.sh`, `mcp_setup.sh`
 
 ## JIT Index Hints
 ```bash
@@ -39,6 +39,6 @@ rg 'test-docker' .github/workflows/test.yml
 
 ## Pre-PR Checks
 ```bash
-bash -n shell_setup.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
+bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
 bash test/nvim_plugin_safety.sh --base-ref HEAD
 ```

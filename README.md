@@ -1,6 +1,6 @@
 # dotfiles
 
-Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, and OpenCode. Currently using the **One Dark** theme family across Neovim, Ghostty, tmux, and OpenCode.
+Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, OpenCode, and Claude Code. GNU Stow manages symlinks from `stow/*` into `$HOME`. Currently using **Tokyo Night** across Neovim, Ghostty, and tmux.
 
 ## Requirements
 
@@ -8,6 +8,8 @@ Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, and OpenC
 |------|-----------------|-------|
 | **Neovim** | >= 0.11.0 | Required for mason-lspconfig v2 and vim.lsp.config() |
 | **Git** | >= 2.19.0 | Required for lazy.nvim partial clones |
+| **GNU Stow** | >= 2.4.0 | Symlink manager for tracked dotfiles |
+| **Bash** | >= 4.2 | Required by the Tokyo Night tmux theme |
 | **Ghostty** | Latest | Uses `macos-option-as-alt` syntax |
 | **Node.js** | LTS | For LSP servers via Mason |
 | **tree-sitter-cli** | >= 0.26.1 | Required for nvim-treesitter `main` branch parser compilation |
@@ -26,7 +28,7 @@ git clone https://github.com/manifoldfrs/dotfiles.git ~/dotfiles
 
 # 2. Run the installer
 cd ~/dotfiles
-./shell_setup.sh install
+./scripts/bootstrap.sh
 
 # 3. Fully quit and reopen your terminal
 
@@ -39,7 +41,7 @@ curl -fsSL https://opencode.ai/install | bash
 
 ## Update an Existing Mac / Work Laptop
 
-Use this when the repo is already on the machine and you just want the latest dotfiles applied.
+Use the daily Stow wrapper when the repo is already on the machine and you just want the latest dotfiles applied.
 
 ```bash
 # 1. Get the latest committed dotfiles
@@ -47,7 +49,7 @@ cd ~/dotfiles
 git pull
 
 # 2. Reapply all tracked shell/editor/terminal config
-./shell_setup.sh install
+./scripts/stow.sh
 
 # 3. Fully quit and reopen your terminal
 
@@ -59,28 +61,225 @@ node --version
 tmux -V
 ```
 
+Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Oh My Zsh, Node.js, tmux plugins, and Neovim plugins.
+
 What this already handles for you:
-- recopies your zsh, Ghostty, tmux, and Neovim config
+- stows your zsh, Git, Ghostty, tmux, Neovim, OpenCode, Claude Code, and local bin config
+- avoids rerunning full-machine bootstrap tasks during normal dotfile updates
+
+What `./scripts/bootstrap.sh` additionally handles for you:
 - installs Homebrew packages from `Brewfile`
 - installs tmux TPM if needed and installs tmux plugins automatically
 - runs Neovim headless plugin sync automatically
 
 What is still separate:
 - `./mcp_setup.sh install` for Claude/Codex MCP configs
-- OpenCode install/config if you use it on that machine
+- OpenCode install if you use it on that machine
+
+## Stow How-To
+
+GNU Stow is the source of truth for tracked dotfiles. Each folder under `stow/` is a package that mirrors paths under `$HOME`.
+
+Example: `stow/nvim/.config/nvim/init.lua` becomes `~/.config/nvim/init.lua`.
+
+### Apply Dotfiles
+
+Use the wrapper for normal dotfile updates:
+
+```bash
+cd ~/dotfiles
+./scripts/stow.sh
+```
+
+This defaults to `apply`. The equivalent direct Stow command is:
+
+```bash
+cd ~/dotfiles
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+```
+
+### Apply One Package
+
+```bash
+# Neovim only
+stow --no-folding -R -v -t "$HOME" -d stow nvim
+
+# tmux only
+stow --no-folding -R -v -t "$HOME" -d stow tmux
+
+# zsh only
+stow --no-folding -R -v -t "$HOME" -d stow zsh
+
+# OpenCode only
+stow --no-folding -R -v -t "$HOME" -d stow opencode
+
+# Claude Code settings only
+stow --no-folding -R -v -t "$HOME" -d stow claude
+```
+
+### Update zshrc On Another Machine
+
+Use this when you want the latest checked-in shell startup changes, such as the `pyenv --no-rehash`, `nvm --no-use`, or fzf terminal guard updates.
+
+```bash
+cd ~/dotfiles
+git pull
+
+# Preview first if the machine is not fully Stow-managed yet
+./scripts/stow.sh dry-run
+
+# Apply just the zsh package
+stow --no-folding -R -v -t "$HOME" -d stow zsh
+```
+
+Verify `~/.zshrc` is managed by this repo:
+
+```bash
+readlink ~/.zshrc
+zsh -n ~/.zshrc
+zsh -i -c exit
+```
+
+`readlink ~/.zshrc` should point into `~/dotfiles/stow/zsh/.zshrc`. If it prints nothing, `~/.zshrc` is still a real file; move it aside before restowing:
+
+```bash
+mv ~/.zshrc ~/.zshrc.backup.$(date +%Y%m%d%H%M%S)
+stow --no-folding -R -v -t "$HOME" -d stow zsh
+```
+
+### Migrate An Existing Machine
+
+Use this when a machine already has real config files or directories, such as an older `~/.config/nvim`, `~/.config/ghostty/config`, or `~/.tmux.conf`. Stow will not overwrite those automatically; move them aside first.
+
+Check whether each target is already a Stow symlink:
+
+```bash
+readlink ~/.config/nvim
+readlink ~/.config/ghostty/config
+readlink ~/.tmux.conf
+```
+
+If a command prints a path into `~/dotfiles/stow/...`, that target is already managed by Stow and does not need to be moved. If it prints nothing, back up the real file or directory before stowing.
+
+The guarded commands below only move targets that exist and are not already symlinks, so they are safe to paste on machines where some targets are already migrated:
+
+```bash
+cd ~/dotfiles
+git pull
+
+timestamp=$(date +%Y%m%d%H%M%S)
+
+[ -e ~/.config/nvim ] && [ ! -L ~/.config/nvim ] && mv ~/.config/nvim ~/.config/nvim.backup.$timestamp
+[ -e ~/.config/ghostty/config ] && [ ! -L ~/.config/ghostty/config ] && mv ~/.config/ghostty/config ~/.config/ghostty/config.backup.$timestamp
+[ -e ~/.tmux.conf ] && [ ! -L ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.backup.$timestamp
+
+stow --no-folding -R -v -t "$HOME" -d stow nvim ghostty tmux
+```
+
+After migration, future updates are just:
+
+```bash
+cd ~/dotfiles
+git pull
+./scripts/stow.sh
+```
+
+### Preview Changes
+
+```bash
+./scripts/stow.sh dry-run
+```
+
+This shows what Stow would do without changing files.
+
+### Remove Symlinks
+
+```bash
+# Unstow one package directly
+stow --no-folding -D -v -t "$HOME" -d stow nvim
+
+# Unstow all managed packages
+./scripts/stow.sh delete
+```
+
+This removes Stow-managed symlinks only. It does not delete files inside this repo.
+
+### Add A New Managed File
+
+```bash
+# Example: manage ~/.config/example/config.toml
+mkdir -p stow/example/.config/example
+mv ~/.config/example/config.toml stow/example/.config/example/config.toml
+stow --no-folding -R -v -t "$HOME" -d stow example
+```
+
+Use one package per tool when possible. That keeps `stow nvim`, `stow tmux`, and `stow ghostty` independently manageable.
+
+### Edit Managed Files
+
+Edit either the `$HOME` path or the repo path. Because Stow creates symlinks, both point to the same file.
+
+```bash
+nvim ~/.zshrc
+nvim ~/dotfiles/stow/zsh/.zshrc
+```
+
+After editing, check repo changes:
+
+```bash
+cd ~/dotfiles
+git status --short
+git diff
+```
+
+### Backup Current Machine State
+
+```bash
+cd ~/dotfiles
+./scripts/backup.sh
+./mcp_setup.sh backup
+```
+
+`scripts/backup.sh` follows symlinks with `cp -L`, so it captures the configured shell/editor files into `stow/*`. It intentionally does not copy live OpenCode or Claude account/runtime state because those files can contain API keys, session data, or local machine history.
+
+## Command Cheatsheet
+
+| Task | Command |
+|------|---------|
+| Full install/update | `./scripts/bootstrap.sh` |
+| Backup shell/editor config | `./scripts/backup.sh` |
+| Apply all Stow packages | `./scripts/stow.sh` |
+| Preview all Stow changes | `./scripts/stow.sh dry-run` |
+| Remove all Stow symlinks | `./scripts/stow.sh delete` |
+| Restow zshrc | `stow --no-folding -R -v -t "$HOME" -d stow zsh` |
+| Restow OpenCode | `stow --no-folding -R -v -t "$HOME" -d stow opencode` |
+| Restow Claude Code settings | `stow --no-folding -R -v -t "$HOME" -d stow claude` |
+| Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
+| Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
+| Reload tmux config | `tmux source-file ~/.tmux.conf` |
+| Restart tmux cleanly | `tmux kill-server && tmux` |
+| Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
+| Open Lazy UI | `nvim +Lazy` |
+| Open Mason UI | `nvim +Mason` |
+| Shell syntax checks | `bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n mcp_setup.sh` |
+| Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux` |
+| Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
 
 ## What Gets Installed
 
-### Shell Setup (`shell_setup.sh install`)
+### Bootstrap (`scripts/bootstrap.sh`)
 
-- **Homebrew** + all packages from `Brewfile` (includes Ghostty, tmux, Nerd Fonts)
+- **Homebrew** + all packages from `Brewfile` (includes Stow, Ghostty, tmux, Nerd Fonts)
+- **Bash 4.2+** via Homebrew for Tokyo Night tmux theme support
 - **Oh My Zsh** with `robbyrussell` theme (minimal, fast)
 - **zsh-syntax-highlighting** plugin
-- **nvm** (Node Version Manager) via HTTPS
-- **Node.js LTS** via nvm (installed if missing)
-- **Configs copied**: `.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `ghostty/config` → `~/.config/ghostty/config`, `tmux/tmux.conf` → `~/.tmux.conf`, `nvim/` → `~/.config/nvim`, `bin/tmux-sessionizer` → `~/.local/bin/tmux-sessionizer`
+- **Node.js** from `Brewfile`
+- **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/tmux`, `stow/nvim`, `stow/bin`, `stow/opencode`, and `stow/claude` into `$HOME`
 - **tmux TPM + plugins**: TPM is installed if missing, then tmux plugins are installed automatically
-- **Neovim plugins synced** headlessly via lazy.nvim (`nvim --headless -c "Lazy! sync" -c "qa"`)
+- **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
+- **fzf shell integration** when Homebrew fzf is available
+- **Global npm packages** from `npm-global-packages.txt`
+- **Amp CLI** via the official installer
 
 ### npm Global Packages (`npm-global-packages.txt`)
 
@@ -101,9 +300,16 @@ Preferred tool usage after setup:
 - Use `RepoPrompt_*` tools for repo discovery, file reads, selection management, planning, review, and git context whenever RepoPrompt is available.
 - Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
 
+### OpenCode and Claude Code Stow Notes
+
+- OpenCode global config is managed at `stow/opencode/.config/opencode/`.
+- Claude Code Stow coverage is intentionally limited to `stow/claude/.claude/settings.local.json`.
+- Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
+- Do not copy live OpenCode MCP URLs with real API keys into tracked files. Keep tracked config placeholders safe, or use ignored local overrides for secrets.
+
 ### Karabiner Status
 
-Karabiner is deprecated in this repo and no longer installed by `shell_setup.sh`/`Brewfile`.
+Karabiner is deprecated in this repo and no longer installed by `scripts/bootstrap.sh`/`Brewfile`.
 Existing configs have been moved to `old/karabiner/` for historical reference.
 
 ## Development Environment
@@ -127,7 +333,7 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 | flash.nvim | Motion/jump plugin (character, word, line jumps) |
 | mason + lspconfig | LSP support |
 | treesitter | Syntax highlighting + parser management |
-| render-markdown.nvim | In-buffer markdown rendering |
+| treesitter-context | Sticky one-line code context |
 | noice.nvim | Command-line, message, and LSP UI |
 | gitsigns | Git integration |
 | diffview.nvim | Git diff review and file history UI |
@@ -151,7 +357,7 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 
 ### Neovim Editing Defaults
 
-- Per-language indentation now lives in `nvim/ftplugin/*.lua` for simpler ownership and less global autocmd logic
+- Per-language indentation now lives in `stow/nvim/.config/nvim/ftplugin/*.lua` for simpler ownership and less global autocmd logic
 - Go uses real tabs; Python, JavaScript, and TypeScript stay space-based
 - Incremental search and autoread are enabled for faster search feedback and cleaner external file reloads
 - Visible whitespace (`listchars`) and an 80-column guide (`colorcolumn`) are enabled globally
@@ -162,6 +368,8 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 
 Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>j` Jump, `<leader>u` Toggle.
 
+VSpaceCode-style aliases are also available: `<leader>f` File, `<leader>b` Buffer, `<leader>p` Project, `<leader>w` Window, `<leader>q` Quit/Session, and `,` Major Mode.
+
 | Keys | Action |
 |------|--------|
 | `Space` | Leader key |
@@ -169,6 +377,27 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `%%` (command) | Insert current file directory |
 | `<C-n>` | Toggle neo-tree |
 | `<leader>h` | Clear search highlight |
+| **VSpaceCode-style File/Project** ||
+| `<leader>ff` / `<leader>pf` | Find files / project files |
+| `<leader>fr` / `<leader>pp` | Recent files |
+| `<leader>fs` / `<leader>fS` | Save file / save all |
+| `<leader>ft` / `<leader>pt` | File/project tree |
+| `<leader>fT` | Reveal current file in tree |
+| `<leader>fy` | Copy current file path |
+| `<leader>fe` | Edit Neovim config |
+| **VSpaceCode-style Buffer/Window** ||
+| `<leader>bb` | Buffer picker |
+| `<leader>bn` / `<leader>bN` | Next / previous buffer |
+| `<leader>bu` | Alternate buffer |
+| `<leader>wh/j/k/l` | Move between windows |
+| `<leader>w/` / `<leader>w-` | Split right / below |
+| `<leader>wd` / `<leader>w=` | Close / balance windows |
+| `<leader>qq` / `<leader>qf` / `<leader>qr` | Quit all / close window / reload config |
+| **Major Mode `,`** ||
+| `,f` | Format buffer |
+| `,t` / `,T` | Test nearest / test file |
+| `,r` / `,a` | Rename symbol / code action |
+| `,d` / `,s` | Line diagnostics / document symbols |
 | **snacks.picker (Search)** ||
 | `<C-p>` / `<leader>sf` | Find files |
 | `<leader>sg` | Grep |
@@ -182,7 +411,8 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `<leader>ss` | LSP symbols |
 | `<leader>sS` | LSP workspace symbols |
 | `<leader>sd` | Diagnostics |
-| `<leader>sj` | Jumps |
+| `<leader>sj` | Document symbols (VSpaceCode alias) |
+| `<leader>sJ` | Jumps |
 | `<leader>sm` | Marks |
 | `<leader>sq` | Quickfix list |
 | `<leader>su` | Undo history |
@@ -223,6 +453,8 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 | `<leader>gD` / `<leader>gC` | Diffview: open / close |
 | `<leader>gh` / `<leader>gH` | Diffview: file history (current/repo) |
 | `]h` / `[h` | Git: next/prev hunk |
+| **Markdown** ||
+| `<leader>mp` / `,p` | Preview current Markdown file with `glow` |
 
 ### Debugging
 
@@ -244,7 +476,7 @@ Use a terminal-first debugging flow instead of an in-editor DAP stack.
 | `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
 
-**Note:** Status bar is positioned at the top with the One Dark tmux theme (`odedlaz/tmux-onedark-theme`) plus a current-directory widget. The terminal/tmux cursor uses a blinking block. Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+**Note:** Status bar is positioned at the top with the Tokyo Night tmux theme (`janoamaral/tokyo-night-tmux`) plus a current-directory widget. The terminal/tmux cursor uses a blinking block. Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
 
 ### tmux-sessionizer
 
@@ -278,45 +510,30 @@ ln -sf ~/dotfiles/zed/tasks.json    ~/.config/zed/tasks.json
 
 ```
 dotfiles/
-├── shell_setup.sh          # Main shell/brew/zsh installer
+├── scripts/                # Bootstrap, backup, and Stow wrappers
+│   ├── bootstrap.sh        # Full machine bootstrap for non-Stow setup
+│   ├── backup.sh           # Backup current machine config into repo
+│   └── stow.sh             # Apply/delete/dry-run GNU Stow packages
 ├── mcp_setup.sh            # MCP config backup/install
 ├── Brewfile                # Homebrew packages
 ├── npm-global-packages.txt # Global npm packages
-├── .zshrc                  # Zsh configuration
-├── .zprofile               # Zsh profile
-├── .zshenv                 # Zsh environment
-├── .gitconfig              # Git configuration
 ├── CHANGELOG.md            # Change history
-├── ghostty/                # Ghostty terminal config (Atom One Dark)
-│   └── config
-├── bin/                    # Shell scripts
-│   └── tmux-sessionizer    # Project switcher (fzf-based)
-├── tmux/                   # tmux configuration (One Dark)
-│   └── tmux.conf
-├── nvim/                   # Neovim config (lazy.nvim + navarasu/onedark.nvim)
-│   ├── init.lua
-│   ├── lazy-lock.json      # Plugin version lock
-│   ├── ftplugin/           # Filetype-specific editing defaults
-│   │   ├── go.lua
-│   │   ├── python.lua
-│   │   ├── javascript.lua
-│   │   └── typescript.lua
-│   └── lua/
-│       ├── vim-options.lua # Global options and base keymaps
-│       └── plugins/        # Plugin configurations
-│           ├── snacks.lua      # QoL plugins + picker
-│           ├── blink.lua       # Autocompletion (Rust)
-│           ├── flash.lua       # Motion/jump plugin
-│           ├── noice.lua       # Command-line + message UI
-│           ├── lsp-config.lua  # LSP configuration
-│           ├── treesitter.lua  # Treesitter main-branch config
-│           ├── render-markdown.lua  # Markdown rendering
-│           └── ...
+├── stow/                   # GNU Stow packages, each mirroring $HOME
+│   ├── zsh/                # .zshrc, .zprofile, .zshenv
+│   ├── git/                # .gitconfig, .gitignore_global
+│   ├── ghostty/            # .config/ghostty/config
+│   ├── tmux/               # .tmux.conf
+│   ├── bin/                # .local/bin/tmux-sessionizer
+│   ├── opencode/           # .config/opencode/opencode.json, tui.json
+│   ├── claude/             # .claude/settings.local.json only
+│   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
+│       └── .config/nvim/
+│           ├── init.lua
+│           ├── lazy-lock.json
+│           ├── ftplugin/
+│           └── lua/plugins/
 ├── old/karabiner/           # Deprecated keyboard remapping archive
 ├── mcp/                    # MCP configs for AI tools
-├── opencode/               # OpenCode configuration (built-in one-dark theme)
-│   ├── opencode.jsonc
-│   └── tui.json
 └── old/                    # Archived/deprecated configs
 ```
 
@@ -334,9 +551,9 @@ bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux
 
 What it enforces:
 - no explicit lockfile-changing lazy commands (`sync`/`update`/`restore`) inside the harness
-- `nvim/lazy-lock.json` checksum must stay unchanged unless `--allow-lockfile-change` is explicitly passed
+- `stow/nvim/.config/nvim/lazy-lock.json` checksum must stay unchanged unless `--allow-lockfile-change` is explicitly passed
 - isolated startup checks in a throwaway XDG profile
-- one-by-one rollout for changed plugin files under `nvim/lua/plugins/*.lua`
+- one-by-one rollout for changed plugin files under `stow/nvim/.config/nvim/lua/plugins/*.lua`
 - guardrails against known `background`/`OptionSet` loop traps
 - high-risk plugin lazy-loading checks (`noice.lua`)
 
@@ -346,7 +563,7 @@ What it enforces:
 cd ~/dotfiles
 
 # Backup shell configs and Brewfile
-./shell_setup.sh backup
+./scripts/backup.sh
 
 # Backup MCP configs
 ./mcp_setup.sh backup
@@ -429,6 +646,66 @@ cbcode's `ensureCodexConfigToml()` in `packages/code-agent/src/onboarding/config
 
 ## Troubleshooting
 
+**Stow says `WARNING! stowing ... would cause conflicts`**
+- A real file already exists at the target path, for example `~/.zshrc` or `~/.config/nvim`.
+- If you trust the repo version, move the existing file aside and restow:
+
+```bash
+mv ~/.zshrc ~/.zshrc.backup.$(date +%Y%m%d%H%M%S)
+stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow zsh
+```
+
+For a full migration, prefer `./scripts/bootstrap.sh`; it backs up known target paths before stowing.
+
+**A Stow symlink points to the wrong place**
+- Check the symlink target:
+
+```bash
+readlink ~/.zshrc
+readlink ~/.config/nvim
+```
+
+- Recreate links from the repo:
+
+```bash
+cd ~/dotfiles
+stow --no-folding -R -v -t "$HOME" -d stow zsh nvim
+```
+
+**I edited `~/.config/nvim`, but Git does not show changes**
+- Confirm `~/.config/nvim` is a symlink into this repo:
+
+```bash
+readlink ~/.config/nvim
+```
+
+- If it is not linked into `~/dotfiles/stow/nvim`, restow it:
+
+```bash
+cd ~/dotfiles
+mv ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d%H%M%S)
+stow --no-folding -R -v -t "$HOME" -d stow nvim
+```
+
+**`stow: command not found`**
+- Install it with Homebrew or run the full installer:
+
+```bash
+brew install stow
+# or
+cd ~/dotfiles && ./scripts/bootstrap.sh
+```
+
+**Need to undo the Stow migration temporarily?**
+- Unstow packages, then restore a backup if needed:
+
+```bash
+cd ~/dotfiles
+stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+```
+
+Backups created by the installer are named like `.zshrc.backup.YYYYMMDDhhmmss`.
+
 **Neovim LSP not working?**
 - Requires Neovim >= 0.11.0 for mason-lspconfig v2
 - Run `:Mason` to check installed servers
@@ -438,6 +715,11 @@ cbcode's `ensureCodexConfigToml()` in `packages/code-agent/src/onboarding/config
 - Requires `tree-sitter-cli` >= 0.26.1 for nvim-treesitter `main` branch
 - Run `:checkhealth nvim-treesitter` to verify CLI is found
 - Install via: `npm install -g tree-sitter-cli`
+
+**Markdown preview with glow not working?**
+- Ensure `glow` is installed: `brew install glow`
+- Save the Markdown file before previewing; the keymap previews the current file path
+- Use `<leader>mp` or `,p` inside a Markdown buffer
 
 **Markdown files crash Neovim with `CODESIGNING Invalid Page`?**
 - Check for stale parser files in `~/.local/share/nvim/site/parser`:
@@ -449,26 +731,26 @@ cbcode's `ensureCodexConfigToml()` in `packages/code-agent/src/onboarding/config
 
 **Seeing `module 'nvim-treesitter.configs' not found`?**
 - This usually means old treesitter `master`-style config is mixed with `main`-branch plugin files
-- Re-copy your dotfiles Neovim config and rerun setup: `./shell_setup.sh install`
-- The setup script runs headless `Lazy! sync` to install/update plugin files
+- Re-stow your dotfiles Neovim config and rerun setup: `./scripts/bootstrap.sh`
+- The setup script runs headless `Lazy! restore` to install plugin files from `lazy-lock.json`
 
 **Powerline symbols not showing?**
 - Ensure terminal uses a Nerd Font (JetBrainsMono Nerd Font)
 - Restart terminal after font installation
 
 **tmux plugins not loading?**
-- First rerun the installer from repo root: `./shell_setup.sh install`
+- First rerun the installer from repo root: `./scripts/bootstrap.sh`
 - If you want to force just the tmux plugin step, run `~/.tmux/plugins/tpm/bin/install_plugins`
 - If the bar still looks plain, ensure a Nerd Font is enabled in Ghostty and restart the terminal
+- Tokyo Night tmux requires Bash 4.2+; `brew "bash"` is included in `Brewfile`
 
 **Pretty tmux bar not rendering?**
 - Kill and restart tmux first so no old server state is cached: `tmux kill-server && tmux`
 - Reload config after restart: `tmux source-file ~/.tmux.conf`
-- Ensure the theme plugin is actually present: `ls ~/.tmux/plugins/tmux-onedark-theme`
-- Ensure the One Dark plugin is configured in `~/.tmux.conf`:
-  - `set -g @plugin 'odedlaz/tmux-onedark-theme'`
-  - `set -g @onedark_widgets "#{b:pane_current_path}"`
-- On tmux 3.x+, keep `set -g status-style "fg=#aab2bf,bg=#282c34"` after TPM init so the unused status background does not stay default green
+- Ensure the theme plugin is actually present: `ls ~/.tmux/plugins/tokyo-night-tmux`
+- Ensure the Tokyo Night plugin is configured in `~/.tmux.conf`:
+  - `set -g @plugin 'janoamaral/tokyo-night-tmux'`
+  - `set -g @tokyo-night-tmux_show_path 1`
 - Verify theme content is being applied:
   - `tmux show -g status-left`
   - `tmux show -g status-right`
@@ -479,7 +761,8 @@ cbcode's `ensureCodexConfigToml()` in `packages/code-agent/src/onboarding/config
 - Reload tmux config: `tmux source-file ~/.tmux.conf`
 
 **nvm not found?**
-- Restart terminal or `source ~/.zshrc`
+- `nvm` is optional now; `scripts/bootstrap.sh` installs Node.js from `Brewfile`
+- If you install `nvm` manually, restart terminal or `source ~/.zshrc`
 
 **Terminal debugging workflow**
 - Go: run `dlv debug` or `dlv test` in tmux/terminal

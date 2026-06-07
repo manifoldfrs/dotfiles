@@ -2,6 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+NVIM_DIR="stow/nvim/.config/nvim"
+NVIM_PLUGIN_DIR="$NVIM_DIR/lua/plugins"
 BASE_REF="HEAD"
 SKIP_TMUX=0
 ALLOW_LOCKFILE_CHANGE=0
@@ -75,7 +77,7 @@ checksum_file() {
   exit 1
 }
 
-LOCKFILE="$ROOT_DIR/nvim/lazy-lock.json"
+LOCKFILE="$ROOT_DIR/$NVIM_DIR/lazy-lock.json"
 LOCK_BEFORE="$(checksum_file "$LOCKFILE")"
 
 SANDBOX_DIR="$(mktemp -d "${TMPDIR:-/tmp}/nvim-sandbox.XXXXXX")"
@@ -83,7 +85,7 @@ SNAPSHOT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/nvim-snapshot.XXXXXX")"
 SNAPSHOT_FILE="$SNAPSHOT_DIR/nvim-config-snapshot.tgz"
 trap 'rm -rf "$SANDBOX_DIR" "$SNAPSHOT_DIR"' EXIT
 
-tar -czf "$SNAPSHOT_FILE" -C "$ROOT_DIR" nvim
+tar -czf "$SNAPSHOT_FILE" -C "$ROOT_DIR/stow/nvim/.config" nvim
 
 echo "=== Neovim Plugin Safety Checks ==="
 echo "[INFO] Base ref: $BASE_REF"
@@ -91,13 +93,13 @@ echo "[INFO] Snapshot: $SNAPSHOT_FILE"
 echo ""
 
 echo "[CHECK 1] Guard against background mutation traps..."
-if grep -R -n 'Snacks\.toggle\.option("background"' nvim/lua/plugins >/dev/null 2>&1; then
+if grep -R -n 'Snacks\.toggle\.option("background"' "$NVIM_PLUGIN_DIR" >/dev/null 2>&1; then
   echo "[FAIL] Found Snacks background toggle. This is known to trigger OptionSet background loops."
-  grep -R -n 'Snacks\.toggle\.option("background"' nvim/lua/plugins || true
+  grep -R -n 'Snacks\.toggle\.option("background"' "$NVIM_PLUGIN_DIR" || true
   exit 1
 fi
 
-for file in nvim/lua/plugins/*.lua; do
+for file in "$NVIM_PLUGIN_DIR"/*.lua; do
   if grep -q 'nvim_create_autocmd("OptionSet"' "$file" && grep -q 'background' "$file"; then
     echo "[FAIL] Found OptionSet + background autocmd risk in $file"
     exit 1
@@ -108,7 +110,7 @@ echo "[PASS] No background mutation traps found"
 echo ""
 
 echo "[CHECK 2] Guard high-risk plugins from eager startup..."
-for plugin_file in nvim/lua/plugins/noice.lua; do
+for plugin_file in "$NVIM_PLUGIN_DIR/noice.lua"; do
   if [[ -f "$plugin_file" ]]; then
     if grep -q 'lazy\s*=\s*false' "$plugin_file"; then
       echo "[FAIL] $plugin_file sets lazy = false"
@@ -126,7 +128,14 @@ echo ""
 
 echo "[CHECK 3] Build isolated Neovim profile from $BASE_REF..."
 mkdir -p "$SANDBOX_DIR/home/.config"
-git archive "$BASE_REF" nvim | tar -x -C "$SANDBOX_DIR/home/.config"
+if git cat-file -e "$BASE_REF:$NVIM_DIR" >/dev/null 2>&1; then
+  mkdir -p "$SANDBOX_DIR/base"
+  git archive "$BASE_REF" "$NVIM_DIR" | tar -x -C "$SANDBOX_DIR/base"
+  mv "$SANDBOX_DIR/base/$NVIM_DIR" "$SANDBOX_DIR/home/.config/nvim"
+else
+  echo "[WARN] $BASE_REF does not contain $NVIM_DIR; using current tree for baseline"
+  cp -R "$ROOT_DIR/$NVIM_DIR" "$SANDBOX_DIR/home/.config/nvim"
+fi
 echo "[PASS] Isolated profile created"
 echo ""
 
@@ -172,7 +181,7 @@ while IFS= read -r plugin_path; do
   if [[ -n "$plugin_path" ]]; then
     changed_plugins+=("$plugin_path")
   fi
-done < <(git diff --name-only "$BASE_REF" -- 'nvim/lua/plugins/*.lua')
+done < <(git diff --name-only "$BASE_REF" -- "$NVIM_PLUGIN_DIR/*.lua")
 
 baseline_failed=0
 if ! run_startup_smoke "baseline:$BASE_REF"; then
@@ -196,8 +205,8 @@ if [[ "${#changed_plugins[@]}" -eq 0 ]]; then
 else
   for plugin_path in "${changed_plugins[@]}"; do
     echo "[STEP] Applying $plugin_path"
-    mkdir -p "$SANDBOX_DIR/home/.config/$(dirname "$plugin_path")"
-    cp "$ROOT_DIR/$plugin_path" "$SANDBOX_DIR/home/.config/$plugin_path"
+    mkdir -p "$SANDBOX_DIR/home/.config/nvim/lua/plugins"
+    cp "$ROOT_DIR/$plugin_path" "$SANDBOX_DIR/home/.config/nvim/lua/plugins/$(basename "$plugin_path")"
     run_startup_smoke "rollout:$plugin_path"
   done
   echo "[PASS] One-by-one rollout checks passed"
@@ -206,7 +215,7 @@ fi
 echo ""
 LOCK_AFTER="$(checksum_file "$LOCKFILE")"
 if [[ "$ALLOW_LOCKFILE_CHANGE" -eq 0 ]] && [[ "$LOCK_BEFORE" != "$LOCK_AFTER" ]]; then
-  echo "[FAIL] nvim/lazy-lock.json changed during safety checks"
+  echo "[FAIL] $NVIM_DIR/lazy-lock.json changed during safety checks"
   echo "       Re-run with --allow-lockfile-change only when explicitly approved"
   exit 1
 fi

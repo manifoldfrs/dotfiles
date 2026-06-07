@@ -4,6 +4,78 @@ All notable changes to this dotfiles repository are documented here.
 
 ## March 2026
 
+### Setup: add OpenCode and Claude Code Stow packages
+
+- **setup/stow**: Moved tracked OpenCode config into `stow/opencode/.config/opencode/`
+  - Added `opencode` and `claude` to `scripts/stow.sh` managed packages
+  - Renamed OpenCode global config to `opencode.json`, matching OpenCode's documented global config path
+  - Added `--no-folding` to Stow commands so parent directories stay real directories on fresh machines
+  - Added `stow/nvim/.stow-local-ignore` so Neovim package guidance is not linked as `~/AGENTS.md`
+  - Added bootstrap backup targets for OpenCode config and Claude Code local settings before Stow apply
+  - Added `stow/claude/.claude/settings.local.json` for Claude Code permissions only
+  - Left Claude sessions, history, projects, caches, telemetry, plugins, and `.claude.json` out of Stow as local runtime/account state
+
+### Shell: reduce zsh startup latency
+
+- **zsh/performance**: Avoided slow version-manager work during shell startup
+  - Changed pyenv initialization to use `pyenv init - zsh --no-rehash`
+  - Changed nvm loading to use the documented `--no-use` flag so it loads without auto-selecting a Node version
+  - Guarded fzf shell integration so keybindings/completion load only when attached to a terminal, avoiding `zle` warnings in automated interactive shells
+  - Documented how to pull and restow the zsh package on another machine
+
+### Setup: split shell bootstrap into focused scripts
+
+- **setup/scripts**: Replaced root `shell_setup.sh` with focused scripts under `scripts/`
+  - Added `scripts/bootstrap.sh` for non-Stow machine setup: Homebrew, `Brewfile`, Oh My Zsh, zsh plugin, tmux plugins, Neovim plugin sync, npm globals, and Amp CLI
+  - Added `scripts/backup.sh` for exporting the current machine's Brewfile and copying live config back into `stow/*`
+  - Kept `scripts/stow.sh` as the day-to-day dotfile apply/delete/dry-run command
+  - Archived the original all-in-one script at `old/shell_setup.sh`
+  - Removed the old `nvm` bootstrap path from the active installer; Node.js is installed from `Brewfile`
+
+### Setup: add dedicated Stow wrapper for daily dotfile updates
+
+- **setup/stow**: Added `scripts/stow.sh` for applying, previewing, and deleting Stow-managed dotfile symlinks
+  - `./scripts/stow.sh` restows all managed packages into `$HOME`
+  - `./scripts/stow.sh dry-run` previews Stow changes without modifying files
+  - `./scripts/stow.sh delete` removes Stow-managed symlinks
+  - Updated `README.md` to use `scripts/bootstrap.sh` for full-machine bootstrap and `scripts/stow.sh` for normal dotfile refreshes
+
+### Dotfiles: switch managed config to GNU Stow
+
+- **setup**: Replaced copy-based dotfile application with GNU Stow symlinks
+  - Added `stow/` packages for zsh, Git, Ghostty, tmux, Neovim, and local bin scripts
+  - `./scripts/bootstrap.sh` backs up existing target files before running `scripts/stow.sh`
+  - Added `stow` to `Brewfile` and Docker test dependencies
+  - Updated CI/test paths to validate the Stow layout
+
+### Theme switch: Tokyo Night in Neovim
+
+- **nvim/colorscheme**: Switched from One Dark to Tokyo Night night
+  - Replaced `navarasu/onedark.nvim` with `folke/tokyonight.nvim`
+  - Updated lualine from `onedark` to `tokyonight`
+  - Added `nvim-treesitter-context` with `max_lines = 1`, matching the useful context behavior from Dax's setup
+
+### Theme switch: Tokyo Night in Ghostty and tmux
+
+- **ghostty**: Switched from Atom One Dark to built-in `Tokyo Night`
+- **tmux**: Switched from `odedlaz/tmux-onedark-theme` to `janoamaral/tokyo-night-tmux`
+  - Enabled the relative path widget and disabled optional music/network/web-git/battery/hostname widgets
+  - Added Homebrew `bash` because the tmux theme requires Bash 4.2+
+
+### Neovim: add VSpaceCode-style shortcut aliases
+
+- **nvim/keymaps**: Added a lightweight alias layer for Cursor/VSpaceCode muscle memory
+  - Added `stow/nvim/.config/nvim/lua/vspacecode-aliases.lua`
+  - Set localleader to `,` for major-mode-style actions
+  - Added `<leader>f`, `<leader>p`, `<leader>w`, and `<leader>q` groups backed by existing Snacks, LSP, vim-test, and window commands
+
+### Neovim: simplify Markdown workflow
+
+- **nvim/markdown**: Removed `MeanderingProgrammer/render-markdown.nvim` for a raw Markdown editing workflow
+  - Added `stow/nvim/.config/nvim/ftplugin/markdown.lua` with wrap, linebreak, spell, and no conceal
+  - Added `<leader>mp` and `,p` to preview the current Markdown file with the `glow` CLI
+  - Added Homebrew `glow` to `Brewfile`
+
 ### Zed
 
  - Add zed configurations
@@ -111,7 +183,7 @@ All notable changes to this dotfiles repository are documented here.
   - File: `tmux/tmux.conf`
 
 - **opencode**: Updated OpenCode theme to built-in `one-dark`
-  - Updated both `opencode/opencode.jsonc` and `opencode/tui.json`
+  - Updated both `opencode/opencode.json` and `opencode/tui.json`
 
 ## February 2026
 
@@ -134,7 +206,7 @@ All notable changes to this dotfiles repository are documented here.
   - File: `tmux/tmux.conf`
 
 - **opencode**: Updated OpenCode TUI theme to `catppuccin-macchiato`
-  - File: `opencode/opencode.jsonc`
+  - File: `opencode/opencode.json`
 
 ### Neovim: added flash.nvim for motion/jump
 
@@ -405,7 +477,7 @@ All notable changes to this dotfiles repository are documented here.
 
 - **Brewfile**: Added `btop` system monitor for performance monitoring
 
-- **opencode**: Added opencode.jsonc configuration
+- **opencode**: Added opencode.json configuration
   - Catppuccin theme
   - MCP server configs (RepoPrompt, Ref, Exa)
   - API keys redacted with `****` - replace with your own

@@ -20,16 +20,19 @@ Agent behavior:
 - Keep this AGENTS.md in sync with those rule files.
 
 ## Repository Layout
-- `shell_setup.sh` - main shell/dev environment install + backup script
+- `scripts/bootstrap.sh` - full machine bootstrap for non-Stow setup
+- `scripts/backup.sh` - backup current machine config into tracked sources
+- `scripts/stow.sh` - apply/delete/dry-run GNU Stow dotfile symlinks
 - `mcp_setup.sh` - MCP config install + backup script
-- `nvim/` - Neovim config (lazy.nvim + Lua plugins)
+- `stow/` - GNU Stow packages that mirror `$HOME`
+- `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
-- `tmux/`, `ghostty/`, `.zsh*`, `.gitconfig` - user config files
+- `stow/tmux/`, `stow/ghostty/`, `stow/zsh/`, `stow/git/` - user config files
 - `old/`, `karabiner/` - archived or legacy areas (avoid unless explicitly requested)
 
 Subdirectory guides:
-- `nvim/AGENTS.md`
+- `stow/nvim/AGENTS.md`
 - `mcp/AGENTS.md`
 - `test/AGENTS.md`
 
@@ -37,16 +40,18 @@ Subdirectory guides:
 
 ### Fast Preflight (recommended before PR)
 ```bash
-bash -n shell_setup.sh
+bash -n scripts/bootstrap.sh
+bash -n scripts/backup.sh
+bash -n scripts/stow.sh
 bash -n mcp_setup.sh
 bash -n test/run_tests.sh
-(cd nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
+(cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
 ```
 
 ### Full Test Suite (closest to CI behavior)
 ```bash
 # local CI-like sequence
-bash -n shell_setup.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
+bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
 
 # test script only
 bash test/run_tests.sh
@@ -57,25 +62,27 @@ bash test/run_tests.sh
 
 ```bash
 # TEST 1 equivalent: shell syntax
-bash -n shell_setup.sh
+bash -n scripts/bootstrap.sh
+bash -n scripts/backup.sh
+bash -n scripts/stow.sh
 
 # MCP script syntax gate
 bash -n mcp_setup.sh
 
 # TEST 2 equivalent: ensure no active SSH rewrite in .gitconfig
-if grep -E '^\s*insteadOf\s*=' .gitconfig || grep -E '^\s*sshCommand\s*=' .gitconfig; then
+if grep -E '^\s*insteadOf\s*=' stow/git/.gitconfig || grep -E '^\s*sshCommand\s*=' stow/git/.gitconfig; then
   echo "FAIL: active SSH rewrite present"
   exit 1
 fi
 
 # nvim config loads without Lua errors
-(cd nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
+(cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
 ```
 
 To run a single check in the Docker test environment:
 ```bash
 docker build -t dotfiles-test -f test/Dockerfile .
-docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n shell_setup.sh'
+docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh'
 ```
 
 ## Code Style Guidelines
@@ -86,7 +93,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n shell_setup.sh'
 - Prefer explicit, readable code over clever shortcuts.
 - Do not introduce secrets in tracked files.
 
-### Bash Style (`shell_setup.sh`, `mcp_setup.sh`, `test/*.sh`)
+### Bash Style (`scripts/*.sh`, `mcp_setup.sh`, `test/*.sh`)
 - Shebang: `#!/bin/bash` at line 1.
 - Strict mode: keep `set -e` near top-level.
 - Constants: uppercase (`DOTFILES_DIR`, `MCP_DIR`).
@@ -98,10 +105,10 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n shell_setup.sh'
 - Use early failure (`exit 1`) for critical checks.
 - For optional installs, warn and continue rather than hard-fail.
 
-### Lua Style (`nvim/**/*.lua`)
+### Lua Style (`stow/nvim/.config/nvim/**/*.lua`)
 - Indentation: 2 spaces, no tabs.
 - Prefer double quotes for strings in new code.
-- Keep one plugin spec per file under `nvim/lua/plugins/`.
+- Keep one plugin spec per file under `stow/nvim/.config/nvim/lua/plugins/`.
 - Keymaps should include `desc` for which-key discoverability.
 - Use local imports: `local mod = require("mod")`.
 - Keep plugin setup in `config = function()` or `opts = {}` patterns.
@@ -117,7 +124,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n shell_setup.sh'
 
 ## Naming and File Conventions
 - Shell scripts: `snake_case.sh`.
-- Neovim plugin files: kebab-case or existing repo convention (`nvim/lua/plugins/*.lua`).
+- Neovim plugin files: kebab-case or existing repo convention (`stow/nvim/.config/nvim/lua/plugins/*.lua`).
 - Templates with placeholders: `.example` suffix.
 - Backup filenames: `.backup.YYYYMMDDhhmmss`.
 - Keep user/runtime files out of git unless explicitly intended.
@@ -154,8 +161,8 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n shell_setup.sh'
 
 ## Quick Search Commands
 ```bash
-rg '^[a-z_]+\(\)' shell_setup.sh mcp_setup.sh
-rg 'vim.keymap.set|desc\s*=\s*"' nvim/lua
+rg '^[a-z_]+\(\)' scripts mcp_setup.sh
+rg 'vim.keymap.set|desc\s*=\s*"' stow/nvim/.config/nvim/lua
 rg 'mcpServers|YOUR_' mcp/*.example
 rg '\[TEST|\[PASS|\[FAIL' test/run_tests.sh
 ```
