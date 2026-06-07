@@ -119,6 +119,28 @@ cd ~/dotfiles
 
 The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `tmux`, `nvim`, and `bin`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched.
 
+### Run Stow Without Scripts
+
+Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow only creates or removes symlinks. It does not install TPM or tmux plugins, so run `~/.tmux/plugins/tpm/bin/install_plugins` manually if tmux plugin declarations changed.
+
+```bash
+cd ~/dotfiles
+
+# Personal machine: preview and apply the full shared profile
+stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+
+# Coinbase machine: preview and apply shared packages plus work overrides
+stow --no-folding -n -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin
+stow --no-folding -R -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin
+
+# Remove the personal shared profile symlinks
+stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+
+# Remove the Coinbase profile symlinks
+stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin
+```
+
 ### Apply One Package
 
 ```bash
