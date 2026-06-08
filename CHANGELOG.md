@@ -4,6 +4,14 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Fix: tmux undercurl corrupting terminal output in Ghostty
+
+- **tmux/terminal-capabilities**: Replaced broken hand-written `Smulx`/`Setulc` terminal overrides with tmux's built-in `terminal-features` mechanism
+  - The old `Setulc` value in `set -as terminal-overrides` was missing the trailing `%;m` that closes the escape sequence, causing tmux to emit a truncated sequence. Ghostty's parser left the leftover bytes on screen as literal `E[4:3m` text next to any word with the `SpellBad` highlight (triggered by Neovim spell-check on domain terms like `USDT`, `wagmi`, etc.)
+  - The same corrupt sequence garbled cell widths in neo-tree's sidebar, causing filenames to clip and overlap when opening a new window
+  - Fixed by switching to `set -as terminal-features ",xterm-ghostty:RGB:usstyle"` and `",xterm-256color:RGB:usstyle"`, which lets tmux generate correct undercurl and underline-color sequences natively
+  - Note: multiple features within a single `terminal-features` entry must be separated by colons, not commas; commas split them into separate unkeyed entries that match no terminal
+
 ### Setup: fix Coinbase GHE SSH authentication
 
 - **setup/ssh-cb**: Added new `stow/ssh-cb/` Stow package containing `~/.ssh/config`
