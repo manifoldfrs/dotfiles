@@ -4,6 +4,13 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Neovim: replace inline blame with full Git blame split
+
+- **nvim/git**: `<leader>gt` now runs `:Git blame` (vim-fugitive) instead of gitsigns' `toggle_current_line_blame`
+  - `toggle_current_line_blame` only annotates the current line as faint virtual text after a 1 s delay, making it easy to miss
+  - `:Git blame` opens a full split panel with every line annotated — commit hash, author, and date — and `Enter` jumps to that commit
+- **nvim/git**: Removed `cmd` lazy-load constraint from `tpope/vim-fugitive` so it is available immediately when the keymap fires
+
 ### Setup: migrate zsh from oh-my-zsh to powerlevel10k + cb-zsh plugins
 
 - **zsh/.zshrc**: Replaced oh-my-zsh with a framework-free config that works on both Coinbase and personal machines

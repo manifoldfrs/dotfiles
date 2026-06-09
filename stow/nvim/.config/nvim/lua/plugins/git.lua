@@ -17,8 +17,8 @@ return {
 
                                         vim.keymap.set("n", "<leader>gp", gs.preview_hunk,
                                                 vim.tbl_extend("force", opts, { desc = "Preview hunk" }))
-                                        vim.keymap.set("n", "<leader>gt", gs.toggle_current_line_blame,
-                                                vim.tbl_extend("force", opts, { desc = "Toggle blame" }))
+                                        vim.keymap.set("n", "<leader>gt", "<cmd>Git blame<cr>",
+                                                vim.tbl_extend("force", opts, { desc = "Git blame" }))
                                         vim.keymap.set("n", "]h", gs.next_hunk,
                                                 vim.tbl_extend("force", opts, { desc = "Next hunk" }))
                                         vim.keymap.set("n", "[h", gs.prev_hunk,
@@ -29,7 +29,6 @@ return {
         },
         {
                 "tpope/vim-fugitive",
-                cmd = { "Git", "Gstatus", "Gblame", "Gpush", "Gpull" },
         },
         {
                 "akinsho/git-conflict.nvim",
