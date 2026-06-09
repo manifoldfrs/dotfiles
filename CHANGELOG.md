@@ -4,6 +4,19 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Fix: find_pr broken after migration from heimdall to coinbase.ghe.com
+
+- **zsh-cb/.zshrc.local**: Overrides cb-zsh's `find_pr` with a version that uses `gh api --hostname coinbase.ghe.com` instead of the decommissioned `heimdall.cbhq.net` API
+  - The old function curled `heimdall.cbhq.net/v1/code_change` which is no longer reachable, producing a misleading "connect to full tunnel VPN" error
+  - The new version calls `GET /repos/{owner}/{repo}/commits/{ref}/pulls` on the GHE API, which works with split-tunnel VPN and uses the existing `gh` auth session
+  - Also fixes URL parsing for `coinbase@coinbase.ghe.com:` style SSH remotes which the original `_repository_owner` helper did not handle (it only matched `git@` prefix)
+
+### Neovim: make Git blame togglable
+
+- **nvim/git**: `<leader>gt` now toggles the fugitive blame split open and closed
+  - Walks all open windows and closes any with filetype `fugitiveblame` if found, otherwise runs `:Git blame`
+  - Previously the binding only opened blame with no way to dismiss it via the same key
+
 ### Neovim: replace inline blame with full Git blame split
 
 - **nvim/git**: `<leader>gt` now runs `:Git blame` (vim-fugitive) instead of gitsigns' `toggle_current_line_blame`

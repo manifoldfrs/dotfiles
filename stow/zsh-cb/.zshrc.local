@@ -5,6 +5,50 @@ CB_ZSH_DISABLE_THEME=1
 CB_ZSH_PLUGINS=(atlassian jira find_pr reconnect_vpn git-scripts new-user)
 [ -f ~/.cb-zsh/cb-zsh.zsh ] && source ~/.cb-zsh/cb-zsh.zsh
 
+# find_pr: override cb-zsh's version which hit the decommissioned heimdall.cbhq.net API.
+# Uses gh CLI against coinbase.ghe.com — works with split-tunnel VPN and requires no
+# special internal DNS. Handles both git@ and https:// remote URL formats.
+find_pr() {
+  local url
+  url=$(git config --get remote.upstream.url 2>/dev/null || git config --get remote.origin.url 2>/dev/null)
+  if [[ -z "$url" ]]; then
+    echo "$PWD is not a git repository"
+    return 1
+  fi
+
+  local target
+  target=$(
+    git log \
+      --color \
+      --first-parent \
+      --pretty=format:"%Cred%h%Creset %C(blue)<%an>%Creset %s -%C(bold yellow)%d%Creset %Cgreen(%cr)" \
+      --abbrev-commit | fzf --ansi --no-sort
+  )
+  [[ -z "$target" ]] && return
+
+  local ref
+  ref=$(awk '{print $1}' <<<"$target")
+
+  local repo_path
+  if [[ "$url" == https://* ]]; then
+    repo_path=$(echo "$url" | cut -d'/' -f4,5 | sed 's/\.git$//')
+  else
+    repo_path=$(echo "$url" | cut -d':' -f2 | sed 's/\.git$//')
+  fi
+
+  local pr_url
+  pr_url=$(gh api "repos/$repo_path/commits/$ref/pulls" \
+    --hostname coinbase.ghe.com \
+    --jq '.[0].html_url' 2>/dev/null)
+
+  if [[ -z "$pr_url" || "$pr_url" == "null" ]]; then
+    echo "PR not found for commit $ref in $repo_path"
+    return 1
+  fi
+
+  open "$pr_url"
+}
+
 # Coinbase local overrides
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
