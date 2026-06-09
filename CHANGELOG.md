@@ -4,6 +4,28 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Setup: migrate zsh from oh-my-zsh to powerlevel10k + cb-zsh plugins
+
+- **zsh/.zshrc**: Replaced oh-my-zsh with a framework-free config that works on both Coinbase and personal machines
+  - Sources powerlevel10k directly from the brew prefix (arm64/x86 detection included)
+  - Replaces the synchronous `robbyrussell` git prompt with p10k + gitstatus daemon, which is async and does not block the prompt on large repos like the monorepo
+  - Inlines the cb-zsh plugins that were previously implicit: once-per-day compinit caching, arrow-key prefix history search, ctrl-z toggle, and fzf with ripgrep/fd defaults
+  - Fixes the broken `alias brew install` (spaces in alias names are invalid in zsh) with a proper arch-conditional alias
+  - Removes oh-my-zsh entirely; no framework dependency on either machine
+
+- **zsh/.p10k.zsh**: New file — powerlevel10k config adapted from cb-zsh `default-theme.zsh`
+  - Pure/lean style prompt: directory in yellow, async git status, command duration above 5s, `❯` prompt char
+  - asdf/mise segment removed since pyenv/rbenv/nvm handle version management on this setup
+  - Run `p10k configure` to regenerate if you want a different style
+
+- **zsh-cb/.zshrc.local**: Added cb-zsh loading block at the top
+  - Sets `CB_ZSH_DISABLE_THEME=1` to prevent cb-zsh from loading its own p10k config (we manage the theme via `~/.p10k.zsh`)
+  - Loads only Coinbase-specific plugins: `atlassian jira find_pr reconnect_vpn git-scripts new-user`
+  - Guard: `[ -f ~/.cb-zsh/cb-zsh.zsh ]` — no-ops silently if cb-zsh is not installed
+  - Clone cb-zsh with: `git clone git@github.cbhq.net:infra/cb-zsh.git ~/.cb-zsh`
+
+- **Brewfile**: Added `powerlevel10k` and `zsh-syntax-highlighting`
+
 ### Fix: tmux undercurl corrupting terminal output in Ghostty
 
 - **tmux/terminal-capabilities**: Replaced broken hand-written `Smulx`/`Setulc` terminal overrides with tmux's built-in `terminal-features` mechanism

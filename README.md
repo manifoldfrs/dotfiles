@@ -71,7 +71,7 @@ git pull
 tmux kill-server
 ```
 
-Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Oh My Zsh, Node.js, and Neovim plugins. Do not use bootstrap on Coinbase laptops until the script has Coinbase profile pass-through.
+Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins. Do not use bootstrap on Coinbase laptops until the script has Coinbase profile pass-through.
 
 What this already handles for you:
 - stows your zsh, Git, Ghostty, tmux, Neovim, OpenCode, Claude Code, and local bin config
@@ -183,9 +183,84 @@ stow --no-folding -R -v -t "$HOME" -d stow opencode
 stow --no-folding -R -v -t "$HOME" -d stow claude
 ```
 
+### Zsh Setup
+
+The shell config is split across two Stow packages so the same dotfiles work on both a personal and a Coinbase machine.
+
+#### `stow/zsh` — shared, works everywhere
+
+Stowed on every machine. Contains `.zshrc`, `.p10k.zsh`, and `.zshenv`. No framework dependency — everything is wired directly:
+
+- **Powerlevel10k** sourced from the Homebrew prefix (arm64 and x86 paths handled). Config lives in `stow/zsh/.p10k.zsh` (Pure style: yellow directory, async git status, `❯` prompt char, command duration above 5 s).
+- **gitstatus daemon** (bundled with the `powerlevel10k` brew formula) answers git queries in the background so the prompt never blocks — important in large repos.
+- **compinit once per day** — skips the expensive completion scan on every shell open; only regenerates when `.zcompdump` is older than 24 h.
+- **Arrow-key prefix history search** — type a partial command then `↑`/`↓` to filter history by that prefix.
+- **ctrl-z toggle** — pressing `ctrl-z` in an empty prompt brings a backgrounded process back to the foreground instead of suspending the shell.
+- **fzf with ripgrep/fd** — `FZF_DEFAULT_COMMAND` uses `rg` (respects `.gitignore`, fast on large trees); `FZF_ALT_C_COMMAND` uses `fd` for directory navigation. `ctrl-r` history search includes `ctrl-y` to copy a command to clipboard and `ctrl-/` to toggle the preview pane.
+- **zsh-syntax-highlighting** sourced from the Homebrew prefix.
+
+Brew deps required on any machine:
+
+```bash
+brew install powerlevel10k zsh-syntax-highlighting ripgrep fd fzf
+```
+
+#### `stow/zsh-cb` — Coinbase laptop only
+
+Stowed in addition to `stow/zsh` on Coinbase machines. Contains `.zshrc.local`, which is sourced at the end of `.zshrc`.
+
+Loads [cb-zsh](https://github.cbhq.net/infra/cb-zsh) with the theme disabled (p10k is already set up) and only the Coinbase-specific plugins:
+
+```bash
+CB_ZSH_DISABLE_THEME=1
+CB_ZSH_PLUGINS=(atlassian jira find_pr reconnect_vpn git-scripts new-user)
+```
+
+cb-zsh must be cloned to `~/.cb-zsh`:
+
+```bash
+git clone git@github.cbhq.net:infra/cb-zsh.git ~/.cb-zsh
+```
+
+The guard `[ -f ~/.cb-zsh/cb-zsh.zsh ]` means this silently no-ops if cb-zsh is not installed.
+
+#### Quick setup
+
+**Personal machine:**
+
+```bash
+brew install powerlevel10k zsh-syntax-highlighting ripgrep fd fzf
+cd ~/dotfiles
+stow -d stow --restow -t ~ zsh
+exec zsh
+```
+
+**Coinbase machine:**
+
+```bash
+brew install powerlevel10k zsh-syntax-highlighting  # ripgrep, fd, fzf already in Brewfile
+git clone git@github.cbhq.net:infra/cb-zsh.git ~/.cb-zsh
+cd ~/dotfiles
+stow -d stow --restow -t ~ zsh zsh-cb
+exec zsh
+```
+
+#### Coinbase shell shortcuts
+
+These functions are available after `stow/zsh-cb` is stowed and cb-zsh is installed:
+
+| Command | What it does |
+|---|---|
+| `jira` | Open your Jira board in Chrome (set `MY_JIRA_BOARD` in `.zshrc.local`) |
+| `jira DX-123` | Open a specific Jira ticket directly |
+| `wiki <query>` | Search Confluence in Chrome |
+| `find_pr` | Fuzzy-pick a commit from git log and open its GitHub PR in Chrome (uses the internal `heimdall.cbhq.net` API — requires full-tunnel VPN) |
+| `reconnect_vpn` | Reconnect to Coinbase VPN via AppleScript without leaving the terminal |
+| `newuser` | Create a new Coinbase test user in the development environment (requires `$COINBASE_USERNAME` to be set) |
+
 ### Update zshrc On Another Machine
 
-Use this when you want the latest checked-in shell startup changes, such as the `pyenv --no-rehash`, `nvm --no-use`, or fzf terminal guard updates.
+Use this when you want the latest checked-in shell startup changes.
 
 ```bash
 cd ~/dotfiles
@@ -348,8 +423,8 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 
 - **Homebrew** + all packages from `Brewfile` (includes Stow, Ghostty, tmux, Nerd Fonts)
 - **Bash 4.2+** via Homebrew for Tokyo Night tmux theme support
-- **Oh My Zsh** with `robbyrussell` theme (minimal, fast)
-- **zsh-syntax-highlighting** plugin
+- **Powerlevel10k** prompt with gitstatus daemon (async git status — does not block the prompt on large repos)
+- **zsh-syntax-highlighting** via Homebrew (no framework required)
 - **Node.js** from `Brewfile`
 - **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/tmux`, `stow/nvim`, `stow/bin`, `stow/opencode`, and `stow/claude` into `$HOME`
 - **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb` and `stow/git-cb`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
@@ -697,7 +772,7 @@ ln -s ~/.zprofile .zprofile
 ln -s ~/.pyenv .pyenv
 ln -s ~/.rbenv .rbenv
 ln -s ~/.bun .bun
-ln -s ~/.oh-my-zsh .oh-my-zsh
+ln -s ~/.cb-zsh .cb-zsh
 ln -s ~/.fzf.zsh .fzf.zsh
 ln -s ~/.deno .deno
 ln -s ~/.local .local
@@ -887,7 +962,7 @@ z dotfiles
 # Add to Brewfile
 brew "zoxide"
 
-# Add to .zshrc (after oh-my-zsh sourcing)
+# Add to .zshrc
 eval "$(zoxide init zsh)"
 ```
 

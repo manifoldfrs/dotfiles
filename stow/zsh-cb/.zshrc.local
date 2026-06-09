@@ -1,3 +1,10 @@
+# cb-zsh: load Coinbase-specific plugins only.
+# Theme is disabled because p10k is configured in ~/.p10k.zsh.
+# Requires ~/.cb-zsh — clone with: git clone git@github.cbhq.net:infra/cb-zsh.git ~/.cb-zsh
+CB_ZSH_DISABLE_THEME=1
+CB_ZSH_PLUGINS=(atlassian jira find_pr reconnect_vpn git-scripts new-user)
+[ -f ~/.cb-zsh/cb-zsh.zsh ] && source ~/.cb-zsh/cb-zsh.zsh
+
 # Coinbase local overrides
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
