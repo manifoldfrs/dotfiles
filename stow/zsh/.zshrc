@@ -81,7 +81,11 @@ export FZF_CTRL_R_OPTS="
   --color header:italic
   --header 'Press CTRL-Y to copy command into clipboard'"
 
-[ -f ~/.fzf.zsh ] && [[ -t 0 && -t 1 ]] && source ~/.fzf.zsh
+if [[ -f ~/.fzf.zsh ]]; then
+  source ~/.fzf.zsh
+  bindkey -M emacs '^F' fzf-history-widget
+  bindkey -M viins '^F' fzf-history-widget
+fi
 
 # ── Syntax highlighting ────────────────────────────────────────────────────────
 for _hl in \

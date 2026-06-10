@@ -11,6 +11,14 @@ All notable changes to this dotfiles repository are documented here.
   - The new version calls `GET /repos/{owner}/{repo}/commits/{ref}/pulls` on the GHE API, which works with split-tunnel VPN and uses the existing `gh` auth session
   - Also fixes URL parsing for `coinbase@coinbase.ghe.com:` style SSH remotes which the original `_repository_owner` helper did not handle (it only matched `git@` prefix)
 
+### Fix: fzf history search not loading due to p10k instant prompt
+
+- **zsh/.zshrc**: Removed `[[ -t 0 && -t 1 ]]` terminal guard from fzf source block
+  - p10k instant prompt redirects stdout to a FIFO during `.zshrc` initialization, causing `[[ -t 1 ]]` to evaluate false and silently skip the entire fzf block — leaving `ctrl+r` on zsh's built-in `bck-i-search` instead of fzf
+  - `.zshrc` is only ever sourced for interactive shells so the guard was redundant
+- **zsh/.zshrc**: Bound `ctrl+f` to `fzf-history-widget` (previously `ctrl+r`)
+  - Uses `bindkey -M emacs` and `bindkey -M viins` to match how fzf registers its own bindings
+
 ### Neovim: make Git blame togglable
 
 - **nvim/git**: `<leader>gt` now toggles the fugitive blame split open and closed
