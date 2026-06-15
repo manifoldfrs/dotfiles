@@ -51,6 +51,13 @@ git pull
 # 2. Reapply all tracked shell/editor/terminal config and tmux plugins
 ./scripts/stow.sh
 
+# First time on this machine? Make sure the zsh brew deps exist, otherwise
+# the prompt and syntax highlighting are skipped silently (the .zshrc guards
+# them behind `[[ -f ... ]]`). `brew bundle` installs anything missing:
+brew bundle --file=Brewfile
+# or just the two that commonly drift:
+# brew install powerlevel10k zsh-syntax-highlighting
+
 # 3. Fully quit and reopen your terminal
 
 # 4. Restart tmux so the new config/theme is guaranteed to load cleanly
@@ -910,6 +917,25 @@ Backups created by the installer are named like `.zshrc.backup.YYYYMMDDhhmmss`.
 **Powerline symbols not showing?**
 - Ensure terminal uses a Nerd Font (JetBrainsMono Nerd Font)
 - Restart terminal after font installation
+
+**Prompt is plain / no syntax highlighting after an update?**
+- The shared `stow/zsh/.zshrc` sources Powerlevel10k and zsh-syntax-highlighting behind `[[ -f ... ]]` guards, so if the brew formulae are missing it skips them silently with no error — you just get a bare prompt and no command coloring.
+- This typically happens on a machine that was Stow-managed but never fully bootstrapped (for example, a personal machine that only ever had `ripgrep`/`fd`/`fzf` installed).
+- Check whether they are installed:
+
+```bash
+brew list --versions powerlevel10k zsh-syntax-highlighting
+```
+
+- If either is absent, install and reload:
+
+```bash
+brew install powerlevel10k zsh-syntax-highlighting
+exec zsh
+```
+
+- To avoid this class of drift entirely, install the full tracked package set: `brew bundle --file=~/dotfiles/Brewfile`.
+- Note: cb-zsh plugins (`jira`, `find_pr`, etc.) are a separate concern — those load only via `stow/zsh-cb/.zshrc.local` on the Coinbase `--cb` profile and are intentionally absent on personal machines.
 
 **tmux plugins not loading?**
 - First rerun the Stow apply flow from repo root: `./scripts/stow.sh`
