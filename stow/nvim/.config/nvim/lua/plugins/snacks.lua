@@ -5,7 +5,23 @@ return {
   ---@type snacks.Config
   opts = {
     input = { enabled = true },
-    picker = { enabled = true },
+    picker = {
+      enabled = true,
+      sources = {
+        explorer = {
+          hidden = true,
+          ignored = true,
+        },
+        files = {
+          hidden = true,
+          ignored = true,
+        },
+        grep = {
+          hidden = true,
+          ignored = true,
+        },
+      },
+    },
     terminal = { enabled = false },
     
     -- REPLACEMENTS for existing plugins

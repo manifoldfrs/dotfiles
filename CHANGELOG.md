@@ -4,6 +4,19 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Neovim: include ignored files in Snacks file discovery
+
+- **nvim/snacks**: Snacks file pickers, grep, and explorer now include hidden and ignored files
+  - Allows ignored local config files such as `override.yml` to appear in find-file results
+  - Applies globally through picker source config instead of per-keymap overrides
+
+### Neovim: reveal current file in Neo-tree
+
+- **nvim/neo-tree**: Neo-tree now follows the active file in the filesystem sidebar
+  - Enables `follow_current_file.enabled` so switching buffers expands the tree to the active file
+  - Keeps auto-expanded directories open with `leave_dirs_open` for Cursor-like file tree navigation
+  - Adds a `desc` to the `<C-n>` file tree keymap for which-key discoverability
+
 ### Fix: find_pr broken after migration from heimdall to coinbase.ghe.com
 
 - **zsh-cb/.zshrc.local**: Overrides cb-zsh's `find_pr` with a version that uses `gh api --hostname coinbase.ghe.com` instead of the decommissioned `heimdall.cbhq.net` API

@@ -616,6 +616,8 @@ VSpaceCode-style aliases are also available: `<leader>f` File, `<leader>b` Buffe
 | **Markdown** ||
 | `<leader>mp` / `,p` | Preview current Markdown file with `glow` |
 
+Snacks file discovery includes hidden and ignored files by default, so local-only files such as `override.yml` still appear in `<C-p>`, `<leader>sf`, `<leader><space>`, `<leader>sg`, and the file explorer.
+
 ### Debugging
 
 Use a terminal-first debugging flow instead of an in-editor DAP stack.
