@@ -25,5 +25,5 @@
 # [url "git@github.com:"]
 #     insteadOf = https://github.com/
 
-[include]
-	path = ~/.gitconfig.local
+[includeIf "gitdir:/Users/farishabib/cb/"]
+	path = /Users/farishabib/.gitconfig.local
