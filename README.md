@@ -18,6 +18,39 @@ Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, OpenCode,
 | **gnu-sed** | Latest | Recommended on macOS for nvim-spectre replace engine (`brew install gnu-sed`) |
 | **imagemagick** | >= 7.0 | Required for snacks.image preview support |
 
+## Spotify Terminal Visualizer
+
+`spotify-visualizer` is a standalone TypeScript command managed by the `bin` Stow package. It renders a procedural terminal dot matrix based on the website music visualizer colors, then uses Spotify only for the current track, artist, play state, and track-specific animation seed.
+
+Setup:
+
+```bash
+# 1. Create or reuse a Spotify developer app.
+# 2. Add this redirect URI to that app:
+#    http://127.0.0.1:8974/callback
+# 3. Export the client id before launching the visualizer:
+export SPOTIFY_CLIENT_ID=your_spotify_client_id
+
+spotify-visualizer
+```
+
+The command stores OAuth tokens under `~/.cache/dotfiles/spotify-visualizer/`. It does not modify tmux config. Run it in any tmux pane or window when you want a dedicated visualizer screen.
+
+## OpenCode Config
+
+The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPrompt`, `ref`, and `exa` MCP servers and keeps the TUI theme on `tokyonight`.
+
+The committed Ref MCP URL is sanitized with `apiKey=*****`. The real local `ref` API key belongs in the OpenCode MCP URL on the machine, not in git.
+
+Apply only OpenCode config when needed:
+
+```bash
+cd ~/dotfiles
+stow --no-folding -R -v -t "$HOME" -d stow opencode
+```
+
+On Coinbase laptops, `./scripts/stow.sh --cb apply` intentionally skips OpenCode so work account state does not replace the personal config.
+
 [![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
 ## Quick Start (New Mac)

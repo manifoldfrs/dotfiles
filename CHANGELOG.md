@@ -4,6 +4,20 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Tooling: add Spotify terminal visualizer
+
+- **bin/spotify-visualizer**: Added a standalone TypeScript terminal visualizer command
+  - Uses Spotify current playback state for track metadata, play state, and a per-track animation seed
+  - Renders a procedural red, orange, and yellow dot matrix in the terminal without changing tmux config
+  - Stores local OAuth tokens under `~/.cache/dotfiles/spotify-visualizer/`
+
+### OpenCode: restore personal MCP config and Tokyo Night
+
+- **opencode/config**: Replaced stale tracked OpenCode MCP config with the personal MCP set
+  - Keeps `RepoPrompt`, `ref`, and `exa` as the managed MCP servers
+  - Sanitizes the committed Ref MCP URL with `apiKey=*****`
+  - Restores the OpenCode TUI theme to `tokyonight`
+
 ### Neovim: include ignored files in Snacks file discovery
 
 - **nvim/snacks**: Snacks file pickers, grep, and explorer now include hidden and ignored files
