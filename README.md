@@ -36,6 +36,28 @@ spotify-visualizer
 
 The command stores OAuth tokens under `~/.cache/dotfiles/spotify-visualizer/`. It does not modify tmux config. Run it in any tmux pane or window when you want a dedicated visualizer screen.
 
+Controls:
+
+| Key | Action |
+|-----|--------|
+| `Space` | Toggle Spotify play or pause |
+| `n` | Skip to the next track |
+| `p` | Skip to the previous track |
+| `s` | Toggle shuffle |
+| `r` | Cycle repeat off, context, and current track |
+| `q` / `Ctrl-C` | Quit and restore the terminal |
+
+The visualizer shows this key legend in the header. Short notices, such as pressing a playback key before Spotify has an active track, replace the legend for about 3 seconds.
+
+Shuffle and repeat state use compact status tokens in the header. Shuffle uses `[S:-]` when inactive and yellow `[S:*]` when active. Repeat uses gray `[R:-]` when inactive, red `[R:all]` for repeat context, and red `[R:1]` for repeat current track.
+
+If Spotify returns `401` after scopes change, remove the cached token and authorize again:
+
+```bash
+rm ~/.cache/dotfiles/spotify-visualizer/tokens.json
+spotify-visualizer
+```
+
 ## OpenCode Config
 
 The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPrompt`, `ref`, and `exa` MCP servers and keeps the TUI theme on `tokyonight`.

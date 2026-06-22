@@ -9,6 +9,8 @@ All notable changes to this dotfiles repository are documented here.
 - **bin/spotify-visualizer**: Added a standalone TypeScript terminal visualizer command
   - Uses Spotify current playback state for track metadata, play state, and a per-track animation seed
   - Renders a procedural red, orange, and yellow dot matrix in the terminal without changing tmux config
+  - Supports `Space`, `n`, `p`, `s`, and `r` for play/pause, next, previous, shuffle, and repeat-mode controls
+  - Clears stale cached Spotify tokens on authorization failures so scope changes can reauthorize cleanly
   - Stores local OAuth tokens under `~/.cache/dotfiles/spotify-visualizer/`
 
 ### OpenCode: restore personal MCP config and Tokyo Night

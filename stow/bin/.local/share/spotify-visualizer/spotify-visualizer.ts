@@ -2,7 +2,7 @@
 
 import { createHash, randomBytes } from "node:crypto"
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http"
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { homedir } from "node:os"
 import { dirname, join } from "node:path"
 import { spawn } from "node:child_process"
@@ -10,7 +10,7 @@ import { spawn } from "node:child_process"
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID ?? ""
 const REDIRECT_PORT = Number(process.env.SPOTIFY_VISUALIZER_PORT ?? "8974")
 const REDIRECT_URI = `http://127.0.0.1:${REDIRECT_PORT}/callback`
-const SCOPES = ["user-read-currently-playing", "user-read-playback-state"].join(" ")
+const SCOPES = ["user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state"].join(" ")
 const CACHE_DIR = join(homedir(), ".cache", "dotfiles", "spotify-visualizer")
 const TOKEN_PATH = join(CACHE_DIR, "tokens.json")
 const FPS = 30
@@ -34,6 +34,8 @@ type TrackState = {
   trackName: string
   artists: string
   trackSeed: number
+  shuffleState: boolean
+  repeatState: "off" | "track" | "context"
 }
 
 type SpotifyTrack = {
@@ -47,6 +49,8 @@ type SpotifyCurrentlyPlaying = {
   is_playing?: boolean
   progress_ms?: number | null
   item?: SpotifyTrack | null
+  shuffle_state?: boolean
+  repeat_state?: "off" | "track" | "context"
 }
 
 const STOPS: { at: number; color: readonly [number, number, number] }[] = [
@@ -65,11 +69,15 @@ let state: TrackState = {
   trackName: "Waiting for Spotify",
   artists: "Start playback on any Spotify device",
   trackSeed: 0,
+  shuffleState: false,
+  repeatState: "off",
 }
 let heights: number[] = []
 let pulse = 0
 let running = true
 let lastError = ""
+let notice = ""
+let noticeUntil = 0
 
 function usage(): string {
   return [
@@ -82,6 +90,11 @@ function usage(): string {
     `  The Spotify app must allow redirect URI: ${REDIRECT_URI}`,
     "",
     "Controls:",
+    "  Space toggles play and pause.",
+    "  n skips to the next track.",
+    "  p skips to the previous track.",
+    "  s toggles shuffle.",
+    "  r cycles repeat off, context, and current track.",
     "  q or Ctrl-C exits and restores the terminal.",
   ].join("\n")
 }
@@ -150,6 +163,16 @@ function truncate(value: string, max: number): string {
   return `${value.slice(0, max - 3)}...`
 }
 
+function setNotice(message: string, ttlMs = 3000): void {
+  notice = message
+  noticeUntil = performance.now() + ttlMs
+}
+
+function visibleNotice(): string {
+  if (!notice || performance.now() > noticeUntil) return ""
+  return notice
+}
+
 function readTokens(): Tokens | null {
   try {
     return JSON.parse(readFileSync(TOKEN_PATH, "utf8")) as Tokens
@@ -161,6 +184,14 @@ function readTokens(): Tokens | null {
 function writeTokens(tokens: Tokens): void {
   mkdirSync(dirname(TOKEN_PATH), { recursive: true })
   writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2), { mode: 0o600 })
+}
+
+function clearTokens(): void {
+  try {
+    rmSync(TOKEN_PATH)
+  } catch {
+    return
+  }
 }
 
 function base64url(input: Buffer): string {
@@ -256,6 +287,7 @@ async function refreshTokens(tokens: Tokens): Promise<Tokens> {
       refresh_token: tokens.refreshToken,
     }).toString(),
   })
+  if (res.status === 400 || res.status === 401) clearTokens()
   if (!res.ok) throw new Error(`Spotify token refresh failed: ${res.status}`)
   const body = (await res.json()) as { access_token: string; refresh_token?: string; expires_in: number }
   return {
@@ -283,19 +315,38 @@ async function getValidTokens(): Promise<Tokens> {
 async function fetchPlayback(): Promise<void> {
   try {
     const tokens = await getValidTokens()
-    const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", {
+    const res = await fetch("https://api.spotify.com/v1/me/player", {
       headers: { Authorization: `Bearer ${tokens.accessToken}` },
     })
     if (res.status === 204) {
-      state = { ...state, isPlaying: false, trackName: "Nothing playing", artists: "Start playback on Spotify", lastUpdate: performance.now() }
+      state = {
+        ...state,
+        isPlaying: false,
+        progressMs: 0,
+        durationMs: 0,
+        lastUpdate: performance.now(),
+        trackId: "",
+        trackName: "Nothing playing",
+        artists: "Start playback on Spotify",
+      }
       lastError = ""
       return
     }
+    if (res.status === 401) clearTokens()
     if (!res.ok) throw new Error(`Spotify playback request failed: ${res.status}`)
     const body = (await res.json()) as SpotifyCurrentlyPlaying
     const item = body.item
     if (!item?.id) {
-      state = { ...state, isPlaying: false, trackName: "Unsupported Spotify item", artists: "Play a track to visualize", lastUpdate: performance.now() }
+      state = {
+        ...state,
+        isPlaying: false,
+        progressMs: 0,
+        durationMs: 0,
+        lastUpdate: performance.now(),
+        trackId: "",
+        trackName: "Unsupported Spotify item",
+        artists: "Play a track to visualize",
+      }
       lastError = ""
       return
     }
@@ -308,11 +359,82 @@ async function fetchPlayback(): Promise<void> {
       trackName: item.name ?? "Unknown track",
       artists: item.artists?.map((artist) => artist.name).filter(Boolean).join(", ") || "Unknown artist",
       trackSeed: seedFromId(item.id),
+      shuffleState: body.shuffle_state ?? false,
+      repeatState: body.repeat_state ?? "off",
     }
     lastError = ""
   } catch (error) {
     lastError = error instanceof Error ? error.message : String(error)
   }
+}
+
+async function sendPlayerCommand(label: string, method: "POST" | "PUT", path: string, params?: Record<string, string>): Promise<boolean> {
+  try {
+    const tokens = await getValidTokens()
+    const url = new URL(`https://api.spotify.com/v1/me/player/${path}`)
+    for (const [key, value] of Object.entries(params ?? {})) url.searchParams.set(key, value)
+    const res = await fetch(url, {
+      method,
+      headers: { Authorization: `Bearer ${tokens.accessToken}` },
+    })
+    if (res.status === 401) clearTokens()
+    if (!res.ok && res.status !== 204) throw new Error(`Spotify ${label} request failed: ${res.status}`)
+    lastError = ""
+    await fetchPlayback()
+    return true
+  } catch (error) {
+    lastError = error instanceof Error ? error.message : String(error)
+    return false
+  }
+}
+
+async function togglePlayback(): Promise<void> {
+  if (!state.trackId) {
+    setNotice("Start playback in Spotify first")
+    return
+  }
+  const endpoint = state.isPlaying ? "pause" : "play"
+  await sendPlayerCommand(endpoint, "PUT", endpoint)
+}
+
+async function skipNext(): Promise<void> {
+  if (!state.trackId) {
+    setNotice("Start playback in Spotify first")
+    return
+  }
+  await sendPlayerCommand("next", "POST", "next")
+}
+
+async function skipPrevious(): Promise<void> {
+  if (!state.trackId) {
+    setNotice("Start playback in Spotify first")
+    return
+  }
+  await sendPlayerCommand("previous", "POST", "previous")
+}
+
+async function toggleShuffle(): Promise<void> {
+  if (!state.trackId) {
+    setNotice("Start playback in Spotify first")
+    return
+  }
+  const nextShuffle = !state.shuffleState
+  await sendPlayerCommand("shuffle", "PUT", "shuffle", { state: String(nextShuffle) })
+}
+
+function nextRepeatState(): "off" | "context" | "track" {
+  if (state.repeatState === "off") return "context"
+  if (state.repeatState === "context") return "track"
+  return "off"
+}
+
+async function cycleRepeat(): Promise<void> {
+  if (!state.trackId) {
+    setNotice("Start playback in Spotify first")
+    return
+  }
+  const nextRepeat = nextRepeatState()
+  await sendPlayerCommand("repeat", "PUT", "repeat", { state: nextRepeat })
 }
 
 function currentProgressMs(): number {
@@ -358,11 +480,19 @@ function render(): void {
   const title = truncate(`${state.trackName} - ${state.artists}`, width)
   const status = state.isPlaying ? "PLAYING" : "PAUSED"
   const time = state.durationMs > 0 ? `${formatTime(progress)} / ${formatTime(state.durationMs)}` : "--:--"
-  const error = lastError ? truncate(`Spotify: ${lastError}`, width) : "Press q to quit"
+  const inactiveMode = ansiFg(106, 114, 130)
+  const shuffleColor = state.shuffleState ? ansiFg(252, 234, 14) : inactiveMode
+  const repeatColor = state.repeatState === "off" ? inactiveMode : ansiFg(230, 0, 38)
+  const shuffleMode = `[S:${state.shuffleState ? "*" : "-"}]`
+  const repeatValue = state.repeatState === "track" ? "1" : state.repeatState === "context" ? "all" : "-"
+  const repeatMode = `[R:${repeatValue}]`
+  const modes = `${shuffleColor}${shuffleMode}${reset()} ${repeatColor}${repeatMode}${reset()}`
+  const legend = "Space play/pause | n next | p previous | s shuffle | r repeat cycle | q quit"
+  const message = visibleNotice() || (lastError ? `Spotify: ${lastError}` : legend)
   const lines: string[] = [
     `${ansiFg(230, 0, 38)}${title}${reset()}`.padEnd(width),
-    `${ansiFg(252, 234, 14)}${status}${reset()}  ${time}`.padEnd(width),
-    `${ansiFg(106, 114, 130)}${error}${reset()}`.padEnd(width),
+    `${ansiFg(252, 234, 14)}${status}${reset()}  ${time}  ${modes}`.padEnd(width),
+    `${ansiFg(106, 114, 130)}${truncate(message, width)}${reset()}`.padEnd(width),
   ]
 
   for (let r = rows - 1; r >= 0; r--) {
@@ -396,6 +526,26 @@ function setupInput(): void {
   process.stdin.resume()
   process.stdin.on("data", (data: Buffer) => {
     const value = data.toString("utf8")
+    if (value === " ") {
+      void togglePlayback()
+      return
+    }
+    if (value === "n") {
+      void skipNext()
+      return
+    }
+    if (value === "p") {
+      void skipPrevious()
+      return
+    }
+    if (value === "s") {
+      void toggleShuffle()
+      return
+    }
+    if (value === "r") {
+      void cycleRepeat()
+      return
+    }
     if (value === "q" || data[0] === 3) {
       cleanup()
       process.exit(0)
