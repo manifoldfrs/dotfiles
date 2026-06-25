@@ -519,6 +519,7 @@ Preferred tool usage after setup:
 
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
 - Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` (`tldr`, `grill-me`, `grill-me-with-docs`, `quiz-me`), and the `hooks/` scripts.
+- OpenCode slash wrappers for those personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
 - These are shared, not Claude-only. `~/.cbcode-home/.claude` and `~/.claude` are the same directory, and OpenCode reads `~/.claude/skills/` plus `~/.claude/CLAUDE.md` (when no `~/.config/opencode/AGENTS.md` exists). One Stow source therefore drives cbcode Claude Code, plain Claude Code, and OpenCode.
 - Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the same `~/.claude/hooks/*.sh` scripts. The bash and generated-edit blockers port as hard blocks (`tool.execute.before`); the contract check is advisory only on `session.idle`, since OpenCode cannot block a turn the way a Claude Stop hook can.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.

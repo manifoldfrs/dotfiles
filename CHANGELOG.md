@@ -4,6 +4,14 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### OpenCode: add slash wrappers for personal Claude skills
+
+- **stow/opencode/.config/opencode/commands/**: Added OpenCode command wrappers for the personal Stow-managed Claude skills.
+  - `/tldr` loads the `tldr` skill.
+  - `/grill-me` loads the `grill-me` skill.
+  - `/grill-me-with-docs` loads the `grill-me-with-docs` skill.
+  - `/quiz-me` loads the `quiz-me` skill.
+
 ### OpenCode: adapter plugin reusing the Claude hook scripts
 
 - **stow/opencode/.config/opencode/plugin/cb-guards.ts**: New plugin so the same guard logic runs under OpenCode, which ignores Claude's `settings.json` hooks. It shells out to the shared `~/.claude/hooks/*.sh` scripts rather than reimplementing them.
