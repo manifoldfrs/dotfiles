@@ -2,7 +2,9 @@
 # Shell integration and clipboard
 shell-integration = zsh
 shell-integration-features = no-cursor
-copy-on-select = clipboard
+copy-on-select = false
+keybind = performable:ctrl+shift+c=copy_to_clipboard
+keybind = super+c=csi:99;6u
 
 # theme
 theme = TokyoNight Night

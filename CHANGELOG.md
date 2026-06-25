@@ -4,6 +4,15 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Fix: stabilize Ghostty mouse selection inside tmux
+
+- **ghostty/clipboard**: Disabled `copy-on-select` so click-drag selection no longer races tmux mouse selection handling
+  - Keeps explicit copy available through `ctrl+shift+c`
+  - Maps macOS `cmd+c` to the same tmux-readable `ctrl+shift+c` sequence
+- **tmux/copy-mode**: Removed mouse-release copy/cancel bindings from both copy-mode tables
+  - Prevents `tmux-yank` from immediately copying and clearing selections on `MouseDragEnd1Pane`
+  - Adds explicit `ctrl+shift+c` copy bindings that pipe selections to `pbcopy`
+
 ### OpenCode: add slash wrappers for personal Claude skills
 
 - **stow/opencode/.config/opencode/commands/**: Added OpenCode command wrappers for the personal Stow-managed Claude skills.
