@@ -60,9 +60,9 @@ spotify-visualizer
 
 ## OpenCode Config
 
-The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPrompt`, `ref`, and `exa` MCP servers and keeps the TUI theme on `tokyonight`.
+The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPrompt`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and keeps the TUI theme on `tokyonight`.
 
-The committed Ref MCP URL is sanitized with `apiKey=*****`. The real local `ref` API key belongs in the OpenCode MCP URL on the machine, not in git.
+The committed MCP config reads secrets from `REF_API_KEY` and `EXA_API_KEY`. Put real local values in `~/.zshenv.local`, not in git.
 
 Apply only OpenCode config when needed:
 
@@ -519,11 +519,12 @@ Preferred tool usage after setup:
 
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
 - Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` (`tldr`, `grill-me`, `grill-me-with-docs`, `quiz-me`), and the `hooks/` scripts.
+- Claude Code MCP servers are user-scoped in `~/.claude.json`, not Stow-managed. Keep `Ref` and `exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.zshenv.local`.
 - OpenCode slash wrappers for those personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
 - These are shared, not Claude-only. `~/.cbcode-home/.claude` and `~/.claude` are the same directory, and OpenCode reads `~/.claude/skills/` plus `~/.claude/CLAUDE.md` (when no `~/.config/opencode/AGENTS.md` exists). One Stow source therefore drives cbcode Claude Code, plain Claude Code, and OpenCode.
-- Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the same `~/.claude/hooks/*.sh` scripts. The bash and generated-edit blockers port as hard blocks (`tool.execute.before`); the contract check is advisory only on `session.idle`, since OpenCode cannot block a turn the way a Claude Stop hook can.
+- Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the same `~/.claude/hooks/*.sh` scripts for the bash and generated-edit blockers.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
-- Do not copy live OpenCode MCP URLs with real API keys into tracked files. Keep tracked config placeholders safe, or use ignored local overrides for secrets.
+- Do not copy live MCP URLs with real API keys into tracked files. Use environment interpolation for secrets.
 
 ### Karabiner Status
 
@@ -747,7 +748,7 @@ dotfiles/
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── tmux/               # .tmux.conf
 │   ├── bin/                # .local/bin/tmux-sessionizer
-│   ├── opencode/           # .config/opencode/: opencode.json, tui.json, plugin/cb-guards.ts
+│   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
 │   ├── claude/             # .claude/: settings.local.json, CLAUDE.md, skills/, hooks/
 │   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
 │       └── .config/nvim/

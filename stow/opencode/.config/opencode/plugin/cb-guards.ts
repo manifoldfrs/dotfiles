@@ -6,7 +6,6 @@ import { join } from "path"
 // guard logic applies under OpenCode. Each script's contract:
 //   - reads a JSON payload on stdin
 //   - block-* scripts: exit code 2 = block, stderr = reason
-//   - verify-contract-before-stop.sh: prints {"decision":"block","reason":...} on stdout
 const HOOKS = join(homedir(), ".claude", "hooks")
 
 async function runHook(
@@ -26,7 +25,7 @@ async function runHook(
   return { code, stdout, stderr }
 }
 
-export const CbGuards: Plugin = async ({ $, directory }) => {
+export const CbGuards: Plugin = async () => {
   return {
     // Hard blockers, map to Claude's PreToolUse. Throwing aborts the tool call.
     "tool.execute.before": async (input, output) => {
@@ -44,29 +43,6 @@ export const CbGuards: Plugin = async ({ $, directory }) => {
           if (r.code === 2) throw new Error(r.stderr.trim() || "Blocked: edit to a generated file")
         }
       }
-    },
-
-    // Advisory only. OpenCode's session.idle cannot block the turn the way
-    // Claude's Stop hook does, so the contract check degrades to a warning.
-    event: async ({ event }) => {
-      if (event.type !== "session.idle") return
-      const r = await runHook("verify-contract-before-stop.sh", {
-        stop_hook_active: false,
-        cwd: directory,
-      })
-      if (!r.stdout.trim()) return
-      let reason = ""
-      try {
-        reason = JSON.parse(r.stdout).reason ?? ""
-      } catch {
-        return
-      }
-      if (!reason) return
-      const line = reason.split("\n")[0]
-      console.warn("contract check (advisory): " + line)
-      await $`osascript -e ${"display notification " + JSON.stringify(line) + ' with title "opencode contract check"'}`
-        .nothrow()
-        .quiet()
     },
   }
 }

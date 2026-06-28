@@ -13,7 +13,7 @@ STOW_TARGETS=(
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"
-    "$HOME/.config/opencode/opencode.json"
+    "$HOME/.config/opencode/opencode.jsonc"
     "$HOME/.config/opencode/tui.json"
     "$HOME/.claude/settings.local.json"
     "$HOME/.tmux.conf"

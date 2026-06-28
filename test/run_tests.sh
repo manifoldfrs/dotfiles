@@ -59,7 +59,7 @@ stow --no-folding -R -t "$STOW_TEST_HOME" -d ~/dotfiles/stow zsh git ghostty tmu
 if [ -L "$STOW_TEST_HOME/.zshrc" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
-    && [ -L "$STOW_TEST_HOME/.config/opencode/opencode.json" ] \
+    && [ -L "$STOW_TEST_HOME/.config/opencode/opencode.jsonc" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/tui.json" ] \
     && [ -L "$STOW_TEST_HOME/.claude/settings.local.json" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then

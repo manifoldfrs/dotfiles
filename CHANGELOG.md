@@ -4,6 +4,17 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### OpenCode: stow JSONC global config without MCP secrets
+
+- **stow/opencode/.config/opencode/opencode.jsonc**: Replaced the stowed JSON config with JSONC, matching OpenCode's comment-friendly config format.
+- **OpenCode MCP secrets**: Switched `Ref` and `exa` credentials to `REF_API_KEY` and `EXA_API_KEY` environment interpolation so API keys stay out of git.
+- **setup/tests**: Updated bootstrap and Stow validation to expect `~/.config/opencode/opencode.jsonc`.
+
+### Claude Code: move user MCP credentials to environment interpolation
+
+- **~/.claude.json**: Updated local user-scoped `Ref` and `exa` MCP headers to read `${REF_API_KEY}` and `${EXA_API_KEY}`.
+- **docs**: Clarified that Claude Code MCP server definitions live in user scope, while Stow only manages Claude Code permissions, rules, skills, and hooks.
+
 ### Fix: stabilize Ghostty mouse selection inside tmux
 
 - **ghostty/clipboard**: Disabled `copy-on-select` so click-drag selection no longer races tmux mouse selection handling
@@ -24,16 +35,15 @@ All notable changes to this dotfiles repository are documented here.
 ### OpenCode: adapter plugin reusing the Claude hook scripts
 
 - **stow/opencode/.config/opencode/plugin/cb-guards.ts**: New plugin so the same guard logic runs under OpenCode, which ignores Claude's `settings.json` hooks. It shells out to the shared `~/.claude/hooks/*.sh` scripts rather than reimplementing them.
-  - `tool.execute.before` → `block-dangerous-bash.sh` (bash) and `block-generated-edits.sh` (edit/write/patch); exit 2 throws and aborts the tool call.
-  - `session.idle` → `verify-contract-before-stop.sh` as an advisory warning only. OpenCode's idle event cannot block the turn the way Claude's Stop hook does, so the contract check degrades to a notification under OpenCode.
+- `tool.execute.before` → `block-dangerous-bash.sh` (bash) and `block-generated-edits.sh` (edit/write/patch); exit 2 throws and aborts the tool call.
 - Auto-loads from the `plugin/` directory; no `opencode.json` change needed. The directory is symlinked from the Stow package.
-- Note: `~/.config/opencode/opencode.json` is still a real file shadowing the Stow copy, so it is not yet Stow-managed.
+- At the time, `~/.config/opencode/opencode.json` was still a real file shadowing the Stow copy, so it was not yet Stow-managed.
 
 ### Claude Code: expand Stow coverage to global rules, skills, and hooks
 
 - **stow/claude/.claude/CLAUDE.md**: Global agent rules are now tracked under Stow (previously a standalone file in `~/.claude`). This is the trimmed failure-log version (159 lines, down from 272) that stays under the ~200-line adherence threshold. Symlinked back to `~/.claude/CLAUDE.md` on restow.
 - **stow/claude/.claude/skills/**: Added four personal skills — `tldr` (toggle ultra-terse replies), `grill-me` and `grill-me-with-docs` (one-question-at-a-time plan and design interrogation), and `quiz-me` (active-recall tutoring). Symlinked per-skill into `~/.claude/skills/`, leaving the cbcode-managed skills untouched.
-- **stow/claude/.claude/hooks/**: Added three hook scripts — `verify-contract-before-stop.sh` (a Stop hook that blocks finishing when a hand-written external or serialized contract type changed without a captured-response fixture), `block-generated-edits.sh`, and `block-dangerous-bash.sh`.
+- **stow/claude/.claude/hooks/**: Added hook scripts for generated-edit and dangerous-bash blockers.
 - Shared across harnesses: `~/.cbcode-home/.claude` and `~/.claude` are the same directory, and OpenCode reads `~/.claude/skills/` plus `~/.claude/CLAUDE.md` (when no `~/.config/opencode/AGENTS.md` exists). One Stow source now drives cbcode Claude Code, plain Claude Code, and OpenCode.
 - Sessions, history, caches, and `.claude.json` remain out of Stow.
 
