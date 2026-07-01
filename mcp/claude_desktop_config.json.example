@@ -1,7 +1,7 @@
 {
     "mcpServers": {
-        "RepoPrompt": {
-            "command": "/Users/YOUR_USERNAME/RepoPrompt/repoprompt_cli",
+        "RepoPromptCE": {
+            "command": "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp",
             "args": []
         },
         "posthog": {

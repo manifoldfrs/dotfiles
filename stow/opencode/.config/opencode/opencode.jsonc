@@ -2,10 +2,10 @@
         "$schema": "https://opencode.ai/config.json",
         "autoupdate": true,
         "mcp": {
-                "RepoPrompt": {
+                "RepoPromptCE": {
                         "type": "local",
                         "command": [
-                                "/Applications/RepoPrompt.app/Contents/MacOS/repoprompt-mcp"
+                                "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp"
                         ],
                         "enabled": true,
                         "timeout": 3600000,

@@ -6,8 +6,8 @@ tool_output_token_limit = 25000
 # [projects."/Users/YOUR_USERNAME/github"]
 # trust_level = "trusted"
 
-[mcp_servers.RepoPrompt]
-command = "/Applications/RepoPrompt.app/Contents/MacOS/repoprompt-mcp"
+[mcp_servers.RepoPromptCE]
+command = "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp"
 args = []
 tool_timeout_sec = 1000
 enabled = true

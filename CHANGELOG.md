@@ -4,6 +4,20 @@ All notable changes to this dotfiles repository are documented here.
 
 ## July 2026
 
+### Complete RepoPrompt to RepoPromptCE migration across remaining configs
+
+The closed-source RepoPrompt app is fully removed. Every remaining config, template, and doc now names the server `RepoPromptCE` and points at `/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp`.
+
+- **stow/opencode/.config/opencode/opencode.jsonc**: `RepoPrompt` MCP server renamed to `RepoPromptCE` and repointed at the CE binary. Resolves the known follow-up noted in the entry below, OpenCode's integration works again.
+- **mcp/claude_desktop_config.json** and **mcp/claude_desktop_config.json.example**: server renamed to `RepoPromptCE`, command updated from the legacy `repoprompt_cli` path to the CE app binary.
+- **mcp/codex_config.toml.example**: `[mcp_servers.RepoPromptCE]` replaces the old server table name, with the CE binary path.
+- **mcp/README.md**: server list names RepoPromptCE.
+- **SYSTEM_PROMPT.md**: Tool Preferences table and prose swapped from the old `RepoPrompt` tool prefix to the `RepoPromptCE` prefix.
+- **stow/claude/.claude/hooks/block-generated-edits.sh**: stale comments naming the old tool prefix for `apply_edits` updated. Hook behavior unchanged, it matches on `tool_input` paths, not tool names.
+- **stow/claude/.claude/settings.local.json** and **.claude/settings.local.json**: permission allowlist entries renamed from the old `RepoPrompt` tool prefix to `RepoPromptCE`.
+- **README.md**: OpenCode section now lists `RepoPromptCE` as the managed server.
+- Not changed: two `skillUsage` keys in user-scope `~/.claude.json` that carry the old prefix are historical usage counters, not config, and historical CHANGELOG entries stay as written.
+
 ### Claude Code: switch preferred MCP tool routing from RepoPrompt to RepoPromptCE
 
 - **stow/claude/.claude/CLAUDE.md**: Tool Preferences table and all `mcp__RepoPrompt__*` references now point at `mcp__RepoPromptCE__*`, the open-source RepoPrompt Community Edition server. Same tool names, schemas, and instructions text as the closed-source app, so this is a routing change only, no rule rewrites.

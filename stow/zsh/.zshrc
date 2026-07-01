@@ -119,5 +119,7 @@ export PATH="$HOME/.opencode/bin:$PATH"
 # Force arm64 on Apple Silicon so brew doesn't accidentally run under Rosetta.
 [[ $(arch) == 'arm64' ]] && alias brew='arch -arm64 /opt/homebrew/bin/brew'
 
+alias cc='claude'
+
 # ── Local overrides ───────────────────────────────────────────────────────────
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

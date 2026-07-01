@@ -49,7 +49,7 @@ To backup your current MCP configs (with API keys):
 
 ## MCP Servers Used
 
-- **RepoPrompt** - Local file system access via RepoPrompt app
+- **RepoPromptCE** - Local file system access via the RepoPrompt CE app
 - **PostHog** - Product analytics MCP server
 - **Ref** - Documentation search
 - **Exa** - Web search

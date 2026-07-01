@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PreToolUse hook: block edits to generated files.
-# Matches Edit, Write, MultiEdit, and mcp__RepoPrompt__apply_edits.
+# Matches Edit, Write, MultiEdit, and mcp__RepoPromptCE__apply_edits.
 # Exit 2 = block with stderr shown to model. Exit 0 = allow.
 # Fail-closed: any unexpected error converts to exit 2 (block) rather than the
 # default exit 1 from `set -e`, which Claude Code treats as non-blocking.
@@ -15,7 +15,7 @@ fi
 
 input=$(cat) || { echo "Hook $(basename "$0"): failed to read stdin. Failing closed." >&2; exit 2; }
 
-# Edit/Write use file_path. RepoPrompt apply_edits uses path.
+# Edit/Write use file_path. RepoPromptCE apply_edits uses path.
 file_path=$(printf '%s' "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty' 2>/dev/null) || {
   echo "Hook $(basename "$0"): malformed JSON input. Failing closed." >&2
   exit 2

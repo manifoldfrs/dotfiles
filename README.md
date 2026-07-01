@@ -60,7 +60,7 @@ spotify-visualizer
 
 ## OpenCode Config
 
-The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPrompt`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and keeps the TUI theme on `tokyonight`.
+The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and keeps the TUI theme on `tokyonight`.
 
 The committed MCP config reads secrets from `REF_API_KEY` and `EXA_API_KEY`. Put real local values in `~/.zshenv.local`, not in git.
 
