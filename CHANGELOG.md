@@ -2,6 +2,17 @@
 
 All notable changes to this dotfiles repository are documented here.
 
+## July 2026
+
+### Claude Code: switch preferred MCP tool routing from RepoPrompt to RepoPromptCE
+
+- **stow/claude/.claude/CLAUDE.md**: Tool Preferences table and all `mcp__RepoPrompt__*` references now point at `mcp__RepoPromptCE__*`, the open-source RepoPrompt Community Edition server. Same tool names, schemas, and instructions text as the closed-source app, so this is a routing change only, no rule rewrites.
+- **AGENTS.local.md**: Same `mcp__RepoPrompt__*` → `mcp__RepoPromptCE__*` swap in the Tool Preferences table and the "right location, right abstraction level" rule's `file_search` reference.
+- **CLAUDE.local.md**: Collapsed to `@AGENTS.local.md`, mirroring how `CLAUDE.md` already just points at `@AGENTS.md`. AGENTS.md/AGENTS.local.md are now the sole source of truth for both agent tools.
+- **README.md:519**: Updated the preferred-tool-usage note from `RepoPrompt_*` to `RepoPromptCE_*`.
+- **user-scope `~/.claude.json`** (not tracked in this repo): Removed the old `RepoPrompt` MCP server entry after the closed-source app was uninstalled; `RepoPromptCE` (`/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp`) is now the only RepoPrompt-family server registered.
+- **known follow-up**: `stow/opencode/.config/opencode/opencode.jsonc:5-11` still registers an OpenCode `RepoPrompt` MCP server pointing at `/Applications/RepoPrompt.app/Contents/MacOS/repoprompt-mcp`, which no longer exists. Not migrated yet, OpenCode's RepoPrompt integration is currently broken until that entry is repointed at the CE binary.
+
 ## June 2026
 
 ### Fix: p10k git status rendering black in vcs prompt segment

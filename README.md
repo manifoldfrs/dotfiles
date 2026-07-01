@@ -516,7 +516,7 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 See `mcp/README.md` for setup instructions and API key configuration.
 
 Preferred tool usage after setup:
-- Use `RepoPrompt_*` tools for repo discovery, file reads, selection management, planning, review, and git context whenever RepoPrompt is available.
+- Use `RepoPromptCE_*` tools for repo discovery, file reads, selection management, planning, review, and git context whenever RepoPromptCE is available.
 - Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
 
 ### OpenCode, Claude Code, and Pi Stow Notes

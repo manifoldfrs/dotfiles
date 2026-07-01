@@ -23,28 +23,28 @@ Mechanical safety rules (no edits to generated files, no `--no-verify`, no force
 
 ## Tool Preferences
 
-MUST use RepoPrompt MCP tools (`mcp__RepoPrompt__*`) in place of the built-in equivalents listed below. RepoPrompt tools are optimized for reliability and token efficiency in this workspace.
+MUST use RepoPromptCE MCP tools (`mcp__RepoPromptCE__*`) in place of the built-in equivalents listed below. RepoPromptCE tools are optimized for reliability and token efficiency in this workspace.
 
 | Task                                 | MUST use                                             | MUST NOT use                     |
 | ------------------------------------ | ---------------------------------------------------- | -------------------------------- |
-| Search file contents or paths        | `mcp__RepoPrompt__file_search`                       | `Grep`, `Glob`                   |
-| Browse directory tree                | `mcp__RepoPrompt__get_file_tree`                     | `Bash ls`, `Bash find`           |
-| Read files                           | `mcp__RepoPrompt__read_file`                         | `Read`, `Bash cat/head/tail`     |
-| Edit files (targeted changes)        | `mcp__RepoPrompt__apply_edits` (search/replace mode) | `Edit`                           |
-| Write or rewrite files               | `mcp__RepoPrompt__apply_edits` (rewrite mode)        | `Write`                          |
-| Inspect function and type signatures | `mcp__RepoPrompt__get_code_structure`                | manual grep for signatures       |
-| Create, delete, or move files        | `mcp__RepoPrompt__file_actions`                      | `Bash mv/rm/cp/mkdir`            |
-| Git status, diff, log, blame         | `mcp__RepoPrompt__git`                               | `Bash git` for read-only queries |
+| Search file contents or paths        | `mcp__RepoPromptCE__file_search`                       | `Grep`, `Glob`                   |
+| Browse directory tree                | `mcp__RepoPromptCE__get_file_tree`                     | `Bash ls`, `Bash find`           |
+| Read files                           | `mcp__RepoPromptCE__read_file`                         | `Read`, `Bash cat/head/tail`     |
+| Edit files (targeted changes)        | `mcp__RepoPromptCE__apply_edits` (search/replace mode) | `Edit`                           |
+| Write or rewrite files               | `mcp__RepoPromptCE__apply_edits` (rewrite mode)        | `Write`                          |
+| Inspect function and type signatures | `mcp__RepoPromptCE__get_code_structure`                | manual grep for signatures       |
+| Create, delete, or move files        | `mcp__RepoPromptCE__file_actions`                      | `Bash mv/rm/cp/mkdir`            |
+| Git status, diff, log, blame         | `mcp__RepoPromptCE__git`                               | `Bash git` for read-only queries |
 
-Additional RepoPrompt tools to use when relevant:
+Additional RepoPromptCE tools to use when relevant:
 
-- `mcp__RepoPrompt__context_builder`: Build deep codebase context before implementing or reviewing. Use with `response_type="plan"` before writing code and `response_type="review"` before submitting a review.
-- `mcp__RepoPrompt__oracle_send`: Continue a `context_builder` chat by passing its returned `chat_id`. Use for follow-up questions within the same context session.
-- `mcp__RepoPrompt__manage_selection`: Curate the file context used by `oracle_send` and `mcp__RepoPrompt__workspace_context`. Update before oracle calls.
-- `mcp__RepoPrompt__agent_run`: Delegate to a separate Agent Mode session. Use the `explore` role for lightweight codebase investigation before starting implementation.
-- `mcp__RepoPrompt__bind_context`: Route context to a specific workspace tab when running parallel tasks.
+- `mcp__RepoPromptCE__context_builder`: Build deep codebase context before implementing or reviewing. Use with `response_type="plan"` before writing code and `response_type="review"` before submitting a review.
+- `mcp__RepoPromptCE__oracle_send`: Continue a `context_builder` chat by passing its returned `chat_id`. Use for follow-up questions within the same context session.
+- `mcp__RepoPromptCE__manage_selection`: Curate the file context used by `oracle_send` and `mcp__RepoPromptCE__workspace_context`. Update before oracle calls.
+- `mcp__RepoPromptCE__agent_run`: Delegate to a separate Agent Mode session. Use the `explore` role for lightweight codebase investigation before starting implementation.
+- `mcp__RepoPromptCE__bind_context`: Route context to a specific workspace tab when running parallel tasks.
 
-The only exception is `Bash` for write-side git operations (commit, push, branch creation) and for running shell commands that have no RepoPrompt equivalent. All read-side file and search operations MUST go through RepoPrompt.
+The only exception is `Bash` for write-side git operations (commit, push, branch creation) and for running shell commands that have no RepoPromptCE equivalent. All read-side file and search operations MUST go through RepoPromptCE.
 
 ---
 
@@ -56,7 +56,7 @@ These rules fire at specific moments during implementation. Each rule states its
 
 **Trigger:** When writing a new function or moving an existing one.
 
-Before placing a function, check two things. First, search for an existing function that already does the same operation. Use `mcp__RepoPrompt__file_search` to search for the operation name across the codebase. Second, check whether the function operates on a generic type. If it does, it MUST NOT live in a use-case-specific file. Place it in a general file in the same package, or in `internal/shared/` if multiple packages need it.
+Before placing a function, check two things. First, search for an existing function that already does the same operation. Use `mcp__RepoPromptCE__file_search` to search for the operation name across the codebase. Second, check whether the function operates on a generic type. If it does, it MUST NOT live in a use-case-specific file. Place it in a general file in the same package, or in `internal/shared/` if multiple packages need it.
 
 - If a function takes a parameter only for logging or correlation and is otherwise generic, drop the parameter. The caller decorates the context-logger before calling.
 - If a validation function exists but is not called at the current call site, use the existing function. Do not duplicate the invariants inline.

@@ -61,22 +61,22 @@ Applies only to GitHub or GHE PR comments. Overrides Response Style for the comm
 
 ## Tool Preferences
 
-Use RepoPrompt MCP tools (`mcp__RepoPrompt__*`) in place of the built-in equivalents below. If the RepoPrompt server is not connected, say so, then fall back to the built-in equivalent.
+Use RepoPromptCE MCP tools (`mcp__RepoPromptCE__*`) in place of the built-in equivalents below. If the RepoPromptCE server is not connected, say so, then fall back to the built-in equivalent.
 
 | Task                                 | MUST use                                             | MUST NOT use                     |
 | ------------------------------------ | ---------------------------------------------------- | -------------------------------- |
-| Search file contents or paths        | `mcp__RepoPrompt__file_search`                       | `Grep`, `Glob`                   |
-| Browse directory tree                | `mcp__RepoPrompt__get_file_tree`                     | `Bash ls`, `Bash find`           |
-| Read files                           | `mcp__RepoPrompt__read_file`                         | `Read`, `Bash cat/head/tail`     |
-| Edit files (targeted changes)        | `mcp__RepoPrompt__apply_edits` (search/replace mode) | `Edit`                           |
-| Write or rewrite files               | `mcp__RepoPrompt__apply_edits` (rewrite mode)        | `Write`                          |
-| Inspect function and type signatures | `mcp__RepoPrompt__get_code_structure`                | manual grep for signatures       |
-| Create, delete, or move files        | `mcp__RepoPrompt__file_actions`                      | `Bash mv/rm/cp/mkdir`            |
-| Git status, diff, log, blame         | `mcp__RepoPrompt__git`                               | `Bash git` for read-only queries |
+| Search file contents or paths        | `mcp__RepoPromptCE__file_search`                       | `Grep`, `Glob`                   |
+| Browse directory tree                | `mcp__RepoPromptCE__get_file_tree`                     | `Bash ls`, `Bash find`           |
+| Read files                           | `mcp__RepoPromptCE__read_file`                         | `Read`, `Bash cat/head/tail`     |
+| Edit files (targeted changes)        | `mcp__RepoPromptCE__apply_edits` (search/replace mode) | `Edit`                           |
+| Write or rewrite files               | `mcp__RepoPromptCE__apply_edits` (rewrite mode)        | `Write`                          |
+| Inspect function and type signatures | `mcp__RepoPromptCE__get_code_structure`                | manual grep for signatures       |
+| Create, delete, or move files        | `mcp__RepoPromptCE__file_actions`                      | `Bash mv/rm/cp/mkdir`            |
+| Git status, diff, log, blame         | `mcp__RepoPromptCE__git`                               | `Bash git` for read-only queries |
 
-Additional RepoPrompt tools: `context_builder` (deep context before implementing or reviewing, `response_type="plan"` or `"review"`), `oracle_send` (continue a `context_builder` chat via its `chat_id`), `manage_selection` (curate oracle context before the call), `agent_run` (delegate a session, `explore` role for investigation), `bind_context` (route context to a workspace tab).
+Additional RepoPromptCE tools: `context_builder` (deep context before implementing or reviewing, `response_type="plan"` or `"review"`), `oracle_send` (continue a `context_builder` chat via its `chat_id`), `manage_selection` (curate oracle context before the call), `agent_run` (delegate a session, `explore` role for investigation), `bind_context` (route context to a workspace tab).
 
-Exception: `Bash` for write-side git operations (commit, push, branch creation) and shell commands with no RepoPrompt equivalent. All read-side file and search operations go through RepoPrompt.
+Exception: `Bash` for write-side git operations (commit, push, branch creation) and shell commands with no RepoPromptCE equivalent. All read-side file and search operations go through RepoPromptCE.
 
 ---
 
