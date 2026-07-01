@@ -4,6 +4,12 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Fix: p10k git status rendering black in vcs prompt segment
+
+- **zsh/.p10k.zsh**: `my_git_formatter()` colored the branch name and dirty-state glyphs via `$BLUE`/`$MAGENTA`/`$GREEN`/`$RED` (uppercase), leftover references from the Coinbase `cb-zsh` theme this file was adapted from. Those vars were never defined in this repo, so every color resolved to an empty string and the vcs segment rendered with no color escape at all, falling back to p10k's black default against Ghostty's Tokyo Night background
+  - Replaced with literal `%F{N}` escapes local to `my_git_formatter`: blue branch name, magenta clean state, green modified/untracked, red conflicted
+  - Inline escapes were required rather than reusing the `blue`/`magenta`/`red` locals already defined earlier in the file (`.p10k.zsh:19-24`) — those are scoped to the outer anonymous setup function, which has already returned by the time p10k invokes `my_git_formatter` during prompt rendering
+
 ### Pi: add Stow-managed settings
 
 - **stow/pi/.pi/agent/settings.json**: Added Pi settings to the tracked Stow packages so default model, provider, theme, and thinking-level preferences are shared across machines.

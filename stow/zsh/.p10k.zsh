@@ -76,11 +76,11 @@
     typeset -g  GITSTATUS_PROMPT=''
     typeset -gi GITSTATUS_PROMPT_LEN=0
 
-    local       name=$BLUE
-    local      clean=$MAGENTA
-    local   modified=$GREEN
-    local  untracked=$GREEN
-    local conflicted=$RED
+    local       name=%F{4}
+    local      clean=%F{5}
+    local   modified=%F{2}
+    local  untracked=%F{2}
+    local conflicted=%F{1}
     local        num=${PROMPT_DISPLAY_STATS_NUM:-0}
     local     prefix
     if [ $PROMPT_PREFIX ]; then
