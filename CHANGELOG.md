@@ -4,6 +4,12 @@ All notable changes to this dotfiles repository are documented here.
 
 ## June 2026
 
+### Pi: add Stow-managed settings
+
+- **stow/pi/.pi/agent/settings.json**: Added Pi settings to the tracked Stow packages so default model, provider, theme, and thinking-level preferences are shared across machines.
+- **scripts/stow.sh**: Added `pi` to both the default and Coinbase Stow profiles.
+- **safety**: Existing `~/.pi/agent/settings.json` is backed up before first stow, while Pi auth, sessions, logs, and other runtime state remain local and ignored.
+
 ### OpenCode: stow JSONC global config without MCP secrets
 
 - **stow/opencode/.config/opencode/opencode.jsonc**: Replaced the stowed JSON config with JSONC, matching OpenCode's comment-friendly config format.

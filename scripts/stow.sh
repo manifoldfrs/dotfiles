@@ -9,9 +9,12 @@ DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 TPM_REPO=https://github.com/tmux-plugins/tpm
-DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude)
-CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin)
+DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude pi)
+CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
+PI_BACKUP_TARGETS=(
+    "$HOME/.pi/agent/settings.json"
+)
 CB_BACKUP_TARGETS=(
     "$HOME/.zshrc"
     "$HOME/.zshrc.local"
@@ -120,6 +123,14 @@ is_stow_managed_tree() {
     [ "$saw_entry" -eq 1 ]
 }
 
+backup_pi_stow_targets() {
+    mkdir -p "$HOME/.pi/agent"
+
+    for target in "${PI_BACKUP_TARGETS[@]}"; do
+        backup_stow_target "$target"
+    done
+}
+
 backup_cb_stow_targets() {
     mkdir -p "$HOME/.config/ghostty" "$HOME/.local/bin"
 
@@ -221,6 +232,8 @@ link_ssh_config() {
 }
 
 apply_dotfiles() {
+    backup_pi_stow_targets
+
     if [ "$PROFILE" = "cb" ]; then
         backup_cb_stow_targets
         link_ssh_config

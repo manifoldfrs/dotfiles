@@ -1,6 +1,6 @@
 # dotfiles
 
-Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, OpenCode, and Claude Code. GNU Stow manages symlinks from `stow/*` into `$HOME`. Currently using **Tokyo Night** across Neovim, Ghostty, and tmux.
+Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, OpenCode, Claude Code, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Currently using **Tokyo Night** across Neovim, Ghostty, and tmux.
 
 ## Requirements
 
@@ -123,7 +123,7 @@ node --version
 tmux -V
 ```
 
-On Coinbase laptops, use the Coinbase Stow profile instead. It applies shared shell/editor/terminal packages plus `stow/zsh-cb` and `stow/git-cb`, while leaving OpenCode, Claude Code, and Codex account state alone.
+On Coinbase laptops, use the Coinbase Stow profile instead. It applies shared shell/editor/terminal packages plus `stow/zsh-cb` and `stow/git-cb`, while leaving OpenCode, Claude Code, and Codex account state alone. Pi settings are shared via `stow/pi`, but Pi auth and sessions stay local.
 
 ```bash
 cd ~/dotfiles
@@ -136,8 +136,8 @@ tmux kill-server
 Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins. Do not use bootstrap on Coinbase laptops until the script has Coinbase profile pass-through.
 
 What this already handles for you:
-- stows your zsh, Git, Ghostty, tmux, Neovim, OpenCode, Claude Code, and local bin config
-- supports `--cb` for Coinbase laptops, which uses `zsh-cb` and `git-cb` without stowing OpenCode or Claude Code
+- stows your zsh, Git, Ghostty, tmux, Neovim, OpenCode, Claude Code, Pi settings, and local bin config
+- supports `--cb` for Coinbase laptops, which uses `zsh-cb` and `git-cb` without stowing OpenCode or Claude Code; Pi settings remain shared
 - installs TPM if missing, then installs tmux plugins from `~/.tmux.conf`
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
@@ -168,7 +168,7 @@ This defaults to `apply`. The equivalent direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
 ```
 
 ### Apply Coinbase Laptop Profile
@@ -179,7 +179,7 @@ cd ~/dotfiles
 ./scripts/stow.sh --cb apply
 ```
 
-The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `tmux`, `nvim`, and `bin`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched. It also symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` using a dedicated step in `scripts/stow.sh` because Stow cannot fold into a pre-existing `~/.ssh` directory.
+The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `tmux`, `nvim`, `bin`, and `pi`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched. It also symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` using a dedicated step in `scripts/stow.sh` because Stow cannot fold into a pre-existing `~/.ssh` directory.
 
 ### Coinbase Git Authentication Setup
 
@@ -212,18 +212,18 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
 
 # Coinbase machine: preview and apply shared packages plus work overrides
-stow --no-folding -n -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin
-stow --no-folding -R -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin
+stow --no-folding -n -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
+stow --no-folding -R -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
 
 # Remove the Coinbase profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin
+stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
 ```
 
 ### Apply One Package
@@ -243,6 +243,9 @@ stow --no-folding -R -v -t "$HOME" -d stow opencode
 
 # Claude Code settings only
 stow --no-folding -R -v -t "$HOME" -d stow claude
+
+# Pi settings only
+stow --no-folding -R -v -t "$HOME" -d stow pi
 ```
 
 ### Zsh Setup
@@ -452,7 +455,7 @@ cd ~/dotfiles
 ./scripts/backup.sh --cb
 ```
 
-The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.local` and `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`. It intentionally does not copy shared shell, Git, tmux, Ghostty, Neovim, OpenCode, Claude Code, or Model Context Protocol files.
+The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.local` and `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`. It intentionally does not copy shared shell, Git, tmux, Ghostty, Neovim, OpenCode, Claude Code, Pi, or Model Context Protocol files.
 
 ## Command Cheatsheet
 
@@ -467,6 +470,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Restow zshrc | `stow --no-folding -R -v -t "$HOME" -d stow zsh` |
 | Restow OpenCode | `stow --no-folding -R -v -t "$HOME" -d stow opencode` |
 | Restow Claude Code settings | `stow --no-folding -R -v -t "$HOME" -d stow claude` |
+| Restow Pi settings | `stow --no-folding -R -v -t "$HOME" -d stow pi` |
 | Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
 | Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
 | Reload tmux config | `tmux source-file ~/.tmux.conf` |
@@ -488,8 +492,8 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 - **Powerlevel10k** prompt with gitstatus daemon (async git status — does not block the prompt on large repos)
 - **zsh-syntax-highlighting** via Homebrew (no framework required)
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/tmux`, `stow/nvim`, `stow/bin`, `stow/opencode`, and `stow/claude` into `$HOME`
-- **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb` and `stow/git-cb`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
+- **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/tmux`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, and `stow/pi` into `$HOME`
+- **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb`, `stow/git-cb`, and `stow/pi`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
 - **tmux TPM + plugins**: `scripts/stow.sh` installs TPM if missing, then installs tmux plugins from the stowed `~/.tmux.conf`
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
@@ -515,8 +519,10 @@ Preferred tool usage after setup:
 - Use `RepoPrompt_*` tools for repo discovery, file reads, selection management, planning, review, and git context whenever RepoPrompt is available.
 - Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
 
-### OpenCode and Claude Code Stow Notes
+### OpenCode, Claude Code, and Pi Stow Notes
 
+- Pi settings are managed at `stow/pi/.pi/agent/settings.json` and are included in both the default and Coinbase Stow profiles.
+- Do not move Pi auth, sessions, logs, or other runtime/account state into Stow; `stow/pi/.stow-local-ignore` excludes common sensitive/runtime paths.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
 - Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` (`tldr`, `grill-me`, `grill-me-with-docs`, `quiz-me`), and the `hooks/` scripts.
 - Claude Code MCP servers are user-scoped in `~/.claude.json`, not Stow-managed. Keep `Ref` and `exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.zshenv.local`.
@@ -942,7 +948,7 @@ cd ~/dotfiles && ./scripts/bootstrap.sh
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude
+stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
 ```
 
 Backups created by the installer are named like `.zshrc.backup.YYYYMMDDhhmmss`.
