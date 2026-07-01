@@ -4,6 +4,17 @@ All notable changes to this dotfiles repository are documented here.
 
 ## July 2026
 
+### Neovim: quiet diagnostics and Markdown spell hover
+
+- **nvim/diagnostics**: Disabled current-line diagnostic virtual lines so LSP errors no longer insert noisy inline text under the cursor.
+- **nvim/diagnostics**: Added a non-focusable rounded diagnostic float on `CursorHold`, keeping underlines as the primary signal while showing details when the cursor rests on an error.
+- **nvim/colorscheme**: Overrode Tokyo Night diagnostic and spell highlights to use plain underline instead of undercurl, avoiding literal `E[4:3m` escape fragments in tmux/Ghostty.
+- **nvim/markdown**: Added a Markdown-only spell popup on `CursorHold` that shows the misspelled word and up to five suggestions while preserving normal spellcheck underlines.
+
+### Zsh: make completion case-insensitive
+
+- **zsh/completion**: Added a completion matcher so lowercase input can complete uppercase and mixed-case paths, e.g. `git add change<Tab>` can match `CHANGELOG.md`.
+
 ### Complete RepoPrompt to RepoPromptCE migration across remaining configs
 
 The closed-source RepoPrompt app is fully removed. Every remaining config, template, and doc now names the server `RepoPromptCE` and points at `/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp`.

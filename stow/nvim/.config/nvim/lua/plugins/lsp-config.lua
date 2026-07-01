@@ -67,7 +67,7 @@ return {
 
       vim.diagnostic.config({
         virtual_text = false,
-        virtual_lines = { current_line = true },
+        virtual_lines = false,
         signs = {
           text = {
             [vim.diagnostic.severity.ERROR] = " ",
@@ -82,6 +82,17 @@ return {
           border = "rounded",
           source = "always",
         },
+      })
+
+      vim.api.nvim_create_autocmd("CursorHold", {
+        group = vim.api.nvim_create_augroup("DiagnosticFloat", { clear = true }),
+        callback = function()
+          vim.diagnostic.open_float({
+            scope = "line",
+            focusable = false,
+            close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+          })
+        end,
       })
 
       vim.api.nvim_create_autocmd("LspAttach", {
