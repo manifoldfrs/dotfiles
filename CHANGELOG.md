@@ -4,6 +4,13 @@ All notable changes to this dotfiles repository are documented here.
 
 ## July 2026
 
+### Codex: mirror Claude skills and guardrails
+
+- **stow/codex**: Added Codex user-scope skill mirrors under `stow/codex/.agents/skills/` for `tldr`, `grill-me`, `grill-me-with-docs`, and `quiz-me`.
+- **stow/codex**: Added `~/.codex/hooks.json` plus hook wrappers for the dangerous-bash and generated-file guardrails.
+- **stow/bin**: Centralized the shared guardrail implementations under `~/.local/share/agent-guardrails/`; Claude and Codex wrappers now call the same scripts.
+- **tests/docs**: Updated Stow validation and README documentation so Codex skills, hooks, and shared guardrails are covered by the dotfiles repo.
+
 ### Neovim: quiet diagnostics and Markdown spell hover
 
 - **nvim/diagnostics**: Disabled current-line diagnostic virtual lines so LSP errors no longer insert noisy inline text under the cursor.

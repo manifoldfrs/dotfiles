@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.codex/hooks/block-dangerous-bash.sh",
+            "timeout": 30,
+            "statusMessage": "Checking Bash command"
+          }
+        ]
+      },
+      {
+        "matcher": "^(apply_patch|Edit|Write|mcp__RepoPromptCE__apply_edits)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.codex/hooks/block-generated-edits.sh",
+            "timeout": 30,
+            "statusMessage": "Checking generated-file policy"
+          }
+        ]
+      }
+    ]
+  }
+}
+

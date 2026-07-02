@@ -11,6 +11,12 @@ echo "[TEST 1] Checking shell script syntax..."
 bash -n scripts/bootstrap.sh
 bash -n scripts/backup.sh
 bash -n scripts/stow.sh
+bash -n stow/bin/.local/share/agent-guardrails/block-dangerous-bash.sh
+bash -n stow/bin/.local/share/agent-guardrails/block-generated-edits.sh
+bash -n stow/claude/.claude/hooks/block-dangerous-bash.sh
+bash -n stow/claude/.claude/hooks/block-generated-edits.sh
+bash -n stow/codex/.codex/hooks/block-dangerous-bash.sh
+bash -n stow/codex/.codex/hooks/block-generated-edits.sh
 bash -n mcp_setup.sh
 echo "[PASS] No syntax errors"
 echo ""
@@ -55,13 +61,18 @@ echo ""
 # Test 5: Test Stow package layout
 echo "[TEST 5] Testing GNU Stow package layout..."
 STOW_TEST_HOME="$(mktemp -d)"
-stow --no-folding -R -t "$STOW_TEST_HOME" -d ~/dotfiles/stow zsh git ghostty tmux nvim bin opencode claude
+stow --no-folding -R -t "$STOW_TEST_HOME" -d ~/dotfiles/stow zsh git ghostty tmux nvim bin opencode claude codex pi
 if [ -L "$STOW_TEST_HOME/.zshrc" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/opencode.jsonc" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/tui.json" ] \
     && [ -L "$STOW_TEST_HOME/.claude/settings.local.json" ] \
+    && [ -L "$STOW_TEST_HOME/.codex/config.toml" ] \
+    && [ -L "$STOW_TEST_HOME/.codex/hooks.json" ] \
+    && [ -L "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
+    && [ -L "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md" ] \
+    && [ -L "$STOW_TEST_HOME/.pi/agent/settings.json" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     echo "[PASS] Stow symlinks created successfully"
 else

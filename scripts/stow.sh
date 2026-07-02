@@ -12,8 +12,19 @@ TPM_REPO=https://github.com/tmux-plugins/tpm
 DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude codex pi)
 CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
+SHARED_BACKUP_TARGETS=(
+    "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
+    "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
+)
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/config.toml"
+    "$HOME/.codex/hooks.json"
+    "$HOME/.codex/hooks/block-dangerous-bash.sh"
+    "$HOME/.codex/hooks/block-generated-edits.sh"
+    "$HOME/.agents/skills/grill-me"
+    "$HOME/.agents/skills/grill-me-with-docs"
+    "$HOME/.agents/skills/quiz-me"
+    "$HOME/.agents/skills/tldr"
 )
 PI_BACKUP_TARGETS=(
     "$HOME/.pi/agent/settings.json"
@@ -134,6 +145,14 @@ backup_pi_stow_targets() {
     done
 }
 
+backup_shared_stow_targets() {
+    mkdir -p "$HOME/.local/share/agent-guardrails"
+
+    for target in "${SHARED_BACKUP_TARGETS[@]}"; do
+        backup_stow_target "$target"
+    done
+}
+
 backup_cb_stow_targets() {
     mkdir -p "$HOME/.config/ghostty" "$HOME/.local/bin"
 
@@ -243,6 +262,7 @@ link_ssh_config() {
 }
 
 apply_dotfiles() {
+    backup_shared_stow_targets
     backup_pi_stow_targets
 
     if [ "$PROFILE" = "cb" ]; then
