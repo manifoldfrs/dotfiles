@@ -167,6 +167,7 @@ agent-commander start codex
 
 `AGENT_COMMANDER_DIR` can override the operating home, but the launcher refuses to run if that directory is inside this dotfiles repo.
 Runtime config, projects, state, logs, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
+Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/lavish-axi` or use `agent-commander install <tool>`.
 On Coinbase laptops, use the same launcher and repo shape, but keep work harness choices local under the ignored `agent-commander/config/` paths.
 
 ## Stow How-To

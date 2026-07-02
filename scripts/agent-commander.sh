@@ -326,16 +326,46 @@ clone_or_update_tool() {
     git -C "$target" checkout "$revision"
 }
 
+has_submodule_path() {
+    local home_dir=$1
+    local path=$2
+    local configured_path
+
+    if [ ! -f "$home_dir/.gitmodules" ]; then
+        return 1
+    fi
+
+    configured_path="$(git -C "$home_dir" config --file .gitmodules --get "submodule.$path.path" 2>/dev/null || true)"
+    [ "$configured_path" = "$path" ]
+}
+
+install_tool_source() {
+    local home_dir=$1
+    local name=$2
+    local remote=$3
+    local revision=$4
+    local path=$5
+    local target="$home_dir/$path"
+
+    if has_submodule_path "$home_dir" "$path"; then
+        info "Initializing $name submodule at $path"
+        git -C "$home_dir" submodule update --init -- "$path"
+        return
+    fi
+
+    clone_or_update_tool "$name" "$remote" "$revision" "$target"
+}
+
 install_firstmate() {
     local home_dir=$1
 
-    clone_or_update_tool firstmate "$FIRSTMATE_REMOTE" "$FIRSTMATE_REV" "$home_dir/libs/firstmate"
+    install_tool_source "$home_dir" firstmate "$FIRSTMATE_REMOTE" "$FIRSTMATE_REV" "libs/firstmate"
 }
 
 install_treehouse() {
     local home_dir=$1
 
-    clone_or_update_tool treehouse "$TREEHOUSE_REMOTE" "$TREEHOUSE_REV" "$home_dir/libs/treehouse"
+    install_tool_source "$home_dir" treehouse "$TREEHOUSE_REMOTE" "$TREEHOUSE_REV" "libs/treehouse"
 
     if command -v go >/dev/null 2>&1; then
         (cd "$home_dir/libs/treehouse" && go build -o treehouse .)
@@ -347,7 +377,7 @@ install_treehouse() {
 install_lavish_axi() {
     local home_dir=$1
 
-    clone_or_update_tool lavish-axi "$LAVISH_AXI_REMOTE" "$LAVISH_AXI_REV" "$home_dir/libs/lavish-axi"
+    install_tool_source "$home_dir" lavish-axi "$LAVISH_AXI_REMOTE" "$LAVISH_AXI_REV" "libs/lavish-axi"
 
     if command -v pnpm >/dev/null 2>&1; then
         (cd "$home_dir/libs/lavish-axi" && pnpm install && pnpm run build)
