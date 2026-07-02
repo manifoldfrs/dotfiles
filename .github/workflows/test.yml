@@ -20,6 +20,8 @@ jobs:
           bash -n scripts/bootstrap.sh
           bash -n scripts/backup.sh
           bash -n scripts/stow.sh
+          bash -n scripts/agent-commander.sh
+          bash -n stow/bin/.local/bin/agent-commander
           bash -n stow/bin/.local/share/agent-guardrails/block-dangerous-bash.sh
           bash -n stow/bin/.local/share/agent-guardrails/block-generated-edits.sh
           bash -n stow/claude/.claude/hooks/block-dangerous-bash.sh
@@ -69,12 +71,14 @@ jobs:
           test -L "$tmp_home/.zshrc"
           test -L "$tmp_home/.gitconfig"
           test -L "$tmp_home/.config/nvim/init.lua"
+          test -L "$tmp_home/.local/bin/agent-commander"
           test -L "$tmp_home/.config/opencode/opencode.jsonc"
           test -L "$tmp_home/.config/opencode/tui.json"
           test -L "$tmp_home/.claude/settings.local.json"
           test -L "$tmp_home/.codex/config.toml"
           test -L "$tmp_home/.codex/hooks.json"
           test -L "$tmp_home/.codex/hooks/block-dangerous-bash.sh"
+          test -L "$tmp_home/.codex/hooks/block-generated-edits.sh"
           test -L "$tmp_home/.agents/skills/tldr/SKILL.md"
           test -L "$tmp_home/.pi/agent/settings.json"
           test ! -e "$tmp_home/AGENTS.md"

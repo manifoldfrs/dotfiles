@@ -2,4 +2,10 @@
 sessions
 auth
 auth\.json
+trust.json
+logs
+cache
+node_modules
+mcp
 .*\.log
+.*\.tmp

@@ -149,6 +149,26 @@ What is still separate:
 - `./mcp_setup.sh install` for Claude/Codex MCP configs
 - OpenCode install if you use it on that machine
 
+## Agent Commander
+
+`agent-commander` is a sibling operating home for firstmate, treehouse, lavish-axi, and related agent harness state.
+Dotfiles manages only the shared launcher at `~/.local/bin/agent-commander` plus its source script in `scripts/agent-commander.sh`.
+The operating home itself lives outside this repo at `/Users/frshbb/github/agent-commander` by default.
+Do not Stow the `agent-commander` repo.
+
+```bash
+agent-commander path
+agent-commander init
+agent-commander doctor
+agent-commander bootstrap
+agent-commander install firstmate treehouse lavish-axi
+agent-commander start codex
+```
+
+`AGENT_COMMANDER_DIR` can override the operating home, but the launcher refuses to run if that directory is inside this dotfiles repo.
+Runtime config, projects, state, logs, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
+On Coinbase laptops, use the same launcher and repo shape, but keep work harness choices local under the ignored `agent-commander/config/` paths.
+
 ## Stow How-To
 
 GNU Stow is the source of truth for tracked dotfiles. Each folder under `stow/` is a package that mirrors paths under `$HOME`.
@@ -168,7 +188,7 @@ This defaults to `apply`. The equivalent direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude codex pi
 ```
 
 ### Apply Coinbase Laptop Profile
@@ -212,15 +232,15 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
+stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude codex pi
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude codex pi
 
 # Coinbase machine: preview and apply shared packages plus work overrides
 stow --no-folding -n -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
 stow --no-folding -R -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
+stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude codex pi
 
 # Remove the Coinbase profile symlinks
 stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
@@ -472,6 +492,8 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Restow Claude Code settings | `stow --no-folding -R -v -t "$HOME" -d stow claude` |
 | Restow Codex settings/skills/hooks | `./scripts/stow.sh apply` |
 | Restow Pi settings | `stow --no-folding -R -v -t "$HOME" -d stow pi` |
+| Show agent-commander home | `agent-commander path` |
+| Check agent-commander tools | `agent-commander doctor` |
 | Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
 | Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
 | Reload tmux config | `tmux source-file ~/.tmux.conf` |
@@ -480,7 +502,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
 | Open Lazy UI | `nvim +Lazy` |
 | Open Mason UI | `nvim +Mason` |
-| Shell syntax checks | `bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n mcp_setup.sh` |
+| Shell syntax checks | `bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n scripts/agent-commander.sh && bash -n stow/bin/.local/bin/agent-commander && bash -n mcp_setup.sh` |
 | Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux` |
 | Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
 
@@ -746,7 +768,8 @@ dotfiles/
 ├── scripts/                # Bootstrap, backup, and Stow wrappers
 │   ├── bootstrap.sh        # Full machine bootstrap for non-Stow setup
 │   ├── backup.sh           # Backup current machine config into repo
-│   └── stow.sh             # Apply/delete/dry-run GNU Stow packages
+│   ├── stow.sh             # Apply/delete/dry-run GNU Stow packages
+│   └── agent-commander.sh  # Shared launcher for the sibling agent-commander repo
 ├── mcp_setup.sh            # MCP config backup/install
 ├── Brewfile                # Homebrew packages
 ├── npm-global-packages.txt # Global npm packages
@@ -759,7 +782,7 @@ dotfiles/
 │   ├── ssh-cb/             # Coinbase-only .ssh/config (symlinked manually, not via Stow)
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── tmux/               # .tmux.conf
-│   ├── bin/                # .local/bin/tmux-sessionizer
+│   ├── bin/                # .local/bin tools and shared agent guardrail scripts
 │   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
 │   ├── claude/             # .claude/: settings.local.json, CLAUDE.md, skills/, hooks/
 │   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)

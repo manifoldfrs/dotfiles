@@ -14,6 +14,7 @@ CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 CODEX_SKILL_NAMES=(grill-me grill-me-with-docs quiz-me tldr)
 SHARED_BACKUP_TARGETS=(
+    "$HOME/.local/bin/agent-commander"
     "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
     "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
 )
@@ -147,7 +148,7 @@ backup_pi_stow_targets() {
 }
 
 backup_shared_stow_targets() {
-    mkdir -p "$HOME/.local/share/agent-guardrails"
+    mkdir -p "$HOME/.local/bin" "$HOME/.local/share/agent-guardrails"
 
     for target in "${SHARED_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"

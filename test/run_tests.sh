@@ -11,6 +11,8 @@ echo "[TEST 1] Checking shell script syntax..."
 bash -n scripts/bootstrap.sh
 bash -n scripts/backup.sh
 bash -n scripts/stow.sh
+bash -n scripts/agent-commander.sh
+bash -n stow/bin/.local/bin/agent-commander
 bash -n stow/bin/.local/share/agent-guardrails/block-dangerous-bash.sh
 bash -n stow/bin/.local/share/agent-guardrails/block-generated-edits.sh
 bash -n stow/claude/.claude/hooks/block-dangerous-bash.sh
@@ -68,12 +70,14 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.zshrc" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
+    && [ -L "$STOW_TEST_HOME/.local/bin/agent-commander" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/opencode.jsonc" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/tui.json" ] \
     && [ -L "$STOW_TEST_HOME/.claude/settings.local.json" ] \
     && [ -L "$STOW_TEST_HOME/.codex/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.codex/hooks.json" ] \
     && [ -L "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
+    && [ -L "$STOW_TEST_HOME/.codex/hooks/block-generated-edits.sh" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/tldr" ] \
     && [ -f "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/settings.json" ] \
