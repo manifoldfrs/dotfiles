@@ -69,10 +69,14 @@ install() {
 
     # Codex
     if [ -f "$MCP_DIR/codex_config.toml" ]; then
-        info "Installing Codex config..."
-        mkdir -p "$(dirname "$CODEX_CONFIG")"
-        cp "$MCP_DIR/codex_config.toml" "$CODEX_CONFIG"
-        info "Installed: $CODEX_CONFIG"
+        if [ -L "$CODEX_CONFIG" ]; then
+            warn "Skipping Codex config install because $CODEX_CONFIG is symlinked. Use scripts/stow.sh apply instead."
+        else
+            info "Installing Codex config..."
+            mkdir -p "$(dirname "$CODEX_CONFIG")"
+            cp "$MCP_DIR/codex_config.toml" "$CODEX_CONFIG"
+            info "Installed: $CODEX_CONFIG"
+        fi
     fi
 
     echo ""
@@ -84,7 +88,11 @@ install() {
     echo ""
     echo "Edit the following files and replace placeholders with your actual API keys:"
     echo "  - Claude Desktop: $CLAUDE_DESKTOP_CONFIG"
-    echo "  - Codex: $CODEX_CONFIG"
+    if [ -L "$CODEX_CONFIG" ]; then
+        echo "  - Codex: $CODEX_CONFIG is Stow-managed; update stow/codex/.codex/config.toml and run scripts/stow.sh apply"
+    else
+        echo "  - Codex: $CODEX_CONFIG"
+    fi
     echo ""
     echo "Then restart each application to apply changes."
 }

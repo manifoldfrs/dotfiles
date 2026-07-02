@@ -15,6 +15,15 @@ All notable changes to this dotfiles repository are documented here.
 
 - **zsh/completion**: Added a completion matcher so lowercase input can complete uppercase and mixed-case paths, e.g. `git add change<Tab>` can match `CHANGELOG.md`.
 
+### Codex: align MCP servers with Claude Code
+
+- **mcp/codex**: Updated Codex MCP config/template to match the live Claude Code server set: `Ref`, `exa`, and `RepoPromptCE`.
+- **mcp/codex**: Switched Ref and Exa from URL-embedded API keys to environment-backed HTTP headers via `env_http_headers`.
+- **mcp/codex**: Replaced the stale closed-source `RepoPrompt` server with enabled `RepoPromptCE`.
+- **stow/codex**: Added `~/.codex/config.toml` as a default Stow-managed config, while leaving Codex auth/session/plugin runtime state local.
+- **scripts/stow**: Default profile now includes the Codex package and backs up an existing real `~/.codex/config.toml` before linking.
+- **mcp_setup**: Skips Codex config install when `~/.codex/config.toml` is already a Stow symlink, avoiding accidental writes through the link.
+
 ### Complete RepoPrompt to RepoPromptCE migration across remaining configs
 
 The closed-source RepoPrompt app is fully removed. Every remaining config, template, and doc now names the server `RepoPromptCE` and points at `/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp`.

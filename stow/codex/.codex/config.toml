@@ -1,0 +1,66 @@
+model = "gpt-5.5"
+model_reasoning_effort = "high"
+tool_output_token_limit = 25000
+personality = "pragmatic"
+approvals_reviewer = "user"
+
+[projects."/Users/frshbb/github"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/github/autodidact"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/github/autodidact/bolt-opto-app-react-nav"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/github/autodidact/Opto-Financial-Rails"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/github/opto/opto-web"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/github/opto/opto"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/github/optoai/opto"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/github/coinbase/x402-fh"]
+trust_level = "trusted"
+
+[projects."/private/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/github/dotfiles"]
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.1-codex-max" = "gpt-5.2-codex"
+
+[plugins."github@openai-curated"]
+enabled = true
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+
+[mcp_servers.RepoPromptCE]
+command = "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp"
+args = []
+tool_timeout_sec = 10000
+supports_parallel_tool_calls = true
+enabled = true
+
+[mcp_servers.Ref]
+type = "http"
+url = "https://api.ref.tools/mcp"
+env_http_headers = { "x-ref-api-key" = "REF_API_KEY" }
+enabled = true
+
+[mcp_servers.exa]
+type = "http"
+url = "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
+env_http_headers = { "x-api-key" = "EXA_API_KEY" }
+enabled = true

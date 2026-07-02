@@ -9,9 +9,12 @@ DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 TPM_REPO=https://github.com/tmux-plugins/tpm
-DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude pi)
+DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude codex pi)
 CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
+CODEX_BACKUP_TARGETS=(
+    "$HOME/.codex/config.toml"
+)
 PI_BACKUP_TARGETS=(
     "$HOME/.pi/agent/settings.json"
 )
@@ -139,6 +142,14 @@ backup_cb_stow_targets() {
     done
 }
 
+backup_codex_stow_targets() {
+    mkdir -p "$HOME/.codex"
+
+    for target in "${CODEX_BACKUP_TARGETS[@]}"; do
+        backup_stow_target "$target"
+    done
+}
+
 install_tpm() {
     if [ -d "$TPM_DIR" ]; then
         info "TPM already installed"
@@ -237,6 +248,8 @@ apply_dotfiles() {
     if [ "$PROFILE" = "cb" ]; then
         backup_cb_stow_targets
         link_ssh_config
+    else
+        backup_codex_stow_targets
     fi
 
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"

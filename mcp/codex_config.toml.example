@@ -14,10 +14,12 @@ enabled = true
 
 [mcp_servers.Ref]
 type = "http"
-url = "https://api.ref.tools/mcp?apiKey=YOUR_REF_API_KEY"
+url = "https://api.ref.tools/mcp"
+env_http_headers = { "x-ref-api-key" = "REF_API_KEY" }
 enabled = true
 
-[mcp_servers.Exa]
+[mcp_servers.exa]
 type = "http"
-url = "https://mcp.exa.ai/mcp?exaApiKey=YOUR_EXA_API_KEY"
+url = "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
+env_http_headers = { "x-api-key" = "EXA_API_KEY" }
 enabled = true
