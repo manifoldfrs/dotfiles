@@ -151,7 +151,7 @@ What is still separate:
 
 ## Agent Commander
 
-`agent-commander` is a sibling operating home for firstmate, treehouse, lavish-axi, and related agent harness state.
+`agent-commander` is a sibling operating home for firstmate, treehouse, no-mistakes, AXI tools, and related agent harness state.
 Dotfiles manages only the shared launcher at `~/.local/bin/agent-commander` plus its source script in `scripts/agent-commander.sh`.
 The operating home itself lives outside this repo at `/Users/frshbb/github/agent-commander` by default.
 Do not Stow the `agent-commander` repo.
@@ -161,13 +161,13 @@ agent-commander path
 agent-commander init
 agent-commander doctor
 agent-commander bootstrap
-agent-commander install firstmate treehouse lavish-axi
+agent-commander install all
 agent-commander start codex
 ```
 
 `AGENT_COMMANDER_DIR` can override the operating home, but the launcher refuses to run if that directory is inside this dotfiles repo.
 Runtime config, projects, state, logs, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
-Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/lavish-axi` or use `agent-commander install <tool>`.
+Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/no-mistakes libs/gh-axi libs/chrome-devtools-axi libs/lavish-axi` or use `agent-commander install all`.
 On Coinbase laptops, use the same launcher and repo shape, but keep work harness choices local under the ignored `agent-commander/config/` paths.
 
 ## Stow How-To

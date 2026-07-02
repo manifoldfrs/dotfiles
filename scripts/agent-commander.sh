@@ -11,9 +11,15 @@ AGENT_COMMANDER_DIR="${AGENT_COMMANDER_DIR:-$DEFAULT_AGENT_COMMANDER_DIR}"
 AGENT_COMMANDER_REMOTE="https://github.com/manifoldfrs/agent-commander"
 FIRSTMATE_REMOTE="https://github.com/kunchenguid/firstmate.git"
 TREEHOUSE_REMOTE="https://github.com/kunchenguid/treehouse.git"
+NO_MISTAKES_REMOTE="https://github.com/kunchenguid/no-mistakes.git"
+GH_AXI_REMOTE="https://github.com/kunchenguid/gh-axi.git"
+CHROME_DEVTOOLS_AXI_REMOTE="https://github.com/kunchenguid/chrome-devtools-axi.git"
 LAVISH_AXI_REMOTE="https://github.com/kunchenguid/lavish-axi.git"
 FIRSTMATE_REV="e93620331ed4b5814638480a862ad0b16920a6f2"
 TREEHOUSE_REV="68fa3d2556542add76bf80255787b8625a5041a6"
+NO_MISTAKES_REV="78c7e606ce598491d50e72bf532045f4684ca8b7"
+GH_AXI_REV="4dea8ab8858ca5585e15770d1caf5d8e35128e4f"
+CHROME_DEVTOOLS_AXI_REV="27e291a28164410a6b9b80796b3c4c490bca0fa3"
 LAVISH_AXI_REV="445022e9ce81862521cfaf4d72dcb271d8b38e08"
 IGNORE_PATTERNS=(
     ".env"
@@ -47,7 +53,7 @@ usage() {
     echo "  init                         Create/check the sibling repo and local ignores"
     echo "  doctor                       Check required local tools"
     echo "  bootstrap                    Run firstmate bootstrap from agent-commander"
-    echo "  install <tool>...            Install named tools into libs/"
+    echo "  install <tool|all>...        Install named tools into libs/"
     echo "  start <claude|codex|opencode|pi|grok>"
     echo ""
     echo "Environment:"
@@ -221,6 +227,54 @@ detect_treehouse() {
     fi
 }
 
+detect_no_mistakes() {
+    local home_dir=$1
+    local path
+
+    path="$(tool_path no-mistakes)"
+    if [ -n "$path" ]; then
+        check_tool no-mistakes "expected no-mistakes or libs/no-mistakes" "$path"
+    elif [ -x "$home_dir/libs/no-mistakes/bin/no-mistakes" ]; then
+        check_tool no-mistakes "expected no-mistakes or libs/no-mistakes" "$home_dir/libs/no-mistakes/bin/no-mistakes"
+    elif [ -f "$home_dir/libs/no-mistakes/go.mod" ]; then
+        check_tool no-mistakes "expected no-mistakes or libs/no-mistakes" "$home_dir/libs/no-mistakes"
+    else
+        check_tool no-mistakes "expected no-mistakes or libs/no-mistakes"
+    fi
+}
+
+detect_gh_axi() {
+    local home_dir=$1
+    local path
+
+    path="$(tool_path gh-axi)"
+    if [ -n "$path" ]; then
+        check_tool gh-axi "expected gh-axi or libs/gh-axi" "$path"
+    elif [ -f "$home_dir/libs/gh-axi/dist/bin/gh-axi.js" ]; then
+        check_tool gh-axi "expected gh-axi or libs/gh-axi" "$home_dir/libs/gh-axi/dist/bin/gh-axi.js"
+    elif [ -f "$home_dir/libs/gh-axi/package.json" ]; then
+        check_tool gh-axi "expected gh-axi or libs/gh-axi" "$home_dir/libs/gh-axi"
+    else
+        check_tool gh-axi "expected gh-axi or libs/gh-axi"
+    fi
+}
+
+detect_chrome_devtools_axi() {
+    local home_dir=$1
+    local path
+
+    path="$(tool_path chrome-devtools-axi)"
+    if [ -n "$path" ]; then
+        check_tool chrome-devtools-axi "expected chrome-devtools-axi or libs/chrome-devtools-axi" "$path"
+    elif [ -f "$home_dir/libs/chrome-devtools-axi/dist/bin/chrome-devtools-axi.js" ]; then
+        check_tool chrome-devtools-axi "expected chrome-devtools-axi or libs/chrome-devtools-axi" "$home_dir/libs/chrome-devtools-axi/dist/bin/chrome-devtools-axi.js"
+    elif [ -f "$home_dir/libs/chrome-devtools-axi/package.json" ]; then
+        check_tool chrome-devtools-axi "expected chrome-devtools-axi or libs/chrome-devtools-axi" "$home_dir/libs/chrome-devtools-axi"
+    else
+        check_tool chrome-devtools-axi "expected chrome-devtools-axi or libs/chrome-devtools-axi"
+    fi
+}
+
 detect_lavish_axi() {
     local home_dir=$1
     local path
@@ -261,9 +315,9 @@ cmd_doctor() {
     detect_simple_command gh || missing=1
     detect_firstmate "$home_dir" || missing=1
     detect_treehouse "$home_dir" || missing=1
-    detect_simple_command no-mistakes || missing=1
-    detect_simple_command gh-axi || missing=1
-    detect_simple_command chrome-devtools-axi || missing=1
+    detect_no_mistakes "$home_dir" || missing=1
+    detect_gh_axi "$home_dir" || missing=1
+    detect_chrome_devtools_axi "$home_dir" || missing=1
     detect_lavish_axi "$home_dir" || missing=1
 
     if [ "$missing" -ne 0 ]; then
@@ -374,18 +428,82 @@ install_treehouse() {
     fi
 }
 
+install_no_mistakes() {
+    local home_dir=$1
+
+    install_tool_source "$home_dir" no-mistakes "$NO_MISTAKES_REMOTE" "$NO_MISTAKES_REV" "libs/no-mistakes"
+
+    if command -v go >/dev/null 2>&1; then
+        (cd "$home_dir/libs/no-mistakes" && mkdir -p bin && go build -o bin/no-mistakes ./cmd/no-mistakes)
+    else
+        warn "go not found; cloned no-mistakes source without building local binary"
+    fi
+}
+
+node_package_manager() {
+    local package_json=$1
+
+    node -e 'const fs = require("fs"); const pkg = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); if (pkg.packageManager) console.log(pkg.packageManager);' "$package_json" 2>/dev/null || true
+}
+
+install_node_axi() {
+    local home_dir=$1
+    local name=$2
+    local remote=$3
+    local revision=$4
+    local path=$5
+    local package_manager
+    local pnpm_version
+
+    install_tool_source "$home_dir" "$name" "$remote" "$revision" "$path"
+
+    package_manager="$(node_package_manager "$home_dir/$path/package.json")"
+    case "$package_manager" in
+        pnpm@*)
+            pnpm_version="${package_manager#pnpm@}"
+            if command -v npx >/dev/null 2>&1; then
+                (cd "$home_dir/$path" && CI=true npx -y "pnpm@$pnpm_version" install --frozen-lockfile && npx -y "pnpm@$pnpm_version" run build)
+                return
+            fi
+            ;;
+    esac
+
+    if command -v pnpm >/dev/null 2>&1; then
+        (cd "$home_dir/$path" && CI=true pnpm install --frozen-lockfile && pnpm run build)
+    elif command -v npm >/dev/null 2>&1; then
+        (cd "$home_dir/$path" && npm install --package-lock=false && npm run build)
+    else
+        warn "pnpm/npm not found; cloned $name source without building"
+    fi
+}
+
+install_gh_axi() {
+    local home_dir=$1
+
+    install_node_axi "$home_dir" gh-axi "$GH_AXI_REMOTE" "$GH_AXI_REV" "libs/gh-axi"
+}
+
+install_chrome_devtools_axi() {
+    local home_dir=$1
+
+    install_node_axi "$home_dir" chrome-devtools-axi "$CHROME_DEVTOOLS_AXI_REMOTE" "$CHROME_DEVTOOLS_AXI_REV" "libs/chrome-devtools-axi"
+}
+
 install_lavish_axi() {
     local home_dir=$1
 
-    install_tool_source "$home_dir" lavish-axi "$LAVISH_AXI_REMOTE" "$LAVISH_AXI_REV" "libs/lavish-axi"
+    install_node_axi "$home_dir" lavish-axi "$LAVISH_AXI_REMOTE" "$LAVISH_AXI_REV" "libs/lavish-axi"
+}
 
-    if command -v pnpm >/dev/null 2>&1; then
-        (cd "$home_dir/libs/lavish-axi" && pnpm install && pnpm run build)
-    elif command -v npm >/dev/null 2>&1; then
-        (cd "$home_dir/libs/lavish-axi" && npm install && npm run build)
-    else
-        warn "pnpm/npm not found; cloned lavish-axi source without building"
-    fi
+install_all_tools() {
+    local home_dir=$1
+
+    install_firstmate "$home_dir"
+    install_treehouse "$home_dir"
+    install_no_mistakes "$home_dir"
+    install_gh_axi "$home_dir"
+    install_chrome_devtools_axi "$home_dir"
+    install_lavish_axi "$home_dir"
 }
 
 cmd_install() {
@@ -408,8 +526,20 @@ cmd_install() {
             treehouse)
                 install_treehouse "$home_dir"
                 ;;
+            no-mistakes)
+                install_no_mistakes "$home_dir"
+                ;;
+            gh-axi)
+                install_gh_axi "$home_dir"
+                ;;
+            chrome-devtools-axi)
+                install_chrome_devtools_axi "$home_dir"
+                ;;
             lavish-axi)
                 install_lavish_axi "$home_dir"
+                ;;
+            all)
+                install_all_tools "$home_dir"
                 ;;
             *)
                 error "unknown install target: $tool"
