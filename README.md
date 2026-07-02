@@ -170,6 +170,32 @@ agent-commander start codex
 Runtime config, projects, state, logs, generated command shims, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
 Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/no-mistakes libs/gh-axi libs/chrome-devtools-axi libs/lavish-axi` or use `agent-commander install all`.
 The zsh profile prepends `agent-commander/bin` when that directory exists, so generated shims like `gh-axi`, `chrome-devtools-axi`, `lavish-axi`, `no-mistakes`, and `treehouse` are available by command name after opening a new shell.
+
+Fresh-shell validation:
+
+```bash
+exec zsh -l
+agent-commander doctor
+command -v gh-axi chrome-devtools-axi lavish-axi no-mistakes treehouse fm-bootstrap.sh
+gh-axi --help
+chrome-devtools-axi --help
+lavish-axi --help
+no-mistakes --help
+treehouse --help
+```
+
+Work-laptop setup:
+
+```bash
+mkdir -p ~/github
+git clone git@github.com:manifoldfrs/dotfiles.git ~/github/dotfiles
+git clone https://github.com/manifoldfrs/agent-commander ~/github/agent-commander
+cd ~/github/dotfiles
+./scripts/stow.sh --cb apply
+agent-commander install all
+agent-commander doctor
+```
+
 On Coinbase laptops, use the same launcher and repo shape, but keep work harness choices local under the ignored `agent-commander/config/` paths.
 
 ## Stow How-To
