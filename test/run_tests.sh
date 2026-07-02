@@ -4,7 +4,9 @@ set -e
 echo "=== Testing Dotfiles Scripts ==="
 echo ""
 
-cd ~/dotfiles
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$DOTFILES_DIR"
 
 # Test 1: Verify no syntax errors
 echo "[TEST 1] Checking shell script syntax..."
@@ -40,8 +42,9 @@ echo ""
 
 # Test 3: Test oh-my-zsh installation
 echo "[TEST 3] Installing Oh My Zsh..."
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc
-if [ -d "$HOME/.oh-my-zsh" ]; then
+OMZ_TEST_HOME="$(mktemp -d)"
+if HOME="$OMZ_TEST_HOME" ZSH="$OMZ_TEST_HOME/.oh-my-zsh" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc \
+    && [ -d "$OMZ_TEST_HOME/.oh-my-zsh" ]; then
     echo "[PASS] Oh My Zsh installed"
 else
     echo "[FAIL] Oh My Zsh installation failed"
@@ -51,8 +54,8 @@ echo ""
 
 # Test 4: Test zsh-syntax-highlighting plugin
 echo "[TEST 4] Installing zsh-syntax-highlighting..."
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-if [ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$OMZ_TEST_HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+if [ -d "$OMZ_TEST_HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
     echo "[PASS] zsh-syntax-highlighting installed"
 else
     echo "[FAIL] zsh-syntax-highlighting installation failed"
@@ -147,12 +150,14 @@ fi
 trap - EXIT
 echo ""
 
-# Test 8: Verify .zshrc has correct oh-my-zsh config
+# Test 8: Verify .zshrc has current shell config
 echo "[TEST 8] Checking .zshrc configuration..."
-if grep -q 'ZSH_THEME="robbyrussell"' "$STOW_TEST_HOME/.zshrc" && grep -q 'plugins=(git zsh-syntax-highlighting)' "$STOW_TEST_HOME/.zshrc"; then
-    echo "[PASS] .zshrc has correct theme and plugins"
+if grep -q 'powerlevel10k.zsh-theme' "$STOW_TEST_HOME/.zshrc" \
+    && grep -q 'zsh-syntax-highlighting.zsh' "$STOW_TEST_HOME/.zshrc" \
+    && grep -q '.zshrc.local' "$STOW_TEST_HOME/.zshrc"; then
+    echo "[PASS] .zshrc has current shell config"
 else
-    echo "[FAIL] .zshrc missing theme or plugins config"
+    echo "[FAIL] .zshrc missing current shell config"
     exit 1
 fi
 echo ""

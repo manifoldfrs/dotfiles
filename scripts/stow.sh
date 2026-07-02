@@ -332,6 +332,8 @@ link_ssh_config() {
         return
     fi
 
+    mkdir -p "$HOME/.ssh"
+
     if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
         info "SSH config already linked: $dest"
         return
