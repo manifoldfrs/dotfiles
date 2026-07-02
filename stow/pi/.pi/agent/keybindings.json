@@ -1,7 +1,7 @@
 {
-  "app.interrupt": ["escape", "ctrl+c"],
-  "app.clear": ["ctrl+l"],
-  "app.exit": ["ctrl+d"],
+  "app.interrupt": ["escape"],
+  "app.clear": ["ctrl+l", "ctrl+d"],
+  "app.exit": ["ctrl+c"],
   "app.model.select": ["alt+p"],
   "app.thinking.toggle": ["alt+t", "ctrl+t"],
   "app.tools.expand": ["ctrl+o"],
