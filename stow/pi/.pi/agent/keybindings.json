@@ -1,0 +1,23 @@
+{
+  "app.interrupt": ["escape", "ctrl+c"],
+  "app.clear": ["ctrl+l"],
+  "app.exit": ["ctrl+d"],
+  "app.model.select": ["alt+p"],
+  "app.thinking.toggle": ["alt+t", "ctrl+t"],
+  "app.tools.expand": ["ctrl+o"],
+  "app.editor.external": ["ctrl+g"],
+  "app.clipboard.pasteImage": ["ctrl+v"],
+  "app.message.followUp": ["ctrl+s"],
+  "tui.input.submit": ["enter"],
+  "tui.input.newLine": ["shift+enter", "ctrl+j", "alt+enter"],
+  "tui.editor.undo": ["ctrl+_", "ctrl+shift+-", "ctrl+-"],
+  "tui.editor.cursorUp": ["up", "ctrl+p"],
+  "tui.editor.cursorDown": ["down", "ctrl+n"],
+  "tui.editor.cursorLeft": ["left", "ctrl+b"],
+  "tui.editor.cursorRight": ["right", "ctrl+f"],
+  "tui.editor.cursorLineStart": ["home", "ctrl+a"],
+  "tui.editor.cursorLineEnd": ["end", "ctrl+e"],
+  "tui.editor.deleteWordBackward": ["ctrl+w", "alt+backspace"],
+  "tui.editor.deleteToLineStart": ["ctrl+u"],
+  "tui.editor.deleteToLineEnd": ["ctrl+k"]
+}

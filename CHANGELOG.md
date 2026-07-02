@@ -4,6 +4,22 @@ All notable changes to this dotfiles repository are documented here.
 
 ## July 2026
 
+### Pi, Ghostty, and Neovim visual refresh
+
+- **ghostty/config**: Added `background-opacity = 0.95` for subtle terminal transparency while keeping the Tokyo Night theme readable.
+- **nvim/colorscheme**: Enabled Tokyo Night transparent backgrounds for the main editor, sidebars, floats, statusline, and tabline fill so Ghostty's opacity shows through Neovim.
+- **nvim/markdown**: Disabled Markdown spellchecking by default and guarded the spell suggestion popup so it only appears when spellcheck is enabled.
+- **AGENTS.md**: Folded the useful local writing preferences from `AGENTS.local.md` into the tracked project rules so Pi and other agents load them automatically.
+
+### Pi: expand Stow-managed agent setup
+
+- **stow/pi/.pi/agent/AGENTS.md**: Added global Pi agent rules mirroring the reusable parts of Claude Code's global rules: response style, RepoPrompt preference, implementation rules, comment guidance, security handling, and validation expectations.
+- **stow/pi/.pi/agent/extensions/**: Added Pi extensions for `/lg`, `/copy-all`, `/update`, a git status widget, and zsh-backed `!` shell commands.
+- **stow/pi/.pi/agent/prompts/**: Added RepoPrompt prompt templates: `/rp`, `/rp-plan`, `/rp-review`, `/rp-search`, and `/rp-tree`.
+- **stow/pi/.pi/agent/keybindings.json**: Added Claude Code-like keybindings for interrupt, clear, model picker, thinking toggle, newline, submit, external editor, undo, and editor movement.
+- **stow/pi/.pi/agent/mcp.json**: Added Stow-managed Pi MCP configuration for Ref, Exa, and RepoPromptCE with environment-backed credentials.
+- **stow/pi/.pi/agent/themes/** and **settings.json**: Added the custom TokyoNight Pi theme and configured Pi to load tracked themes, extensions, prompts, and packages.
+
 ### Codex: mirror Claude skills and guardrails
 
 - **stow/codex**: Added Codex user-scope skill mirrors under `stow/codex/.agents/skills/` for `tldr`, `grill-me`, `grill-me-with-docs`, and `quiz-me`.

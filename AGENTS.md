@@ -5,6 +5,18 @@ This repository manages personal macOS dotfiles and setup automation.
 It includes shell bootstrap scripts, Neovim Lua config, MCP templates, and Docker-based validation.
 This file is the top-level guide for coding agents working in `/Users/frshbb/github/dotfiles`.
 
+## User Writing Preferences
+When writing for this user, avoid:
+- AI babble, generic filler, or overly polished phrasing.
+- Em dashes. Use commas, periods, or parentheses instead.
+- Dramatic contrast phrasing like "This is not X, it is Y".
+- Phrases like "that's the footgun", "the smoking gun is", or close variants.
+- Jargon like "fail-fast", "fails the boot", "surface early", or "shift left".
+- Verbose responses when a simple explanation is enough.
+
+Explain concepts and solutions in simple terms, like a senior engineer teaching a new teammate.
+Review prose, summaries, code comments, PR descriptions, and chat replies for these patterns before presenting them.
+
 ## Rule File Discovery (Cursor/Copilot)
 Checked locations:
 - `.cursor/rules/`

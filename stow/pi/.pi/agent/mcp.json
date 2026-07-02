@@ -1,0 +1,32 @@
+{
+  "imports": [
+    "cursor",
+    "claude-code",
+    "claude-desktop"
+  ],
+  "mcpServers": {
+    "Ref": {
+      "type": "http",
+      "url": "https://api.ref.tools/mcp",
+      "headers": {
+        "x-ref-api-key": "${REF_API_KEY}"
+      },
+      "directTools": true
+    },
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa",
+      "headers": {
+        "x-api-key": "${EXA_API_KEY}"
+      },
+      "directTools": true
+    },
+    "RepoPromptCE": {
+      "type": "stdio",
+      "command": "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp",
+      "args": [],
+      "env": {},
+      "directTools": true
+    }
+  }
+}

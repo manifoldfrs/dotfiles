@@ -29,6 +29,7 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.agents/skills/tldr"
 )
 PI_BACKUP_TARGETS=(
+    "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
 )
 CB_BACKUP_TARGETS=(

@@ -1,8 +1,17 @@
 {
   "lastChangelogVersion": "0.80.3",
-  "theme": "dark",
+  "theme": "tokyonight-frsh",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "low",
-  "hideThinkingBlock": true
+  "hideThinkingBlock": false,
+  "themes": [
+    "themes"
+  ],
+  "extensions": [
+    "extensions"
+  ],
+  "packages": [
+    "npm:pi-mcp-adapter"
+  ]
 }

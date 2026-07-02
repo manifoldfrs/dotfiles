@@ -6,6 +6,7 @@ trust.json
 logs
 cache
 node_modules
-mcp
+mcp-cache\.json
+mcp-oauth
 .*\.log
 .*\.tmp

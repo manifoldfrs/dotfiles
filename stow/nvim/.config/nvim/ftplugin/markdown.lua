@@ -1,6 +1,6 @@
 vim.opt_local.wrap = true
 vim.opt_local.linebreak = true
-vim.opt_local.spell = true
+vim.opt_local.spell = false
 vim.opt_local.conceallevel = 0
 
 local spell_float_win
@@ -14,6 +14,10 @@ end
 
 local function show_spell_float()
   close_spell_float()
+
+  if not vim.opt_local.spell:get() then
+    return
+  end
 
   local word = vim.fn.expand("<cword>")
   if word == "" then
