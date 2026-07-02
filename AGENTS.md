@@ -92,6 +92,15 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 - Match existing file style before introducing new patterns.
 - Prefer explicit, readable code over clever shortcuts.
 - Do not introduce secrets in tracked files.
+- Never use an em dash; use a plain hyphen instead.
+- When writing commit messages, never add your agent name as a co-author.
+- Never manually modify `CHANGELOG.md` files or files marked as auto-generated.
+- When writing or substantially editing long Markdown files, put each full sentence on its own physical line.
+- Preserve normal Markdown structure, but avoid wrapping multiple sentences onto one physical line.
+- When making technical decisions, prioritize quality, simplicity, robustness, scalability, and long-term maintainability over development cost.
+- When doing bug fixes, start by reproducing the bug in an end-to-end setting that is as close as practical to how an end user experiences it.
+- When end-to-end testing a product, be picky about the UI and call out anything that clearly looks wrong, even when it is not directly related to the current task.
+- Apply the same standard to engineering excellence: lint failures, test failures, and test flakiness should be fixed when you encounter them, even when they were not caused by your current change.
 
 ### Bash Style (`scripts/*.sh`, `mcp_setup.sh`, `test/*.sh`)
 - Shebang: `#!/bin/bash` at line 1.
@@ -143,7 +152,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 
 ## Change Management Expectations
 - Update `README.md` when user-facing commands/keymaps/setup behavior changes.
-- Update `CHANGELOG.md` for notable features or workflow changes.
+- For notable features or workflow changes, follow the project changelog process without manually editing generated changelog files.
 - Do not commit unless explicitly asked.
 - Do not revert unrelated local changes you did not author.
 
