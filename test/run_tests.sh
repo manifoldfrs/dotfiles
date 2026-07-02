@@ -61,8 +61,11 @@ echo ""
 # Test 5: Test Stow package layout
 echo "[TEST 5] Testing GNU Stow package layout..."
 STOW_TEST_HOME="$(mktemp -d)"
-stow --no-folding -R -t "$STOW_TEST_HOME" -d ~/dotfiles/stow zsh git ghostty tmux nvim bin opencode claude codex pi
-if [ -L "$STOW_TEST_HOME/.zshrc" ] \
+STOW_TEST_BIN="$(mktemp -d)"
+ln -s "$(command -v stow)" "$STOW_TEST_BIN/stow"
+if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply > /tmp/stow-default.log 2>&1 \
+    && HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >> /tmp/stow-default.log 2>&1 \
+    && [ -L "$STOW_TEST_HOME/.zshrc" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/opencode.jsonc" ] \
@@ -71,7 +74,8 @@ if [ -L "$STOW_TEST_HOME/.zshrc" ] \
     && [ -L "$STOW_TEST_HOME/.codex/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.codex/hooks.json" ] \
     && [ -L "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
-    && [ -L "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md" ] \
+    && [ -L "$STOW_TEST_HOME/.agents/skills/tldr" ] \
+    && [ -f "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/settings.json" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     echo "[PASS] Stow symlinks created successfully"

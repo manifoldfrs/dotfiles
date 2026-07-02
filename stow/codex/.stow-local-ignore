@@ -1,0 +1,4 @@
+# Codex skill discovery supports symlinked skill folders. Stow would otherwise
+# link each SKILL.md file inside a real folder, so scripts/stow.sh manages
+# ~/.agents/skills/<skill> links explicitly.
+^\.agents$

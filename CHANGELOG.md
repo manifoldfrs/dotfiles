@@ -7,6 +7,7 @@ All notable changes to this dotfiles repository are documented here.
 ### Codex: mirror Claude skills and guardrails
 
 - **stow/codex**: Added Codex user-scope skill mirrors under `stow/codex/.agents/skills/` for `tldr`, `grill-me`, `grill-me-with-docs`, and `quiz-me`.
+- **scripts/stow**: Normalizes Codex personal skills into folder-level symlinks under `~/.agents/skills/`, matching Codex skill discovery instead of linking only each `SKILL.md` file. The Codex Stow package ignores `.agents` so repeated Stow runs do not conflict with those folder links.
 - **stow/codex**: Added `~/.codex/hooks.json` plus hook wrappers for the dangerous-bash and generated-file guardrails.
 - **stow/bin**: Centralized the shared guardrail implementations under `~/.local/share/agent-guardrails/`; Claude and Codex wrappers now call the same scripts.
 - **tests/docs**: Updated Stow validation and README documentation so Codex skills, hooks, and shared guardrails are covered by the dotfiles repo.

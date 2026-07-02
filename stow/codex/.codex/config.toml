@@ -70,3 +70,11 @@ type = "http"
 url = "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
 env_http_headers = { "x-api-key" = "EXA_API_KEY" }
 enabled = true
+
+[hooks.state]
+
+[hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:23a8ebf007ace63070ce68117cc10069ec15dae1861e6913cf7de5eae02e297f"
+
+[hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:1:0"]
+trusted_hash = "sha256:5a5a626d74a7c584c0e45e5268f87517317db69d9de5d983637c80a6345de51b"

@@ -12,6 +12,7 @@ TPM_REPO=https://github.com/tmux-plugins/tpm
 DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude codex pi)
 CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
+CODEX_SKILL_NAMES=(grill-me grill-me-with-docs quiz-me tldr)
 SHARED_BACKUP_TARGETS=(
     "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
     "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
@@ -239,6 +240,89 @@ select_packages() {
     STOW_PACKAGES=("${DEFAULT_STOW_PACKAGES[@]}")
 }
 
+has_stow_package() {
+    local package=$1
+    local selected
+
+    for selected in "${STOW_PACKAGES[@]}"; do
+        if [ "$selected" = "$package" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+ensure_codex_skill_folder_links() {
+    local skill
+    local src
+    local dest
+    local link_dest
+
+    if ! has_stow_package codex; then
+        return
+    fi
+
+    mkdir -p "$HOME/.agents/skills"
+
+    for skill in "${CODEX_SKILL_NAMES[@]}"; do
+        src="$DOTFILES_DIR/stow/codex/.agents/skills/$skill"
+        dest="$HOME/.agents/skills/$skill"
+
+        if [ ! -d "$src" ]; then
+            warn "Codex skill source missing: $src"
+            continue
+        fi
+
+        if [ -L "$dest" ]; then
+            link_dest="$(readlink "$dest")"
+            if [ "$link_dest" = "$src" ]; then
+                continue
+            fi
+        fi
+
+        if [ -e "$dest" ] || [ -L "$dest" ]; then
+            if ! is_stow_managed_tree "$dest"; then
+                warn "Skipping non-Stow Codex skill target: $dest"
+                continue
+            fi
+
+            rm -rf "$dest"
+        fi
+
+        ln -s "$src" "$dest"
+        info "Linked Codex skill folder: $dest -> $src"
+    done
+}
+
+remove_codex_skill_folder_links() {
+    local skill
+    local src
+    local dest
+    local link_dest
+
+    if ! has_stow_package codex; then
+        return
+    fi
+
+    for skill in "${CODEX_SKILL_NAMES[@]}"; do
+        src="$DOTFILES_DIR/stow/codex/.agents/skills/$skill"
+        dest="$HOME/.agents/skills/$skill"
+
+        if [ ! -L "$dest" ]; then
+            continue
+        fi
+
+        link_dest="$(readlink "$dest")"
+        if [ "$link_dest" != "$src" ]; then
+            continue
+        fi
+
+        rm "$dest"
+        info "Removed Codex skill folder link: $dest"
+    done
+}
+
 link_ssh_config() {
     local src="$DOTFILES_DIR/stow/ssh-cb/.ssh/config"
     local dest="$HOME/.ssh/config"
@@ -274,6 +358,7 @@ apply_dotfiles() {
 
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
     stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
+    ensure_codex_skill_folder_links
     install_tmux_plugins
 }
 
@@ -283,6 +368,7 @@ dry_run_dotfiles() {
 }
 
 delete_dotfiles() {
+    remove_codex_skill_folder_links
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
 }
