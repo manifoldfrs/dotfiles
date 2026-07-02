@@ -1,0 +1,99 @@
+{
+  "cleanupPeriodDays": 14,
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "95",
+    "ENABLE_PROMPT_CACHING_1H": "1",
+    "CLAUDE_CODE_ALWAYS_ENABLE_EFFORT": "1",
+    "CLAUDE_CODE_WORKFLOWS": "1",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "128000",
+    "ENABLE_TOOL_SEARCH": "true",
+    "DISABLE_AUTOUPDATER": "1",
+    "DISABLE_UPDATES": "1",
+    "DISABLE_BUG_COMMAND": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_INSTALLATION_CHECKS": "1",
+    "MAX_MCP_OUTPUT_TOKENS": "30000",
+    "MCP_TIMEOUT": "60000",
+    "DISABLE_COST_WARNINGS": "1"
+  },
+  "attribution": {
+    "commit": "Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+    "pr": ""
+  },
+  "permissions": {
+    "deny": [
+      "Bash(osascript)",
+      "Bash(osascript *)",
+      "Bash(*/osascript)",
+      "Bash(*/osascript *)"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  },
+  "model": "opus",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/block-generated-edits.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/block-dangerous-bash.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "security-guidance@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true
+  },
+  "strictKnownMarketplaces": [
+    {
+      "source": "url",
+      "url": "https://skills.cbhq.net/api/plugins/marketplace.json"
+    },
+    {
+      "source": "hostPattern",
+      "hostPattern": "^coinbase\\.ghe\\.com$"
+    },
+    {
+      "source": "github",
+      "repo": "google/CLASP"
+    }
+  ],
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Hodling",
+      "Buidling",
+      "Staking",
+      "Minting",
+      "Stacking sats",
+      "Onramping",
+      "Bridging",
+      "Zk-proving",
+      "Diamond-handing",
+      "GMing",
+      "Clearly communicating",
+      "Efficiently executing",
+      "Continuously learning",
+      "Customer focusing",
+      "Mission firsting"
+    ]
+  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
+  "channelsEnabled": false,
+  "autoCompactEnabled": false
+}

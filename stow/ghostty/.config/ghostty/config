@@ -2,7 +2,7 @@
 # Shell integration and clipboard
 shell-integration = zsh
 shell-integration-features = no-cursor
-copy-on-select = false
+copy-on-select = clipboard
 keybind = performable:ctrl+shift+c=copy_to_clipboard
 keybind = super+c=csi:99;6u
 

@@ -766,7 +766,7 @@ Use a terminal-first debugging flow instead of an in-editor DAP stack.
 | `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
 | `Alt-Arrow` | Resize panes |
 
-**Note:** Status bar is positioned at the top with the Tokyo Night tmux theme (`janoamaral/tokyo-night-tmux`) plus a current-directory widget. The terminal/tmux cursor uses a blinking block. Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim.
+**Note:** Status bar is positioned at the top with the Tokyo Night tmux theme (`janoamaral/tokyo-night-tmux`) plus a current-directory widget. The terminal/tmux cursor uses a blinking block. Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim. Ghostty selections copy to the system clipboard, and tmux mouse selections copy on release.
 
 ### tmux-sessionizer
 
