@@ -162,12 +162,14 @@ agent-commander init
 agent-commander doctor
 agent-commander bootstrap
 agent-commander install all
+agent-commander shims
 agent-commander start codex
 ```
 
 `AGENT_COMMANDER_DIR` can override the operating home, but the launcher refuses to run if that directory is inside this dotfiles repo.
-Runtime config, projects, state, logs, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
+Runtime config, projects, state, logs, generated command shims, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
 Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/no-mistakes libs/gh-axi libs/chrome-devtools-axi libs/lavish-axi` or use `agent-commander install all`.
+The zsh profile prepends `agent-commander/bin` when that directory exists, so generated shims like `gh-axi`, `chrome-devtools-axi`, `lavish-axi`, `no-mistakes`, and `treehouse` are available by command name after opening a new shell.
 On Coinbase laptops, use the same launcher and repo shape, but keep work harness choices local under the ignored `agent-commander/config/` paths.
 
 ## Stow How-To
@@ -495,6 +497,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Restow Pi settings | `stow --no-folding -R -v -t "$HOME" -d stow pi` |
 | Show agent-commander home | `agent-commander path` |
 | Check agent-commander tools | `agent-commander doctor` |
+| Refresh agent tool shims | `agent-commander shims` |
 | Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
 | Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
 | Reload tmux config | `tmux source-file ~/.tmux.conf` |
@@ -503,7 +506,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
 | Open Lazy UI | `nvim +Lazy` |
 | Open Mason UI | `nvim +Mason` |
-| Shell syntax checks | `bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n scripts/agent-commander.sh && bash -n stow/bin/.local/bin/agent-commander && bash -n mcp_setup.sh` |
+| Shell syntax checks | `bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n scripts/agent-commander.sh && bash -n stow/bin/.local/bin/agent-commander && zsh -n stow/zsh/.zshenv && bash -n mcp_setup.sh` |
 | Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux` |
 | Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
 

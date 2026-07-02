@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Shared launcher for the sibling agent-commander operating home.
-# Usage: agent-commander <path|init|doctor|bootstrap|install|start>
+# Usage: agent-commander <path|init|doctor|bootstrap|install|shims|start>
 
 set -e
 
@@ -27,6 +27,7 @@ IGNORE_PATTERNS=(
     "data/"
     "state/"
     "projects/"
+    "bin/"
     ".no-mistakes/"
     "treehouse/"
     "libs/*/node_modules/"
@@ -54,6 +55,7 @@ usage() {
     echo "  doctor                       Check required local tools"
     echo "  bootstrap                    Run firstmate bootstrap from agent-commander"
     echo "  install <tool|all>...        Install named tools into libs/"
+    echo "  shims                        Regenerate command shims in agent-commander/bin"
     echo "  start <claude|codex|opencode|pi|grok>"
     echo ""
     echo "Environment:"
@@ -139,6 +141,7 @@ ensure_runtime_dirs() {
         "$home_dir/data" \
         "$home_dir/state" \
         "$home_dir/projects" \
+        "$home_dir/bin" \
         "$home_dir/logs"
 }
 
@@ -506,6 +509,83 @@ install_all_tools() {
     install_lavish_axi "$home_dir"
 }
 
+write_binary_shim() {
+    local bin_dir=$1
+    local name=$2
+    local relative_target=$3
+    local install_target=$4
+    local shim="$bin_dir/$name"
+
+    cat > "$shim" <<SHIM
+#!/bin/bash
+set -e
+AGENT_COMMANDER_SHIM_HOME="\${AGENT_COMMANDER_DIR:-\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)}"
+target="\$AGENT_COMMANDER_SHIM_HOME/$relative_target"
+if [ ! -x "\$target" ]; then
+    echo "$name is not built at \$target. Run: agent-commander install $install_target" >&2
+    exit 127
+fi
+exec "\$target" "\$@"
+SHIM
+    chmod +x "$shim"
+}
+
+write_node_shim() {
+    local bin_dir=$1
+    local name=$2
+    local relative_target=$3
+    local install_target=$4
+    local shim="$bin_dir/$name"
+
+    cat > "$shim" <<SHIM
+#!/bin/bash
+set -e
+AGENT_COMMANDER_SHIM_HOME="\${AGENT_COMMANDER_DIR:-\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)}"
+target="\$AGENT_COMMANDER_SHIM_HOME/$relative_target"
+if ! command -v node >/dev/null 2>&1; then
+    echo "node is required to run $name" >&2
+    exit 127
+fi
+if [ ! -f "\$target" ]; then
+    echo "$name is not built at \$target. Run: agent-commander install $install_target" >&2
+    exit 127
+fi
+exec node "\$target" "\$@"
+SHIM
+    chmod +x "$shim"
+}
+
+ensure_tool_shims() {
+    local home_dir=$1
+    local bin_dir="$home_dir/bin"
+    local script
+    local name
+
+    mkdir -p "$bin_dir"
+
+    for script in "$home_dir"/libs/firstmate/bin/fm-*.sh; do
+        [ -f "$script" ] || continue
+        name="$(basename "$script")"
+        write_binary_shim "$bin_dir" "$name" "libs/firstmate/bin/$name" firstmate
+    done
+
+    write_binary_shim "$bin_dir" treehouse "libs/treehouse/treehouse" treehouse
+    write_binary_shim "$bin_dir" no-mistakes "libs/no-mistakes/bin/no-mistakes" no-mistakes
+    write_node_shim "$bin_dir" gh-axi "libs/gh-axi/dist/bin/gh-axi.js" gh-axi
+    write_node_shim "$bin_dir" chrome-devtools-axi "libs/chrome-devtools-axi/dist/bin/chrome-devtools-axi.js" chrome-devtools-axi
+    write_node_shim "$bin_dir" lavish-axi "libs/lavish-axi/dist/cli.mjs" lavish-axi
+}
+
+cmd_shims() {
+    local home_dir
+
+    require_agent_commander_repo
+    home_dir="$(agent_commander_dir)"
+    ensure_runtime_dirs "$home_dir"
+    ensure_tool_shims "$home_dir"
+    info "Updated command shims: $home_dir/bin"
+}
+
 cmd_install() {
     local home_dir
     local tool
@@ -546,6 +626,8 @@ cmd_install() {
                 ;;
         esac
     done
+
+    ensure_tool_shims "$home_dir"
 }
 
 cmd_start() {
@@ -601,6 +683,11 @@ main() {
         install)
             shift
             cmd_install "$@"
+            ;;
+        shims)
+            shift
+            [ "$#" -eq 0 ] || usage
+            cmd_shims
             ;;
         start)
             shift
