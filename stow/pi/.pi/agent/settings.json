@@ -12,6 +12,8 @@
     "extensions"
   ],
   "packages": [
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:pi-subagents",
+    "npm:@plannotator/pi-extension"
   ]
 }
