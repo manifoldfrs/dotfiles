@@ -67,6 +67,7 @@ echo ""
 echo "[TEST 5] Testing GNU Stow package layout..."
 STOW_TEST_HOME="$(mktemp -d)"
 STOW_TEST_BIN="$(mktemp -d)"
+mkdir -p "$STOW_TEST_HOME/.cbcode-home/.codex"
 ln -s "$(command -v stow)" "$STOW_TEST_BIN/stow"
 if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply > /tmp/stow-default.log 2>&1 \
     && HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >> /tmp/stow-default.log 2>&1 \
@@ -81,6 +82,8 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.codex/hooks.json" ] \
     && [ -L "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
     && [ -L "$STOW_TEST_HOME/.codex/hooks/block-generated-edits.sh" ] \
+    && [ -L "$STOW_TEST_HOME/.codex/themes/tokyonight-frsh.tmTheme" ] \
+    && [ -L "$STOW_TEST_HOME/.cbcode-home/.codex/themes/tokyonight-frsh.tmTheme" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/tldr" ] \
     && [ -f "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/settings.json" ] \

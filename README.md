@@ -581,16 +581,19 @@ Preferred tool usage after setup:
 - Pi loads MCP support through the `npm:pi-mcp-adapter` package declared in settings.
 - Do not move Pi auth, sessions, logs, or other runtime/account state into Stow; `stow/pi/.stow-local-ignore` excludes common sensitive/runtime paths.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
-- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` (`tldr`, `grill-me`, `grill-me-with-docs`, `quiz-me`), and the `hooks/` scripts.
+- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free, secret-free — see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` (`tldr`, `grill-me`, `grill-me-with-docs`, `quiz-me`), and the `hooks/` scripts.
 - Codex global config is managed at `stow/codex/.codex/config.toml` in the default Stow profile. It tracks personal defaults and MCP server definitions, while auth, sessions, logs, plugin caches, and other runtime state remain local under `~/.codex/`.
+- Codex syntax highlighting uses `stow/codex/.codex/themes/tokyonight-frsh.tmTheme`, selected by `[tui] theme = "tokyonight-frsh"` in `stow/codex/.codex/config.toml`.
+- `scripts/stow.sh apply` also links that theme into `~/.cbcode-home/.codex/themes/` when the cbcode sandbox exists.
+  It does not manage `~/.cbcode-home/.codex/config.toml`, because cbcode owns and rewrites that file.
 - Codex personal skills mirror the Claude Code skills under `stow/codex/.agents/skills/`. The Codex Stow package ignores `.agents` directly; `scripts/stow.sh` owns the skill-folder symlinks such as `~/.agents/skills/tldr -> ~/github/dotfiles/stow/codex/.agents/skills/tldr`, matching Codex's user-scope skill discovery.
 - Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
 - Claude and Codex both use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous bash commands and generated-file edit blockers. The Claude hook files and Codex hook files are harness-specific wrappers around the same implementation.
-- Claude Code MCP servers are user-scoped in `~/.claude.json`, not Stow-managed. Keep `Ref` and `exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.zshenv.local`.
-- Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML.
+- Claude Code MCP servers are user-scoped, not Stow-managed. Personal MCP servers (`RepoPromptCE`, `Ref`, `exa`) are in `~/.claude.json`; keep `Ref`/`exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.zshenv.local`. Work MCP servers live in the separate `~/.cbcode-home/.claude.json` (see cbcode HOME Sandbox below) and are unrelated to the personal set.
+- Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML. This applies to the personal `~/.codex/config.toml` only; work's `~/.cbcode-home/.codex/config.toml` holds its own MCP server list ported from work Claude (see below).
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
 - OpenCode slash wrappers for those personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
-- These are shared, not Claude-only. `~/.cbcode-home/.claude` and `~/.claude` are the same directory, and OpenCode reads `~/.claude/skills/` plus `~/.claude/CLAUDE.md` (when no `~/.config/opencode/AGENTS.md` exists). One Stow source therefore drives cbcode Claude Code, plain Claude Code, and OpenCode.
+- Personal skills and `CLAUDE.md` are shared, not Claude-only: OpenCode reads `~/.claude/skills/` plus `~/.claude/CLAUDE.md` (when no `~/.config/opencode/AGENTS.md` exists), so one Stow source drives plain Claude Code and OpenCode. This no longer includes cbcode's Claude Code — `~/.cbcode-home/.claude` is now a separate real directory, not a symlink to `~/.claude` (see cbcode HOME Sandbox below).
 - Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the Claude wrappers for the bash and generated-edit blockers.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
 - Do not copy live MCP URLs with real API keys into tracked files. Use environment interpolation for secrets.
@@ -885,11 +888,11 @@ git push
 
 ## cbcode HOME Sandbox
 
-`cbcode` (Coinbase's Claude Code wrapper) overwrites `~/.codex/config.toml` on every launch with Coinbase LLM Gateway settings. This conflicts with running a personal Codex CLI using your own OpenAI account.
+`cbcode` (Coinbase's Claude Code / Codex wrapper) overwrites both `~/.codex/config.toml` and `~/.claude/settings.json` on every launch with Coinbase LLM Gateway settings (auth token, base URL, OTEL telemetry endpoint). This conflicts with running personal Codex CLI and Claude Code against your own OpenAI/Anthropic subscriptions.
 
-**Solution:** Sandbox cbcode's `HOME` so it writes its Codex config to `~/.cbcode-home/.codex/` instead of `~/.codex/`. Most other dotfiles are symlinked back to the real `$HOME`, so Claude Code config and user-level tool state remains shared.
+**Solution:** Sandbox cbcode's `HOME` so it writes its Codex and Claude config into `~/.cbcode-home/.codex/` and `~/.cbcode-home/.claude/` instead of the real `~/.codex/` and `~/.claude/`. Most other dotfiles are still symlinked back to the real `$HOME`, so user-level tool state (npm, pyenv, ssh, gitconfig, etc.) remains shared. **Claude Code and Codex are both real, separate directories under `~/.cbcode-home` — neither is a symlink back to the personal config.** Skills (`~/.agents/skills`) stay in sync as two separate copies rather than a shared symlink.
 
-**Important safety note:** `~/.cbcode-home` is only a Codex config sandbox. It is not a disposable home directory. Paths such as `~/.cbcode-home/.local`, `~/.cbcode-home/.claude`, and `~/.cbcode-home/.config` are symlinks to the real `$HOME`. Deleting `~/.cbcode-home/.local/share/claude` deletes the real `~/.local/share/claude` install.
+**Important safety note:** `~/.cbcode-home` is a config sandbox, not a disposable home directory. Paths such as `~/.cbcode-home/.local` and `~/.cbcode-home/.config` are symlinks to the real `$HOME`. Deleting `~/.cbcode-home/.local/share/claude` deletes the real `~/.local/share/claude` install. `~/.cbcode-home/.claude` and `~/.cbcode-home/.codex`, by contrast, are intentionally real, separate directories — cleaning those out only affects work state.
 
 ### Setup
 
@@ -897,10 +900,10 @@ git push
 # 1. Create the sandboxed home
 mkdir -p ~/.cbcode-home
 
-# 2. Symlink everything cbcode needs (NOT .codex — that's the whole point)
+# 2. Symlink everything cbcode needs EXCEPT .codex and .claude — those stay
+#    real, separate directories so cbcode's config rewrites never touch
+#    your personal Codex/Claude Code accounts.
 cd ~/.cbcode-home
-ln -s ~/.claude .claude
-ln -s ~/.claude.json .claude.json
 ln -s ~/.cbcode .cbcode
 ln -s ~/.config .config
 ln -s ~/.cache .cache
@@ -922,25 +925,39 @@ ln -s ~/.gnupg .gnupg
 ln -s ~/.npmrc .npmrc
 ln -s ~/Library Library
 
+mkdir -p .claude
+cp ~/.claude.json .claude.json   # seed with current MCP list; cbcode rewrites settings.json on launch
+
+# Share the static, cbcode-safe personal Claude files (guardrails, CLAUDE.md)
+# into the work directory. cbcode only rewrites settings.json/.claude.json,
+# so these symlinks are stable.
+ln -s ~/.claude/CLAUDE.md .claude/CLAUDE.md
+mkdir -p .claude/hooks
+ln -s ~/.claude/hooks/block-dangerous-bash.sh  .claude/hooks/
+ln -s ~/.claude/hooks/block-generated-edits.sh .claude/hooks/
+
 # 3. Add the wrapper function to .zshrc
 cbcode() {
   ( HOME="$HOME/.cbcode-home" command cbcode "$@" )
 }
 ```
 
+Personal `~/.claude/settings.json` is Stow-managed (`stow/claude/.claude/settings.json`) and intentionally has no gateway/OTEL/secret keys, since it is the file a plain, non-cbcode `claude` binary (installed separately, e.g. `bun install -g @anthropic-ai/claude-code`) reads. Work's `~/.cbcode-home/.claude/settings.json` is NOT Stow-managed — cbcode owns and rewrites it on every launch, the same way it owns `~/.cbcode-home/.codex/config.toml`.
+
 ### How it works
 
-| Path | cbcode sees | Personal codex sees |
-|------|-------------|---------------------|
-| `~/.codex/config.toml` | `~/.cbcode-home/.codex/config.toml` (isolated) | `~/.codex/config.toml` (yours) |
-| `~/.claude/` | `~/.cbcode-home/.claude` → `~/.claude/` (shared) | N/A |
+| Path | cbcode sees | Personal Codex/Claude sees |
+|------|-------------|------------------------------|
+| `~/.codex/config.toml` | `~/.cbcode-home/.codex/config.toml` (isolated, gateway) | `~/.codex/config.toml` (yours, Stow-managed) |
+| `~/.claude/settings.json` | `~/.cbcode-home/.claude/settings.json` (isolated, gateway) | `~/.claude/settings.json` (yours, Stow-managed, gateway-free) |
+| `~/.claude.json` (MCP servers) | `~/.cbcode-home/.claude.json` (isolated, work MCPs) | `~/.claude.json` (yours, personal MCPs) |
 | `~/.cbcode/` | `~/.cbcode-home/.cbcode` → `~/.cbcode/` (shared) | N/A |
 | `~/.local/` | `~/.cbcode-home/.local` → `~/.local/` (shared) | N/A |
 | `~/.config/` | `~/.cbcode-home/.config` → `~/.config/` (shared) | N/A |
 
 ### Safe cleanup rules
 
-Never treat `~/.cbcode-home` as fully isolated. Only `~/.cbcode-home/.codex` is intentionally separate from your personal `~/.codex` directory.
+Never treat `~/.cbcode-home` as fully isolated. `~/.cbcode-home/.codex` and `~/.cbcode-home/.claude` are intentionally separate real directories; most other paths under `~/.cbcode-home` are symlinks back to the real home.
 
 Before deleting or cleaning a path under `~/.cbcode-home`, resolve the real path:
 
@@ -949,11 +966,49 @@ readlink ~/.cbcode-home/.local
 python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' ~/.cbcode-home/.local/share/claude
 ```
 
-If the resolved path starts with your real home directory, such as `/Users/farishabib/.local`, then the target is shared state. Do not delete it as sandbox-only cleanup. In particular, never remove `~/.cbcode-home/.local/share/claude` unless you intend to remove the real standalone Claude install.
+If the resolved path starts with your real home directory, such as `/Users/farishabib/.local`, then the target is shared state. Do not delete it as sandbox-only cleanup. In particular, never remove `~/.cbcode-home/.local/share/claude` unless you intend to remove the real standalone Claude install. `~/.cbcode-home/.claude` and `~/.cbcode-home/.codex` are the two paths that are safe to clean as work-only state.
+
+### MCP servers: personal vs. work
+
+Personal Claude Code (`~/.claude.json`) and personal Codex (`~/.codex/config.toml`) carry a small personal MCP set (`RepoPromptCE`, `Ref`, `exa`). Work Claude (`~/.cbcode-home/.claude.json`) carries the full Coinbase MCP catalog (Sourcegraph, Glean, Confluence, Datadog, Temporal, Linear, etc.), configured through internal onboarding, not this repo.
+
+Work Codex does not automatically inherit work Claude's MCP list — the two tools use incompatible config formats (`~/.claude.json` JSON `mcpServers` vs. `~/.cbcode-home/.codex/config.toml` TOML `[mcp_servers.*]`) and cbcode does not sync them. To port the set, translate each entry once:
+
+```bash
+python3 -c "
+import json
+with open('$HOME/.cbcode-home/.claude.json') as f:
+    servers = json.load(f).get('mcpServers', {})
+lines = []
+for name, cfg in servers.items():
+    lines.append(f'\n[mcp_servers.{name}]')
+    if cfg.get('type') == 'http':
+        lines.append('type = \"http\"')
+        lines.append(f'url = {json.dumps(cfg[\"url\"])}')
+    else:
+        lines.append(f'command = {json.dumps(cfg[\"command\"])}')
+        lines.append('args = [' + ', '.join(json.dumps(a) for a in cfg.get('args', [])) + ']')
+        env = cfg.get('env') or {}
+        if env:
+            lines.append(f'\n[mcp_servers.{name}.env]')
+            for k, v in env.items():
+                lines.append(f'{k} = {json.dumps(v)}')
+with open('$HOME/.cbcode-home/.codex/config.toml', 'a') as f:
+    f.write('\n' + '\n'.join(lines) + '\n')
+"
+```
+
+This is a one-time, untracked, work-only edit to `~/.cbcode-home/.codex/config.toml` (runtime state, not Stow-managed) — rerun it if the work MCP list changes. Some remote servers (Linear, Figma, Sentry) require a one-time OAuth login rather than a static key:
+
+```bash
+cbcode --agent codex
+codex mcp login linear
+codex mcp list --json | jq '.[] | {name, auth_status}'   # AUTH_REQUIRED means it still needs codex mcp login
+```
 
 ### Why this is necessary
 
-cbcode's `ensureCodexConfigToml()` in `packages/code-agent/src/onboarding/config.ts` runs on every launch and force-updates `model`, `model_provider`, `model_providers.cbhq-gateway`, and `features` in `config.toml`. The path is hardcoded to `os.homedir() + '/.codex'` with no env var override. Sandboxing `HOME` is the only way to isolate it without patching the binary.
+cbcode force-updates both `~/.codex/config.toml` (model, provider, gateway settings) and `~/.claude/settings.json` (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, OTEL exporters) on every launch, with no environment-variable override for either path. Sandboxing `HOME` is the only way to isolate both without patching the binary.
 
 ## Troubleshooting
 

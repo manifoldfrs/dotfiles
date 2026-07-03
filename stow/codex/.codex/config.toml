@@ -49,6 +49,9 @@ hide_full_access_warning = true
 [plugins."github@openai-curated"]
 enabled = true
 
+[tui]
+theme = "tokyonight-frsh"
+
 [tui.model_availability_nux]
 "gpt-5.5" = 4
 

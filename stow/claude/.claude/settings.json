@@ -29,7 +29,7 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "opus",
+  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {

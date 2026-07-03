@@ -9,6 +9,7 @@ DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 TPM_REPO=https://github.com/tmux-plugins/tpm
+CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
 DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude codex pi)
 CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
@@ -23,6 +24,7 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/hooks.json"
     "$HOME/.codex/hooks/block-dangerous-bash.sh"
     "$HOME/.codex/hooks/block-generated-edits.sh"
+    "$HOME/.codex/themes/$CODEX_THEME_FILE"
     "$HOME/.agents/skills/grill-me"
     "$HOME/.agents/skills/grill-me-with-docs"
     "$HOME/.agents/skills/quiz-me"
@@ -165,7 +167,7 @@ backup_cb_stow_targets() {
 }
 
 backup_codex_stow_targets() {
-    mkdir -p "$HOME/.codex"
+    mkdir -p "$HOME/.codex/themes"
 
     for target in "${CODEX_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -253,6 +255,96 @@ has_stow_package() {
     done
 
     return 1
+}
+
+personal_home() {
+    case "$HOME" in
+        */.cbcode-home)
+            dirname "$HOME"
+            ;;
+        *)
+            printf '%s\n' "$HOME"
+            ;;
+    esac
+}
+
+cbcode_home() {
+    printf '%s\n' "${CBCODE_HOME:-$(personal_home)/.cbcode-home}"
+}
+
+codex_theme_src() {
+    printf '%s\n' "$STOW_DIR/codex/.codex/themes/$CODEX_THEME_FILE"
+}
+
+ensure_cbcode_codex_theme_link() {
+    local cb_home
+    local src
+    local dest
+    local link_dest
+
+    if ! has_stow_package codex; then
+        return
+    fi
+
+    cb_home="$(cbcode_home)"
+    if [ ! -d "$cb_home/.codex" ]; then
+        return
+    fi
+
+    src="$(codex_theme_src)"
+    dest="$cb_home/.codex/themes/$CODEX_THEME_FILE"
+
+    if [ ! -f "$src" ]; then
+        warn "Codex theme source missing: $src"
+        return
+    fi
+
+    mkdir -p "$cb_home/.codex/themes"
+
+    if [ -L "$dest" ]; then
+        link_dest="$(readlink "$dest")"
+        if [ "$link_dest" = "$src" ]; then
+            return
+        fi
+
+        if is_stow_managed_link "$dest"; then
+            rm "$dest"
+        fi
+    fi
+
+    if [ -e "$dest" ] || [ -L "$dest" ]; then
+        backup_stow_target "$dest"
+    fi
+
+    ln -s "$src" "$dest"
+    info "Linked cbcode Codex theme: $dest -> $src"
+}
+
+remove_cbcode_codex_theme_link() {
+    local cb_home
+    local src
+    local dest
+    local link_dest
+
+    if ! has_stow_package codex; then
+        return
+    fi
+
+    cb_home="$(cbcode_home)"
+    src="$(codex_theme_src)"
+    dest="$cb_home/.codex/themes/$CODEX_THEME_FILE"
+
+    if [ ! -L "$dest" ]; then
+        return
+    fi
+
+    link_dest="$(readlink "$dest")"
+    if [ "$link_dest" != "$src" ]; then
+        return
+    fi
+
+    rm "$dest"
+    info "Removed cbcode Codex theme link: $dest"
 }
 
 ensure_codex_skill_folder_links() {
@@ -363,6 +455,7 @@ apply_dotfiles() {
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
     stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
     ensure_codex_skill_folder_links
+    ensure_cbcode_codex_theme_link
     install_tmux_plugins
 }
 
@@ -373,6 +466,7 @@ dry_run_dotfiles() {
 
 delete_dotfiles() {
     remove_codex_skill_folder_links
+    remove_cbcode_codex_theme_link
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
 }

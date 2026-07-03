@@ -79,6 +79,7 @@ jobs:
           test -L "$tmp_home/.codex/hooks.json"
           test -L "$tmp_home/.codex/hooks/block-dangerous-bash.sh"
           test -L "$tmp_home/.codex/hooks/block-generated-edits.sh"
+          test -L "$tmp_home/.codex/themes/tokyonight-frsh.tmTheme"
           test -L "$tmp_home/.agents/skills/tldr/SKILL.md"
           test -L "$tmp_home/.pi/agent/settings.json"
           test ! -e "$tmp_home/AGENTS.md"
