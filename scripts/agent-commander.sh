@@ -1,13 +1,19 @@
 #!/bin/bash
 
 # Shared launcher for the sibling agent-commander operating home.
-# Usage: agent-commander <path|init|doctor|bootstrap|install|shims|start>
+# Usage: agent-commander <path|init|doctor|bootstrap|install|integrate|shims|start>
 
 set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-DEFAULT_AGENT_COMMANDER_DIR="/Users/frshbb/github/agent-commander"
-AGENT_COMMANDER_DIR="${AGENT_COMMANDER_DIR:-$DEFAULT_AGENT_COMMANDER_DIR}"
+DEFAULT_AGENT_COMMANDER_DIR="$HOME/github/agent-commander"
+if [ -z "${AGENT_COMMANDER_DIR:-}" ]; then
+    if [ -d "$HOME/agent-commander/.git" ]; then
+        AGENT_COMMANDER_DIR="$HOME/agent-commander"
+    else
+        AGENT_COMMANDER_DIR="$DEFAULT_AGENT_COMMANDER_DIR"
+    fi
+fi
 AGENT_COMMANDER_REMOTE="https://github.com/manifoldfrs/agent-commander"
 FIRSTMATE_REMOTE="https://github.com/kunchenguid/firstmate.git"
 TREEHOUSE_REMOTE="https://github.com/kunchenguid/treehouse.git"
@@ -55,6 +61,7 @@ usage() {
     echo "  doctor                       Check required local tools"
     echo "  bootstrap                    Run firstmate bootstrap from agent-commander"
     echo "  install <tool|all>...        Install named tools into libs/"
+    echo "  integrate                    Link skills and install AXI session hooks"
     echo "  shims                        Regenerate command shims in agent-commander/bin"
     echo "  start <claude|codex|opencode|pi|grok>"
     echo ""
@@ -332,6 +339,8 @@ firstmate_bootstrap() {
     local home_dir=$1
     local path
 
+    export PATH="$home_dir/bin:$PATH"
+
     if [ -f "$home_dir/libs/firstmate/bin/fm-bootstrap.sh" ]; then
         printf '%s\n' "$home_dir/libs/firstmate/bin/fm-bootstrap.sh"
         return 0
@@ -357,6 +366,9 @@ cmd_bootstrap() {
     if ! bootstrap="$(firstmate_bootstrap "$home_dir")"; then
         error "firstmate bootstrap not found. Run: agent-commander install firstmate"
     fi
+
+    export AGENT_COMMANDER_DIR="$home_dir"
+    export PATH="$home_dir/bin:$PATH"
 
     cd "$home_dir"
     FM_HOME="$home_dir" bash "$bootstrap"
@@ -437,7 +449,7 @@ install_no_mistakes() {
     install_tool_source "$home_dir" no-mistakes "$NO_MISTAKES_REMOTE" "$NO_MISTAKES_REV" "libs/no-mistakes"
 
     if command -v go >/dev/null 2>&1; then
-        (cd "$home_dir/libs/no-mistakes" && mkdir -p bin && go build -o bin/no-mistakes ./cmd/no-mistakes)
+        (cd "$home_dir/libs/no-mistakes" && make build)
     else
         warn "go not found; cloned no-mistakes source without building local binary"
     fi
@@ -586,6 +598,65 @@ cmd_shims() {
     info "Updated command shims: $home_dir/bin"
 }
 
+link_agent_skill() {
+    local home_dir=$1
+    local name=$2
+    local source=$3
+    local target="$HOME/.agents/skills/$name"
+
+    if [ ! -d "$source" ]; then
+        warn "Skill source missing: $source"
+        return
+    fi
+
+    mkdir -p "$HOME/.agents/skills"
+
+    if [ -L "$target" ] && [ "$(readlink "$target")" = "$source" ]; then
+        return
+    fi
+
+    if [ -e "$target" ] || [ -L "$target" ]; then
+        warn "Skipping existing skill target: $target"
+        return
+    fi
+
+    ln -s "$source" "$target"
+    info "Linked agent skill: $target -> $source"
+}
+
+run_axi_hook_setup() {
+    local command_name=$1
+
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        warn "$command_name not found; skipping hook setup"
+        return
+    fi
+
+    "$command_name" setup hooks || warn "$command_name hook setup failed"
+}
+
+cmd_integrate() {
+    local home_dir
+
+    require_agent_commander_repo
+    home_dir="$(agent_commander_dir)"
+    ensure_runtime_dirs "$home_dir"
+    ensure_tool_shims "$home_dir"
+
+    export AGENT_COMMANDER_DIR="$home_dir"
+    export PATH="$home_dir/bin:$PATH"
+
+    link_agent_skill "$home_dir" lavish "$home_dir/libs/lavish-axi/skills/lavish"
+    link_agent_skill "$home_dir" lavish-design "$home_dir/libs/lavish-axi/.agents/skills/lavish-design"
+    link_agent_skill "$home_dir" gh-axi "$home_dir/libs/gh-axi/skills/gh-axi"
+    link_agent_skill "$home_dir" chrome-devtools-axi "$home_dir/libs/chrome-devtools-axi/skills/chrome-devtools-axi"
+    link_agent_skill "$home_dir" no-mistakes "$home_dir/libs/no-mistakes/skills/no-mistakes"
+
+    run_axi_hook_setup gh-axi
+    run_axi_hook_setup chrome-devtools-axi
+    run_axi_hook_setup lavish-axi
+}
+
 cmd_install() {
     local home_dir
     local tool
@@ -628,6 +699,7 @@ cmd_install() {
     done
 
     ensure_tool_shims "$home_dir"
+    cmd_integrate
 }
 
 cmd_start() {
@@ -652,7 +724,16 @@ cmd_start() {
     fi
 
     home_dir="$(agent_commander_dir)"
-    cd "$home_dir"
+    export AGENT_COMMANDER_DIR="$home_dir"
+    export FM_HOME="$home_dir"
+    export PATH="$home_dir/bin:$PATH"
+
+    if [ -f "$home_dir/libs/firstmate/AGENTS.md" ]; then
+        cd "$home_dir/libs/firstmate"
+    else
+        cd "$home_dir"
+    fi
+
     exec "$harness"
 }
 
@@ -683,6 +764,11 @@ main() {
         install)
             shift
             cmd_install "$@"
+            ;;
+        integrate)
+            shift
+            [ "$#" -eq 0 ] || usage
+            cmd_integrate
             ;;
         shims)
             shift

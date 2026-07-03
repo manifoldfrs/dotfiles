@@ -153,7 +153,7 @@ What is still separate:
 
 `agent-commander` is a sibling operating home for firstmate, treehouse, no-mistakes, AXI tools, and related agent harness state.
 Dotfiles manages only the shared launcher at `~/.local/bin/agent-commander` plus its source script in `scripts/agent-commander.sh`.
-The operating home itself lives outside this repo at `/Users/frshbb/github/agent-commander` by default.
+The operating home itself lives outside this repo at `~/github/agent-commander` by default, or `~/agent-commander` when that clone already exists.
 Do not Stow the `agent-commander` repo.
 
 ```bash
@@ -162,6 +162,7 @@ agent-commander init
 agent-commander doctor
 agent-commander bootstrap
 agent-commander install all
+agent-commander integrate
 agent-commander shims
 agent-commander start codex
 ```
@@ -169,7 +170,9 @@ agent-commander start codex
 `AGENT_COMMANDER_DIR` can override the operating home, but the launcher refuses to run if that directory is inside this dotfiles repo.
 Runtime config, projects, state, logs, generated command shims, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
 Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/no-mistakes libs/gh-axi libs/chrome-devtools-axi libs/lavish-axi` or use `agent-commander install all`.
+`agent-commander install all` also refreshes command shims, links Agent Skills for Lavish, gh-axi, chrome-devtools-axi, and no-mistakes, and installs the supported AXI session hooks.
 The zsh profile prepends `agent-commander/bin` when that directory exists, so generated shims like `gh-axi`, `chrome-devtools-axi`, `lavish-axi`, `no-mistakes`, and `treehouse` are available by command name after opening a new shell.
+`agent-commander start <harness>` starts the selected harness from the pinned firstmate checkout with `FM_HOME` pointed at the sibling operating home.
 
 Fresh-shell validation:
 

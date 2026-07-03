@@ -31,6 +31,21 @@ Prefer RepoPromptCE MCP tools for codebase work when available.
 
 Use normal shell commands for validation, tests, package commands, and write-side git operations such as commits and pushes.
 
+## Agent Tooling
+
+When available on PATH, prefer the pinned `agent-commander` AXI tools over raw CLIs for agent-facing workflows:
+
+| Task | Prefer |
+| --- | --- |
+| GitHub issues, PRs, CI, releases, and repo operations | `gh-axi` |
+| Browser automation, page interaction, console, and network debugging | `chrome-devtools-axi` |
+| Rich HTML plans, reports, diagrams, comparisons, and human review surfaces | `lavish-axi` |
+| PR creation or validation gates when the repo has been initialized | `git push no-mistakes` or `no-mistakes` |
+| Isolated reusable worktrees for manual agent sessions | `treehouse` |
+
+Use `lavish-axi` when a complex decision or report would be easier to review visually.
+Use `no-mistakes init` once per Git repo before relying on the `no-mistakes` remote.
+
 ## Implementation Rules
 
 - Keep changes minimal and scoped to the requested task.

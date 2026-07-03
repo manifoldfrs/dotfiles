@@ -23,7 +23,38 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -lc 'if [ -n \"${AGENT_COMMANDER_DIR:-}\" ]; then export PATH=\"$AGENT_COMMANDER_DIR/bin:$PATH\"; elif [ -d \"$HOME/agent-commander/bin\" ]; then export PATH=\"$HOME/agent-commander/bin:$PATH\"; else export PATH=\"$HOME/github/agent-commander/bin:$PATH\"; fi; exec gh-axi'",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -lc 'if [ -n \"${AGENT_COMMANDER_DIR:-}\" ]; then export PATH=\"$AGENT_COMMANDER_DIR/bin:$PATH\"; elif [ -d \"$HOME/agent-commander/bin\" ]; then export PATH=\"$HOME/agent-commander/bin:$PATH\"; else export PATH=\"$HOME/github/agent-commander/bin:$PATH\"; fi; exec chrome-devtools-axi'",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -lc 'if [ -n \"${AGENT_COMMANDER_DIR:-}\" ]; then export PATH=\"$AGENT_COMMANDER_DIR/bin:$PATH\"; elif [ -d \"$HOME/agent-commander/bin\" ]; then export PATH=\"$HOME/agent-commander/bin:$PATH\"; else export PATH=\"$HOME/github/agent-commander/bin:$PATH\"; fi; exec lavish-axi'",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }
-
