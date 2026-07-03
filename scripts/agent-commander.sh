@@ -63,7 +63,7 @@ usage() {
     echo "  install <tool|all>...        Install named tools into libs/"
     echo "  integrate                    Link skills and install AXI session hooks"
     echo "  shims                        Regenerate command shims in agent-commander/bin"
-    echo "  start <claude|codex|opencode|pi|grok>"
+    echo "  start <claude|codex|opencode|pi|grok|cbcode-claude|cbcode-codex>"
     echo ""
     echo "Environment:"
     echo "  AGENT_COMMANDER_DIR          Override the operating home"
@@ -705,13 +705,21 @@ cmd_install() {
 cmd_start() {
     local harness=${1:-}
     local home_dir
+    local -a exec_cmd
 
     if [ -z "$harness" ]; then
-        error "start requires a harness: claude, codex, opencode, pi, or grok"
+        error "start requires a harness: claude, codex, opencode, pi, grok, cbcode-claude, or cbcode-codex"
     fi
 
     case "$harness" in
         claude|codex|opencode|pi|grok)
+            exec_cmd=("$harness")
+            ;;
+        cbcode-claude)
+            exec_cmd=(cbcode --agent claude)
+            ;;
+        cbcode-codex)
+            exec_cmd=(cbcode --agent codex)
             ;;
         *)
             error "unsupported harness: $harness"
@@ -719,8 +727,8 @@ cmd_start() {
     esac
 
     require_agent_commander_repo
-    if ! command -v "$harness" >/dev/null 2>&1; then
-        error "harness not found on PATH: $harness"
+    if ! command -v "${exec_cmd[0]}" >/dev/null 2>&1; then
+        error "harness not found on PATH: ${exec_cmd[0]}"
     fi
 
     home_dir="$(agent_commander_dir)"
@@ -728,13 +736,21 @@ cmd_start() {
     export FM_HOME="$home_dir"
     export PATH="$home_dir/bin:$PATH"
 
+    case "$harness" in
+        cbcode-*)
+            # cbcode's HOME-sandbox is only defined as an interactive zsh function
+            # (stow/zsh-cb/.zshrc.local); a plain bash exec never sees it, so replicate it here.
+            export HOME="$HOME/.cbcode-home"
+            ;;
+    esac
+
     if [ -f "$home_dir/libs/firstmate/AGENTS.md" ]; then
         cd "$home_dir/libs/firstmate"
     else
         cd "$home_dir"
     fi
 
-    exec "$harness"
+    exec "${exec_cmd[@]}"
 }
 
 main() {
