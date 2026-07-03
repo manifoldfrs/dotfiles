@@ -15,6 +15,7 @@
     "npm:pi-mcp-adapter",
     "npm:pi-subagents",
     "npm:@plannotator/pi-extension",
-    "npm:pi-intercom"
+    "npm:pi-intercom",
+    "npm:pi-prompt-template-model"
   ]
 }
