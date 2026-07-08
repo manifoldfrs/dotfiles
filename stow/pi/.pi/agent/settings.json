@@ -3,7 +3,7 @@
   "theme": "tokyonight-frsh",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "low",
+  "defaultThinkingLevel": "high",
   "hideThinkingBlock": false,
   "themes": [
     "themes"

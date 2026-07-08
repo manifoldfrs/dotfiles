@@ -40,6 +40,15 @@ trust_level = "trusted"
 [projects."/Users/farishabib/dotfiles"]
 trust_level = "trusted"
 
+[projects."/Users/farishabib/cb/acceptance/engine"]
+trust_level = "trusted"
+
+[projects."/Users/farishabib/cb/acceptance"]
+trust_level = "trusted"
+
+[projects."/private/var/folders/9q/1lj0zr5d61l498p7ghn5dw700000gn/T"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 
@@ -90,6 +99,15 @@ trusted_hash = "sha256:23a8ebf007ace63070ce68117cc10069ec15dae1861e6913cf7de5eae
 
 [hooks.state."/Users/farishabib/.codex/hooks.json:pre_tool_use:1:0"]
 trusted_hash = "sha256:5a5a626d74a7c584c0e45e5268f87517317db69d9de5d983637c80a6345de51b"
+
+[hooks.state."/Users/farishabib/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:2af620f845cb3c8b6de236023a3384815ca7ef414e3da59c38303a5fa2b27dd9"
+
+[hooks.state."/Users/farishabib/.codex/hooks.json:session_start:1:0"]
+trusted_hash = "sha256:3530443a8b55e99ba5dbcabc61802450deb8f91cff4e97521c167899c066436d"
+
+[hooks.state."/Users/farishabib/.codex/hooks.json:session_start:2:0"]
+trusted_hash = "sha256:bbc9b0c1b854b94ea5a971b78518b1977f261f49a00f3e3683eb12643e1f8c45"
 
 [features]
 hooks = true

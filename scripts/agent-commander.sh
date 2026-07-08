@@ -744,12 +744,6 @@ cmd_start() {
             ;;
     esac
 
-    if [ -f "$home_dir/libs/firstmate/AGENTS.md" ]; then
-        cd "$home_dir/libs/firstmate"
-    else
-        cd "$home_dir"
-    fi
-
     exec "${exec_cmd[@]}"
 }
 
