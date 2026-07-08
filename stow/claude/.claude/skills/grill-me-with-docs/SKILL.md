@@ -21,8 +21,40 @@ Read what exists: `CONTEXT.md` (or `CONTEXT-MAP.md` for multi-context layouts), 
 
 ## Capture as you go
 
-- A term gets resolved, update `CONTEXT.md` now, not at the end. Domain terms only, no implementation detail. Create the file on first resolution if it is absent.
-- A hard-to-reverse decision crystallizes, draft an ADR under `docs/adr/` now.
+### CONTEXT.md
+
+- A term gets resolved, update `CONTEXT.md` now, not at the end.
+- Domain terms only. No implementation details, specs, or scratch notes.
+- Create `CONTEXT.md` on first resolved term if it is absent.
+- If `CONTEXT-MAP.md` exists, use it to choose the right context file. Ask only when the context is ambiguous.
+- Pick one canonical term and list rejected synonyms under `_Avoid_` when useful.
+- Keep definitions to one or two sentences that define what the concept is.
+
+Use this shape:
+
+```md
+**Order**:
+A customer request that can be accepted, fulfilled, cancelled, or billed.
+_Avoid_: Purchase, transaction
+```
+
+### ADRs
+
+Offer an ADR only when all three are true:
+
+1. The decision is hard to reverse.
+2. The decision would be surprising without context.
+3. The decision came from a real trade-off.
+
+Skip ADRs for obvious choices, easy-to-change choices, and implementation details the code already explains.
+
+ADRs live in `docs/adr/` and use sequential names like `0001-use-postgres-for-write-model.md`. A minimal ADR is enough:
+
+```md
+# <Short decision title>
+
+One to three sentences: context, decision, and why.
+```
 
 ## End condition
 

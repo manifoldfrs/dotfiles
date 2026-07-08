@@ -232,10 +232,10 @@ On a machine where `~/.claude/skills/` and `~/.codex/hooks.json` already resolve
 
 ```bash
 curl -fsSL https://plannotator.ai/install.sh | bash
-cd ~/dotfiles && stow -d stow -t ~ --restow claude codex
+cd ~/dotfiles && ./scripts/stow.sh apply
 ```
 
-The installer auto-detects both agents and writes its hook entries straight through the Stow symlinks (`~/.claude/settings.json` -> `stow/claude/.claude/settings.json`, `~/.codex/hooks.json` -> `stow/codex/.codex/hooks.json`), so nothing else is needed for personal use. Review the resulting `git diff` and commit like any other change.
+The installer auto-detects both agents and writes its hook entries straight through the Stow symlinks (`~/.claude/settings.json` -> `stow/claude/.claude/settings.json`, `~/.codex/hooks.json` -> `stow/codex/.codex/hooks.json`). The Stow wrapper also links Codex user-scope skills into `~/.agents/skills/`, which plain `stow` does not handle. Review the resulting `git diff` and commit like any other change.
 
 ### cbcode setup (Claude Code + Codex under `~/.cbcode-home`)
 
@@ -656,19 +656,20 @@ Preferred tool usage after setup:
 - Pi loads MCP support through the `npm:pi-mcp-adapter` package declared in settings.
 - Do not move Pi auth, sessions, logs, or other runtime/account state into Stow; `stow/pi/.stow-local-ignore` excludes common sensitive/runtime paths.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
-- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free, secret-free — see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` (`tldr`, `grill-me`, `grill-me-with-docs`, `quiz-me`), and the `hooks/` scripts.
+- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free and secret-free, see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` directories, and the `hooks/` scripts.
+- Shared personal skills are tracked for Claude and Codex: `architecture-scan`, `coding-standards-go`, `coding-standards-ts`, `domain-modeling`, `grill-me`, `grill-me-with-docs`, `plannotator-annotate`, `plannotator-last`, `plannotator-review`, `quiz-me`, `tdd`, `tech-spec`, and `tldr`.
 - Codex global config is managed at `stow/codex/.codex/config.toml` in the default Stow profile. It tracks personal defaults and MCP server definitions, while auth, sessions, logs, plugin caches, and other runtime state remain local under `~/.codex/`.
 - Codex syntax highlighting uses `stow/codex/.codex/themes/tokyonight-frsh.tmTheme`, selected by `[tui] theme = "tokyonight-frsh"` in `stow/codex/.codex/config.toml`.
 - `scripts/stow.sh apply` also links that theme into `~/.cbcode-home/.codex/themes/` when the cbcode sandbox exists.
   It does not manage `~/.cbcode-home/.codex/config.toml`, because cbcode owns and rewrites that file.
-- Codex personal skills mirror the Claude Code skills under `stow/codex/.agents/skills/`. The Codex Stow package ignores `.agents` directly; `scripts/stow.sh` owns the skill-folder symlinks such as `~/.agents/skills/tldr -> ~/github/dotfiles/stow/codex/.agents/skills/tldr`, matching Codex's user-scope skill discovery.
+- Codex personal skills mirror the Claude Code skills under `stow/codex/.agents/skills/`. The Codex Stow package ignores `.agents` directly, so `scripts/stow.sh` owns the skill-folder symlinks listed in `CODEX_SKILL_NAMES`, such as `~/.agents/skills/tldr -> ~/github/dotfiles/stow/codex/.agents/skills/tldr`, matching Codex's user-scope skill discovery.
 - Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
 - Claude and Codex both use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous bash commands and generated-file edit blockers. The Claude hook files and Codex hook files are harness-specific wrappers around the same implementation.
 - Claude Code MCP servers are user-scoped, not Stow-managed. Personal MCP servers (`RepoPromptCE`, `Ref`, `exa`) are in `~/.claude.json`; keep `Ref`/`exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.zshenv.local`. Work MCP servers live in the separate `~/.cbcode-home/.claude.json` (see cbcode HOME Sandbox below) and are unrelated to the personal set.
 - Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML. This applies to the personal `~/.codex/config.toml` only; work's `~/.cbcode-home/.codex/config.toml` holds its own MCP server list ported from work Claude (see below).
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
-- OpenCode slash wrappers for those personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
-- Personal skills and `CLAUDE.md` are shared, not Claude-only: OpenCode reads `~/.claude/skills/` plus `~/.claude/CLAUDE.md` (when no `~/.config/opencode/AGENTS.md` exists), so one Stow source drives plain Claude Code and OpenCode. This no longer includes cbcode's Claude Code — `~/.cbcode-home/.claude` is now a separate real directory, not a symlink to `~/.claude` (see cbcode HOME Sandbox below).
+- OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
+- Personal skills and `CLAUDE.md` are shared, not Claude-only: OpenCode reads `~/.claude/skills/` plus `~/.claude/CLAUDE.md` when no `~/.config/opencode/AGENTS.md` exists, so one Stow source drives plain Claude Code and OpenCode. This no longer includes cbcode's Claude Code. `~/.cbcode-home/.claude` is now a separate real directory, not a symlink to `~/.claude` (see cbcode HOME Sandbox below).
 - Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the Claude wrappers for the bash and generated-edit blockers.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
 - Do not copy live MCP URLs with real API keys into tracked files. Use environment interpolation for secrets.

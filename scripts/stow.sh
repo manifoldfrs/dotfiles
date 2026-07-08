@@ -13,7 +13,21 @@ CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
 DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude codex pi)
 CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
-CODEX_SKILL_NAMES=(grill-me grill-me-with-docs quiz-me tldr)
+CODEX_SKILL_NAMES=(
+    architecture-scan
+    coding-standards-go
+    coding-standards-ts
+    domain-modeling
+    grill-me
+    grill-me-with-docs
+    plannotator-annotate
+    plannotator-last
+    plannotator-review
+    quiz-me
+    tdd
+    tech-spec
+    tldr
+)
 SHARED_BACKUP_TARGETS=(
     "$HOME/.local/bin/agent-commander"
     "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
@@ -25,9 +39,18 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/hooks/block-dangerous-bash.sh"
     "$HOME/.codex/hooks/block-generated-edits.sh"
     "$HOME/.codex/themes/$CODEX_THEME_FILE"
+    "$HOME/.agents/skills/architecture-scan"
+    "$HOME/.agents/skills/coding-standards-go"
+    "$HOME/.agents/skills/coding-standards-ts"
+    "$HOME/.agents/skills/domain-modeling"
     "$HOME/.agents/skills/grill-me"
     "$HOME/.agents/skills/grill-me-with-docs"
+    "$HOME/.agents/skills/plannotator-annotate"
+    "$HOME/.agents/skills/plannotator-last"
+    "$HOME/.agents/skills/plannotator-review"
     "$HOME/.agents/skills/quiz-me"
+    "$HOME/.agents/skills/tdd"
+    "$HOME/.agents/skills/tech-spec"
     "$HOME/.agents/skills/tldr"
 )
 PI_BACKUP_TARGETS=(
