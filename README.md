@@ -165,24 +165,26 @@ agent-commander install all
 agent-commander integrate
 agent-commander shims
 agent-commander start codex
+agent-commander start cbcode-claude   # cbcode --agent claude, sandboxed under ~/.cbcode-home
+agent-commander start cbcode-codex    # cbcode --agent codex, sandboxed under ~/.cbcode-home
 ```
 
 `AGENT_COMMANDER_DIR` can override the operating home, but the launcher refuses to run if that directory is inside this dotfiles repo.
 Runtime config, projects, state, logs, generated command shims, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
-Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/no-mistakes libs/gh-axi libs/chrome-devtools-axi libs/lavish-axi` or use `agent-commander install all`.
-`agent-commander install all` also refreshes command shims, links Agent Skills for Lavish, gh-axi, chrome-devtools-axi, and no-mistakes, and installs the supported AXI session hooks.
-The zsh profile prepends `agent-commander/bin` when that directory exists, so generated shims like `gh-axi`, `chrome-devtools-axi`, `lavish-axi`, `no-mistakes`, and `treehouse` are available by command name after opening a new shell.
-`agent-commander start <harness>` starts the selected harness from the pinned firstmate checkout with `FM_HOME` pointed at the sibling operating home.
+Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/no-mistakes libs/gh-axi libs/chrome-devtools-axi` or use `agent-commander install all`.
+`agent-commander install all` also refreshes command shims, links Agent Skills for gh-axi, chrome-devtools-axi, and no-mistakes, and installs the supported AXI session hooks.
+The zsh profile prepends `agent-commander/bin` when that directory exists, so generated shims like `gh-axi`, `chrome-devtools-axi`, `no-mistakes`, and `treehouse` are available by command name after opening a new shell.
+`agent-commander start <harness>` starts the selected harness (`claude`, `codex`, `opencode`, `pi`, `grok`, `cbcode-claude`, or `cbcode-codex`) from the current working directory, with `AGENT_COMMANDER_DIR`/`FM_HOME` pointed at the sibling operating home. The `cbcode-*` variants export `HOME="$HOME/.cbcode-home"` before exec'ing `cbcode`, since cbcode's HOME-sandbox wrapper is normally only defined as an interactive zsh function (see cbcode HOME Sandbox below) and a plain exec would otherwise bypass it.
+agent-commander's own `lavish-axi` integration was removed in favor of [Plannotator](#plannotator) (see below); it no longer clones, builds, or wires hooks for `lavish-axi`.
 
 Fresh-shell validation:
 
 ```bash
 exec zsh -l
 agent-commander doctor
-command -v gh-axi chrome-devtools-axi lavish-axi no-mistakes treehouse fm-bootstrap.sh
+command -v gh-axi chrome-devtools-axi no-mistakes treehouse fm-bootstrap.sh
 gh-axi --help
 chrome-devtools-axi --help
-lavish-axi --help
 no-mistakes --help
 treehouse --help
 ```
@@ -200,6 +202,76 @@ agent-commander doctor
 ```
 
 On Coinbase laptops, use the same launcher and repo shape, but keep work harness choices local under the ignored `agent-commander/config/` paths.
+
+## Plannotator
+
+[Plannotator](https://plannotator.ai/) is a local, browser-based review surface for AI agent plans, diffs, and documents. It intercepts Claude Code's `ExitPlanMode` and Codex's session `Stop` event to open a review UI before the agent proceeds. It replaced the `lavish-axi` review flow that used to ship inside Agent Commander (see the Agent Commander section above).
+
+### Install
+
+Plannotator installs as a single ~110MB binary via its own installer, not through Stow or Homebrew:
+
+```bash
+curl -fsSL https://plannotator.ai/install.sh | bash
+```
+
+On a machine where `~/.claude/skills/` and `~/.codex/hooks.json` already resolve into this repo (personal setup, see below), the installer's own per-agent auto-detection writes its skill files and hook entries straight through those Stow symlinks, landing inside the dotfiles working tree automatically.
+
+### What is Stow-managed vs. not
+
+| Path | Managed by |
+|------|-----------|
+| `~/.local/bin/plannotator` (the binary) | Plannotator's installer; not tracked, too large for git |
+| `~/.plannotator/` (runtime state, migrations, vendor helpers) | Plannotator's installer; not tracked |
+| `stow/claude/.claude/skills/plannotator-{review,annotate,last}/SKILL.md` | Stow (`claude` package) |
+| `stow/codex/.agents/skills/plannotator-{review,annotate,last}/` | Stow (`codex` package) |
+| `stow/claude/.claude/settings.json` `hooks.PermissionRequest` (`ExitPlanMode`) | Stow (`claude` package) |
+| `stow/codex/.codex/hooks.json` `hooks.Stop` | Stow (`codex` package) |
+
+### Personal setup (Claude Code + Codex)
+
+```bash
+curl -fsSL https://plannotator.ai/install.sh | bash
+cd ~/dotfiles && stow -d stow -t ~ --restow claude codex
+```
+
+The installer auto-detects both agents and writes its hook entries straight through the Stow symlinks (`~/.claude/settings.json` -> `stow/claude/.claude/settings.json`, `~/.codex/hooks.json` -> `stow/codex/.codex/hooks.json`), so nothing else is needed for personal use. Review the resulting `git diff` and commit like any other change.
+
+### cbcode setup (Claude Code + Codex under `~/.cbcode-home`)
+
+`~/.cbcode-home/.claude` and `~/.cbcode-home/.codex` are real, separate, non-Stow-managed directories (see cbcode HOME Sandbox below), so the installer never reaches them. Wire them up once, by hand:
+
+```bash
+# Skills: symlink the same Stow-tracked files into the cbcode home
+for name in plannotator-review plannotator-annotate plannotator-last; do
+  mkdir -p ~/.cbcode-home/.claude/skills/"$name"
+  ln -sf ~/dotfiles/stow/claude/.claude/skills/"$name"/SKILL.md ~/.cbcode-home/.claude/skills/"$name"/SKILL.md
+  ln -sf ~/dotfiles/stow/codex/.agents/skills/"$name" ~/.cbcode-home/.agents/skills/"$name"
+done
+```
+
+Then merge these two hook blocks into the existing `hooks` object of `~/.cbcode-home/.claude/settings.json` and `~/.cbcode-home/.codex/hooks.json` respectively, do not replace the whole `hooks` object:
+
+```jsonc
+// ~/.cbcode-home/.claude/settings.json -> hooks.PermissionRequest
+"PermissionRequest": [
+  {
+    "matcher": "ExitPlanMode",
+    "hooks": [{"type": "command", "command": "plannotator", "timeout": 345600}]
+  }
+]
+```
+
+```jsonc
+// ~/.cbcode-home/.codex/hooks.json -> hooks.Stop
+"Stop": [
+  {
+    "hooks": [{"type": "command", "command": "$HOME/.local/bin/plannotator", "timeout": 345600}]
+  }
+]
+```
+
+These two files are cbcode-owned runtime state, not Stow-managed. They are not known to be rewritten wholesale by cbcode on every launch, but if `~/.cbcode-home/.claude` or `~/.cbcode-home/.codex` is ever recreated from scratch, or the hooks stop firing, redo both blocks above.
 
 ## Stow How-To
 

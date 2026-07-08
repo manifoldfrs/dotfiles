@@ -20,13 +20,11 @@ TREEHOUSE_REMOTE="https://github.com/kunchenguid/treehouse.git"
 NO_MISTAKES_REMOTE="https://github.com/kunchenguid/no-mistakes.git"
 GH_AXI_REMOTE="https://github.com/kunchenguid/gh-axi.git"
 CHROME_DEVTOOLS_AXI_REMOTE="https://github.com/kunchenguid/chrome-devtools-axi.git"
-LAVISH_AXI_REMOTE="https://github.com/kunchenguid/lavish-axi.git"
 FIRSTMATE_REV="e93620331ed4b5814638480a862ad0b16920a6f2"
 TREEHOUSE_REV="68fa3d2556542add76bf80255787b8625a5041a6"
 NO_MISTAKES_REV="78c7e606ce598491d50e72bf532045f4684ca8b7"
 GH_AXI_REV="4dea8ab8858ca5585e15770d1caf5d8e35128e4f"
 CHROME_DEVTOOLS_AXI_REV="27e291a28164410a6b9b80796b3c4c490bca0fa3"
-LAVISH_AXI_REV="445022e9ce81862521cfaf4d72dcb271d8b38e08"
 IGNORE_PATTERNS=(
     ".env"
     "config/"
@@ -285,22 +283,6 @@ detect_chrome_devtools_axi() {
     fi
 }
 
-detect_lavish_axi() {
-    local home_dir=$1
-    local path
-
-    path="$(tool_path lavish-axi)"
-    if [ -n "$path" ]; then
-        check_tool lavish-axi "expected lavish-axi or libs/lavish-axi" "$path"
-    elif [ -f "$home_dir/libs/lavish-axi/dist/cli.mjs" ]; then
-        check_tool lavish-axi "expected lavish-axi or libs/lavish-axi" "$home_dir/libs/lavish-axi/dist/cli.mjs"
-    elif [ -f "$home_dir/libs/lavish-axi/package.json" ]; then
-        check_tool lavish-axi "expected lavish-axi or libs/lavish-axi" "$home_dir/libs/lavish-axi"
-    else
-        check_tool lavish-axi "expected lavish-axi or libs/lavish-axi"
-    fi
-}
-
 detect_simple_command() {
     local name=$1
     local path
@@ -328,7 +310,6 @@ cmd_doctor() {
     detect_no_mistakes "$home_dir" || missing=1
     detect_gh_axi "$home_dir" || missing=1
     detect_chrome_devtools_axi "$home_dir" || missing=1
-    detect_lavish_axi "$home_dir" || missing=1
 
     if [ "$missing" -ne 0 ]; then
         return 1
@@ -504,12 +485,6 @@ install_chrome_devtools_axi() {
     install_node_axi "$home_dir" chrome-devtools-axi "$CHROME_DEVTOOLS_AXI_REMOTE" "$CHROME_DEVTOOLS_AXI_REV" "libs/chrome-devtools-axi"
 }
 
-install_lavish_axi() {
-    local home_dir=$1
-
-    install_node_axi "$home_dir" lavish-axi "$LAVISH_AXI_REMOTE" "$LAVISH_AXI_REV" "libs/lavish-axi"
-}
-
 install_all_tools() {
     local home_dir=$1
 
@@ -518,7 +493,6 @@ install_all_tools() {
     install_no_mistakes "$home_dir"
     install_gh_axi "$home_dir"
     install_chrome_devtools_axi "$home_dir"
-    install_lavish_axi "$home_dir"
 }
 
 write_binary_shim() {
@@ -585,7 +559,6 @@ ensure_tool_shims() {
     write_binary_shim "$bin_dir" no-mistakes "libs/no-mistakes/bin/no-mistakes" no-mistakes
     write_node_shim "$bin_dir" gh-axi "libs/gh-axi/dist/bin/gh-axi.js" gh-axi
     write_node_shim "$bin_dir" chrome-devtools-axi "libs/chrome-devtools-axi/dist/bin/chrome-devtools-axi.js" chrome-devtools-axi
-    write_node_shim "$bin_dir" lavish-axi "libs/lavish-axi/dist/cli.mjs" lavish-axi
 }
 
 cmd_shims() {
@@ -646,15 +619,12 @@ cmd_integrate() {
     export AGENT_COMMANDER_DIR="$home_dir"
     export PATH="$home_dir/bin:$PATH"
 
-    link_agent_skill "$home_dir" lavish "$home_dir/libs/lavish-axi/skills/lavish"
-    link_agent_skill "$home_dir" lavish-design "$home_dir/libs/lavish-axi/.agents/skills/lavish-design"
     link_agent_skill "$home_dir" gh-axi "$home_dir/libs/gh-axi/skills/gh-axi"
     link_agent_skill "$home_dir" chrome-devtools-axi "$home_dir/libs/chrome-devtools-axi/skills/chrome-devtools-axi"
     link_agent_skill "$home_dir" no-mistakes "$home_dir/libs/no-mistakes/skills/no-mistakes"
 
     run_axi_hook_setup gh-axi
     run_axi_hook_setup chrome-devtools-axi
-    run_axi_hook_setup lavish-axi
 }
 
 cmd_install() {
@@ -685,9 +655,6 @@ cmd_install() {
                 ;;
             chrome-devtools-axi)
                 install_chrome_devtools_axi "$home_dir"
-                ;;
-            lavish-axi)
-                install_lavish_axi "$home_dir"
                 ;;
             all)
                 install_all_tools "$home_dir"

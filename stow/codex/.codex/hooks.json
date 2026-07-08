@@ -44,14 +44,15 @@
             "timeout": 10
           }
         ]
-      },
+      }
+    ],
+    "Stop": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -lc 'if [ -n \"${AGENT_COMMANDER_DIR:-}\" ]; then export PATH=\"$AGENT_COMMANDER_DIR/bin:$PATH\"; elif [ -d \"$HOME/agent-commander/bin\" ]; then export PATH=\"$HOME/agent-commander/bin:$PATH\"; else export PATH=\"$HOME/github/agent-commander/bin:$PATH\"; fi; exec lavish-axi'",
-            "timeout": 10
+            "command": "/Users/farishabib/.local/bin/plannotator",
+            "timeout": 345600
           }
         ]
       }
