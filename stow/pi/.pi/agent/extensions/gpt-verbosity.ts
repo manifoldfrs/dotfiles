@@ -13,9 +13,10 @@ type ResponsesPayload = {
 const RESPONSES_APIS = new Set(["openai-responses", "openai-codex-responses"]);
 
 export default function (pi: ExtensionAPI) {
-  pi.on("before_provider_request", (event) => {
-    if (!RESPONSES_APIS.has(event.model.api)) return;
-    if (!event.model.id.startsWith("gpt-5")) return;
+  pi.on("before_provider_request", (event, ctx) => {
+    if (!ctx.model) return;
+    if (!RESPONSES_APIS.has(ctx.model.api)) return;
+    if (!ctx.model.id.startsWith("gpt-5")) return;
 
     const payload = event.payload as ResponsesPayload;
     return {
