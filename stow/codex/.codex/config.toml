@@ -1,5 +1,6 @@
 model = "gpt-5.5"
 model_reasoning_effort = "high"
+model_verbosity = "low"
 tool_output_token_limit = 25000
 personality = "pragmatic"
 approvals_reviewer = "user"

@@ -73,6 +73,34 @@ stow --no-folding -R -v -t "$HOME" -d stow opencode
 
 On Coinbase laptops, `./scripts/stow.sh --cb apply` intentionally skips OpenCode so work account state does not replace the personal config.
 
+### GPT-5 Response Verbosity
+
+OpenAI GPT-5 models using the Responses API support `low`, `medium`, and `high` output verbosity.
+The tracked configs currently use `low`.
+
+- Pi sets verbosity for every GPT-5 model using `openai-responses` or `openai-codex-responses` in `stow/pi/.pi/agent/extensions/gpt-verbosity.ts`.
+  Change the `VERBOSITY` constant, then run `/reload` in Pi.
+- Codex sets verbosity with `model_verbosity` in `stow/codex/.codex/config.toml`.
+  Change the value, then restart Codex.
+- OpenCode sets `textVerbosity` per provider and model in `stow/opencode/.config/opencode/opencode.jsonc`.
+  Update each GPT-5 model entry you use under `provider.openai.models` or `provider.opencode.models`, then restart OpenCode.
+
+For example, an OpenCode model override uses this shape:
+
+```jsonc
+"provider": {
+  "openai": {
+    "models": {
+      "gpt-5.5": {
+        "options": {
+          "textVerbosity": "low",
+        },
+      },
+    },
+  },
+}
+```
+
 [![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
 ## Quick Start (New Mac)

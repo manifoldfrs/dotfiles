@@ -1,6 +1,26 @@
 {
         "$schema": "https://opencode.ai/config.json",
         "autoupdate": true,
+        "provider": {
+                "openai": {
+                        "models": {
+                                "gpt-5.5": {
+                                        "options": {
+                                                "textVerbosity": "low",
+                                        },
+                                },
+                        },
+                },
+                "opencode": {
+                        "models": {
+                                "gpt-5.5": {
+                                        "options": {
+                                                "textVerbosity": "low",
+                                        },
+                                },
+                        },
+                },
+        },
         "mcp": {
                 "RepoPromptCE": {
                         "type": "local",
