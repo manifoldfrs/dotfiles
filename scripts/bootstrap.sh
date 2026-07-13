@@ -16,9 +16,8 @@ STOW_TARGETS=(
     "$HOME/.config/opencode/opencode.jsonc"
     "$HOME/.config/opencode/tui.json"
     "$HOME/.claude/settings.local.json"
-    "$HOME/.tmux.conf"
+    "$HOME/.config/herdr/config.toml"
     "$HOME/.config/nvim"
-    "$HOME/.local/bin/tmux-sessionizer"
 )
 
 RED='\033[0;31m'

@@ -65,6 +65,12 @@ vim.keymap.set("c", "%%", function()
 end, { expr = true, desc = "Insert current file directory" })
 vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlight" })
 
+-- Navigate splits
+vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Focus left split" })
+vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Focus lower split" })
+vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Focus upper split" })
+vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Focus right split" })
+
 -- Resize with arrows
 vim.keymap.set("n", "<C-Up>", ":resize -2<CR>")
 vim.keymap.set("n", "<C-Down>", ":resize +2<CR>")

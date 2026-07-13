@@ -83,7 +83,7 @@ function usage(): string {
   return [
     "spotify-visualizer",
     "",
-    "Procedural Spotify terminal visualizer for tmux panes.",
+    "Procedural Spotify terminal visualizer for terminal panes.",
     "",
     "Requirements:",
     "  SPOTIFY_CLIENT_ID must be set to a Spotify app client id.",

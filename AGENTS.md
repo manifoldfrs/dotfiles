@@ -40,7 +40,7 @@ Agent behavior:
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
-- `stow/tmux/`, `stow/ghostty/`, `stow/zsh/`, `stow/git/` - user config files
+- `stow/herdr/`, `stow/ghostty/`, `stow/zsh/`, `stow/git/` - user config files
 - `old/`, `karabiner/` - archived or legacy areas (avoid unless explicitly requested)
 
 Subdirectory guides:

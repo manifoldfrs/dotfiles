@@ -110,9 +110,8 @@ backup_shared_config() {
     copy_file "$HOME/.zshenv" "$STOW_DIR/zsh/.zshenv" ".zshenv"
     copy_file "$HOME/.gitconfig" "$STOW_DIR/git/.gitconfig" ".gitconfig"
     copy_file "$HOME/.gitignore_global" "$STOW_DIR/git/.gitignore_global" ".gitignore_global"
-    copy_file "$HOME/.tmux.conf" "$STOW_DIR/tmux/.tmux.conf" ".tmux.conf"
-    copy_file "$HOME/.local/bin/tmux-sessionizer" "$STOW_DIR/bin/.local/bin/tmux-sessionizer" "tmux-sessionizer"
     copy_file "$HOME/.config/ghostty/config" "$STOW_DIR/ghostty/.config/ghostty/config" "Ghostty config"
+    copy_file "$HOME/.config/herdr/config.toml" "$STOW_DIR/herdr/.config/herdr/config.toml" "Herdr config"
     backup_warp_themes
     export_npm_globals
 }

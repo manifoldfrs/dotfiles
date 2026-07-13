@@ -1,6 +1,6 @@
 # dotfiles
 
-Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, OpenCode, Claude Code, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Currently using **Tokyo Night** across Neovim, Ghostty, and tmux.
+Configuration files for zsh, Homebrew, Ghostty terminal, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Currently using **Tokyo Night** across Neovim, Ghostty, and Herdr.
 
 ## Requirements
 
@@ -9,8 +9,8 @@ Configuration files for zsh, Homebrew, Ghostty terminal, tmux, Neovim, OpenCode,
 | **Neovim** | >= 0.11.0 | Required for mason-lspconfig v2 and vim.lsp.config() |
 | **Git** | >= 2.19.0 | Required for lazy.nvim partial clones |
 | **GNU Stow** | >= 2.4.0 | Symlink manager for tracked dotfiles |
-| **Bash** | >= 4.2 | Required by the Tokyo Night tmux theme |
 | **Ghostty** | Latest | Uses `macos-option-as-alt` syntax |
+| **Herdr** | Latest | Agent-aware terminal workspace manager |
 | **Node.js** | LTS | For LSP servers via Mason |
 | **tree-sitter-cli** | >= 0.26.1 | Required for nvim-treesitter `main` branch parser compilation |
 | **lazygit** | >= 0.40 | Required for snacks.lazygit keymap (`<leader>gg`) |
@@ -34,7 +34,7 @@ export SPOTIFY_CLIENT_ID=your_spotify_client_id
 spotify-visualizer
 ```
 
-The command stores OAuth tokens under `~/.cache/dotfiles/spotify-visualizer/`. It does not modify tmux config. Run it in any tmux pane or window when you want a dedicated visualizer screen.
+The command stores OAuth tokens under `~/.cache/dotfiles/spotify-visualizer/`. Run it in any Herdr pane or tab when you want a dedicated visualizer screen.
 
 Controls:
 
@@ -131,7 +131,7 @@ Use the daily Stow wrapper when the repo is already on the machine and you just 
 cd ~/dotfiles
 git pull
 
-# 2. Reapply all tracked shell/editor/terminal config and tmux plugins
+# 2. Reapply all tracked shell/editor/terminal and Herdr config
 ./scripts/stow.sh
 
 # First time on this machine? Make sure the zsh brew deps exist, otherwise
@@ -143,12 +143,12 @@ brew bundle --file=Brewfile
 
 # 3. Fully quit and reopen your terminal
 
-# 4. Restart tmux so the new config/theme is guaranteed to load cleanly
-tmux kill-server
+# 4. Reload Herdr config if a server is already running
+herdr server reload-config || true
 
 # 5. Verify the basics
 node --version
-tmux -V
+herdr --version
 ```
 
 On Coinbase laptops, use the Coinbase Stow profile instead. It applies shared shell/editor/terminal packages plus `stow/zsh-cb` and `stow/git-cb`, while leaving OpenCode, Claude Code, and Codex account state alone. Pi settings are shared via `stow/pi`, but Pi auth and sessions stay local.
@@ -158,15 +158,15 @@ cd ~/dotfiles
 git pull
 ./scripts/stow.sh --cb dry-run
 ./scripts/stow.sh --cb apply
-tmux kill-server
+herdr server reload-config || true
 ```
 
 Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins. Do not use bootstrap on Coinbase laptops until the script has Coinbase profile pass-through.
 
 What this already handles for you:
-- stows your zsh, Git, Ghostty, tmux, Neovim, OpenCode, Claude Code, Pi settings, and local bin config
+- stows your zsh, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi settings, and local bin config
 - supports `--cb` for Coinbase laptops, which uses `zsh-cb` and `git-cb` without stowing OpenCode or Claude Code; Pi settings remain shared
-- installs TPM if missing, then installs tmux plugins from `~/.tmux.conf`
+- configures Herdr with Tokyo Night, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
 What `./scripts/bootstrap.sh` additionally handles for you:
@@ -320,7 +320,7 @@ This defaults to `apply`. The equivalent direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude codex pi
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi
 ```
 
 ### Apply Coinbase Laptop Profile
@@ -331,7 +331,7 @@ cd ~/dotfiles
 ./scripts/stow.sh --cb apply
 ```
 
-The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `tmux`, `nvim`, `bin`, and `pi`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched. It also symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` using a dedicated step in `scripts/stow.sh` because Stow cannot fold into a pre-existing `~/.ssh` directory.
+The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `herdr`, `nvim`, `bin`, and `pi`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched. It also symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` using a dedicated step in `scripts/stow.sh` because Stow cannot fold into a pre-existing `~/.ssh` directory.
 
 ### Coinbase Git Authentication Setup
 
@@ -358,24 +358,24 @@ If SSH is not working yet, the commented-out HTTPS fallback in `stow/git-cb/.git
 
 ### Run Stow Without Scripts
 
-Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow only creates or removes symlinks. It does not install TPM or tmux plugins, so run `~/.tmux/plugins/tpm/bin/install_plugins` manually if tmux plugin declarations changed.
+Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow only creates or removes symlinks. Herdr integrations remain a separate per-machine installation step.
 
 ```bash
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude codex pi
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude codex pi
+stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi
 
 # Coinbase machine: preview and apply shared packages plus work overrides
-stow --no-folding -n -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
-stow --no-folding -R -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
+stow --no-folding -n -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
+stow --no-folding -R -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude codex pi
+stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi
 
 # Remove the Coinbase profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nvim bin pi
+stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
 ```
 
 ### Apply One Package
@@ -384,8 +384,8 @@ stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty tmux nv
 # Neovim only
 stow --no-folding -R -v -t "$HOME" -d stow nvim
 
-# tmux only
-stow --no-folding -R -v -t "$HOME" -d stow tmux
+# Herdr only
+stow --no-folding -R -v -t "$HOME" -d stow herdr
 
 # zsh only
 stow --no-folding -R -v -t "$HOME" -d stow zsh
@@ -507,14 +507,14 @@ stow --no-folding -R -v -t "$HOME" -d stow zsh
 
 ### Migrate An Existing Machine
 
-Use this when a machine already has real config files or directories, such as an older `~/.config/nvim`, `~/.config/ghostty/config`, or `~/.tmux.conf`. Stow will not overwrite those automatically; move them aside first.
+Use this when a machine already has real config files or directories, such as an older `~/.config/nvim`, `~/.config/ghostty/config`, or `~/.config/herdr/config.toml`. Stow will not overwrite those automatically; move them aside first.
 
 Check whether each target is already a Stow symlink:
 
 ```bash
 readlink ~/.config/nvim
 readlink ~/.config/ghostty/config
-readlink ~/.tmux.conf
+readlink ~/.config/herdr/config.toml
 ```
 
 If a command prints a path into `~/dotfiles/stow/...`, that target is already managed by Stow and does not need to be moved. If it prints nothing, back up the real file or directory before stowing.
@@ -529,9 +529,9 @@ timestamp=$(date +%Y%m%d%H%M%S)
 
 [ -e ~/.config/nvim ] && [ ! -L ~/.config/nvim ] && mv ~/.config/nvim ~/.config/nvim.backup.$timestamp
 [ -e ~/.config/ghostty/config ] && [ ! -L ~/.config/ghostty/config ] && mv ~/.config/ghostty/config ~/.config/ghostty/config.backup.$timestamp
-[ -e ~/.tmux.conf ] && [ ! -L ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.backup.$timestamp
+[ -e ~/.config/herdr/config.toml ] && [ ! -L ~/.config/herdr/config.toml ] && mv ~/.config/herdr/config.toml ~/.config/herdr/config.toml.backup.$timestamp
 
-stow --no-folding -R -v -t "$HOME" -d stow nvim ghostty tmux
+stow --no-folding -R -v -t "$HOME" -d stow nvim ghostty herdr
 ```
 
 After migration, future updates are just:
@@ -571,7 +571,7 @@ mv ~/.config/example/config.toml stow/example/.config/example/config.toml
 stow --no-folding -R -v -t "$HOME" -d stow example
 ```
 
-Use one package per tool when possible. That keeps `stow nvim`, `stow tmux`, and `stow ghostty` independently manageable.
+Use one package per tool when possible. That keeps `stow nvim`, `stow herdr`, and `stow ghostty` independently manageable.
 
 ### Edit Managed Files
 
@@ -607,7 +607,7 @@ cd ~/dotfiles
 ./scripts/backup.sh --cb
 ```
 
-The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.local` and `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`. It intentionally does not copy shared shell, Git, tmux, Ghostty, Neovim, OpenCode, Claude Code, Pi, or Model Context Protocol files.
+The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.local` and `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`. It intentionally does not copy shared shell, Git, Herdr, Ghostty, Neovim, OpenCode, Claude Code, Pi, or Model Context Protocol files.
 
 ## Command Cheatsheet
 
@@ -629,28 +629,27 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Refresh agent tool shims | `agent-commander shims` |
 | Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
 | Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
-| Reload tmux config | `tmux source-file ~/.tmux.conf` |
-| Install tmux plugins | `~/.tmux/plugins/tpm/bin/install_plugins` |
-| Restart tmux cleanly | `tmux kill-server && tmux` |
+| Restow Herdr config | `stow --no-folding -R -v -t "$HOME" -d stow herdr` |
+| Reload Herdr config | `herdr server reload-config` |
+| Check Herdr integrations | `herdr integration status` |
 | Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
 | Open Lazy UI | `nvim +Lazy` |
 | Open Mason UI | `nvim +Mason` |
 | Shell syntax checks | `bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n scripts/agent-commander.sh && bash -n stow/bin/.local/bin/agent-commander && zsh -n stow/zsh/.zshenv && bash -n mcp_setup.sh` |
-| Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux` |
+| Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD` |
 | Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
 
 ## What Gets Installed
 
 ### Bootstrap (`scripts/bootstrap.sh`)
 
-- **Homebrew** + all packages from `Brewfile` (includes Stow, Ghostty, tmux, Nerd Fonts)
-- **Bash 4.2+** via Homebrew for Tokyo Night tmux theme support
+- **Homebrew** + all packages from `Brewfile` (includes Stow, Ghostty, Herdr, Nerd Fonts)
 - **Powerlevel10k** prompt with gitstatus daemon (async git status — does not block the prompt on large repos)
 - **zsh-syntax-highlighting** via Homebrew (no framework required)
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/tmux`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, and `stow/pi` into `$HOME`
+- **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, and `stow/pi` into `$HOME`
 - **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb`, `stow/git-cb`, and `stow/pi`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
-- **tmux TPM + plugins**: `scripts/stow.sh` installs TPM if missing, then installs tmux plugins from the stowed `~/.tmux.conf`
+- **Herdr**: Stow-managed Tokyo Night config with `Ctrl-a` workspace, tab, and pane controls
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
 - **Global npm packages** from `npm-global-packages.txt`
@@ -716,7 +715,7 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 | **Neovim** | Primary editor (lazy.nvim) |
 | **OpenCode** | AI-assisted coding CLI |
 | **Ghostty** | Terminal emulator |
-| **tmux** | Terminal multiplexer |
+| **Herdr** | Agent-aware terminal workspace manager |
 
 ### Neovim Plugins
 
@@ -735,7 +734,7 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 | nvim-spectre | Project-wide search and replace panel |
 | lualine | Status line |
 | bufferline | Buffer tabs |
-| vim-test + vimux | Test runner |
+| vim-test | Test runner using Neovim terminal splits |
 
 **Key plugins explained:**
 - **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
@@ -834,7 +833,7 @@ VSpaceCode-style aliases are also available: `<leader>f` File, `<leader>b` Buffe
 | `<leader>gs` | Git status |
 | `<leader>gB` | Git browse (opens in browser) |
 | **Navigation** ||
-| `<C-h/j/k/l>` | Navigate windows/tmux panes |
+| `<C-h/j/k/l>` | Navigate Neovim windows |
 | `<S-h>` / `<S-l>` | Previous/next buffer |
 | **LSP** ||
 | `K` | LSP: hover documentation |
@@ -857,32 +856,64 @@ Snacks file discovery includes hidden and ignored files by default, so local-onl
 
 Use a terminal-first debugging flow instead of an in-editor DAP stack.
 
-- Go: use `dlv debug`, `dlv test`, or `dlv attach` directly in tmux/terminal
+- Go: use `dlv debug`, `dlv test`, or `dlv attach` directly in a Herdr pane
 - Python: use `python -m debugpy --listen localhost:5678 ...` when you need an attachable debugger
 - Day to day: prefer tests, logs, and targeted print statements for fast iteration
 
-### tmux
+### Herdr
+
+Herdr runs inside Ghostty and organizes projects as workspaces, layouts as tabs, and terminals as panes. The persistent server keeps shells and agents alive after detaching.
 
 | Keys | Action |
 |------|--------|
 | `C-a` | Prefix |
-| `C-a r` | Reload tmux.conf |
-| `C-a f` | **tmux-sessionizer** (fuzzy find projects) |
-| `C-a d` / `C-a s` | Detach / session list |
-| `C-a "` / `C-a %` | Split vertical / horizontal |
-| `<C-h/j/k/l>` | Navigate panes (seamless with nvim) |
-| `Alt-Arrow` | Resize panes |
+| `C-a r` | Reload Herdr config |
+| `C-a q` | Detach while keeping panes running |
+| `C-a s` / `C-a w` | Workspace picker |
+| `C-a Shift-n` / `C-a $` / `C-a d` | Create / rename / close workspace |
+| `C-a (` / `C-a )` | Previous / next workspace |
+| `C-a c` | Create tab |
+| `C-a p` / `C-a n` | Previous / next tab |
+| `C-a 1..9` | Select tab |
+| `C-a "` / `C-a %` | Split down / right |
+| `C-a h/j/k/l` | Navigate Herdr panes |
+| `C-a o` | Cycle panes |
+| `C-a z` / `C-a x` | Zoom / close pane |
+| `C-a [` | Copy mode |
+| `C-a Shift-r` | Resize mode |
 
-**Note:** Status bar is positioned at the top with the Tokyo Night tmux theme (`janoamaral/tokyo-night-tmux`) plus a current-directory widget. The terminal/tmux cursor uses a blinking block. Pane navigation uses a manual `is_vim` script (not the TPM navigator plugin) for transparency and fewer dependencies. Works seamlessly with `nvim-tmux-navigation` in Neovim. Ghostty selections copy to the system clipboard, and tmux mouse selections copy on release.
+CLI cheat sheet:
 
-### tmux-sessionizer
+| Task | Command |
+|------|---------|
+| Start Herdr | `herdr` |
+| Show keyboard help | `C-a ?` |
+| Show CLI help | `herdr --help` |
+| List workspaces, tabs, or panes | `herdr workspace list`, `herdr tab list`, `herdr pane list` |
+| Create a workspace | `herdr workspace create --cwd /path/to/project --label project` |
+| Create a tab | `herdr tab create --workspace <workspace-id> --label logs` |
+| Split the current pane | `herdr pane split --current --direction right` |
+| Run a command in a pane | `herdr pane run <pane-id> "npm test"` |
+| Read recent pane output | `herdr pane read <pane-id> --source recent-unwrapped --lines 100` |
+| List managed agents | `herdr agent list` |
+| Reload configuration | `herdr server reload-config` |
+| Check agent integrations | `herdr integration status` |
 
-Quick project switching via fzf. Press `C-a f` to:
-1. See subdirectories of your current path
-2. Fuzzy-select a project
-3. Create/switch to a tmux session named after that project
+Use `herdr <resource> --help`, such as `herdr pane --help`, for the complete command reference.
 
-The session name appears in the tmux status bar, providing project context without needing a fancy shell prompt.
+The active config is `stow/herdr/.config/herdr/config.toml` and uses Herdr's built-in Tokyo Night theme. `C-a s` replaces the former tmux-sessionizer workflow with Herdr's workspace picker.
+
+Install agent integrations once per machine:
+
+```bash
+herdr integration install pi
+herdr integration install codex
+herdr integration install opencode
+herdr integration install claude
+herdr integration status
+```
+
+Generated integration files remain machine-managed. The shared `herdr` skill teaches Pi, Claude, Codex, and OpenCode to coordinate workspaces, tabs, panes, and sibling agents through the Herdr CLI.
 
 ## Shell Configuration
 
@@ -923,7 +954,7 @@ dotfiles/
 │   ├── git-cb/             # Coinbase-only .gitconfig.local (SSH URL rewrite + HTTPS fallback)
 │   ├── ssh-cb/             # Coinbase-only .ssh/config (symlinked manually, not via Stow)
 │   ├── ghostty/            # .config/ghostty/config
-│   ├── tmux/               # .tmux.conf
+│   ├── herdr/              # .config/herdr/config.toml
 │   ├── bin/                # .local/bin tools and shared agent guardrail scripts
 │   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
 │   ├── claude/             # .claude/: settings.local.json, CLAUDE.md, skills/, hooks/
@@ -933,6 +964,7 @@ dotfiles/
 │           ├── lazy-lock.json
 │           ├── ftplugin/
 │           └── lua/plugins/
+├── old/tmux/                # Archived tmux config and tmux-sessionizer
 ├── old/karabiner/           # Deprecated keyboard remapping archive
 ├── mcp/                    # MCP configs for AI tools
 └── old/                    # Archived/deprecated configs
@@ -943,11 +975,8 @@ dotfiles/
 Use this before and after plugin edits to catch startup regressions without touching your live `~/.config/nvim`.
 
 ```bash
-# Full safety pass (isolated profile + one-by-one plugin rollout + tmux check)
+# Full safety pass with an isolated profile and one-by-one plugin rollout
 bash test/nvim_plugin_safety.sh --base-ref HEAD
-
-# Same checks without tmux validation
-bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux
 ```
 
 What it enforces:
@@ -1171,7 +1200,7 @@ cd ~/dotfiles && ./scripts/bootstrap.sh
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty tmux nvim bin opencode claude pi
+stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude pi
 ```
 
 Backups created by the installer are named like `.zshrc.backup.YYYYMMDDhhmmss`.
@@ -1227,35 +1256,26 @@ exec zsh
 - To avoid this class of drift entirely, install the full tracked package set: `brew bundle --file=~/dotfiles/Brewfile`.
 - Note: cb-zsh plugins (`jira`, `find_pr`, etc.) are a separate concern — those load only via `stow/zsh-cb/.zshrc.local` on the Coinbase `--cb` profile and are intentionally absent on personal machines.
 
-**tmux plugins not loading?**
-- First rerun the Stow apply flow from repo root: `./scripts/stow.sh`
-- On Coinbase laptops, rerun the Coinbase profile instead: `./scripts/stow.sh --cb apply`
-- If you want to force just the tmux plugin step, run `~/.tmux/plugins/tpm/bin/install_plugins`
-- If the bar still looks plain, ensure a Nerd Font is enabled in Ghostty and restart the terminal
-- Tokyo Night tmux requires Bash 4.2+; `brew "bash"` is included in `Brewfile`
+**Herdr config not loading?**
+- Confirm `~/.config/herdr/config.toml` points into `stow/herdr/` with `readlink ~/.config/herdr/config.toml`.
+- Reapply the Stow profile with `./scripts/stow.sh apply`, then run `herdr server reload-config`.
+- Herdr keeps the previous keymap if keybindings are invalid. Check `~/.config/herdr/herdr-server.log` for startup or reload warnings.
 
-**Pretty tmux bar not rendering?**
-- Kill and restart tmux first so no old server state is cached: `tmux kill-server && tmux`
-- Reload config after restart: `tmux source-file ~/.tmux.conf`
-- Ensure the theme plugin is actually present: `ls ~/.tmux/plugins/tokyo-night-tmux`
-- Ensure the Tokyo Night plugin is configured in `~/.tmux.conf`:
-  - `set -g @plugin 'janoamaral/tokyo-night-tmux'`
-  - `set -g @tokyo-night-tmux_show_path 1`
-- Verify theme content is being applied:
-  - `tmux show -g status-left`
-  - `tmux show -g status-right`
-- If symbols are still wrong, re-run plugin install and keep Nerd Font enabled in terminal
+**Herdr agent state is missing or stale?**
+- Run `herdr integration status`.
+- Reinstall the affected integration with `herdr integration install pi`, `codex`, `opencode`, or `claude`.
+- Generated integration files are machine-managed and should not be copied into Stow.
 
-**C-h/j/k/l not working between nvim and tmux?**
-- Ensure `nvim-tmux-navigation` plugin is installed in Neovim
-- Reload tmux config: `tmux source-file ~/.tmux.conf`
+**Herdr and Neovim navigation conflict?**
+- Use `C-h/j/k/l` for Neovim windows.
+- Use prefixed `C-a h/j/k/l` for Herdr panes, so Herdr does not steal Neovim's direct control keys.
 
 **nvm not found?**
 - `nvm` is optional now; `scripts/bootstrap.sh` installs Node.js from `Brewfile`
 - If you install `nvm` manually, restart terminal or `source ~/.zshrc`
 
 **Terminal debugging workflow**
-- Go: run `dlv debug` or `dlv test` in tmux/terminal
+- Go: run `dlv debug` or `dlv test` in a Herdr pane
 - Python: run `python -m debugpy --listen localhost:5678 --wait-for-client myfile.py`
 - Prefer tests and print/log debugging first; reach for `dlv` or `debugpy` when the bug is stubborn
 

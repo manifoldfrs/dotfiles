@@ -7,11 +7,9 @@ set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
-TPM_DIR="$HOME/.tmux/plugins/tpm"
-TPM_REPO=https://github.com/tmux-plugins/tpm
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-DEFAULT_STOW_PACKAGES=(zsh git ghostty tmux nvim bin opencode claude codex pi)
-CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty tmux nvim bin pi)
+DEFAULT_STOW_PACKAGES=(zsh git ghostty herdr nvim bin opencode claude codex pi)
+CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty herdr nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 CODEX_SKILL_NAMES=(
     architecture-scan
@@ -20,6 +18,7 @@ CODEX_SKILL_NAMES=(
     domain-modeling
     grill-me
     grill-me-with-docs
+    herdr
     plannotator-annotate
     plannotator-last
     plannotator-review
@@ -45,6 +44,7 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.agents/skills/domain-modeling"
     "$HOME/.agents/skills/grill-me"
     "$HOME/.agents/skills/grill-me-with-docs"
+    "$HOME/.agents/skills/herdr"
     "$HOME/.agents/skills/plannotator-annotate"
     "$HOME/.agents/skills/plannotator-last"
     "$HOME/.agents/skills/plannotator-review"
@@ -65,10 +65,9 @@ CB_BACKUP_TARGETS=(
     "$HOME/.gitconfig"
     "$HOME/.gitconfig.local"
     "$HOME/.gitignore_global"
-    "$HOME/.tmux.conf"
     "$HOME/.config/nvim"
     "$HOME/.config/ghostty/config"
-    "$HOME/.local/bin/tmux-sessionizer"
+    "$HOME/.config/herdr/config.toml"
 )
 
 RED='\033[0;31m'
@@ -165,6 +164,25 @@ is_stow_managed_tree() {
     [ "$saw_entry" -eq 1 ]
 }
 
+remove_legacy_tmux_links() {
+    local target
+    local link_dest
+
+    for target in "$HOME/.tmux.conf" "$HOME/.local/bin/tmux-sessionizer"; do
+        if [ ! -L "$target" ]; then
+            continue
+        fi
+
+        link_dest="$(readlink "$target")"
+        case "$link_dest" in
+            *dotfiles/stow/tmux/*|*dotfiles/stow/bin/.local/bin/tmux-sessionizer|*"$DOTFILES_DIR/stow/tmux/"*|*"$DOTFILES_DIR/stow/bin/.local/bin/tmux-sessionizer")
+                rm "$target"
+                info "Removed archived tmux symlink: $target"
+                ;;
+        esac
+    done
+}
+
 backup_pi_stow_targets() {
     mkdir -p "$HOME/.pi/agent"
 
@@ -195,44 +213,6 @@ backup_codex_stow_targets() {
     for target in "${CODEX_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
     done
-}
-
-install_tpm() {
-    if [ -d "$TPM_DIR" ]; then
-        info "TPM already installed"
-        return 0
-    fi
-
-    if ! command -v git &> /dev/null; then
-        warn "git not found, skipping TPM installation"
-        return 1
-    fi
-
-    info "Installing tmux plugin manager (TPM)..."
-    mkdir -p "$(dirname "$TPM_DIR")"
-    git clone "$TPM_REPO" "$TPM_DIR" || {
-        warn "TPM installation failed - install manually"
-        return 1
-    }
-}
-
-install_tmux_plugins() {
-    if ! command -v tmux &> /dev/null; then
-        warn "tmux not found, skipping tmux plugin installation"
-        return
-    fi
-
-    if ! install_tpm; then
-        return
-    fi
-
-    if [ ! -x "$TPM_DIR/bin/install_plugins" ]; then
-        warn "TPM install script not found - run tmux plugin installation manually"
-        return
-    fi
-
-    info "Installing tmux plugins from ~/.tmux.conf..."
-    "$TPM_DIR/bin/install_plugins" || warn "tmux plugin installation failed - run manually"
 }
 
 parse_args() {
@@ -465,6 +445,7 @@ link_ssh_config() {
 }
 
 apply_dotfiles() {
+    remove_legacy_tmux_links
     backup_shared_stow_targets
     backup_pi_stow_targets
 
@@ -479,7 +460,6 @@ apply_dotfiles() {
     stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
     ensure_codex_skill_folder_links
     ensure_cbcode_codex_theme_link
-    install_tmux_plugins
 }
 
 dry_run_dotfiles() {
@@ -488,6 +468,7 @@ dry_run_dotfiles() {
 }
 
 delete_dotfiles() {
+    remove_legacy_tmux_links
     remove_codex_skill_folder_links
     remove_cbcode_codex_theme_link
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"

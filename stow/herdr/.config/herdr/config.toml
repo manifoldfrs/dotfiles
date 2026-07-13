@@ -1,0 +1,77 @@
+onboarding = false
+
+[terminal]
+default_shell = "/bin/zsh"
+shell_mode = "auto"
+new_cwd = "follow"
+
+[theme]
+name = "tokyo-night"
+
+[keys]
+prefix = "ctrl+a"
+help = "prefix+?"
+detach = "prefix+q"
+reload_config = "prefix+r"
+
+workspace_picker = ["prefix+s", "prefix+w"]
+new_workspace = "prefix+shift+n"
+rename_workspace = "prefix+$"
+close_workspace = "prefix+d"
+previous_workspace = "prefix+("
+next_workspace = "prefix+)"
+
+new_tab = "prefix+c"
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
+switch_tab = "prefix+1..9"
+rename_tab = "prefix+comma"
+close_tab = "prefix+ampersand"
+
+# Match tmux: C-a % splits right and C-a " splits down.
+split_vertical = "prefix+%"
+split_horizontal = 'prefix+"'
+
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+cycle_pane_next = "prefix+o"
+last_pane = "prefix+semicolon"
+close_pane = "prefix+x"
+zoom = "prefix+z"
+resize_mode = "prefix+shift+r"
+copy_mode = "prefix+["
+toggle_sidebar = "prefix+b"
+
+[ui]
+mouse_capture = true
+right_click_passthrough_modifier = "ctrl"
+confirm_close = false
+prompt_new_tab_name = true
+pane_borders = true
+pane_gaps = true
+agent_panel_sort = "spaces"
+
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "top-right"
+
+[ui.sound]
+enabled = false
+
+[session]
+resume_agents_on_restore = true
+
+[remote]
+manage_ssh_config = true
+
+[experimental]
+allow_nested = false
+pane_history = false
+
+[advanced]
+scrollback_limit_bytes = 10485760

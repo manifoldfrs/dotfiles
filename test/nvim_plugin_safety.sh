@@ -5,7 +5,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NVIM_DIR="stow/nvim/.config/nvim"
 NVIM_PLUGIN_DIR="$NVIM_DIR/lua/plugins"
 BASE_REF="HEAD"
-SKIP_TMUX=0
 ALLOW_LOCKFILE_CHANGE=0
 
 usage() {
@@ -14,7 +13,6 @@ Usage: bash test/nvim_plugin_safety.sh [options]
 
 Options:
   --base-ref <ref>            Base git ref for one-by-one plugin rollout (default: HEAD)
-  --skip-tmux                 Skip tmux startup verification
   --allow-lockfile-change     Allow nvim/lazy-lock.json checksum changes
   -h, --help                  Show this help
 EOF
@@ -25,10 +23,6 @@ while [[ $# -gt 0 ]]; do
     --base-ref)
       BASE_REF="$2"
       shift 2
-      ;;
-    --skip-tmux)
-      SKIP_TMUX=1
-      shift
       ;;
     --allow-lockfile-change)
       ALLOW_LOCKFILE_CHANGE=1
@@ -160,19 +154,6 @@ run_startup_smoke() {
     XDG_STATE_HOME="$home_dir/.local/state" \
     XDG_CACHE_HOME="$home_dir/.cache" \
     nvim -c "sleep 1 | qa"
-
-  if [[ "$SKIP_TMUX" -eq 0 ]] && command -v tmux >/dev/null 2>&1; then
-    local session_name="nvim_safety_$RANDOM"
-    echo "[SMOKE] $label :: tmux startup"
-    tmux kill-session -t "$session_name" >/dev/null 2>&1 || true
-    tmux new-session -d -s "$session_name" "env HOME='$home_dir' XDG_CONFIG_HOME='$home_dir/.config' XDG_DATA_HOME='$home_dir/.local/share' XDG_STATE_HOME='$home_dir/.local/state' XDG_CACHE_HOME='$home_dir/.cache' nvim -c 'sleep 1 | qa'"
-    sleep 4
-    if tmux has-session -t "$session_name" 2>/dev/null; then
-      tmux kill-session -t "$session_name" >/dev/null 2>&1 || true
-      echo "[FAIL] tmux startup did not exit for $label"
-      return 1
-    fi
-  fi
 }
 
 echo "[CHECK 4] Startup checks on baseline profile..."
@@ -206,7 +187,11 @@ else
   for plugin_path in "${changed_plugins[@]}"; do
     echo "[STEP] Applying $plugin_path"
     mkdir -p "$SANDBOX_DIR/home/.config/nvim/lua/plugins"
-    cp "$ROOT_DIR/$plugin_path" "$SANDBOX_DIR/home/.config/nvim/lua/plugins/$(basename "$plugin_path")"
+    if [[ -f "$ROOT_DIR/$plugin_path" ]]; then
+      cp "$ROOT_DIR/$plugin_path" "$SANDBOX_DIR/home/.config/nvim/lua/plugins/$(basename "$plugin_path")"
+    else
+      rm -f "$SANDBOX_DIR/home/.config/nvim/lua/plugins/$(basename "$plugin_path")"
+    fi
     run_startup_smoke "rollout:$plugin_path"
   done
   echo "[PASS] One-by-one rollout checks passed"

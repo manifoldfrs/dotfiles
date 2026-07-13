@@ -300,7 +300,7 @@ cmd_doctor() {
 
     printf 'status\ttool\tdetail\n'
     detect_simple_command git || missing=1
-    detect_simple_command tmux || missing=1
+    detect_simple_command herdr || missing=1
     detect_simple_command node || missing=1
     detect_simple_command jq || missing=1
     detect_simple_command curl || missing=1

@@ -67,13 +67,16 @@ echo ""
 echo "[TEST 5] Testing GNU Stow package layout..."
 STOW_TEST_HOME="$(mktemp -d)"
 STOW_TEST_BIN="$(mktemp -d)"
-mkdir -p "$STOW_TEST_HOME/.cbcode-home/.codex"
+mkdir -p "$STOW_TEST_HOME/.cbcode-home/.codex" "$STOW_TEST_HOME/.local/bin"
+ln -s "$DOTFILES_DIR/stow/tmux/.tmux.conf" "$STOW_TEST_HOME/.tmux.conf"
+ln -s "$DOTFILES_DIR/stow/bin/.local/bin/tmux-sessionizer" "$STOW_TEST_HOME/.local/bin/tmux-sessionizer"
 ln -s "$(command -v stow)" "$STOW_TEST_BIN/stow"
 if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply > /tmp/stow-default.log 2>&1 \
     && HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >> /tmp/stow-default.log 2>&1 \
     && [ -L "$STOW_TEST_HOME/.zshrc" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
+    && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.local/bin/agent-commander" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/opencode.jsonc" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/tui.json" ] \
@@ -86,7 +89,12 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.cbcode-home/.codex/themes/tokyonight-frsh.tmTheme" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/tldr" ] \
     && [ -f "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md" ] \
+    && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
+    && [ -f "$STOW_TEST_HOME/.agents/skills/herdr/SKILL.md" ] \
+    && [ -L "$STOW_TEST_HOME/.claude/skills/herdr/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/settings.json" ] \
+    && [ ! -L "$STOW_TEST_HOME/.tmux.conf" ] \
+    && [ ! -L "$STOW_TEST_HOME/.local/bin/tmux-sessionizer" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     echo "[PASS] Stow symlinks created successfully"
 else
@@ -168,7 +176,7 @@ echo ""
 # Test 9: Neovim plugin safety checks (best-effort)
 echo "[TEST 9] Running Neovim plugin safety checks..."
 if command -v nvim >/dev/null 2>&1; then
-    if bash test/nvim_plugin_safety.sh --base-ref HEAD --skip-tmux > /tmp/nvim-plugin-safety.log 2>&1; then
+    if bash test/nvim_plugin_safety.sh --base-ref HEAD > /tmp/nvim-plugin-safety.log 2>&1; then
         echo "[PASS] Neovim plugin safety checks passed"
     else
         echo "[FAIL] Neovim plugin safety checks failed"
