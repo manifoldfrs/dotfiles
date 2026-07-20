@@ -67,7 +67,8 @@ echo ""
 echo "[TEST 5] Testing GNU Stow package layout..."
 STOW_TEST_HOME="$(mktemp -d)"
 STOW_TEST_BIN="$(mktemp -d)"
-mkdir -p "$STOW_TEST_HOME/.cbcode-home/.codex" "$STOW_TEST_HOME/.local/bin"
+mkdir -p "$STOW_TEST_HOME/.agents/skills/tldr" "$STOW_TEST_HOME/.cbcode-home/.codex" "$STOW_TEST_HOME/.local/bin"
+touch "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md"
 ln -s "$DOTFILES_DIR/stow/tmux/.tmux.conf" "$STOW_TEST_HOME/.tmux.conf"
 ln -s "$DOTFILES_DIR/stow/bin/.local/bin/tmux-sessionizer" "$STOW_TEST_HOME/.local/bin/tmux-sessionizer"
 ln -s "$(command -v stow)" "$STOW_TEST_BIN/stow"
@@ -80,6 +81,8 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.local/bin/agent-commander" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/opencode.jsonc" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/tui.json" ] \
+    && [ -L "$STOW_TEST_HOME/.config/amp/settings.json" ] \
+    && [ -L "$STOW_TEST_HOME/.config/amp/AGENTS.md" ] \
     && [ -L "$STOW_TEST_HOME/.claude/settings.local.json" ] \
     && [ -L "$STOW_TEST_HOME/.codex/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.codex/hooks.json" ] \
@@ -91,6 +94,8 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -f "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -f "$STOW_TEST_HOME/.agents/skills/herdr/SKILL.md" ] \
+    && ! find "$STOW_TEST_HOME/.agents/skills" -maxdepth 1 -name 'tldr.backup.*' | grep -q . \
+    && find "$STOW_TEST_HOME/.agents/skill-backups" -path '*/tldr.backup.*/SKILL.md' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/settings.json" ] \
     && [ ! -L "$STOW_TEST_HOME/.tmux.conf" ] \

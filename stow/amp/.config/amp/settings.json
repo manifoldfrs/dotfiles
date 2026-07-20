@@ -1,0 +1,21 @@
+{
+  "amp.git.commit.coauthor.enabled": false,
+  "amp.mcpServers": {
+    "Ref": {
+      "url": "https://api.ref.tools/mcp",
+      "headers": {
+        "x-ref-api-key": "${REF_API_KEY}"
+      }
+    },
+    "exa": {
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa",
+      "headers": {
+        "x-api-key": "${EXA_API_KEY}"
+      }
+    },
+    "RepoPromptCE": {
+      "command": "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp",
+      "args": []
+    }
+  }
+}

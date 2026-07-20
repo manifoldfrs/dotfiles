@@ -164,7 +164,7 @@ herdr server reload-config || true
 Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins. Do not use bootstrap on Coinbase laptops until the script has Coinbase profile pass-through.
 
 What this already handles for you:
-- stows your zsh, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi settings, and local bin config
+- stows your zsh, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi, Amp settings, and local bin config
 - supports `--cb` for Coinbase laptops, which uses `zsh-cb` and `git-cb` without stowing OpenCode or Claude Code; Pi settings remain shared
 - configures Herdr with Tokyo Night, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
@@ -320,7 +320,7 @@ This defaults to `apply`. The equivalent direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi amp
 ```
 
 ### Apply Coinbase Laptop Profile
@@ -364,15 +364,15 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi
+stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi amp
 
 # Coinbase machine: preview and apply shared packages plus work overrides
 stow --no-folding -n -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
 stow --no-folding -R -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi
+stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi amp
 
 # Remove the Coinbase profile symlinks
 stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
@@ -398,6 +398,9 @@ stow --no-folding -R -v -t "$HOME" -d stow claude
 
 # Pi settings only
 stow --no-folding -R -v -t "$HOME" -d stow pi
+
+# Amp settings only
+stow --no-folding -R -v -t "$HOME" -d stow amp
 ```
 
 ### Zsh Setup
@@ -624,6 +627,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Restow Claude Code settings | `stow --no-folding -R -v -t "$HOME" -d stow claude` |
 | Restow Codex settings/skills/hooks | `./scripts/stow.sh apply` |
 | Restow Pi settings | `stow --no-folding -R -v -t "$HOME" -d stow pi` |
+| Restow Amp settings | `stow --no-folding -R -v -t "$HOME" -d stow amp` |
 | Show agent-commander home | `agent-commander path` |
 | Check agent-commander tools | `agent-commander doctor` |
 | Refresh agent tool shims | `agent-commander shims` |
@@ -647,7 +651,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 - **Powerlevel10k** prompt with gitstatus daemon (async git status — does not block the prompt on large repos)
 - **zsh-syntax-highlighting** via Homebrew (no framework required)
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, and `stow/pi` into `$HOME`
+- **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
 - **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb`, `stow/git-cb`, and `stow/pi`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
 - **Herdr**: Stow-managed Tokyo Night config with `Ctrl-a` workspace, tab, and pane controls
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
@@ -668,6 +672,7 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Codex**: `~/.codex/config.toml`
 - **Pi**: `~/.pi/agent/mcp.json`
+- **Amp**: `~/.config/amp/settings.json`
 
 See `mcp/README.md` for setup instructions and API key configuration.
 
@@ -676,12 +681,16 @@ Preferred tool usage after setup:
 - Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
 - Use exa for web search and page fetches when current web context is needed.
 
-### OpenCode, Claude Code, and Pi Stow Notes
+### AI Agent Stow Notes
 
 - Pi settings are managed at `stow/pi/.pi/agent/settings.json` and are included in both the default and Coinbase Stow profiles.
 - Pi MCP servers are managed at `stow/pi/.pi/agent/mcp.json` and mirror the tracked Codex/OpenCode MCP set: RepoPromptCE, Ref, and exa.
 - Pi loads MCP support through the `npm:pi-mcp-adapter` package declared in settings.
 - Do not move Pi auth, sessions, logs, or other runtime/account state into Stow; `stow/pi/.stow-local-ignore` excludes common sensitive/runtime paths.
+- Amp settings and global instructions are managed under `stow/amp/.config/amp/` in the default Stow profile.
+- Amp uses the same RepoPromptCE, Ref, and exa MCP servers as Pi. API keys remain in `REF_API_KEY` and `EXA_API_KEY` environment variables.
+- Amp discovers the shared personal skills under `~/.agents/skills/`, so the skills are not duplicated in the Amp package.
+- Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
 - Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free and secret-free, see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` directories, and the `hooks/` scripts.
 - Shared personal skills are tracked for Claude and Codex: `architecture-scan`, `coding-standards-go`, `coding-standards-ts`, `domain-modeling`, `grill-me`, `grill-me-with-docs`, `plannotator-annotate`, `plannotator-last`, `plannotator-review`, `quiz-me`, `tdd`, `tech-spec`, and `tldr`.
@@ -956,6 +965,7 @@ dotfiles/
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── herdr/              # .config/herdr/config.toml
 │   ├── bin/                # .local/bin tools and shared agent guardrail scripts
+│   ├── amp/                # .config/amp/: settings.json and global AGENTS.md
 │   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
 │   ├── claude/             # .claude/: settings.local.json, CLAUDE.md, skills/, hooks/
 │   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)

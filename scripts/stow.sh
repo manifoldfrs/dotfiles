@@ -8,7 +8,7 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-DEFAULT_STOW_PACKAGES=(zsh git ghostty herdr nvim bin opencode claude codex pi)
+DEFAULT_STOW_PACKAGES=(zsh git ghostty herdr nvim bin opencode claude codex pi amp)
 CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty herdr nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 CODEX_SKILL_NAMES=(
@@ -56,6 +56,10 @@ CODEX_BACKUP_TARGETS=(
 PI_BACKUP_TARGETS=(
     "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
+)
+AMP_BACKUP_TARGETS=(
+    "$HOME/.config/amp/AGENTS.md"
+    "$HOME/.config/amp/settings.json"
 )
 CB_BACKUP_TARGETS=(
     "$HOME/.zshrc"
@@ -191,6 +195,18 @@ backup_pi_stow_targets() {
     done
 }
 
+backup_amp_stow_targets() {
+    if ! has_stow_package amp; then
+        return
+    fi
+
+    mkdir -p "$HOME/.config/amp"
+
+    for target in "${AMP_BACKUP_TARGETS[@]}"; do
+        backup_stow_target "$target"
+    done
+}
+
 backup_shared_stow_targets() {
     mkdir -p "$HOME/.local/bin" "$HOME/.local/share/agent-guardrails"
 
@@ -208,10 +224,29 @@ backup_cb_stow_targets() {
 }
 
 backup_codex_stow_targets() {
-    mkdir -p "$HOME/.codex/themes"
+    local backup_dir="$HOME/.agents/skill-backups"
+    local backup_name
+    local target
+
+    mkdir -p "$HOME/.codex/themes" "$backup_dir"
 
     for target in "${CODEX_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
+    done
+
+    for target in "$HOME/.agents/skills"/*.backup.*; do
+        if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+            continue
+        fi
+
+        backup_name="$(basename "$target")"
+        if [ -e "$backup_dir/$backup_name" ] || [ -L "$backup_dir/$backup_name" ]; then
+            warn "Skipping existing skill backup destination: $backup_dir/$backup_name"
+            continue
+        fi
+
+        mv "$target" "$backup_dir/$backup_name"
+        info "Moved skill backup outside Amp discovery: $backup_name"
     done
 }
 
@@ -448,6 +483,7 @@ apply_dotfiles() {
     remove_legacy_tmux_links
     backup_shared_stow_targets
     backup_pi_stow_targets
+    backup_amp_stow_targets
 
     if [ "$PROFILE" = "cb" ]; then
         backup_cb_stow_targets
