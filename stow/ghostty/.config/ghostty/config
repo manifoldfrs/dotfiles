@@ -25,5 +25,5 @@ macos-titlebar-style = tabs
 
 # Window behavior
 window-inherit-working-directory = true
-background-opacity = 0.95
+background-opacity = 1
 unfocused-split-opacity = 0.9
