@@ -690,6 +690,7 @@ Preferred tool usage after setup:
 - Amp settings and global instructions are managed under `stow/amp/.config/amp/` in the default Stow profile.
 - Amp uses the same RepoPromptCE, Ref, and exa MCP servers as Pi. API keys remain in `REF_API_KEY` and `EXA_API_KEY` environment variables.
 - Amp discovers the shared personal skills under `~/.agents/skills/`, so the skills are not duplicated in the Amp package.
+- Amp ignores Claude Code skill directories, which keeps cached PostHog plugin skills out of Amp while preserving the shared `~/.agents/skills/` set.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
 - Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free and secret-free, see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` directories, and the `hooks/` scripts.

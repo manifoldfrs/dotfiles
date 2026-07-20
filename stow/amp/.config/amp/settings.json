@@ -1,5 +1,6 @@
 {
   "amp.git.commit.coauthor.enabled": false,
+  "amp.skills.disableClaudeCodeSkills": true,
   "amp.mcpServers": {
     "Ref": {
       "url": "https://api.ref.tools/mcp",
