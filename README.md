@@ -876,7 +876,7 @@ Herdr runs inside Ghostty and organizes projects as workspaces, layouts as tabs,
 | `C-a p` / `C-a n` | Previous / next tab |
 | `C-a 1..9` | Select tab |
 | `C-a "` / `C-a %` | Split down / right |
-| `C-a h/j/k/l` | Navigate Herdr panes |
+| `C-h/j/k/l` or `C-a h/j/k/l` | Navigate Herdr panes |
 | `C-a o` | Cycle panes |
 | `C-a z` / `C-a x` | Zoom / close pane |
 | `C-a [` | Copy mode |
@@ -1267,8 +1267,8 @@ exec zsh
 - Generated integration files are machine-managed and should not be copied into Stow.
 
 **Herdr and Neovim navigation conflict?**
-- Use `C-h/j/k/l` for Neovim windows.
-- Use prefixed `C-a h/j/k/l` for Herdr panes, so Herdr does not steal Neovim's direct control keys.
+- Herdr captures `C-h/j/k/l` before Neovim, so these keys always navigate Herdr panes.
+- Use Neovim's normal window commands when navigating inside Neovim, or remove the direct `ctrl+h/j/k/l` bindings from the Herdr config to give those keys back to Neovim.
 
 **nvm not found?**
 - `nvm` is optional now; `scripts/bootstrap.sh` installs Node.js from `Brewfile`
