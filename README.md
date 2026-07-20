@@ -688,6 +688,7 @@ Preferred tool usage after setup:
 - Pi loads MCP support through the `npm:pi-mcp-adapter` package declared in settings.
 - Do not move Pi auth, sessions, logs, or other runtime/account state into Stow; `stow/pi/.stow-local-ignore` excludes common sensitive/runtime paths.
 - Amp settings and global instructions are managed under `stow/amp/.config/amp/` in the default Stow profile.
+- Pi and Amp append the shared reminder in `stow/bin/.local/share/agent-guardrails/code-edit-reminder.txt` after successful code-edit tool calls. Their adapters live in `stow/pi/.pi/agent/extensions/code-edit-reminder.ts` and `stow/amp/.config/amp/plugins/code-edit-reminder.ts`.
 - Amp uses the same RepoPromptCE, Ref, and exa MCP servers as Pi. API keys remain in `REF_API_KEY` and `EXA_API_KEY` environment variables.
 - Amp discovers the shared personal skills under `~/.agents/skills/`, so the skills are not duplicated in the Amp package.
 - Amp ignores Claude Code skill directories, which keeps cached PostHog plugin skills out of Amp while preserving the shared `~/.agents/skills/` set.

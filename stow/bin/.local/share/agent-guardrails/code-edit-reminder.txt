@@ -1,0 +1,10 @@
+Re-check code added or changed against the `coding-standards-ts` skill whenever TypeScript or JavaScript is involved. Load and apply the skill before continuing.
+
+- Inspect existing contracts, modules, dependencies, and project conventions before adding a utility, helper, parser, collection operation, or abstraction.
+- Reuse an existing project, dependency, or platform primitive when it fits.
+- Give every abstraction a real owner and cohesive behavior. Reject pass-through wrappers and speculative seams.
+- Parse unknown values at outer boundaries and pass refined domain values inward.
+- Make every interface, parameter, function, and combinator earn its place.
+- Prefer the simplest correct design and the least code.
+
+Passing automated checks alone does not prove compliance.

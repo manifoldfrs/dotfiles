@@ -31,6 +31,7 @@ SHARED_BACKUP_TARGETS=(
     "$HOME/.local/bin/agent-commander"
     "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
     "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
+    "$HOME/.local/share/agent-guardrails/code-edit-reminder.txt"
 )
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/config.toml"
@@ -54,11 +55,13 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.agents/skills/tldr"
 )
 PI_BACKUP_TARGETS=(
+    "$HOME/.pi/agent/extensions/code-edit-reminder.ts"
     "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
 )
 AMP_BACKUP_TARGETS=(
     "$HOME/.config/amp/AGENTS.md"
+    "$HOME/.config/amp/plugins/code-edit-reminder.ts"
     "$HOME/.config/amp/settings.json"
 )
 CB_BACKUP_TARGETS=(
