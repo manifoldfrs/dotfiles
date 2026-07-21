@@ -13,6 +13,7 @@ CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty herdr nvim bin pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 CODEX_SKILL_NAMES=(
     architecture-scan
+    bro
     coding-standards-go
     coding-standards-ts
     domain-modeling
@@ -40,6 +41,7 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/hooks/block-generated-edits.sh"
     "$HOME/.codex/themes/$CODEX_THEME_FILE"
     "$HOME/.agents/skills/architecture-scan"
+    "$HOME/.agents/skills/bro"
     "$HOME/.agents/skills/coding-standards-go"
     "$HOME/.agents/skills/coding-standards-ts"
     "$HOME/.agents/skills/domain-modeling"

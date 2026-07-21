@@ -695,7 +695,7 @@ Preferred tool usage after setup:
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
 - Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free and secret-free, see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` directories, and the `hooks/` scripts.
-- Shared personal skills are tracked for Claude and Codex: `architecture-scan`, `coding-standards-go`, `coding-standards-ts`, `domain-modeling`, `grill-me`, `grill-me-with-docs`, `plannotator-annotate`, `plannotator-last`, `plannotator-review`, `quiz-me`, `tdd`, `tech-spec`, and `tldr`.
+- Shared personal skills are tracked for Claude and Codex: `architecture-scan`, `bro`, `coding-standards-go`, `coding-standards-ts`, `domain-modeling`, `grill-me`, `grill-me-with-docs`, `plannotator-annotate`, `plannotator-last`, `plannotator-review`, `quiz-me`, `tdd`, `tech-spec`, and `tldr`.
 - Codex global config is managed at `stow/codex/.codex/config.toml` in the default Stow profile. It tracks personal defaults and MCP server definitions, while auth, sessions, logs, plugin caches, and other runtime state remain local under `~/.codex/`.
 - Codex syntax highlighting uses `stow/codex/.codex/themes/tokyonight-frsh.tmTheme`, selected by `[tui] theme = "tokyonight-frsh"` in `stow/codex/.codex/config.toml`.
 - `scripts/stow.sh apply` also links that theme into `~/.cbcode-home/.codex/themes/` when the cbcode sandbox exists.

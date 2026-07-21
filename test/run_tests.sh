@@ -92,10 +92,13 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.cbcode-home/.codex/themes/tokyonight-frsh.tmTheme" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/tldr" ] \
     && [ -f "$STOW_TEST_HOME/.agents/skills/tldr/SKILL.md" ] \
+    && [ -L "$STOW_TEST_HOME/.agents/skills/bro" ] \
+    && [ -f "$STOW_TEST_HOME/.agents/skills/bro/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -f "$STOW_TEST_HOME/.agents/skills/herdr/SKILL.md" ] \
     && ! find "$STOW_TEST_HOME/.agents/skills" -maxdepth 1 -name 'tldr.backup.*' | grep -q . \
     && find "$STOW_TEST_HOME/.agents/skill-backups" -path '*/tldr.backup.*/SKILL.md' | grep -q . \
+    && [ -L "$STOW_TEST_HOME/.claude/skills/bro/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/settings.json" ] \
     && [ ! -L "$STOW_TEST_HOME/.tmux.conf" ] \
