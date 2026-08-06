@@ -8,26 +8,10 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-DEFAULT_STOW_PACKAGES=(zsh git ghostty herdr nvim bin opencode claude codex pi amp)
-CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty herdr nvim bin pi)
+DEFAULT_STOW_PACKAGES=(zsh git ghostty herdr nvim bin opencode claude codex pi amp agents)
+CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty herdr nvim bin pi agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
-CODEX_SKILL_NAMES=(
-    architecture-scan
-    bro
-    coding-standards-go
-    coding-standards-ts
-    domain-modeling
-    grill-me
-    grill-me-with-docs
-    herdr
-    plannotator-annotate
-    plannotator-last
-    plannotator-review
-    quiz-me
-    tdd
-    tech-spec
-    tldr
-)
+AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
 SHARED_BACKUP_TARGETS=(
     "$HOME/.local/bin/agent-commander"
     "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
@@ -40,21 +24,6 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/hooks/block-dangerous-bash.sh"
     "$HOME/.codex/hooks/block-generated-edits.sh"
     "$HOME/.codex/themes/$CODEX_THEME_FILE"
-    "$HOME/.agents/skills/architecture-scan"
-    "$HOME/.agents/skills/bro"
-    "$HOME/.agents/skills/coding-standards-go"
-    "$HOME/.agents/skills/coding-standards-ts"
-    "$HOME/.agents/skills/domain-modeling"
-    "$HOME/.agents/skills/grill-me"
-    "$HOME/.agents/skills/grill-me-with-docs"
-    "$HOME/.agents/skills/herdr"
-    "$HOME/.agents/skills/plannotator-annotate"
-    "$HOME/.agents/skills/plannotator-last"
-    "$HOME/.agents/skills/plannotator-review"
-    "$HOME/.agents/skills/quiz-me"
-    "$HOME/.agents/skills/tdd"
-    "$HOME/.agents/skills/tech-spec"
-    "$HOME/.agents/skills/tldr"
 )
 PI_BACKUP_TARGETS=(
     "$HOME/.pi/agent/extensions/code-edit-reminder.ts"
@@ -173,6 +142,25 @@ is_stow_managed_tree() {
     [ "$saw_entry" -eq 1 ]
 }
 
+remove_legacy_agent_skill_trees() {
+    local target
+
+    if [ ! -d "$HOME/.claude/skills" ]; then
+        return
+    fi
+
+    for target in "$HOME/.claude/skills"/*; do
+        if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+            continue
+        fi
+
+        if is_stow_managed_tree "$target"; then
+            rm -rf "$target"
+            info "Removed duplicate Claude skill tree: $target"
+        fi
+    done
+}
+
 remove_legacy_tmux_links() {
     local target
     local link_dest
@@ -229,14 +217,32 @@ backup_cb_stow_targets() {
 }
 
 backup_codex_stow_targets() {
-    local backup_dir="$HOME/.agents/skill-backups"
-    local backup_name
     local target
 
-    mkdir -p "$HOME/.codex/themes" "$backup_dir"
+    mkdir -p "$HOME/.codex/themes"
 
     for target in "${CODEX_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
+    done
+}
+
+backup_agent_skill_targets() {
+    local backup_dir="$HOME/.agents/skill-backups"
+    local backup_name
+    local skill_dir
+    local target
+
+    if ! has_stow_package agents; then
+        return
+    fi
+
+    mkdir -p "$HOME/.agents/skills" "$backup_dir"
+
+    for skill_dir in "$AGENT_SKILLS_DIR"/*; do
+        if [ ! -f "$skill_dir/SKILL.md" ]; then
+            continue
+        fi
+        backup_stow_target "$HOME/.agents/skills/$(basename "$skill_dir")"
     done
 
     for target in "$HOME/.agents/skills"/*.backup.*; do
@@ -251,7 +257,7 @@ backup_codex_stow_targets() {
         fi
 
         mv "$target" "$backup_dir/$backup_name"
-        info "Moved skill backup outside Amp discovery: $backup_name"
+        info "Moved skill backup outside agent discovery: $backup_name"
     done
 }
 
@@ -390,26 +396,25 @@ remove_cbcode_codex_theme_link() {
     info "Removed cbcode Codex theme link: $dest"
 }
 
-ensure_codex_skill_folder_links() {
-    local skill
+ensure_agent_skill_folder_links() {
+    local skill_dir
     local src
     local dest
     local link_dest
 
-    if ! has_stow_package codex; then
+    if ! has_stow_package agents; then
         return
     fi
 
     mkdir -p "$HOME/.agents/skills"
 
-    for skill in "${CODEX_SKILL_NAMES[@]}"; do
-        src="$DOTFILES_DIR/stow/codex/.agents/skills/$skill"
-        dest="$HOME/.agents/skills/$skill"
-
-        if [ ! -d "$src" ]; then
-            warn "Codex skill source missing: $src"
+    for skill_dir in "$AGENT_SKILLS_DIR"/*; do
+        if [ ! -f "$skill_dir/SKILL.md" ]; then
             continue
         fi
+
+        src="$skill_dir"
+        dest="$HOME/.agents/skills/$(basename "$skill_dir")"
 
         if [ -L "$dest" ]; then
             link_dest="$(readlink "$dest")"
@@ -420,7 +425,7 @@ ensure_codex_skill_folder_links() {
 
         if [ -e "$dest" ] || [ -L "$dest" ]; then
             if ! is_stow_managed_tree "$dest"; then
-                warn "Skipping non-Stow Codex skill target: $dest"
+                warn "Skipping non-Stow agent skill target: $dest"
                 continue
             fi
 
@@ -428,23 +433,27 @@ ensure_codex_skill_folder_links() {
         fi
 
         ln -s "$src" "$dest"
-        info "Linked Codex skill folder: $dest -> $src"
+        info "Linked agent skill folder: $dest -> $src"
     done
 }
 
-remove_codex_skill_folder_links() {
-    local skill
+remove_agent_skill_folder_links() {
+    local skill_dir
     local src
     local dest
     local link_dest
 
-    if ! has_stow_package codex; then
+    if ! has_stow_package agents; then
         return
     fi
 
-    for skill in "${CODEX_SKILL_NAMES[@]}"; do
-        src="$DOTFILES_DIR/stow/codex/.agents/skills/$skill"
-        dest="$HOME/.agents/skills/$skill"
+    for skill_dir in "$AGENT_SKILLS_DIR"/*; do
+        if [ ! -f "$skill_dir/SKILL.md" ]; then
+            continue
+        fi
+
+        src="$skill_dir"
+        dest="$HOME/.agents/skills/$(basename "$skill_dir")"
 
         if [ ! -L "$dest" ]; then
             continue
@@ -456,7 +465,7 @@ remove_codex_skill_folder_links() {
         fi
 
         rm "$dest"
-        info "Removed Codex skill folder link: $dest"
+        info "Removed agent skill folder link: $dest"
     done
 }
 
@@ -486,9 +495,11 @@ link_ssh_config() {
 
 apply_dotfiles() {
     remove_legacy_tmux_links
+    remove_legacy_agent_skill_trees
     backup_shared_stow_targets
     backup_pi_stow_targets
     backup_amp_stow_targets
+    backup_agent_skill_targets
 
     if [ "$PROFILE" = "cb" ]; then
         backup_cb_stow_targets
@@ -499,7 +510,7 @@ apply_dotfiles() {
 
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
     stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
-    ensure_codex_skill_folder_links
+    ensure_agent_skill_folder_links
     ensure_cbcode_codex_theme_link
 }
 
@@ -510,7 +521,7 @@ dry_run_dotfiles() {
 
 delete_dotfiles() {
     remove_legacy_tmux_links
-    remove_codex_skill_folder_links
+    remove_agent_skill_folder_links
     remove_cbcode_codex_theme_link
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"

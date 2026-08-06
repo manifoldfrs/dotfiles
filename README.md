@@ -243,7 +243,7 @@ Plannotator installs as a single ~110MB binary via its own installer, not throug
 curl -fsSL https://plannotator.ai/install.sh | bash
 ```
 
-On a machine where `~/.claude/skills/` and `~/.codex/hooks.json` already resolve into this repo (personal setup, see below), the installer's own per-agent auto-detection writes its skill files and hook entries straight through those Stow symlinks, landing inside the dotfiles working tree automatically.
+The installer owns the binary and runtime state. The three Plannotator skills are already tracked in the shared global catalog; hook entries remain in the harness-specific Stow settings.
 
 ### What is Stow-managed vs. not
 
@@ -251,8 +251,7 @@ On a machine where `~/.claude/skills/` and `~/.codex/hooks.json` already resolve
 |------|-----------|
 | `~/.local/bin/plannotator` (the binary) | Plannotator's installer; not tracked, too large for git |
 | `~/.plannotator/` (runtime state, migrations, vendor helpers) | Plannotator's installer; not tracked |
-| `stow/claude/.claude/skills/plannotator-{review,annotate,last}/SKILL.md` | Stow (`claude` package) |
-| `stow/codex/.agents/skills/plannotator-{review,annotate,last}/` | Stow (`codex` package) |
+| `stow/agents/.agents/skills/plannotator-{review,annotate,last}/` | Stow (`agents` package), linked into `~/.agents/skills/` |
 | `stow/claude/.claude/settings.json` `hooks.PermissionRequest` (`ExitPlanMode`) | Stow (`claude` package) |
 | `stow/codex/.codex/hooks.json` `hooks.Stop` | Stow (`codex` package) |
 
@@ -263,18 +262,18 @@ curl -fsSL https://plannotator.ai/install.sh | bash
 cd ~/dotfiles && ./scripts/stow.sh apply
 ```
 
-The installer auto-detects both agents and writes its hook entries straight through the Stow symlinks (`~/.claude/settings.json` -> `stow/claude/.claude/settings.json`, `~/.codex/hooks.json` -> `stow/codex/.codex/hooks.json`). The Stow wrapper also links Codex user-scope skills into `~/.agents/skills/`, which plain `stow` does not handle. Review the resulting `git diff` and commit like any other change.
+The installer may update harness hooks through the Stow-managed settings (`~/.claude/settings.json` and `~/.codex/hooks.json`). `scripts/stow.sh` links the already tracked Plannotator skill folders from the shared catalog into `~/.agents/skills/`. Review hook changes with `git diff`.
 
 ### cbcode setup (Claude Code + Codex under `~/.cbcode-home`)
 
 `~/.cbcode-home/.claude` and `~/.cbcode-home/.codex` are real, separate, non-Stow-managed directories (see cbcode HOME Sandbox below), so the installer never reaches them. Wire them up once, by hand:
 
 ```bash
-# Skills: symlink the same Stow-tracked files into the cbcode home
+# Optional cbcode skill links from the shared source
+mkdir -p ~/.cbcode-home/.claude/skills ~/.cbcode-home/.agents/skills
 for name in plannotator-review plannotator-annotate plannotator-last; do
-  mkdir -p ~/.cbcode-home/.claude/skills/"$name"
-  ln -sf ~/dotfiles/stow/claude/.claude/skills/"$name"/SKILL.md ~/.cbcode-home/.claude/skills/"$name"/SKILL.md
-  ln -sf ~/dotfiles/stow/codex/.agents/skills/"$name" ~/.cbcode-home/.agents/skills/"$name"
+  ln -sfn ~/github/dotfiles/stow/agents/.agents/skills/"$name" ~/.cbcode-home/.claude/skills/"$name"
+  ln -sfn ~/github/dotfiles/stow/agents/.agents/skills/"$name" ~/.cbcode-home/.agents/skills/"$name"
 done
 ```
 
@@ -690,26 +689,28 @@ Preferred tool usage after setup:
 - Amp settings and global instructions are managed under `stow/amp/.config/amp/` in the default Stow profile.
 - Pi and Amp append the shared reminder in `stow/bin/.local/share/agent-guardrails/code-edit-reminder.txt` after successful code-edit tool calls. Their adapters live in `stow/pi/.pi/agent/extensions/code-edit-reminder.ts` and `stow/amp/.config/amp/plugins/code-edit-reminder.ts`.
 - Amp uses the same RepoPromptCE, Ref, and exa MCP servers as Pi. API keys remain in `REF_API_KEY` and `EXA_API_KEY` environment variables.
-- Amp discovers the shared personal skills under `~/.agents/skills/`, so the skills are not duplicated in the Amp package.
-- Amp ignores Claude Code skill directories, which keeps cached PostHog plugin skills out of Amp while preserving the shared `~/.agents/skills/` set.
+- Global Pi skills are tracked once under `stow/agents/.agents/skills/` and linked as complete directories into `~/.agents/skills/` by `scripts/stow.sh`.
+- Pi discovers `~/.agents/skills/` natively. Amp may also discover that shared directory, but Pi is the supported target for the tracked skill catalog.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
-- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free and secret-free, see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, the personal `skills/` directories, and the `hooks/` scripts.
-- Shared personal skills are tracked for Claude and Codex: `architecture-scan`, `bro`, `coding-standards-go`, `coding-standards-ts`, `domain-modeling`, `grill-me`, `grill-me-with-docs`, `plannotator-annotate`, `plannotator-last`, `plannotator-review`, `quiz-me`, `tdd`, `tech-spec`, and `tldr`.
+- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free and secret-free, see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, and the `hooks/` scripts. Skills are no longer duplicated under the Claude package.
+- The global catalog combines Matt Pocock's stable engineering/productivity skills, dmmulroy-only personalization skills, and preserved local skills. Ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
 - Codex global config is managed at `stow/codex/.codex/config.toml` in the default Stow profile. It tracks personal defaults and MCP server definitions, while auth, sessions, logs, plugin caches, and other runtime state remain local under `~/.codex/`.
 - Codex syntax highlighting uses `stow/codex/.codex/themes/tokyonight-frsh.tmTheme`, selected by `[tui] theme = "tokyonight-frsh"` in `stow/codex/.codex/config.toml`.
 - `scripts/stow.sh apply` also links that theme into `~/.cbcode-home/.codex/themes/` when the cbcode sandbox exists.
   It does not manage `~/.cbcode-home/.codex/config.toml`, because cbcode owns and rewrites that file.
-- Codex personal skills mirror the Claude Code skills under `stow/codex/.agents/skills/`. The Codex Stow package ignores `.agents` directly, so `scripts/stow.sh` owns the skill-folder symlinks listed in `CODEX_SKILL_NAMES`, such as `~/.agents/skills/tldr -> ~/github/dotfiles/stow/codex/.agents/skills/tldr`, matching Codex's user-scope skill discovery.
+- The `agents` Stow package ignores `.agents` directly so `scripts/stow.sh` can manage folder-level links dynamically. This preserves references, scripts, templates, and metadata inside every skill directory and avoids a hard-coded skill-name list.
 - Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
 - Claude and Codex both use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous bash commands and generated-file edit blockers. The Claude hook files and Codex hook files are harness-specific wrappers around the same implementation.
 - Claude Code MCP servers are user-scoped, not Stow-managed. Personal MCP servers (`RepoPromptCE`, `Ref`, `exa`) are in `~/.claude.json`; keep `Ref`/`exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.zshenv.local`. Work MCP servers live in the separate `~/.cbcode-home/.claude.json` (see cbcode HOME Sandbox below) and are unrelated to the personal set.
 - Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML. This applies to the personal `~/.codex/config.toml` only; work's `~/.cbcode-home/.codex/config.toml` holds its own MCP server list ported from work Claude (see below).
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
 - OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
-- Personal skills and `CLAUDE.md` are shared, not Claude-only: OpenCode reads `~/.claude/skills/` plus `~/.claude/CLAUDE.md` when no `~/.config/opencode/AGENTS.md` exists, so one Stow source drives plain Claude Code and OpenCode. This no longer includes cbcode's Claude Code. `~/.cbcode-home/.claude` is now a separate real directory, not a symlink to `~/.claude` (see cbcode HOME Sandbox below).
+- The skill migration intentionally optimizes for Pi. Claude Code, Codex, Amp, and OpenCode compatibility can be added later if needed; they do not receive separate tracked copies. `~/.cbcode-home/.claude` remains a separate real directory (see cbcode HOME Sandbox below).
 - Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the Claude wrappers for the bash and generated-edit blockers.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
+- Update the global catalog with `./scripts/update_agent_skills.sh`. Use `--review` for a Plannotator report, `--check` for drift detection, and `--sync` to apply the fetched Matt/dmmulroy snapshot. Updates remain uncommitted for normal Git review.
+- On a new machine, the tracked snapshot needs only `./scripts/stow.sh apply`; fetching upstream skills is not part of bootstrap.
 - Do not copy live MCP URLs with real API keys into tracked files. Use environment interpolation for secrets.
 
 ### Karabiner Status
