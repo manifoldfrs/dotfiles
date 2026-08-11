@@ -10,7 +10,7 @@ if [[ -n "${AGENT_COMMANDER_DIR:-}" ]]; then
 elif [[ -d "$HOME/agent-commander/.git" ]]; then
   _agent_commander_dir="$HOME/agent-commander"
 else
-  _agent_commander_dir="$HOME/github/agent-commander"
+  _agent_commander_dir="$HOME/code/personal/agent-commander"
 fi
 [[ -d "$_agent_commander_dir/bin" ]] && export PATH="$_agent_commander_dir/bin:$PATH"
 unset _agent_commander_dir

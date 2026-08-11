@@ -3,7 +3,7 @@
 ## Scope and Intent
 This repository manages personal macOS dotfiles and setup automation.
 It includes shell bootstrap scripts, Neovim Lua config, MCP templates, and Docker-based validation.
-This file is the top-level guide for coding agents working in `/Users/frshbb/github/dotfiles`.
+This file is the top-level guide for coding agents working in `/Users/frshbb/code/personal/dotfiles`.
 
 ## User Writing Preferences
 When writing for this user, avoid:

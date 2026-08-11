@@ -181,7 +181,7 @@ What is still separate:
 
 `agent-commander` is a sibling operating home for firstmate, treehouse, no-mistakes, AXI tools, and related agent harness state.
 Dotfiles manages only the shared launcher at `~/.local/bin/agent-commander` plus its source script in `scripts/agent-commander.sh`.
-The operating home itself lives outside this repo at `~/github/agent-commander` by default, or `~/agent-commander` when that clone already exists.
+The operating home itself lives outside this repo at `~/code/personal/agent-commander` by default, or `~/agent-commander` when that clone already exists.
 Do not Stow the `agent-commander` repo.
 
 ```bash
@@ -220,10 +220,10 @@ treehouse --help
 Work-laptop setup:
 
 ```bash
-mkdir -p ~/github
-git clone git@github.com:manifoldfrs/dotfiles.git ~/github/dotfiles
-git clone https://github.com/manifoldfrs/agent-commander ~/github/agent-commander
-cd ~/github/dotfiles
+mkdir -p ~/code/personal
+git clone git@github.com:manifoldfrs/dotfiles.git ~/code/personal/dotfiles
+git clone https://github.com/manifoldfrs/agent-commander ~/code/personal/agent-commander
+cd ~/code/personal/dotfiles
 ./scripts/stow.sh --cb apply
 agent-commander install all
 agent-commander doctor
@@ -272,8 +272,8 @@ The installer may update harness hooks through the Stow-managed settings (`~/.cl
 # Optional cbcode skill links from the shared source
 mkdir -p ~/.cbcode-home/.claude/skills ~/.cbcode-home/.agents/skills
 for name in plannotator-review plannotator-annotate plannotator-last; do
-  ln -sfn ~/github/dotfiles/stow/agents/.agents/skills/"$name" ~/.cbcode-home/.claude/skills/"$name"
-  ln -sfn ~/github/dotfiles/stow/agents/.agents/skills/"$name" ~/.cbcode-home/.agents/skills/"$name"
+  ln -sfn ~/code/personal/dotfiles/stow/agents/.agents/skills/"$name" ~/.cbcode-home/.claude/skills/"$name"
+  ln -sfn ~/code/personal/dotfiles/stow/agents/.agents/skills/"$name" ~/.cbcode-home/.agents/skills/"$name"
 done
 ```
 
@@ -1300,7 +1300,7 @@ exec zsh
 
 ```bash
 # Instead of:
-cd ~/github/dotfiles
+cd ~/code/personal/dotfiles
 
 # You can just type:
 z dotfiles

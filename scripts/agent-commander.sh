@@ -6,7 +6,7 @@
 set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-DEFAULT_AGENT_COMMANDER_DIR="$HOME/github/agent-commander"
+DEFAULT_AGENT_COMMANDER_DIR="$HOME/code/personal/agent-commander"
 if [ -z "${AGENT_COMMANDER_DIR:-}" ]; then
     if [ -d "$HOME/agent-commander/.git" ]; then
         AGENT_COMMANDER_DIR="$HOME/agent-commander"

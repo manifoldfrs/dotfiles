@@ -5,37 +5,25 @@ tool_output_token_limit = 25000
 personality = "pragmatic"
 approvals_reviewer = "user"
 
-[projects."/Users/frshbb/github"]
+[projects."/Users/frshbb/code"]
 trust_level = "trusted"
 
-[projects."/Users/frshbb/github/autodidact"]
+[projects."/Users/frshbb/code/personal/autodidact"]
 trust_level = "trusted"
 
-[projects."/Users/frshbb/github/autodidact/bolt-opto-app-react-nav"]
-trust_level = "trusted"
-
-[projects."/Users/frshbb/github/autodidact/Opto-Financial-Rails"]
-trust_level = "trusted"
-
-[projects."/Users/frshbb/github/opto/opto-web"]
-trust_level = "trusted"
-
-[projects."/Users/frshbb/github/opto/opto"]
-trust_level = "trusted"
-
-[projects."/Users/frshbb/github/optoai/opto"]
+[projects."/Users/frshbb/code/optoai/opto"]
 trust_level = "trusted"
 
 [projects."/Users/frshbb"]
 trust_level = "trusted"
 
-[projects."/Users/frshbb/github/coinbase/x402-fh"]
+[projects."/Users/frshbb/code/coinbase/x402-fh"]
 trust_level = "trusted"
 
 [projects."/private/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T"]
 trust_level = "trusted"
 
-[projects."/Users/frshbb/github/dotfiles"]
+[projects."/Users/frshbb/code/personal/dotfiles"]
 trust_level = "trusted"
 
 [projects."/Users/farishabib/dotfiles"]
