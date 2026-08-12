@@ -8,8 +8,8 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-DEFAULT_STOW_PACKAGES=(zsh git ghostty herdr nvim bin opencode claude codex pi amp agents)
-CB_STOW_PACKAGES=(zsh zsh-cb git git-cb ghostty herdr nvim bin pi agents)
+DEFAULT_STOW_PACKAGES=(fish git ghostty herdr nvim bin opencode claude codex pi amp agents)
+CB_STOW_PACKAGES=(fish fish-cb git git-cb ghostty herdr nvim bin pi agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
 SHARED_BACKUP_TARGETS=(
@@ -36,10 +36,11 @@ AMP_BACKUP_TARGETS=(
     "$HOME/.config/amp/settings.json"
 )
 CB_BACKUP_TARGETS=(
-    "$HOME/.zshrc"
-    "$HOME/.zshrc.local"
-    "$HOME/.zprofile"
-    "$HOME/.zshenv"
+    "$HOME/.config/fish/config.fish"
+    "$HOME/.config/fish/conf.d/coinbase.fish"
+    "$HOME/.config/fish/functions/cbcode.fish"
+    "$HOME/.config/fish/functions/find_pr.fish"
+    "$HOME/.config/starship.toml"
     "$HOME/.gitconfig"
     "$HOME/.gitconfig.local"
     "$HOME/.gitignore_global"
@@ -208,8 +209,25 @@ backup_shared_stow_targets() {
     done
 }
 
+backup_fish_stow_targets() {
+    local package
+    local source
+    local relative
+
+    for package in fish fish-cb; do
+        if ! has_stow_package "$package"; then
+            continue
+        fi
+
+        while IFS= read -r source; do
+            relative="${source#"$STOW_DIR/$package/"}"
+            backup_stow_target "$HOME/$relative"
+        done < <(find "$STOW_DIR/$package" -type f | sort)
+    done
+}
+
 backup_cb_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/fish/conf.d" "$HOME/.config/fish/functions" "$HOME/.local/bin"
 
     for target in "${CB_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -496,6 +514,7 @@ link_ssh_config() {
 apply_dotfiles() {
     remove_legacy_tmux_links
     remove_legacy_agent_skill_trees
+    backup_fish_stow_targets
     backup_shared_stow_targets
     backup_pi_stow_targets
     backup_amp_stow_targets

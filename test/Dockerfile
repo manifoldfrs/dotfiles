@@ -3,9 +3,10 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    zsh \
+    fish \
     curl \
     git \
+    ripgrep \
     stow \
     sudo \
     locales \
@@ -16,7 +17,7 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
 # Create test user (simulates fresh machine)
-RUN useradd -m -s /bin/zsh testuser && \
+RUN useradd -m -s /usr/bin/fish testuser && \
     echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER testuser

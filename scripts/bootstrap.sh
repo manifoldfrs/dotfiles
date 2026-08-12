@@ -7,9 +7,9 @@ set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_TARGETS=(
-    "$HOME/.zshrc"
-    "$HOME/.zprofile"
-    "$HOME/.zshenv"
+    "$HOME/.config/fish/config.fish"
+    "$HOME/.config/fish/fish_plugins"
+    "$HOME/.config/starship.toml"
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"
@@ -92,7 +92,7 @@ backup_stow_target() {
 }
 
 backup_existing_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/fish" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
 
     for target in "${STOW_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -104,46 +104,20 @@ apply_dotfiles() {
     "$DOTFILES_DIR/scripts/stow.sh" apply
 }
 
-install_oh_my_zsh() {
-    if [ -d "$HOME/.oh-my-zsh" ]; then
-        info "Oh My Zsh already installed"
+install_fisher_plugins() {
+    if ! command -v fish &> /dev/null; then
+        warn "Fish not found, skipping Fisher plugins"
         return
     fi
 
-    info "Installing Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc
-}
-
-install_zsh_syntax_highlighting() {
-    local zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-
-    if [ -d "$zsh_custom/plugins/zsh-syntax-highlighting" ]; then
-        info "zsh-syntax-highlighting already installed"
-        return
-    fi
-
-    info "Installing zsh-syntax-highlighting plugin..."
-    mkdir -p "$zsh_custom/plugins"
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom/plugins/zsh-syntax-highlighting"
-}
-
-setup_fzf() {
-    local fzf_install
-
-    if ! command -v fzf &> /dev/null; then
-        return
-    fi
-
-    if [ -f /opt/homebrew/opt/fzf/install ]; then
-        fzf_install=/opt/homebrew/opt/fzf/install
-    elif [ -f /usr/local/opt/fzf/install ]; then
-        fzf_install=/usr/local/opt/fzf/install
-    else
-        return
-    fi
-
-    info "Setting up fzf keybindings..."
-    "$fzf_install" --key-bindings --completion --no-update-rc --no-bash --no-fish
+    info "Installing Fisher and declared Fish plugins..."
+    fish -c '
+        if not functions -q fisher
+            curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
+            fisher install jorgebucaran/fisher
+        end
+        fisher update
+    ' || warn "Fisher plugin installation failed"
 }
 
 sync_neovim_plugins() {
@@ -196,15 +170,13 @@ main() {
     install_homebrew
     install_brewfile
     apply_dotfiles
-    install_oh_my_zsh
-    install_zsh_syntax_highlighting
-    setup_fzf
+    install_fisher_plugins
     sync_neovim_plugins
     install_npm_globals
     install_amp
 
     echo ""
-    info "Bootstrap complete! Restart your terminal or run: source ~/.zshrc"
+    info "Bootstrap complete! Restart Ghostty or run: exec fish --login"
 }
 
 main

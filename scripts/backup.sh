@@ -101,13 +101,22 @@ backup_warp_themes() {
     cp -R "$HOME/.warp/themes" "$DOTFILES_DIR/warp/"
 }
 
+backup_fish_package() {
+    local package=$1
+    local tracked
+    local relative
+
+    while IFS= read -r tracked; do
+        relative="${tracked#"$STOW_DIR/$package/"}"
+        copy_file "$HOME/$relative" "$tracked" "$relative"
+    done < <(find "$STOW_DIR/$package" -type f | sort)
+}
+
 backup_shared_config() {
     info "Backing up shell/editor configuration..."
 
     export_brewfile
-    copy_file "$HOME/.zshrc" "$STOW_DIR/zsh/.zshrc" ".zshrc"
-    copy_file "$HOME/.zprofile" "$STOW_DIR/zsh/.zprofile" ".zprofile"
-    copy_file "$HOME/.zshenv" "$STOW_DIR/zsh/.zshenv" ".zshenv"
+    backup_fish_package fish
     copy_file "$HOME/.gitconfig" "$STOW_DIR/git/.gitconfig" ".gitconfig"
     copy_file "$HOME/.gitignore_global" "$STOW_DIR/git/.gitignore_global" ".gitignore_global"
     copy_file "$HOME/.config/ghostty/config" "$STOW_DIR/ghostty/.config/ghostty/config" "Ghostty config"
@@ -119,7 +128,7 @@ backup_shared_config() {
 backup_coinbase_config() {
     info "Backing up Coinbase local override configuration..."
 
-    copy_file "$HOME/.zshrc.local" "$STOW_DIR/zsh-cb/.zshrc.local" ".zshrc.local"
+    backup_fish_package fish-cb
     copy_file "$HOME/.gitconfig.local" "$STOW_DIR/git-cb/.gitconfig.local" ".gitconfig.local"
 }
 
