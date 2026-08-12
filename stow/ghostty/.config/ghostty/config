@@ -1,22 +1,26 @@
 # Ghostty configuration
 # Shell integration and clipboard
-shell-integration = zsh
+command = /opt/homebrew/bin/fish --login
+shell-integration = fish
 shell-integration-features = no-cursor
 copy-on-select = clipboard
 selection-clear-on-copy = true
 keybind = performable:ctrl+shift+c=copy_to_clipboard
 keybind = super+c=csi:99;6u
 
-# theme
-theme = TokyoNight Night
+# Theme
+theme = Catppuccin Macchiato
 
 # Cursor
 cursor-style = block
 cursor-style-blink = true
 
-
-# Font
-font-family = JetBrainsMono Nerd Font
+# MonoLisa Code
+font-family = MonoLisaCode
+font-style = Regular
+font-style-italic = Italic
+font-style-bold = Bold
+font-style-bold-italic = Bold Italic
 font-size = 14
 
 # macOS
@@ -25,5 +29,10 @@ macos-titlebar-style = tabs
 
 # Window behavior
 window-inherit-working-directory = true
+window-colorspace = display-p3
+window-padding-color = background
+window-padding-balance = true
+window-padding-x = 0
+window-padding-y = 0
 background-opacity = 1
-unfocused-split-opacity = 0.9
+unfocused-split-opacity = 0.97
