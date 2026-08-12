@@ -706,7 +706,7 @@ cmd_start() {
     case "$harness" in
         cbcode-*)
             # cbcode's HOME-sandbox is only defined as an interactive zsh function
-            # (stow/zsh-cb/.zshrc.local); a plain bash exec never sees it, so replicate it here.
+            # (stow/fish-cb); a plain bash exec never sees it, so replicate it here.
             export HOME="$HOME/.cbcode-home"
             ;;
     esac
