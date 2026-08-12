@@ -35,7 +35,7 @@ rg 'test-docker' .github/workflows/test.yml
 ## Common Gotchas
 - Docker tests run on Ubuntu; macOS-only assumptions can fail
 - CI rejects SSH URL rewrites in `.gitconfig`
-- Oh My Zsh install must stay unattended to avoid hanging tests
+- Fish syntax checks require `fish`; Docker and CI install it explicitly
 
 ## Pre-PR Checks
 ```bash

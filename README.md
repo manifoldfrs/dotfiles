@@ -1,6 +1,15 @@
 # dotfiles
 
-Configuration files for zsh, Homebrew, Ghostty terminal, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Currently using **Tokyo Night** across Neovim, Ghostty, and Herdr.
+Configuration files for Fish, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, Fish, and Starship use **Catppuccin Macchiato** with MonoLisaCode 14 pt.
+
+## Theme and font status
+
+- Ghostty, Herdr, Neovim, Pi, Fish, completion menus, and Starship use Catppuccin Macchiato.
+- Neovim uses opaque Macchiato surfaces so Ghostty, Herdr, floats, completion menus, Snacks, and Diffview remain visually coherent.
+- Ghostty uses `MonoLisaCode` at 14 pt with explicit regular, italic, bold, and bold-italic styles.
+- Starship uses the intended Nerd Font glyphs through Ghostty's built-in `Symbols Nerd Font` fallback. See `plans/theme-font-glyph-followups.md`.
+- Codex and OpenCode intentionally retain their Tokyo Night themes in this pass.
+- Cursor and Zed are archived under `old/` and are not restored or rethemed.
 
 ## Requirements
 
@@ -62,7 +71,7 @@ spotify-visualizer
 
 The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and keeps the TUI theme on `tokyonight`.
 
-The committed MCP config reads secrets from `REF_API_KEY` and `EXA_API_KEY`. Put real local values in `~/.zshenv.local`, not in git.
+The committed MCP config reads secrets from `REF_API_KEY` and `EXA_API_KEY`. Put real local values in `~/.config/fish/local.fish`, not in git.
 
 Apply only OpenCode config when needed:
 
@@ -134,12 +143,10 @@ git pull
 # 2. Reapply all tracked shell/editor/terminal and Herdr config
 ./scripts/stow.sh
 
-# First time on this machine? Make sure the zsh brew deps exist, otherwise
-# the prompt and syntax highlighting are skipped silently (the .zshrc guards
-# them behind `[[ -f ... ]]`). `brew bundle` installs anything missing:
+# First time on this machine? Install Fish, Starship, and the supporting tools:
 brew bundle --file=Brewfile
-# or just the two that commonly drift:
-# brew install powerlevel10k zsh-syntax-highlighting
+# or only the shell stack:
+# brew install fish starship zoxide fzf ripgrep fd
 
 # 3. Fully quit and reopen your terminal
 
@@ -151,7 +158,7 @@ node --version
 herdr --version
 ```
 
-On Coinbase laptops, use the Coinbase Stow profile instead. It applies shared shell/editor/terminal packages plus `stow/zsh-cb` and `stow/git-cb`, while leaving OpenCode, Claude Code, and Codex account state alone. Pi settings are shared via `stow/pi`, but Pi auth and sessions stay local.
+On Coinbase laptops, use the Coinbase Stow profile instead. It applies shared shell/editor/terminal packages plus `stow/fish-cb` and `stow/git-cb`, while leaving OpenCode, Claude Code, and Codex account state alone. Pi settings are shared via `stow/pi`, but Pi auth and sessions stay local.
 
 ```bash
 cd ~/dotfiles
@@ -164,9 +171,9 @@ herdr server reload-config || true
 Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins. Do not use bootstrap on Coinbase laptops until the script has Coinbase profile pass-through.
 
 What this already handles for you:
-- stows your zsh, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi, Amp settings, and local bin config
-- supports `--cb` for Coinbase laptops, which uses `zsh-cb` and `git-cb` without stowing OpenCode or Claude Code; Pi settings remain shared
-- configures Herdr with Tokyo Night, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
+- stows Fish, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi, Amp settings, and local bin config
+- supports `--cb` for Coinbase laptops, which adds `fish-cb` and `git-cb` without stowing OpenCode or Claude Code; Pi settings remain shared
+- configures Herdr with Catppuccin Macchiato, Fish, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
 What `./scripts/bootstrap.sh` additionally handles for you:
@@ -201,14 +208,14 @@ agent-commander start cbcode-codex    # cbcode --agent codex, sandboxed under ~/
 Runtime config, projects, state, logs, generated command shims, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
 Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/no-mistakes libs/gh-axi libs/chrome-devtools-axi` or use `agent-commander install all`.
 `agent-commander install all` also refreshes command shims, links Agent Skills for gh-axi, chrome-devtools-axi, and no-mistakes, and installs the supported AXI session hooks.
-The zsh profile prepends `agent-commander/bin` when that directory exists, so generated shims like `gh-axi`, `chrome-devtools-axi`, `no-mistakes`, and `treehouse` are available by command name after opening a new shell.
-`agent-commander start <harness>` starts the selected harness (`claude`, `codex`, `opencode`, `pi`, `grok`, `cbcode-claude`, or `cbcode-codex`) from the current working directory, with `AGENT_COMMANDER_DIR`/`FM_HOME` pointed at the sibling operating home. The `cbcode-*` variants export `HOME="$HOME/.cbcode-home"` before exec'ing `cbcode`, since cbcode's HOME-sandbox wrapper is normally only defined as an interactive zsh function (see cbcode HOME Sandbox below) and a plain exec would otherwise bypass it.
+The Fish path fragment prepends `agent-commander/bin` when that directory exists, so generated shims like `gh-axi`, `chrome-devtools-axi`, `no-mistakes`, and `treehouse` are available by command name after opening a new shell.
+`agent-commander start <harness>` starts the selected harness (`claude`, `codex`, `opencode`, `pi`, `grok`, `cbcode-claude`, or `cbcode-codex`) from the current working directory, with `AGENT_COMMANDER_DIR`/`FM_HOME` pointed at the sibling operating home. The `cbcode-*` variants export `HOME="$HOME/.cbcode-home"` before exec'ing `cbcode`, matching the Fish-native sandbox function documented below.
 agent-commander's own `lavish-axi` integration was removed in favor of [Plannotator](#plannotator) (see below); it no longer clones, builds, or wires hooks for `lavish-axi`.
 
 Fresh-shell validation:
 
 ```bash
-exec zsh -l
+exec fish --login
 agent-commander doctor
 command -v gh-axi chrome-devtools-axi no-mistakes treehouse fm-bootstrap.sh
 gh-axi --help
@@ -319,7 +326,7 @@ This defaults to `apply`. The equivalent direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -R -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
 ```
 
 ### Apply Coinbase Laptop Profile
@@ -330,7 +337,7 @@ cd ~/dotfiles
 ./scripts/stow.sh --cb apply
 ```
 
-The Coinbase profile stows `zsh`, `zsh-cb`, `git`, `git-cb`, `ghostty`, `herdr`, `nvim`, `bin`, and `pi`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched. It also symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` using a dedicated step in `scripts/stow.sh` because Stow cannot fold into a pre-existing `~/.ssh` directory.
+The Coinbase profile stows `fish`, `fish-cb`, `git`, `git-cb`, `ghostty`, `herdr`, `nvim`, `bin`, and `pi`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched. It also symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` using a dedicated step in `scripts/stow.sh` because Stow cannot fold into a pre-existing `~/.ssh` directory.
 
 ### Coinbase Git Authentication Setup
 
@@ -363,18 +370,18 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi amp
-stow --no-folding -R -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -n -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -R -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
 
 # Coinbase machine: preview and apply shared packages plus work overrides
-stow --no-folding -n -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
-stow --no-folding -R -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
+stow --no-folding -n -v -t "$HOME" -d stow fish fish-cb git git-cb ghostty herdr nvim bin pi
+stow --no-folding -R -v -t "$HOME" -d stow fish fish-cb git git-cb ghostty herdr nvim bin pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -D -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
 
 # Remove the Coinbase profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow zsh zsh-cb git git-cb ghostty herdr nvim bin pi
+stow --no-folding -D -v -t "$HOME" -d stow fish fish-cb git git-cb ghostty herdr nvim bin pi
 ```
 
 ### Apply One Package
@@ -386,8 +393,8 @@ stow --no-folding -R -v -t "$HOME" -d stow nvim
 # Herdr only
 stow --no-folding -R -v -t "$HOME" -d stow herdr
 
-# zsh only
-stow --no-folding -R -v -t "$HOME" -d stow zsh
+# Fish and Starship only
+stow --no-folding -R -v -t "$HOME" -d stow fish
 
 # OpenCode only
 stow --no-folding -R -v -t "$HOME" -d stow opencode
@@ -402,110 +409,38 @@ stow --no-folding -R -v -t "$HOME" -d stow pi
 stow --no-folding -R -v -t "$HOME" -d stow amp
 ```
 
-### Zsh Setup
+### Fish + Starship setup
 
-The shell config is split across two Stow packages so the same dotfiles work on both a personal and a Coinbase machine.
+The active shell configuration is split into two Stow packages:
 
-#### `stow/zsh` — shared, works everywhere
+- `stow/fish` provides Fish, the Catppuccin Macchiato syntax/completion palette, Starship, Fisher's plugin list, 171 Git abbreviations, lazy utility functions, completions, fzf bindings, zoxide, and personal tool paths.
+- `stow/fish-cb` adds Coinbase Go settings plus Fish-native `cbcode` and `find_pr` functions. See `stow/fish-cb/README.md` for cb-zsh commands that could not be ported safely without the work-only plugin checkout.
 
-Stowed on every machine. Contains `.zshrc`, `.p10k.zsh`, and `.zshenv`. No framework dependency — everything is wired directly:
-
-- **Powerlevel10k** sourced from the Homebrew prefix (arm64 and x86 paths handled). Config lives in `stow/zsh/.p10k.zsh` (Pure style: yellow directory, async git status, `❯` prompt char, command duration above 5 s).
-- **gitstatus daemon** (bundled with the `powerlevel10k` brew formula) answers git queries in the background so the prompt never blocks — important in large repos.
-- **compinit once per day** — skips the expensive completion scan on every shell open; only regenerates when `.zcompdump` is older than 24 h.
-- **Arrow-key prefix history search** — type a partial command then `↑`/`↓` to filter history by that prefix.
-- **ctrl-z toggle** — pressing `ctrl-z` in an empty prompt brings a backgrounded process back to the foreground instead of suspending the shell.
-- **fzf with ripgrep/fd** — `FZF_DEFAULT_COMMAND` uses `rg` (respects `.gitignore`, fast on large trees); `FZF_ALT_C_COMMAND` uses `fd` for directory navigation. `ctrl-r` history search includes `ctrl-y` to copy a command to clipboard and `ctrl-/` to toggle the preview pane.
-- **zsh-syntax-highlighting** sourced from the Homebrew prefix.
-
-Brew deps required on any machine:
+Install and apply the default profile:
 
 ```bash
-brew install powerlevel10k zsh-syntax-highlighting ripgrep fd fzf
+brew install fish starship zoxide fzf ripgrep fd
+./scripts/stow.sh apply
+exec fish --login
 ```
 
-#### `stow/zsh-cb` — Coinbase laptop only
-
-Stowed in addition to `stow/zsh` on Coinbase machines. Contains `.zshrc.local`, which is sourced at the end of `.zshrc`.
-
-Loads [cb-zsh](https://github.cbhq.net/infra/cb-zsh) with the theme disabled (p10k is already set up) and only the Coinbase-specific plugins:
+On a Coinbase laptop:
 
 ```bash
-CB_ZSH_DISABLE_THEME=1
-CB_ZSH_PLUGINS=(atlassian jira find_pr reconnect_vpn git-scripts new-user)
+./scripts/stow.sh --cb dry-run
+./scripts/stow.sh --cb apply
+exec fish --login
 ```
 
-cb-zsh must be cloned to `~/.cb-zsh`:
+The Homebrew Fish binary is `/opt/homebrew/bin/fish` on Apple Silicon. Ghostty and Herdr launch it explicitly, so changing the macOS account login shell is not required. Machine-local secrets and overrides belong in `~/.config/fish/local.fish`.
 
-```bash
-git clone git@github.cbhq.net:infra/cb-zsh.git ~/.cb-zsh
-```
+#### Prompt and runtime behavior
 
-The guard `[ -f ~/.cb-zsh/cb-zsh.zsh ]` means this silently no-ops if cb-zsh is not installed.
+Starship uses dmmulroy's module order, non-truncated directories, 18-character Git branches, and project-marker-only Node detection. Prompt icons use Ghostty's built-in `Symbols Nerd Font` fallback, which preserves unmodified MonoLisa text while rendering the intended glyphs. The research and verification are recorded in `plans/theme-font-glyph-followups.md`. pyenv and rbenv initialize only when first invoked, while their shims remain available on PATH. NVM is supplied through `jorgebucaran/nvm.fish`.
 
-#### Quick setup
+#### Rollback
 
-**Personal machine:**
-
-```bash
-brew install powerlevel10k zsh-syntax-highlighting ripgrep fd fzf
-cd ~/dotfiles
-stow -d stow --restow -t ~ zsh
-exec zsh
-```
-
-**Coinbase machine:**
-
-```bash
-brew install powerlevel10k zsh-syntax-highlighting  # ripgrep, fd, fzf already in Brewfile
-git clone git@github.cbhq.net:infra/cb-zsh.git ~/.cb-zsh
-cd ~/dotfiles
-stow -d stow --restow -t ~ zsh zsh-cb
-exec zsh
-```
-
-#### Coinbase shell shortcuts
-
-These functions are available after `stow/zsh-cb` is stowed and cb-zsh is installed:
-
-| Command | What it does |
-|---|---|
-| `jira` | Open your Jira board in Chrome (set `MY_JIRA_BOARD` in `.zshrc.local`) |
-| `jira DX-123` | Open a specific Jira ticket directly |
-| `wiki <query>` | Search Confluence in Chrome |
-| `find_pr` | Fuzzy-pick a commit from git log and open its GitHub PR in Chrome (uses the internal `heimdall.cbhq.net` API — requires full-tunnel VPN) |
-| `reconnect_vpn` | Reconnect to Coinbase VPN via AppleScript without leaving the terminal |
-| `newuser` | Create a new Coinbase test user in the development environment (requires `$COINBASE_USERNAME` to be set) |
-
-### Update zshrc On Another Machine
-
-Use this when you want the latest checked-in shell startup changes.
-
-```bash
-cd ~/dotfiles
-git pull
-
-# Preview first if the machine is not fully Stow-managed yet
-./scripts/stow.sh dry-run
-
-# Apply just the zsh package
-stow --no-folding -R -v -t "$HOME" -d stow zsh
-```
-
-Verify `~/.zshrc` is managed by this repo:
-
-```bash
-readlink ~/.zshrc
-zsh -n ~/.zshrc
-zsh -i -c exit
-```
-
-`readlink ~/.zshrc` should point into `~/dotfiles/stow/zsh/.zshrc`. If it prints nothing, `~/.zshrc` is still a real file; move it aside before restowing:
-
-```bash
-mv ~/.zshrc ~/.zshrc.backup.$(date +%Y%m%d%H%M%S)
-stow --no-folding -R -v -t "$HOME" -d stow zsh
-```
+The former Zsh and Coinbase Zsh packages are preserved under `old/zsh` and `old/zsh-cb`. To roll back, remove the Fish profile with `./scripts/stow.sh delete`, Stow the archived packages explicitly, and point Ghostty/Herdr back to Zsh.
 
 ### Migrate An Existing Machine
 
@@ -580,8 +515,8 @@ Use one package per tool when possible. That keeps `stow nvim`, `stow herdr`, an
 Edit either the `$HOME` path or the repo path. Because Stow creates symlinks, both point to the same file.
 
 ```bash
-nvim ~/.zshrc
-nvim ~/dotfiles/stow/zsh/.zshrc
+nvim ~/.config/fish/config.fish
+nvim ~/dotfiles/stow/fish/.config/fish/config.fish
 ```
 
 After editing, check repo changes:
@@ -609,7 +544,7 @@ cd ~/dotfiles
 ./scripts/backup.sh --cb
 ```
 
-The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.local` and `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`. It intentionally does not copy shared shell, Git, Herdr, Ghostty, Neovim, OpenCode, Claude Code, Pi, or Model Context Protocol files.
+The Coinbase backup profile copies only files already owned by `stow/fish-cb` plus `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`. It intentionally does not copy shared Fish, Git, Herdr, Ghostty, Neovim, OpenCode, Claude Code, Pi, or Model Context Protocol files.
 
 ## Command Cheatsheet
 
@@ -621,7 +556,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Apply all Stow packages | `./scripts/stow.sh` |
 | Preview all Stow changes | `./scripts/stow.sh dry-run` |
 | Remove all Stow symlinks | `./scripts/stow.sh delete` |
-| Restow zshrc | `stow --no-folding -R -v -t "$HOME" -d stow zsh` |
+| Restow fishrc | `stow --no-folding -R -v -t "$HOME" -d stow fish` |
 | Restow OpenCode | `stow --no-folding -R -v -t "$HOME" -d stow opencode` |
 | Restow Claude Code settings | `stow --no-folding -R -v -t "$HOME" -d stow claude` |
 | Restow Codex settings/skills/hooks | `./scripts/stow.sh apply` |
@@ -638,7 +573,7 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 | Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
 | Open Lazy UI | `nvim +Lazy` |
 | Open Mason UI | `nvim +Mason` |
-| Shell syntax checks | `bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n scripts/agent-commander.sh && bash -n stow/bin/.local/bin/agent-commander && zsh -n stow/zsh/.zshenv && bash -n mcp_setup.sh` |
+| Shell syntax checks | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh && find stow/fish stow/fish-cb -name '*.fish' -print0 | xargs -0 -n1 fish -n` |
 | Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD` |
 | Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
 
@@ -646,13 +581,13 @@ The Coinbase backup profile copies `~/.zshrc.local` into `stow/zsh-cb/.zshrc.loc
 
 ### Bootstrap (`scripts/bootstrap.sh`)
 
-- **Homebrew** + all packages from `Brewfile` (includes Stow, Ghostty, Herdr, Nerd Fonts)
-- **Powerlevel10k** prompt with gitstatus daemon (async git status — does not block the prompt on large repos)
-- **zsh-syntax-highlighting** via Homebrew (no framework required)
+- **Homebrew** + all packages from `Brewfile` (includes Fish, Starship, Zoxide, Stow, Ghostty, and Herdr)
+- **Starship** prompt with bounded project/runtime detection
+- **Fish** native syntax highlighting and autosuggestions plus the Catppuccin Macchiato palette
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/zsh`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
-- **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/zsh-cb`, `stow/git-cb`, and `stow/pi`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
-- **Herdr**: Stow-managed Tokyo Night config with `Ctrl-a` workspace, tab, and pane controls
+- **Configs stowed**: `stow/fish`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
+- **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/fish-cb`, `stow/git-cb`, and `stow/pi`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
+- **Herdr**: Stow-managed Catppuccin Macchiato config with Fish and preserved `Ctrl-a` workspace, tab, and pane controls
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
 - **Global npm packages** from `npm-global-packages.txt`
@@ -702,7 +637,7 @@ Preferred tool usage after setup:
 - The `agents` Stow package ignores `.agents` directly so `scripts/stow.sh` can manage folder-level links dynamically. This preserves references, scripts, templates, and metadata inside every skill directory and avoids a hard-coded skill-name list.
 - Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
 - Claude and Codex both use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous bash commands and generated-file edit blockers. The Claude hook files and Codex hook files are harness-specific wrappers around the same implementation.
-- Claude Code MCP servers are user-scoped, not Stow-managed. Personal MCP servers (`RepoPromptCE`, `Ref`, `exa`) are in `~/.claude.json`; keep `Ref`/`exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.zshenv.local`. Work MCP servers live in the separate `~/.cbcode-home/.claude.json` (see cbcode HOME Sandbox below) and are unrelated to the personal set.
+- Claude Code MCP servers are user-scoped, not Stow-managed. Personal MCP servers (`RepoPromptCE`, `Ref`, `exa`) are in `~/.claude.json`; keep `Ref`/`exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.config/fish/local.fish`. Work MCP servers live in the separate `~/.cbcode-home/.claude.json` (see cbcode HOME Sandbox below) and are unrelated to the personal set.
 - Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML. This applies to the personal `~/.codex/config.toml` only; work's `~/.cbcode-home/.codex/config.toml` holds its own MCP server list ported from work Claude (see below).
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
 - OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
@@ -913,7 +848,7 @@ CLI cheat sheet:
 
 Use `herdr <resource> --help`, such as `herdr pane --help`, for the complete command reference.
 
-The active config is `stow/herdr/.config/herdr/config.toml` and uses Herdr's built-in Tokyo Night theme. `C-a s` replaces the former tmux-sessionizer workflow with Herdr's workspace picker.
+The active config is `stow/herdr/.config/herdr/config.toml` and uses Catppuccin Macchiato tokens with Fish as the pane shell. `C-a s` replaces the former tmux-sessionizer workflow with Herdr's workspace picker.
 
 Install agent integrations once per machine:
 
@@ -929,22 +864,9 @@ Generated integration files remain machine-managed. The shared `herdr` skill tea
 
 ## Shell Configuration
 
-### History Settings
+Fish manages history natively under `~/.local/share/fish/`, with autosuggestions and syntax highlighting enabled by the shell. The tracked `conf.d` fragments keep startup work bounded: runtime shims are on PATH, pyenv/rbenv initialize lazily, and Starship only probes configured project markers.
 
-```bash
-HISTSIZE=10000           # Commands in memory
-SAVEHIST=50000           # Commands saved to file
-setopt inc_append_history  # Save immediately, not on exit
-setopt share_history       # Share between terminals
-```
-
-## Zed Configuration
-
-```bash
-ln -sf ~/dotfiles/zed/settings.json ~/.config/zed/settings.json
-ln -sf ~/dotfiles/zed/keymap.json   ~/.config/zed/keymap.json
-ln -sf ~/dotfiles/zed/tasks.json    ~/.config/zed/tasks.json
-```
+Cursor and Zed are intentionally archived under `old/cursor/current-archive/` and `old/zed/`. They are not Stow packages and are not restored or rethemed by this migration.
 
 ## File Structure
 
@@ -960,8 +882,8 @@ dotfiles/
 ├── npm-global-packages.txt # Global npm packages
 ├── CHANGELOG.md            # Change history
 ├── stow/                   # GNU Stow packages, each mirroring $HOME
-│   ├── zsh/                # .zshrc, .zprofile, .zshenv
-│   ├── zsh-cb/             # Coinbase-only .zshrc.local
+│   ├── fish/               # Fish, Starship, Catppuccin, functions/completions
+│   ├── fish-cb/            # Coinbase-only Fish fragments and functions
 │   ├── git/                # .gitconfig, .gitignore_global
 │   ├── git-cb/             # Coinbase-only .gitconfig.local (SSH URL rewrite + HTTPS fallback)
 │   ├── ssh-cb/             # Coinbase-only .ssh/config (symlinked manually, not via Stow)
@@ -971,7 +893,7 @@ dotfiles/
 │   ├── amp/                # .config/amp/: settings.json and global AGENTS.md
 │   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
 │   ├── claude/             # .claude/: settings.local.json, CLAUDE.md, skills/, hooks/
-│   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
+│   └── nvim/               # .config/nvim (lazy.nvim + Catppuccin Macchiato)
 │       └── .config/nvim/
 │           ├── init.lua
 │           ├── lazy-lock.json
@@ -1054,13 +976,9 @@ ln -s ~/.cbcode .cbcode
 ln -s ~/.config .config
 ln -s ~/.cache .cache
 ln -s ~/.nvm .nvm
-ln -s ~/.zshrc .zshrc
-ln -s ~/.zprofile .zprofile
 ln -s ~/.pyenv .pyenv
 ln -s ~/.rbenv .rbenv
 ln -s ~/.bun .bun
-ln -s ~/.cb-zsh .cb-zsh
-ln -s ~/.fzf.zsh .fzf.zsh
 ln -s ~/.deno .deno
 ln -s ~/.local .local
 ln -s ~/go go
@@ -1082,10 +1000,9 @@ mkdir -p .claude/hooks
 ln -s ~/.claude/hooks/block-dangerous-bash.sh  .claude/hooks/
 ln -s ~/.claude/hooks/block-generated-edits.sh .claude/hooks/
 
-# 3. Add the wrapper function to .zshrc
-cbcode() {
-  ( HOME="$HOME/.cbcode-home" command cbcode "$@" )
-}
+# 3. Apply the Coinbase Fish package; it provides the cbcode wrapper.
+cd ~/dotfiles
+./scripts/stow.sh --cb apply
 ```
 
 Personal `~/.claude/settings.json` is Stow-managed (`stow/claude/.claude/settings.json`) and intentionally has no gateway/OTEL/secret keys, since it is the file a plain, non-cbcode `claude` binary (installed separately, e.g. `bun install -g @anthropic-ai/claude-code`) reads. Work's `~/.cbcode-home/.claude/settings.json` is NOT Stow-managed — cbcode owns and rewrites it on every launch, the same way it owns `~/.cbcode-home/.codex/config.toml`.
@@ -1159,12 +1076,12 @@ cbcode force-updates both `~/.codex/config.toml` (model, provider, gateway setti
 ## Troubleshooting
 
 **Stow says `WARNING! stowing ... would cause conflicts`**
-- A real file already exists at the target path, for example `~/.zshrc` or `~/.config/nvim`.
+- A real file already exists at the target path, for example `~/.config/fish/config.fish` or `~/.config/nvim`.
 - If you trust the repo version, move the existing file aside and restow:
 
 ```bash
-mv ~/.zshrc ~/.zshrc.backup.$(date +%Y%m%d%H%M%S)
-stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow zsh
+mv ~/.config/fish/config.fish ~/.config/fish/config.fish.backup.$(date +%Y%m%d%H%M%S)
+stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow fish
 ```
 
 For a full migration, prefer `./scripts/bootstrap.sh`; it backs up known target paths before stowing.
@@ -1173,7 +1090,7 @@ For a full migration, prefer `./scripts/bootstrap.sh`; it backs up known target 
 - Check the symlink target:
 
 ```bash
-readlink ~/.zshrc
+readlink ~/.config/fish/config.fish
 readlink ~/.config/nvim
 ```
 
@@ -1181,7 +1098,7 @@ readlink ~/.config/nvim
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow zsh nvim
+stow --no-folding -R -v -t "$HOME" -d stow fish nvim
 ```
 
 **I edited `~/.config/nvim`, but Git does not show changes**
@@ -1213,10 +1130,10 @@ cd ~/dotfiles && ./scripts/bootstrap.sh
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -D -v -t "$HOME" -d stow zsh git ghostty herdr nvim bin opencode claude pi
+stow --no-folding -D -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude pi
 ```
 
-Backups created by the installer are named like `.zshrc.backup.YYYYMMDDhhmmss`.
+Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 
 **Neovim LSP not working?**
 - Requires Neovim >= 0.11.0 for mason-lspconfig v2
@@ -1246,28 +1163,11 @@ Backups created by the installer are named like `.zshrc.backup.YYYYMMDDhhmmss`.
 - Re-stow your dotfiles Neovim config and rerun setup: `./scripts/bootstrap.sh`
 - The setup script runs headless `Lazy! restore` to install plugin files from `lazy-lock.json`
 
-**Powerline symbols not showing?**
-- Ensure terminal uses a Nerd Font (JetBrainsMono Nerd Font)
-- Restart terminal after font installation
-
-**Prompt is plain / no syntax highlighting after an update?**
-- The shared `stow/zsh/.zshrc` sources Powerlevel10k and zsh-syntax-highlighting behind `[[ -f ... ]]` guards, so if the brew formulae are missing it skips them silently with no error — you just get a bare prompt and no command coloring.
-- This typically happens on a machine that was Stow-managed but never fully bootstrapped (for example, a personal machine that only ever had `ripgrep`/`fd`/`fzf` installed).
-- Check whether they are installed:
-
-```bash
-brew list --versions powerlevel10k zsh-syntax-highlighting
-```
-
-- If either is absent, install and reload:
-
-```bash
-brew install powerlevel10k zsh-syntax-highlighting
-exec zsh
-```
-
-- To avoid this class of drift entirely, install the full tracked package set: `brew bundle --file=~/dotfiles/Brewfile`.
-- Note: cb-zsh plugins (`jira`, `find_pr`, etc.) are a separate concern — those load only via `stow/zsh-cb/.zshrc.local` on the Coinbase `--cb` profile and are intentionally absent on personal machines.
+**Prompt is plain or Fish coloring is missing after an update?**
+- Check `brew list --versions fish starship zoxide fzf` and run `brew bundle --file=~/dotfiles/Brewfile` for anything missing.
+- Reapply the Fish package with `./scripts/stow.sh apply`, then run `exec fish --login`.
+- Verify the theme fragment is linked at `~/.config/fish/conf.d/catppuccin_macchiato_theme.fish` and Starship is linked at `~/.config/starship.toml`.
+- Private-use prompt glyphs use Ghostty's built-in `Symbols Nerd Font` fallback; see `plans/theme-font-glyph-followups.md`.
 
 **Herdr config not loading?**
 - Confirm `~/.config/herdr/config.toml` points into `stow/herdr/` with `readlink ~/.config/herdr/config.toml`.
@@ -1285,34 +1185,13 @@ exec zsh
 
 **nvm not found?**
 - `nvm` is optional now; `scripts/bootstrap.sh` installs Node.js from `Brewfile`
-- If you install `nvm` manually, restart terminal or `source ~/.zshrc`
+- `jorgebucaran/nvm.fish` is declared in `fish_plugins`; run `fisher update` and restart Fish if the function is missing
 
 **Terminal debugging workflow**
 - Go: run `dlv debug` or `dlv test` in a Herdr pane
 - Python: run `python -m debugpy --listen localhost:5678 --wait-for-client myfile.py`
 - Prefer tests and print/log debugging first; reach for `dlv` or `debugpy` when the bug is stubborn
 
-## Future Considerations
+## Zoxide
 
-### zoxide - Smarter Directory Navigation
-
-[zoxide](https://github.com/ajeetdsouza/zoxide) is a smarter `cd` command that learns your habits. It uses "frecency" (frequency + recency) to jump to directories with minimal typing.
-
-```bash
-# Instead of:
-cd ~/code/personal/dotfiles
-
-# You can just type:
-z dotfiles
-```
-
-**Installation (when ready):**
-```bash
-# Add to Brewfile
-brew "zoxide"
-
-# Add to .zshrc
-eval "$(zoxide init zsh)"
-```
-
-Currently not using this because `cd` + fzf works well enough, but worth revisiting if directory jumping becomes a bottleneck.
+Zoxide is installed from `Brewfile` and initialized for interactive Fish sessions. Use `z dotfiles` to jump to frequently used directories.
