@@ -12,8 +12,7 @@ fail() { echo "[FAIL] $1"; exit 1; }
 
 # Test 1: syntax
 echo "[TEST 1] Checking Bash and Fish syntax..."
-for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh scripts/agent-commander.sh \
-    stow/bin/.local/bin/agent-commander \
+for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh \
     stow/bin/.local/share/agent-guardrails/block-dangerous-bash.sh \
     stow/bin/.local/share/agent-guardrails/block-generated-edits.sh \
     stow/claude/.claude/hooks/block-dangerous-bash.sh \
@@ -56,7 +55,6 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/catppuccin-macchiato.json" ] \
-    && [ -L "$STOW_TEST_HOME/.local/bin/agent-commander" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Fish Stow profile is idempotent"

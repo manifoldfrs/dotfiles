@@ -184,63 +184,9 @@ What is still separate:
 - `./mcp_setup.sh install` for Claude/Codex MCP configs
 - OpenCode install if you use it on that machine
 
-## Agent Commander
-
-`agent-commander` is a sibling operating home for firstmate, treehouse, no-mistakes, AXI tools, and related agent harness state.
-Dotfiles manages only the shared launcher at `~/.local/bin/agent-commander` plus its source script in `scripts/agent-commander.sh`.
-The operating home itself lives outside this repo at `~/code/personal/agent-commander` by default, or `~/agent-commander` when that clone already exists.
-Do not Stow the `agent-commander` repo.
-
-```bash
-agent-commander path
-agent-commander init
-agent-commander doctor
-agent-commander bootstrap
-agent-commander install all
-agent-commander integrate
-agent-commander shims
-agent-commander start codex
-agent-commander start cbcode-claude   # cbcode --agent claude, sandboxed under ~/.cbcode-home
-agent-commander start cbcode-codex    # cbcode --agent codex, sandboxed under ~/.cbcode-home
-```
-
-`AGENT_COMMANDER_DIR` can override the operating home, but the launcher refuses to run if that directory is inside this dotfiles repo.
-Runtime config, projects, state, logs, generated command shims, and pinned tool checkouts belong in the sibling repo, not in `stow/`.
-Pinned upstream tools live under `agent-commander/libs/` as Git submodules; after cloning on another laptop, run `git submodule update --init libs/firstmate libs/treehouse libs/no-mistakes libs/gh-axi libs/chrome-devtools-axi` or use `agent-commander install all`.
-`agent-commander install all` also refreshes command shims, links Agent Skills for gh-axi, chrome-devtools-axi, and no-mistakes, and installs the supported AXI session hooks.
-The Fish path fragment prepends `agent-commander/bin` when that directory exists, so generated shims like `gh-axi`, `chrome-devtools-axi`, `no-mistakes`, and `treehouse` are available by command name after opening a new shell.
-`agent-commander start <harness>` starts the selected harness (`claude`, `codex`, `opencode`, `pi`, `grok`, `cbcode-claude`, or `cbcode-codex`) from the current working directory, with `AGENT_COMMANDER_DIR`/`FM_HOME` pointed at the sibling operating home. The `cbcode-*` variants export `HOME="$HOME/.cbcode-home"` before exec'ing `cbcode`, matching the Fish-native sandbox function documented below.
-agent-commander's own `lavish-axi` integration was removed in favor of [Plannotator](#plannotator) (see below); it no longer clones, builds, or wires hooks for `lavish-axi`.
-
-Fresh-shell validation:
-
-```bash
-exec fish --login
-agent-commander doctor
-command -v gh-axi chrome-devtools-axi no-mistakes treehouse fm-bootstrap.sh
-gh-axi --help
-chrome-devtools-axi --help
-no-mistakes --help
-treehouse --help
-```
-
-Work-laptop setup:
-
-```bash
-mkdir -p ~/code/personal
-git clone git@github.com:manifoldfrs/dotfiles.git ~/code/personal/dotfiles
-git clone https://github.com/manifoldfrs/agent-commander ~/code/personal/agent-commander
-cd ~/code/personal/dotfiles
-./scripts/stow.sh --cb apply
-agent-commander install all
-agent-commander doctor
-```
-
-On Coinbase laptops, use the same launcher and repo shape, but keep work harness choices local under the ignored `agent-commander/config/` paths.
-
 ## Plannotator
 
-[Plannotator](https://plannotator.ai/) is a local, browser-based review surface for AI agent plans, diffs, and documents. It intercepts Claude Code's `ExitPlanMode` and Codex's session `Stop` event to open a review UI before the agent proceeds. It replaced the `lavish-axi` review flow that used to ship inside Agent Commander (see the Agent Commander section above).
+[Plannotator](https://plannotator.ai/) is a local, browser-based review surface for AI agent plans, diffs, and documents. It intercepts Claude Code's `ExitPlanMode` and Codex's session `Stop` event to open a review UI before the agent proceeds.
 
 ### Install
 
@@ -562,9 +508,6 @@ The Coinbase backup profile copies only files already owned by `stow/fish-cb` pl
 | Restow Codex settings/skills/hooks | `./scripts/stow.sh apply` |
 | Restow Pi settings | `stow --no-folding -R -v -t "$HOME" -d stow pi` |
 | Restow Amp settings | `stow --no-folding -R -v -t "$HOME" -d stow amp` |
-| Show agent-commander home | `agent-commander path` |
-| Check agent-commander tools | `agent-commander doctor` |
-| Refresh agent tool shims | `agent-commander shims` |
 | Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
 | Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
 | Restow Herdr config | `stow --no-folding -R -v -t "$HOME" -d stow herdr` |
@@ -875,8 +818,7 @@ dotfiles/
 ├── scripts/                # Bootstrap, backup, and Stow wrappers
 │   ├── bootstrap.sh        # Full machine bootstrap for non-Stow setup
 │   ├── backup.sh           # Backup current machine config into repo
-│   ├── stow.sh             # Apply/delete/dry-run GNU Stow packages
-│   └── agent-commander.sh  # Shared launcher for the sibling agent-commander repo
+│   └── stow.sh             # Apply/delete/dry-run GNU Stow packages
 ├── mcp_setup.sh            # MCP config backup/install
 ├── Brewfile                # Homebrew packages
 ├── npm-global-packages.txt # Global npm packages

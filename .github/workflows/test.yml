@@ -38,7 +38,6 @@ jobs:
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"
           test -L "$tmp_home/.pi/agent/themes/catppuccin-macchiato.json"
-          test -L "$tmp_home/.local/bin/agent-commander"
           test -L "$tmp_home/.agents/skills/herdr/SKILL.md"
           test ! -e "$tmp_home/AGENTS.md"
 

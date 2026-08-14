@@ -13,7 +13,6 @@ CB_STOW_PACKAGES=(fish fish-cb git git-cb ghostty herdr nvim bin pi agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
 SHARED_BACKUP_TARGETS=(
-    "$HOME/.local/bin/agent-commander"
     "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
     "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
     "$HOME/.local/share/agent-guardrails/code-edit-reminder.txt"
