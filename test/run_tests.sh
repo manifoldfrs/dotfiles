@@ -13,6 +13,7 @@ fail() { echo "[FAIL] $1"; exit 1; }
 # Test 1: syntax
 echo "[TEST 1] Checking Bash and Fish syntax..."
 for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh \
+    scripts/setup-optojr-slack-bot.sh \
     stow/bin/.local/share/agent-guardrails/block-dangerous-bash.sh \
     stow/bin/.local/share/agent-guardrails/block-generated-edits.sh \
     stow/claude/.claude/hooks/block-dangerous-bash.sh \
@@ -130,5 +131,10 @@ if command -v nvim >/dev/null 2>&1; then
 else
     pass "Neovim not installed; plugin safety skipped"
 fi
+
+# Test 8: OptoJr Slack setup
+echo "[TEST 8] Testing OptoJr hosted relay setup..."
+bash test/optojr_slack_setup_test.sh
+pass "OptoJr Slack setup delegates only to the hosted relay"
 
 echo "=== ALL TESTS PASSED ==="

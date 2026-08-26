@@ -67,6 +67,23 @@ rm ~/.cache/dotfiles/spotify-visualizer/tokens.json
 spotify-visualizer
 ```
 
+## OptoJr Slack Bot
+
+OptoJr reads Slack through the existing Slack MCP connection and posts through the hosted OptoJr relay.
+The Pi extension never receives Slack OAuth credentials.
+The hosted service is the only process allowed to refresh Slack's rotating bot token.
+
+After deploying the relay, store its HTTPS URL and independent machine token:
+
+```bash
+cd ~/code/optoai/optojr
+scripts/setup-slack-relay-client.sh
+```
+
+The script stores relay credentials in macOS Keychain service `pi-optojr-slack-relay-credentials`.
+Follow `optojr/docs/render.md` for the one-time worker-to-web-service cutover.
+After setup, run `/reload` in Pi and invoke `/skill:optojr`.
+
 ## OpenCode Config
 
 The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and keeps the TUI theme on `tokyonight`.
