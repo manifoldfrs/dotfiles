@@ -219,9 +219,13 @@ export function registerOptoJrSlackExtension(
 function parseOptoJrRelayCredentials(
   input: string,
 ): Result<OptoJrRelayCredentials, OptoJrRelayCredentialFailure> {
+  const serializedCredentials =
+    input.length % 2 === 0 && /^[a-f0-9]+$/i.test(input)
+      ? Buffer.from(input, "hex").toString("utf8")
+      : input;
   let parsed: unknown;
   try {
-    parsed = JSON.parse(input);
+    parsed = JSON.parse(serializedCredentials);
   } catch {
     return relayCredentialFailure();
   }
