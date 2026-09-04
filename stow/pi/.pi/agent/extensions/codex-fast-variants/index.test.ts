@@ -58,6 +58,9 @@ test("extension discovers Fast variants and preserves cached variants across dis
 
 	assert.equal(registeredProviderName, "openai-codex");
 	assert.ok(registeredProviderConfig?.refreshModels);
+	assert.ok(
+		registeredProviderConfig.models?.some((model) => model.id === "gpt-6-astra"),
+	);
 	const credential: OAuthCredential = {
 		type: "oauth",
 		access: createCodexTestAccessToken("account-test"),

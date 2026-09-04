@@ -4,7 +4,11 @@ Adds selectable `-fast` variants to Pi's built-in `openai-codex` model catalog.
 
 ## Behavior
 
-The extension preserves Pi's normal Codex models and OAuth authentication. During model refresh it:
+The extension preserves Pi's normal Codex models and OAuth authentication.
+It temporarily includes `gpt-6-astra` because Pi 0.85.0 does not yet publish Astra in its built-in catalog and provider extension registration replaces the `models.json` model array.
+Remove that temporary entry from `index.ts` after Pi publishes Astra metadata.
+
+During model refresh it:
 
 1. reads the latest official Codex version from the npm registry;
 2. requests the account-specific Codex model catalog from `chatgpt.com`;
