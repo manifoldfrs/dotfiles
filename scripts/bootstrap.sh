@@ -17,6 +17,8 @@ STOW_TARGETS=(
     "$HOME/.config/opencode/tui.json"
     "$HOME/.claude/settings.local.json"
     "$HOME/.config/herdr/config.toml"
+    "$HOME/.config/herdr/plugins.txt"
+    "$HOME/.config/plannotator-tui/config.toml"
     "$HOME/.config/nvim"
 )
 
@@ -64,6 +66,10 @@ install_brewfile() {
     if [ ! -f "$DOTFILES_DIR/Brewfile" ]; then
         warn "No Brewfile found, skipping Homebrew packages"
         return
+    fi
+
+    if brew help trust >/dev/null 2>&1; then
+        brew trust plannotator/tap oven-sh/bun || warn "Could not trust the Plannotator and Bun taps"
     fi
 
     info "Installing packages from Brewfile..."
@@ -170,6 +176,7 @@ main() {
     install_homebrew
     install_brewfile
     apply_dotfiles
+    bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
     install_fisher_plugins
     sync_neovim_plugins
     install_npm_globals

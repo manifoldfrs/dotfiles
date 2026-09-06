@@ -1,0 +1,3 @@
+# Installed and updated by scripts/sync_herdr_plugins.sh.
+plannotator/herdr-annotate
+paulbkim-dev/vim-herdr-navigation

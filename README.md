@@ -167,8 +167,8 @@ brew bundle --file=Brewfile
 
 # 3. Fully quit and reopen your terminal
 
-# 4. Reload Herdr config if a server is already running
-herdr server reload-config || true
+# 4. Install/update declared Herdr plugins and reload a running server
+./scripts/sync_herdr_plugins.sh
 
 # 5. Verify the basics
 node --version
@@ -196,10 +196,62 @@ What this already handles for you:
 What `./scripts/bootstrap.sh` additionally handles for you:
 - installs Homebrew packages from `Brewfile`
 - runs Neovim headless plugin sync automatically
+- installs Bun and Plannotator TUI, then syncs the declared Herdr plugins
 
 What is still separate:
 - `./mcp_setup.sh install` for Claude/Codex MCP configs
 - OpenCode install if you use it on that machine
+
+## Herdr and Neovim integrations
+
+The `herdr` Stow package also manages `~/.config/herdr/plugins.txt` and `~/.config/plannotator-tui/config.toml`.
+Both personal and Coinbase profiles include it.
+Stow only applies configuration, it does not install or update plugins.
+
+```bash
+# Existing machines: install the terminal review tool, then sync plugins.
+# Requires herdr >= 0.8.0, Bun, and jq on PATH.
+brew tap plannotator/tap
+# On Homebrew versions that support trust:
+# brew trust plannotator/tap
+brew install plannotator/tap/plannotator-tui
+./scripts/stow.sh apply
+./scripts/sync_herdr_plugins.sh
+```
+
+The sync command installs or updates `plannotator/herdr-annotate` and `paulbkim-dev/vim-herdr-navigation`, checks the config, and reloads a running Herdr server.
+Plannotator TUI opens in a full-tab overlay.
+The agent sidebar prioritizes agents needing attention, uses distinct status symbols, and asks before closing workspaces.
+Pane-history persistence remains disabled.
+
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl-h/j/k/l` | Navigate Neovim splits, then adjacent Herdr panes at the edge |
+| `Ctrl-a a` | Annotate selected terminal text |
+| `Ctrl-a Shift-a` | Copy annotations as agent context |
+| `Ctrl-a m` | Manage annotations |
+| `Ctrl-a Shift-o` | Review documents in the current folder |
+| `Ctrl-a Shift-l` | Review the agent's last reply |
+| Neovim visual `<leader>a` | Send the selection to Herdr Annotate |
+
+Existing `Ctrl-a o` pane cycling and `Ctrl-a z` zoom bindings are unchanged.
+Global `Ctrl-k` and `Ctrl-l` navigation takes precedence over shell line deletion and screen clearing inside Herdr.
+Neovim outside Herdr retains ordinary split navigation.
+The annotation handoff uses a private temporary file that the plugin consumes and deletes.
+
+### Neovim secret masking and TypeScript tools
+
+- `cloak.nvim` visually masks values in `.env`, `.dev.vars`, selected Fish configuration files, and TOML token assignments.
+  Use `<leader>uC` to toggle masking.
+  This only affects display, not file contents, clipboard access, or agent access.
+- `:TSC` runs the project's TypeScript compiler with `--noEmit` and opens errors in quickfix.
+  Install TypeScript in the project first.
+- `ts-error-translator.nvim` improves the readability of TypeScript diagnostics.
+- In TypeScript buffers, `:TwoslashQueriesEnable` enables inline type queries and `:TwoslashQueriesInspect` inspects the type at the cursor.
+  `:TwoslashQueriesDisable` turns queries off.
+
+Use `:Lazy install` to install missing plugins on an existing machine.
+The TypeScript tools reuse the existing `ts_ls` setup.
 
 ## Plannotator
 

@@ -121,6 +121,8 @@ backup_shared_config() {
     copy_file "$HOME/.gitignore_global" "$STOW_DIR/git/.gitignore_global" ".gitignore_global"
     copy_file "$HOME/.config/ghostty/config" "$STOW_DIR/ghostty/.config/ghostty/config" "Ghostty config"
     copy_file "$HOME/.config/herdr/config.toml" "$STOW_DIR/herdr/.config/herdr/config.toml" "Herdr config"
+    copy_file "$HOME/.config/herdr/plugins.txt" "$STOW_DIR/herdr/.config/herdr/plugins.txt" "Herdr plugins"
+    copy_file "$HOME/.config/plannotator-tui/config.toml" "$STOW_DIR/herdr/.config/plannotator-tui/config.toml" "Plannotator TUI config"
     backup_warp_themes
     export_npm_globals
 }
