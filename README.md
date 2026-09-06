@@ -234,6 +234,20 @@ Pane-history persistence remains disabled.
 | `Ctrl-a Shift-l` | Review the agent's last reply |
 | Neovim visual `<leader>a` | Send the selection to Herdr Annotate |
 
+Press `Ctrl-a`, release it, then press the shortcut's second key.
+
+Launch Plannotator TUI directly from a shell:
+
+```bash
+plannotator-tui README.md       # Review a file
+plannotator-tui docs/           # Browse a folder
+plannotator-tui herdr open .    # Review this folder in a Herdr overlay
+plannotator-tui herdr last      # Annotate the agent's last reply in Herdr
+```
+
+The `plannotator-tui` commands open the terminal interface.
+Existing `plannotator` commands and automatic review hooks still use the browser.
+
 Existing `Ctrl-a o` pane cycling and `Ctrl-a z` zoom bindings are unchanged.
 Global `Ctrl-k` and `Ctrl-l` navigation takes precedence over shell line deletion and screen clearing inside Herdr.
 Neovim outside Herdr retains ordinary split navigation.
