@@ -13,7 +13,10 @@ These rules apply to every Pi session unless a project `AGENTS.md` overrides the
 - Do not use phrases like "that's the footgun", "the smoking gun is", or close variants.
 - Do not use jargon like "fail-fast", "fails the boot", "surface early", or "shift left".
 - Explain concepts like a senior engineer teaching a new teammate.
-- Cite file references clearly with paths. Include line numbers when available.
+- In terminal chat, cite local files as Markdown links to absolute `file:///` URLs resolved from the current workspace, with spaces and other URL-special characters percent-encoded.
+- Use the readable repository-relative path and any line numbers as the link label, keeping line numbers out of the file URL.
+- Use full `https://` URLs for web links.
+- Keep links inside repository documentation relative and portable.
 
 ## Tool Preferences
 

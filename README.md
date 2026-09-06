@@ -253,6 +253,25 @@ Global `Ctrl-k` and `Ctrl-l` navigation takes precedence over shell line deletio
 Neovim outside Herdr retains ordinary split navigation.
 The annotation handoff uses a private temporary file that the plugin consumes and deletes.
 
+### Clickable links in terminal chat
+
+In Ghostty on macOS, hold **Shift + Cmd** and click a link to open it, including inside Herdr.
+This bypasses application mouse capture and lets Ghostty handle the link.
+This gesture was verified in this setup, while Herdr's documented Ctrl-click gesture did not work.
+Keep mouse capture enabled to preserve Herdr's mouse UI.
+See [Herdr's mouse guide](https://herdr.dev/docs/quick-start/#use-the-mouse).
+
+Pi renders Markdown links as terminal hyperlinks, but relative targets such as `docs/plan.md` remain unresolved relative paths.
+The global Pi rules request absolute `file:///` URLs for local files in chat and full `https://` URLs for web links.
+File labels can still show readable repository-relative paths and line numbers.
+Line numbers are informational, not editor jump targets.
+Links written inside repository documentation remain relative for portability.
+
+Shift-Cmd-click uses the system opener rather than the Herdr Annotate plugin.
+To review Markdown in Plannotator TUI, use `Ctrl-a Shift-o` or `plannotator-tui herdr open <file.md>`.
+Existing messages are not rewritten by the rule change.
+Start a new Pi session or use `/reload` to refresh the global instructions in an existing session.
+
 ### Neovim secret masking and TypeScript tools
 
 - `cloak.nvim` visually masks values in `.env`, `.dev.vars`, selected Fish configuration files, and TOML token assignments.
