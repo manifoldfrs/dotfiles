@@ -578,10 +578,7 @@ Preferred tool usage after setup:
 ### AI Agent Stow Notes
 
 - Pi settings are managed at `stow/pi/.pi/agent/settings.json` and are included in both the default and Coinbase Stow profiles.
-- Pi custom model entries are managed at `stow/pi/.pi/agent/models.json`.
-  The temporary `gpt-6-astra` entry adds Astra to Pi's `openai-codex` catalog until Pi ships verified built-in metadata.
-  Pi 0.85.0 provider extensions replace configured model arrays, so `extensions/codex-fast-variants/index.ts` also preserves the temporary Astra entry while adding Fast variants.
-  Remove both temporary entries after Astra appears in Pi's built-in catalog.
+- Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer, with no custom model override required.
 - Pi MCP servers are managed at `stow/pi/.pi/agent/mcp.json` and mirror the tracked Codex/OpenCode MCP set: RepoPromptCE, Ref, and exa.
 - Pi loads MCP support through the `npm:pi-mcp-adapter` package declared in settings.
 - Do not move Pi auth, sessions, logs, or other runtime/account state into Stow; `stow/pi/.stow-local-ignore` excludes common sensitive/runtime paths.

@@ -56,7 +56,6 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/catppuccin-macchiato.json" ] \
-    && [ -L "$STOW_TEST_HOME/.pi/agent/models.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Fish Stow profile is idempotent"
@@ -115,14 +114,13 @@ grep -q '^font-size = 14$' stow/ghostty/.config/ghostty/config
 grep -q 'name = "catppuccin"' stow/herdr/.config/herdr/config.toml
 grep -q 'catppuccin-macchiato' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "catppuccin-macchiato"' stow/pi/.pi/agent/settings.json
-grep -q '"id": "gpt-6-astra"' stow/pi/.pi/agent/models.json
 test "$(rg '^\s+__git\.create_abbr ' stow/fish/.config/fish/functions/__git.init.fish | wc -l | tr -d ' ')" = 171
 grep -q 'detect_extensions = \[\]' stow/fish/.config/starship.toml
 for glyph in '󰘧' '' '' '' '' ''; do
     grep -Fq "$glyph" stow/fish/.config/starship.toml \
         || fail "Starship is missing intended glyph: $glyph"
 done
-pass "Macchiato, MonoLisa, Astra, Nerd Font glyphs, 171 Git abbreviations, and bounded Starship detection are configured"
+pass "Macchiato, MonoLisa, Nerd Font glyphs, 171 Git abbreviations, and bounded Starship detection are configured"
 
 # Test 7: Neovim plugin safety (best effort)
 echo "[TEST 7] Running Neovim plugin safety checks..."

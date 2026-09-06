@@ -27,7 +27,6 @@ CODEX_BACKUP_TARGETS=(
 PI_BACKUP_TARGETS=(
     "$HOME/.pi/agent/extensions/code-edit-reminder.ts"
     "$HOME/.pi/agent/mcp.json"
-    "$HOME/.pi/agent/models.json"
     "$HOME/.pi/agent/settings.json"
 )
 AMP_BACKUP_TARGETS=(

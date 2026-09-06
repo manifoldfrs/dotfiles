@@ -18,37 +18,6 @@ import {
 } from "./codex-fast-variants.ts";
 type CodexModel = Model<"openai-codex-responses">;
 
-const TEMPORARY_ASTRA_MODEL_ID = "gpt-6-astra";
-
-function createTemporaryAstraModel(baseUrl: string): CodexModel {
-	return {
-		id: TEMPORARY_ASTRA_MODEL_ID,
-		name: "GPT-6 Astra",
-		api: "openai-codex-responses",
-		provider: "openai-codex",
-		baseUrl,
-		reasoning: true,
-		thinkingLevelMap: {
-			off: null,
-			minimal: null,
-			low: "low",
-			medium: "medium",
-			high: "high",
-			xhigh: "xhigh",
-			max: "max",
-		},
-		input: ["text", "image"],
-		contextWindow: 272_000,
-		maxTokens: 128_000,
-		cost: {
-			input: 10,
-			output: 50,
-			cacheRead: 1,
-			cacheWrite: 12.5,
-		},
-	};
-}
-
 /** Runtime dependencies for Codex Fast Mode discovery. */
 export interface CodexFastVariantsDependencies {
 	/** Fetch implementation used only for official Codex metadata and the authenticated catalog. */
@@ -87,16 +56,11 @@ export function createCodexFastVariantsExtension(
 	dependencies: CodexFastVariantsDependencies,
 ): ExtensionFactory {
 	return (pi) => {
-		const builtInModels = getModels("openai-codex").filter(isCodexModel);
-		const baseUrl = builtInModels[0]?.baseUrl;
+		const baseModels = getModels("openai-codex").filter(isCodexModel);
+		const baseUrl = baseModels[0]?.baseUrl;
 		if (!baseUrl) {
 			throw new Error("Codex Fast built-in provider has no base URL");
 		}
-		const baseModels = builtInModels.some(
-			(model) => model.id === TEMPORARY_ASTRA_MODEL_ID,
-		)
-			? builtInModels
-			: [...builtInModels, createTemporaryAstraModel(baseUrl)];
 
 		pi.registerProvider("openai-codex", {
 			api: "openai-codex-responses",

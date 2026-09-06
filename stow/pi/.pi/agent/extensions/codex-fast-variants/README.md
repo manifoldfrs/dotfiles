@@ -5,8 +5,7 @@ Adds selectable `-fast` variants to Pi's built-in `openai-codex` model catalog.
 ## Behavior
 
 The extension preserves Pi's normal Codex models and OAuth authentication.
-It temporarily includes `gpt-6-astra` because Pi 0.85.0 does not yet publish Astra in its built-in catalog and provider extension registration replaces the `models.json` model array.
-Remove that temporary entry from `index.ts` after Pi publishes Astra metadata.
+Astra is included through Pi's built-in catalog starting in Pi 0.85.1.
 
 During model refresh it:
 
