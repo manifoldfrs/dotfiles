@@ -34,6 +34,16 @@ Prefer RepoPromptCE MCP tools for codebase work when available.
 
 Use normal shell commands for validation, tests, package commands, and write-side git operations such as commits and pushes.
 
+### Scripting Language Selection
+
+- Prefer existing project scripts and CLI tools, while following the RepoPromptCE tool preferences above.
+- Use Bash for simple command orchestration.
+- When shell tools are a poor fit, use the project's primary language and existing runtime, following its scripting conventions.
+- Inspect project manifests and existing scripts before choosing a language or runtime.
+- Avoid introducing another language, runtime, or dependency solely for an ad hoc script.
+- If the project has no clear scripting convention, explain the tradeoff before choosing.
+- Keep scripts readable, with one statement per line.
+
 ## Implementation Rules
 
 - Keep changes minimal and scoped to the requested task.
