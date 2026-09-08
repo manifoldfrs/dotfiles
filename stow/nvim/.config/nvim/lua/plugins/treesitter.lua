@@ -15,6 +15,8 @@ return {
         "typescript",
         "tsx",
         "python",
+        "ruby",
+        "embedded_template",
         "go",
         "c",
         "cpp",

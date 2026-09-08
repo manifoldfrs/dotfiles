@@ -32,7 +32,7 @@ return {
           "gopls",
           "clangd",
         },
-        automatic_enable = true,
+        automatic_enable = { exclude = { "ruby_lsp", "rubocop" } },
       })
     end,
   },
@@ -50,6 +50,15 @@ return {
         lspconfig.util.default_config,
         { capabilities = require("blink.cmp").get_lsp_capabilities() }
       )
+
+      -- Use the project Ruby from PATH, not a Mason-managed Ruby installation.
+      vim.lsp.config("ruby_lsp", {
+        init_options = {
+          formatter = "rubocop",
+          linters = { "rubocop" },
+        },
+      })
+      vim.lsp.enable("ruby_lsp")
 
       -- Configure ty type checker for Python (Neovim 0.11+)
       -- NOTE: ty is in BETA (Dec 2025) but production-ready per Astral

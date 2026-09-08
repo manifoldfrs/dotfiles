@@ -745,6 +745,45 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 - `clangd` - C/C++
 - `ty` - Python (Beta type checker from Astral)
 
+### Ruby on Rails in Neovim
+
+- Ruby LSP provides completion, navigation, and project-configured RuboCop diagnostics and formatting.
+- Ruby LSP is enabled outside Mason, and a separate RuboCop LSP is excluded to avoid duplicate diagnostics.
+- Ruby and ERB use two-space indentation, with project EditorConfig settings taking precedence.
+- Treesitter installs `ruby` and `embedded_template` alongside HTML and CSS.
+- Ruby formats through Ruby LSP on save, while ERB uses the project's `bundle exec erb-format` through Conform.
+- Existing vim-test mappings support the app's test runner: `<leader>tt` for nearest, `<leader>tf` for file, and `<leader>ts` for suite.
+
+From the Rails app directory, activate the project's Ruby using your version manager, then install Ruby LSP for that Ruby:
+
+```bash
+ruby --version
+gem install ruby-lsp
+# For rbenv users, refresh executable shims after installing gems:
+rbenv rehash
+```
+
+Launch Neovim from that environment so `ruby-lsp` resolves through the project's Ruby version manager.
+If Ruby LSP was previously installed through Mason, uninstall `ruby-lsp` there so its executable does not shadow your version-manager shim.
+Ruby LSP automatically includes its Rails add-on when it detects a Rails app.
+Do not add a separate Rails add-on dependency just for this configuration.
+
+Keep the app's existing RuboCop rules.
+For apps using Rails defaults, `rubocop-rails-omakase` supplies DHH's preferred style through `.rubocop.yml`.
+Do not replace an existing team's style configuration.
+For ERB formatting, add `erb-formatter` to the app's development bundle if it is not already present:
+
+```bash
+bundle add erb-formatter --group development --require=false
+bundle exec erb-format --help
+```
+
+Restart Neovim and open a Ruby file to check `:LspInfo`, or an ERB file to check `:ConformInfo`.
+Format-on-save allows three seconds for Ruby/ERB tooling, while other languages retain the 500 ms timeout.
+Rails-specific navigation plugins such as `vim-rails` are optional and are not installed.
+
+References: [Ruby LSP editor setup](https://shopify.github.io/ruby-lsp/editors.html), [Rails add-on](https://github.com/Shopify/ruby-lsp-rails), and [Rails Omakase style](https://github.com/rails/rubocop-rails-omakase).
+
 ### Neovim Editing Defaults
 
 - Per-language indentation now lives in `stow/nvim/.config/nvim/ftplugin/*.lua` for simpler ownership and less global autocmd logic
