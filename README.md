@@ -674,6 +674,9 @@ Preferred tool usage after setup:
 - Pi and Amp append the shared reminder in `stow/bin/.local/share/agent-guardrails/code-edit-reminder.txt` after successful code-edit tool calls. Their adapters live in `stow/pi/.pi/agent/extensions/code-edit-reminder.ts` and `stow/amp/.config/amp/plugins/code-edit-reminder.ts`.
 - Amp uses the same RepoPromptCE, Ref, and exa MCP servers as Pi. API keys remain in `REF_API_KEY` and `EXA_API_KEY` environment variables.
 - Global Pi skills are tracked once under `stow/agents/.agents/skills/` and linked as complete directories into `~/.agents/skills/` by `scripts/stow.sh`.
+- Local language standards include `coding-standards-ts`, `coding-standards-go`, and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
+  The Rails skill adapts DHH/37signals conventions with local safety and testing standards, source attribution, and explicit departures from upstream preferences.
+  Run `./scripts/stow.sh apply` after adding a skill to install its directory link.
 - Pi discovers `~/.agents/skills/` natively. Amp may also discover that shared directory, but Pi is the supported target for the tracked skill catalog.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
