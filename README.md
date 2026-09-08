@@ -754,16 +754,17 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 - Ruby formats through Ruby LSP on save, while ERB uses the project's `bundle exec erb-format` through Conform.
 - Existing vim-test mappings support the app's test runner: `<leader>tt` for nearest, `<leader>tf` for file, and `<leader>ts` for suite.
 
-From the Rails app directory, activate the project's Ruby using your version manager, then install Ruby LSP for that Ruby:
+Fish defaults to Homebrew Ruby and puts its Ruby and Bundler executables ahead of inherited rbenv shims.
+After changing shell paths, open a new terminal or run `exec fish` before launching Neovim.
+From the Rails app directory, confirm that this Ruby matches the app's required version, then install Ruby LSP:
 
 ```bash
 ruby --version
-gem install ruby-lsp
-# For rbenv users, refresh executable shims after installing gems:
-rbenv rehash
+gem install ruby-lsp --bindir "$HOME/.local/bin" --no-document
 ```
 
-Launch Neovim from that environment so `ruby-lsp` resolves through the project's Ruby version manager.
+Launch Neovim from that environment.
+If a project requires another Ruby version, explicitly activate a version manager with that version installed rather than mixing its Bundler shim with Homebrew Ruby.
 If Ruby LSP was previously installed through Mason, uninstall `ruby-lsp` there so its executable does not shadow your version-manager shim.
 Ruby LSP automatically includes its Rails add-on when it detects a Rails app.
 Do not add a separate Rails add-on dependency just for this configuration.
