@@ -677,6 +677,9 @@ Preferred tool usage after setup:
 - Local language standards include `coding-standards-ts`, `coding-standards-go`, and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
   The Rails skill adapts DHH/37signals conventions with local safety and testing standards, source attribution, and explicit departures from upstream preferences.
   Run `./scripts/stow.sh apply` after adding a skill to install its directory link.
+- [anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) adds an evidence-based Rails review and cleanup workflow alongside those standards.
+  Ask "use anti-slop-rails to review this diff" for findings only, or "use anti-slop-rails to clean up this diff" to authorize edits.
+  It uses existing RuboCop checks where available and labels manual checks explicitly, rather than installing a custom linter or treating every service object as a defect.
 - Pi discovers `~/.agents/skills/` natively. Amp may also discover that shared directory, but Pi is the supported target for the tracked skill catalog.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
