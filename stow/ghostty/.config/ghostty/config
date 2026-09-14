@@ -22,6 +22,8 @@ font-style-italic = Italic
 font-style-bold = Bold
 font-style-bold-italic = Bold Italic
 font-size = 14
+font-feature = +cv05
+font-feature = +cv09
 
 # macOS
 macos-option-as-alt = true

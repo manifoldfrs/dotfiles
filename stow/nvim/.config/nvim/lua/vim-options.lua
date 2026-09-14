@@ -64,6 +64,7 @@ vim.keymap.set("c", "%%", function()
         return path == "" and "" or path .. "/"
 end, { expr = true, desc = "Insert current file directory" })
 vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlight" })
+vim.keymap.set("x", "<leader>/", "gc", { remap = true, desc = "Toggle comment" })
 
 -- Resize with arrows
 vim.keymap.set("n", "<C-Up>", ":resize -2<CR>")
