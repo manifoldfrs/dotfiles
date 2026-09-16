@@ -67,10 +67,10 @@
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
-  "channelsEnabled": false,
   "modelSettings": {
     "claude-opus-5": {
-      "effortLevel": "high"
+      "effortLevel": "medium"
     }
-  }
+  },
+  "channelsEnabled": false
 }

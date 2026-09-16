@@ -125,6 +125,52 @@ For example, an OpenCode model override uses this shape:
 }
 ```
 
+## Claude provider request logger
+
+Run `claude-log` from your regular shell instead of `claude` to start Claude Code through an opt-in local Anthropic request logger:
+
+```bash
+claude-log
+```
+
+The command starts a local proxy on a temporary loopback port, launches Claude Code against it, and stops the proxy when Claude exits.
+Each `/v1/messages` request is written under `~/.claude/logs/requests/` as readable Markdown plus the raw JSON payload.
+The Markdown includes request sizes, ranked tool schemas, redacted request headers, the full payload, and the streamed provider response.
+This logger is inspired by [Matt Pocock's agent proxy](https://gist.github.com/mattpocock/5b3d76ea21f5f698aefded47a9cea3b1).
+It does not capture direct MCP network traffic.
+
+The directory and files use owner-only permissions.
+The logs can contain sensitive source code, prompts, and connected-service data.
+Review them before sharing, and remove them when finished:
+
+```bash
+rm -rf ~/.claude/logs/requests
+```
+
+Set `CLAUDE_REQUEST_LOG_DIR` to store logs somewhere else.
+Normal `claude` sessions do not write request logs.
+
+## Pi provider request logger
+
+Run `pi-log` from your regular shell instead of `pi` when you need to inspect the exact payload Pi sends to its model provider:
+
+```bash
+pi-log
+```
+
+The command enables the tracked `request-logger.ts` extension for that Pi process only.
+Each request is written as a readable Markdown file under `~/.pi/agent/logs/requests/`, including a size audit, ranked tool schemas, the complete provider payload, the normalized assistant response, and response status metadata when the active provider exposes it.
+The directory and files use owner-only permissions.
+These logs can contain source code, prompts, tool results, Gmail, Slack, or Drive data, so do not commit or share them without reviewing the contents.
+Remove captured requests when finished:
+
+```bash
+rm -rf ~/.pi/agent/logs/requests
+```
+
+You can also run `pi --request-log` directly, or set `PI_REQUEST_LOG_DIR` to store logs somewhere else.
+Normal `pi` sessions do not write request logs.
+
 [![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
 ## Quick Start (New Mac)
@@ -186,7 +232,8 @@ What `./scripts/bootstrap.sh` additionally handles for you:
 - installs Bun and Plannotator TUI, then syncs the declared Herdr plugins
 
 What is still separate:
-- `./mcp_setup.sh install` for Claude/Codex MCP configs
+- `./mcp_setup.sh install` for the optional Claude Desktop MCP config
+- Claude Code's user-scoped MCP config in `~/.claude.json`, which stays local because it contains credentials and account-specific state
 - OpenCode install if you use it on that machine
 
 ## Herdr and Neovim integrations
@@ -498,8 +545,10 @@ cd ~/dotfiles
 | Restow fishrc | `stow --no-folding -R -v -t "$HOME" -d stow fish` |
 | Restow OpenCode | `stow --no-folding -R -v -t "$HOME" -d stow opencode` |
 | Restow Claude Code settings | `stow --no-folding -R -v -t "$HOME" -d stow claude` |
+| Run Claude with request logging | `claude-log` |
 | Restow Codex settings/skills/hooks | `./scripts/stow.sh apply` |
 | Restow Pi settings | `stow --no-folding -R -v -t "$HOME" -d stow pi` |
+| Run Pi with request logging | `pi-log` |
 | Restow Amp settings | `stow --no-folding -R -v -t "$HOME" -d stow amp` |
 | Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
 | Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
@@ -539,6 +588,7 @@ cd ~/dotfiles
 
 MCP (Model Context Protocol) configs for AI coding assistants:
 - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Claude Code**: user-scoped `~/.claude.json`, kept local and configured through `claude mcp`
 - **Codex**: `~/.codex/config.toml`
 - **Pi**: `~/.pi/agent/mcp.json`
 - **Amp**: `~/.config/amp/settings.json`
@@ -559,6 +609,7 @@ Preferred tool usage after setup:
 - Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer, with no custom model override required.
 - Pi MCP servers are managed at `stow/pi/.pi/agent/mcp.json` and mirror the tracked Codex/OpenCode MCP set: RepoPromptCE, Ref, and exa.
 - Pi loads MCP support through the `npm:pi-mcp-adapter` package declared in settings.
+- The tracked Pi request logger lives at `stow/pi/.pi/agent/extensions/request-logger.ts`; `pi-log` enables it for one process, while captured payloads remain local under `~/.pi/agent/logs/requests/`.
 - Do not move Pi auth, sessions, logs, or other runtime/account state into Stow; `stow/pi/.stow-local-ignore` excludes common sensitive/runtime paths.
 - Amp settings and global instructions are managed under `stow/amp/.config/amp/` in the default Stow profile.
 - Pi and Amp append the shared reminder in `stow/bin/.local/share/agent-guardrails/code-edit-reminder.txt` after successful code-edit tool calls. Their adapters live in `stow/pi/.pi/agent/extensions/code-edit-reminder.ts` and `stow/amp/.config/amp/plugins/code-edit-reminder.ts`.
@@ -573,15 +624,17 @@ Preferred tool usage after setup:
 - Pi discovers `~/.agents/skills/` natively. Claude Code discovers the same catalog through `~/.claude/skills/`. Amp may also discover the shared Agent Skills directory.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
-- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, the global `CLAUDE.md` import, and the `hooks/` scripts. The import reuses Pi's global rules, and skill links reuse the shared catalog without duplicating files.
+- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, the global `CLAUDE.md` import, the `hooks/` scripts, and the opt-in request logger. The import reuses Pi's global rules, and skill links reuse the shared catalog without duplicating files.
 - Claude Code uses the native installer's latest release channel with automatic updates enabled. Do not set `DISABLE_AUTOUPDATER` or `DISABLE_UPDATES` in the tracked settings.
+- Claude Code commit and pull request attribution is disabled through empty `attribution.commit` and `attribution.pr` values in the tracked settings.
+- The tracked Claude proxy lives at `stow/claude/.claude/request-logger/claude-log.mjs`; `claude-log` enables it for one process, while captured payloads remain local under `~/.claude/logs/requests/`.
 - The global catalog combines Matt Pocock's stable engineering/productivity skills, dmmulroy-only personalization skills, and preserved local skills. Ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
 - Codex global config is managed at `stow/codex/.codex/config.toml` in the default Stow profile. It tracks personal defaults and MCP server definitions, while auth, sessions, logs, plugin caches, and other runtime state remain local under `~/.codex/`.
 - Codex syntax highlighting uses `stow/codex/.codex/themes/tokyonight-frsh.tmTheme`, selected by `[tui] theme = "tokyonight-frsh"` in `stow/codex/.codex/config.toml`.
 - The `agents` Stow package ignores `.agents` directly so `scripts/stow.sh` can manage folder-level links dynamically. This preserves references, scripts, templates, and metadata inside every skill directory and avoids a hard-coded skill-name list.
 - Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
 - Claude and Codex both use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous bash commands and generated-file edit blockers. The Claude hook files and Codex hook files are harness-specific wrappers around the same implementation.
-- Claude Code MCP servers are user-scoped, not Stow-managed. The same `RepoPromptCE`, `Ref`, and `exa` set used by Pi is in `~/.claude.json`. Keep `Ref` and `exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.config/fish/local.fish`.
+- Claude Code MCP servers are user-scoped, not Stow-managed. The same `RepoPromptCE`, `Ref`, and `exa` set used by Pi is in `~/.claude.json`. Ref uses `${REF_API_KEY}` from `~/.config/fish/local.fish`. Claude currently sends the user-scope Exa placeholder literally, so Exa uses a resolved key only in the untracked owner-readable `~/.claude.json` file.
 - Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML.
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
 - OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
@@ -872,7 +925,10 @@ dotfiles/
 │   ├── bin/                # .local/bin tools and shared agent guardrail scripts
 │   ├── amp/                # .config/amp/: settings.json and global AGENTS.md
 │   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
-│   ├── claude/             # .claude/: settings.local.json, CLAUDE.md, skills/, hooks/
+│   ├── agents/             # Shared Agent Skills catalog linked into Pi and Claude Code
+│   ├── claude/             # .claude/: settings, global rules import, hooks, request logger
+│   ├── codex/              # .codex/: config, hooks, themes
+│   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
 │   └── nvim/               # .config/nvim (lazy.nvim + Catppuccin Macchiato)
 │       └── .config/nvim/
 │           ├── init.lua
