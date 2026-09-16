@@ -21,7 +21,7 @@ jobs:
       - name: Validate shell syntax
         run: |
           bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh test/run_tests.sh mcp_setup.sh
-          find stow/fish stow/fish-cb -name '*.fish' -print0 | xargs -0 -n1 fish -n
+          find stow/fish -name '*.fish' -print0 | xargs -0 -n1 fish -n
 
       - name: Check Git portability
         run: |

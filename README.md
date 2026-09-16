@@ -97,8 +97,6 @@ cd ~/dotfiles
 stow --no-folding -R -v -t "$HOME" -d stow opencode
 ```
 
-On Coinbase laptops, `./scripts/stow.sh --cb apply` intentionally skips OpenCode so work account state does not replace the personal config.
-
 ### GPT-5 Response Verbosity
 
 OpenAI GPT-5 models using the Responses API support `low`, `medium`, and `high` output verbosity.
@@ -175,21 +173,10 @@ node --version
 herdr --version
 ```
 
-On Coinbase laptops, use the Coinbase Stow profile instead. It applies shared shell/editor/terminal packages plus `stow/fish-cb` and `stow/git-cb`, while leaving OpenCode, Claude Code, and Codex account state alone. Pi settings are shared via `stow/pi`, but Pi auth and sessions stay local.
-
-```bash
-cd ~/dotfiles
-git pull
-./scripts/stow.sh --cb dry-run
-./scripts/stow.sh --cb apply
-herdr server reload-config || true
-```
-
-Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins. Do not use bootstrap on Coinbase laptops until the script has Coinbase profile pass-through.
+Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins.
 
 What this already handles for you:
 - stows Fish, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi, Amp settings, and local bin config
-- supports `--cb` for Coinbase laptops, which adds `fish-cb` and `git-cb` without stowing OpenCode or Claude Code; Pi settings remain shared
 - configures Herdr with Catppuccin Macchiato, Fish, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
@@ -205,7 +192,7 @@ What is still separate:
 ## Herdr and Neovim integrations
 
 The `herdr` Stow package also manages `~/.config/herdr/plugins.txt` and `~/.config/plannotator-tui/config.toml`.
-Both personal and Coinbase profiles include it.
+The default profile includes it.
 Stow only applies configuration, it does not install or update plugins.
 
 ```bash
@@ -306,7 +293,7 @@ The installer owns the binary and runtime state. The three Plannotator skills ar
 |------|-----------|
 | `~/.local/bin/plannotator` (the binary) | Plannotator's installer; not tracked, too large for git |
 | `~/.plannotator/` (runtime state, migrations, vendor helpers) | Plannotator's installer; not tracked |
-| `stow/agents/.agents/skills/plannotator-{review,annotate,last}/` | Stow (`agents` package), linked into `~/.agents/skills/` |
+| `stow/agents/.agents/skills/plannotator-{review,annotate,last}/` | Stow (`agents` package), linked into `~/.agents/skills/` and `~/.claude/skills/` |
 | `stow/claude/.claude/settings.json` `hooks.PermissionRequest` (`ExitPlanMode`) | Stow (`claude` package) |
 | `stow/codex/.codex/hooks.json` `hooks.Stop` | Stow (`codex` package) |
 
@@ -317,43 +304,7 @@ curl -fsSL https://plannotator.ai/install.sh | bash
 cd ~/dotfiles && ./scripts/stow.sh apply
 ```
 
-The installer may update harness hooks through the Stow-managed settings (`~/.claude/settings.json` and `~/.codex/hooks.json`). `scripts/stow.sh` links the already tracked Plannotator skill folders from the shared catalog into `~/.agents/skills/`. Review hook changes with `git diff`.
-
-### cbcode setup (Claude Code + Codex under `~/.cbcode-home`)
-
-`~/.cbcode-home/.claude` and `~/.cbcode-home/.codex` are real, separate, non-Stow-managed directories (see cbcode HOME Sandbox below), so the installer never reaches them. Wire them up once, by hand:
-
-```bash
-# Optional cbcode skill links from the shared source
-mkdir -p ~/.cbcode-home/.claude/skills ~/.cbcode-home/.agents/skills
-for name in plannotator-review plannotator-annotate plannotator-last; do
-  ln -sfn ~/code/personal/dotfiles/stow/agents/.agents/skills/"$name" ~/.cbcode-home/.claude/skills/"$name"
-  ln -sfn ~/code/personal/dotfiles/stow/agents/.agents/skills/"$name" ~/.cbcode-home/.agents/skills/"$name"
-done
-```
-
-Then merge these two hook blocks into the existing `hooks` object of `~/.cbcode-home/.claude/settings.json` and `~/.cbcode-home/.codex/hooks.json` respectively, do not replace the whole `hooks` object:
-
-```jsonc
-// ~/.cbcode-home/.claude/settings.json -> hooks.PermissionRequest
-"PermissionRequest": [
-  {
-    "matcher": "ExitPlanMode",
-    "hooks": [{"type": "command", "command": "plannotator", "timeout": 345600}]
-  }
-]
-```
-
-```jsonc
-// ~/.cbcode-home/.codex/hooks.json -> hooks.Stop
-"Stop": [
-  {
-    "hooks": [{"type": "command", "command": "$HOME/.local/bin/plannotator", "timeout": 345600}]
-  }
-]
-```
-
-These two files are cbcode-owned runtime state, not Stow-managed. They are not known to be rewritten wholesale by cbcode on every launch, but if `~/.cbcode-home/.claude` or `~/.cbcode-home/.codex` is ever recreated from scratch, or the hooks stop firing, redo both blocks above.
+The installer may update harness hooks through the Stow-managed settings (`~/.claude/settings.json` and `~/.codex/hooks.json`). `scripts/stow.sh` links the tracked skill catalog into both `~/.agents/skills/` and `~/.claude/skills/`. Review hook changes with `git diff`.
 
 ## Stow How-To
 
@@ -377,39 +328,6 @@ cd ~/dotfiles
 stow --no-folding -R -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
 ```
 
-### Apply Coinbase Laptop Profile
-
-```bash
-cd ~/dotfiles
-./scripts/stow.sh --cb dry-run
-./scripts/stow.sh --cb apply
-```
-
-The Coinbase profile stows `fish`, `fish-cb`, `git`, `git-cb`, `ghostty`, `herdr`, `nvim`, `bin`, and `pi`. It intentionally skips `opencode`, `claude`, and Model Context Protocol configs so personal Codex and local account state remain untouched. It also symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` using a dedicated step in `scripts/stow.sh` because Stow cannot fold into a pre-existing `~/.ssh` directory.
-
-### Coinbase Git Authentication Setup
-
-`stow/git-cb/.gitconfig.local` rewrites `https://coinbase.ghe.com/` URLs to SSH using `coinbase@coinbase.ghe.com:` (the SSH user for this GHE instance is `coinbase`, not `git`). `stow/ssh-cb/.ssh/config` pins `~/.ssh/id_ed25519` for this host.
-
-On a new machine, register your public key and authorize it for SSO before the URL rewrite will work:
-
-**Step 1.** Copy your public key:
-
-```bash
-cat ~/.ssh/id_ed25519.pub | pbcopy
-```
-
-**Step 2.** Open [https://coinbase.ghe.com/settings/ssh/new](https://coinbase.ghe.com/settings/ssh/new), paste the key, then click **Configure SSO** and **Authorize** for the `commerce` organization.
-
-**Step 3.** Verify:
-
-```bash
-ssh -T coinbase@coinbase.ghe.com
-# Hi faris-habib! You've successfully authenticated...
-```
-
-If SSH is not working yet, the commented-out HTTPS fallback in `stow/git-cb/.gitconfig.local` works once `gh auth login` has been run for `coinbase.ghe.com`.
-
 ### Run Stow Without Scripts
 
 Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow only creates or removes symlinks. Herdr integrations remain a separate per-machine installation step.
@@ -421,15 +339,9 @@ cd ~/dotfiles
 stow --no-folding -n -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
 stow --no-folding -R -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
 
-# Coinbase machine: preview and apply shared packages plus work overrides
-stow --no-folding -n -v -t "$HOME" -d stow fish fish-cb git git-cb ghostty herdr nvim bin pi
-stow --no-folding -R -v -t "$HOME" -d stow fish fish-cb git git-cb ghostty herdr nvim bin pi
-
 # Remove the personal shared profile symlinks
 stow --no-folding -D -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
 
-# Remove the Coinbase profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow fish fish-cb git git-cb ghostty herdr nvim bin pi
 ```
 
 ### Apply One Package
@@ -459,24 +371,13 @@ stow --no-folding -R -v -t "$HOME" -d stow amp
 
 ### Fish + Starship setup
 
-The active shell configuration is split into two Stow packages:
-
-- `stow/fish` provides Fish, the Catppuccin Macchiato syntax/completion palette, Starship, Fisher's plugin list, 171 Git abbreviations, lazy utility functions, completions, fzf bindings, zoxide, and personal tool paths.
-- `stow/fish-cb` adds Coinbase Go settings plus Fish-native `cbcode` and `find_pr` functions. See `stow/fish-cb/README.md` for cb-zsh commands that could not be ported safely without the work-only plugin checkout.
+The `stow/fish` package provides Fish, the Catppuccin Macchiato syntax/completion palette, Starship, Fisher's plugin list, 171 Git abbreviations, lazy utility functions, completions, fzf bindings, zoxide, and personal tool paths.
 
 Install and apply the default profile:
 
 ```bash
 brew install fish starship zoxide fzf ripgrep fd
 ./scripts/stow.sh apply
-exec fish --login
-```
-
-On a Coinbase laptop:
-
-```bash
-./scripts/stow.sh --cb dry-run
-./scripts/stow.sh --cb apply
 exec fish --login
 ```
 
@@ -488,7 +389,7 @@ Starship uses dmmulroy's module order, non-truncated directories, 18-character G
 
 #### Rollback
 
-The former Zsh and Coinbase Zsh packages are preserved under `old/zsh` and `old/zsh-cb`. To roll back, remove the Fish profile with `./scripts/stow.sh delete`, Stow the archived packages explicitly, and point Ghostty/Herdr back to Zsh.
+The former Zsh package is preserved under `old/zsh`. To roll back, remove the Fish profile with `./scripts/stow.sh delete`, Stow the archived package explicitly, and point Ghostty and Herdr back to Zsh.
 
 ### Migrate An Existing Machine
 
@@ -585,22 +486,12 @@ cd ~/dotfiles
 
 `scripts/backup.sh` follows symlinks with `cp -L`, so it captures the configured shell/editor files into `stow/*`. It intentionally does not copy live OpenCode or Claude account/runtime state because those files can contain API keys, session data, or local machine history.
 
-On Coinbase laptops, use the Coinbase backup profile so only local work overrides are copied back into the Coinbase Stow packages:
-
-```bash
-cd ~/dotfiles
-./scripts/backup.sh --cb
-```
-
-The Coinbase backup profile copies only files already owned by `stow/fish-cb` plus `~/.gitconfig.local` into `stow/git-cb/.gitconfig.local`. It intentionally does not copy shared Fish, Git, Herdr, Ghostty, Neovim, OpenCode, Claude Code, Pi, or Model Context Protocol files.
-
 ## Command Cheatsheet
 
 | Task | Command |
 |------|---------|
 | Full install/update | `./scripts/bootstrap.sh` |
 | Backup shell/editor config | `./scripts/backup.sh` |
-| Backup Coinbase overrides | `./scripts/backup.sh --cb` |
 | Apply all Stow packages | `./scripts/stow.sh` |
 | Preview all Stow changes | `./scripts/stow.sh dry-run` |
 | Remove all Stow symlinks | `./scripts/stow.sh delete` |
@@ -618,7 +509,7 @@ The Coinbase backup profile copies only files already owned by `stow/fish-cb` pl
 | Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
 | Open Lazy UI | `nvim +Lazy` |
 | Open Mason UI | `nvim +Mason` |
-| Shell syntax checks | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh && find stow/fish stow/fish-cb -name '*.fish' -print0 | xargs -0 -n1 fish -n` |
+| Shell syntax checks | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh && find stow/fish -name '*.fish' -print0 | xargs -0 -n1 fish -n` |
 | Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD` |
 | Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
 
@@ -631,7 +522,6 @@ The Coinbase backup profile copies only files already owned by `stow/fish-cb` pl
 - **Fish** native syntax highlighting and autosuggestions plus the Catppuccin Macchiato palette
 - **Node.js** from `Brewfile`
 - **Configs stowed**: `stow/fish`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
-- **Coinbase profile**: `./scripts/stow.sh --cb apply` stows shared packages plus `stow/fish-cb`, `stow/git-cb`, and `stow/pi`, and symlinks `stow/ssh-cb/.ssh/config` into `~/.ssh/config` for GHE SSH auth, while skipping account-specific AI tool configs
 - **Herdr**: Stow-managed Catppuccin Macchiato config with Fish and preserved `Ctrl-a` workspace, tab, and pane controls
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
@@ -662,7 +552,7 @@ Preferred tool usage after setup:
 
 ### AI Agent Stow Notes
 
-- Pi settings are managed at `stow/pi/.pi/agent/settings.json` and are included in both the default and Coinbase Stow profiles.
+- Pi settings are managed at `stow/pi/.pi/agent/settings.json` and are included in the default Stow profile.
 - Global Pi instructions are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md) and linked to `~/.pi/agent/AGENTS.md`.
   The scripting policy prefers existing tools, then Bash for simple orchestration, then the project's language and runtime when shell tools are a poor fit.
   Run `/reload` in existing Pi sessions after changing these instructions.
@@ -673,30 +563,29 @@ Preferred tool usage after setup:
 - Amp settings and global instructions are managed under `stow/amp/.config/amp/` in the default Stow profile.
 - Pi and Amp append the shared reminder in `stow/bin/.local/share/agent-guardrails/code-edit-reminder.txt` after successful code-edit tool calls. Their adapters live in `stow/pi/.pi/agent/extensions/code-edit-reminder.ts` and `stow/amp/.config/amp/plugins/code-edit-reminder.ts`.
 - Amp uses the same RepoPromptCE, Ref, and exa MCP servers as Pi. API keys remain in `REF_API_KEY` and `EXA_API_KEY` environment variables.
-- Global Pi skills are tracked once under `stow/agents/.agents/skills/` and linked as complete directories into `~/.agents/skills/` by `scripts/stow.sh`.
+- Global skills are tracked once under `stow/agents/.agents/skills/` and linked as complete directories into both `~/.agents/skills/` and `~/.claude/skills/` by `scripts/stow.sh`.
 - Local language standards include `coding-standards-ts`, `coding-standards-go`, and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
   The Rails skill adapts DHH/37signals conventions with local safety and testing standards, source attribution, and explicit departures from upstream preferences.
   Run `./scripts/stow.sh apply` after adding a skill to install its directory link.
 - [anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) adds an evidence-based Rails review and cleanup workflow alongside those standards.
   Ask "use anti-slop-rails to review this diff" for findings only, or "use anti-slop-rails to clean up this diff" to authorize edits.
   It uses existing RuboCop checks where available and labels manual checks explicitly, rather than installing a custom linter or treating every service object as a defect.
-- Pi discovers `~/.agents/skills/` natively. Amp may also discover that shared directory, but Pi is the supported target for the tracked skill catalog.
+- Pi discovers `~/.agents/skills/` natively. Claude Code discovers the same catalog through `~/.claude/skills/`. Amp may also discover the shared Agent Skills directory.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
-- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json` (gateway-free and secret-free, see cbcode HOME Sandbox below), `settings.local.json`, the global `CLAUDE.md` rules, and the `hooks/` scripts. Skills are no longer duplicated under the Claude package.
+- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, the global `CLAUDE.md` import, and the `hooks/` scripts. The import reuses Pi's global rules, and skill links reuse the shared catalog without duplicating files.
+- Claude Code uses the native installer's latest release channel with automatic updates enabled. Do not set `DISABLE_AUTOUPDATER` or `DISABLE_UPDATES` in the tracked settings.
 - The global catalog combines Matt Pocock's stable engineering/productivity skills, dmmulroy-only personalization skills, and preserved local skills. Ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
 - Codex global config is managed at `stow/codex/.codex/config.toml` in the default Stow profile. It tracks personal defaults and MCP server definitions, while auth, sessions, logs, plugin caches, and other runtime state remain local under `~/.codex/`.
 - Codex syntax highlighting uses `stow/codex/.codex/themes/tokyonight-frsh.tmTheme`, selected by `[tui] theme = "tokyonight-frsh"` in `stow/codex/.codex/config.toml`.
-- `scripts/stow.sh apply` also links that theme into `~/.cbcode-home/.codex/themes/` when the cbcode sandbox exists.
-  It does not manage `~/.cbcode-home/.codex/config.toml`, because cbcode owns and rewrites that file.
 - The `agents` Stow package ignores `.agents` directly so `scripts/stow.sh` can manage folder-level links dynamically. This preserves references, scripts, templates, and metadata inside every skill directory and avoids a hard-coded skill-name list.
 - Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
 - Claude and Codex both use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous bash commands and generated-file edit blockers. The Claude hook files and Codex hook files are harness-specific wrappers around the same implementation.
-- Claude Code MCP servers are user-scoped, not Stow-managed. Personal MCP servers (`RepoPromptCE`, `Ref`, `exa`) are in `~/.claude.json`; keep `Ref`/`exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.config/fish/local.fish`. Work MCP servers live in the separate `~/.cbcode-home/.claude.json` (see cbcode HOME Sandbox below) and are unrelated to the personal set.
-- Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML. This applies to the personal `~/.codex/config.toml` only; work's `~/.cbcode-home/.codex/config.toml` holds its own MCP server list ported from work Claude (see below).
+- Claude Code MCP servers are user-scoped, not Stow-managed. The same `RepoPromptCE`, `Ref`, and `exa` set used by Pi is in `~/.claude.json`. Keep `Ref` and `exa` credentials there as `${REF_API_KEY}` and `${EXA_API_KEY}`, sourced from `~/.config/fish/local.fish`.
+- Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML.
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
 - OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
-- The skill migration intentionally optimizes for Pi. Claude Code, Codex, Amp, and OpenCode compatibility can be added later if needed; they do not receive separate tracked copies. `~/.cbcode-home/.claude` remains a separate real directory (see cbcode HOME Sandbox below).
+- The skill catalog is shared by Pi and Claude Code. Other harnesses do not receive separate tracked copies.
 - Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the Claude wrappers for the bash and generated-edit blockers.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
 - Update the global catalog with `./scripts/update_agent_skills.sh`. Use `--review` for a Plannotator report, `--check` for drift detection, and `--sync` to apply the fetched Matt/dmmulroy snapshot. Updates remain uncommitted for normal Git review.
@@ -977,10 +866,7 @@ dotfiles/
 ├── CHANGELOG.md            # Change history
 ├── stow/                   # GNU Stow packages, each mirroring $HOME
 │   ├── fish/               # Fish, Starship, Catppuccin, functions/completions
-│   ├── fish-cb/            # Coinbase-only Fish fragments and functions
 │   ├── git/                # .gitconfig, .gitignore_global
-│   ├── git-cb/             # Coinbase-only .gitconfig.local (SSH URL rewrite + HTTPS fallback)
-│   ├── ssh-cb/             # Coinbase-only .ssh/config (symlinked manually, not via Stow)
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── herdr/              # .config/herdr/config.toml
 │   ├── bin/                # .local/bin tools and shared agent guardrail scripts
@@ -1047,125 +933,6 @@ git push
   - kept only `noice.nvim` from recent additions
   - retained the safety harness (`test/nvim_plugin_safety.sh`) for one-by-one rollout checks
 - Post-recovery: switched theme from Nord to Catppuccin Macchiato across Neovim, Ghostty, and tmux. Added `flash.nvim` for motion/jump support.
-
-## cbcode HOME Sandbox
-
-`cbcode` (Coinbase's Claude Code / Codex wrapper) overwrites both `~/.codex/config.toml` and `~/.claude/settings.json` on every launch with Coinbase LLM Gateway settings (auth token, base URL, OTEL telemetry endpoint). This conflicts with running personal Codex CLI and Claude Code against your own OpenAI/Anthropic subscriptions.
-
-**Solution:** Sandbox cbcode's `HOME` so it writes its Codex and Claude config into `~/.cbcode-home/.codex/` and `~/.cbcode-home/.claude/` instead of the real `~/.codex/` and `~/.claude/`. Most other dotfiles are still symlinked back to the real `$HOME`, so user-level tool state (npm, pyenv, ssh, gitconfig, etc.) remains shared. **Claude Code and Codex are both real, separate directories under `~/.cbcode-home` — neither is a symlink back to the personal config.** Skills (`~/.agents/skills`) stay in sync as two separate copies rather than a shared symlink.
-
-**Important safety note:** `~/.cbcode-home` is a config sandbox, not a disposable home directory. Paths such as `~/.cbcode-home/.local` and `~/.cbcode-home/.config` are symlinks to the real `$HOME`. Deleting `~/.cbcode-home/.local/share/claude` deletes the real `~/.local/share/claude` install. `~/.cbcode-home/.claude` and `~/.cbcode-home/.codex`, by contrast, are intentionally real, separate directories — cleaning those out only affects work state.
-
-### Setup
-
-```bash
-# 1. Create the sandboxed home
-mkdir -p ~/.cbcode-home
-
-# 2. Symlink everything cbcode needs EXCEPT .codex and .claude — those stay
-#    real, separate directories so cbcode's config rewrites never touch
-#    your personal Codex/Claude Code accounts.
-cd ~/.cbcode-home
-ln -s ~/.cbcode .cbcode
-ln -s ~/.config .config
-ln -s ~/.cache .cache
-ln -s ~/.nvm .nvm
-ln -s ~/.pyenv .pyenv
-ln -s ~/.rbenv .rbenv
-ln -s ~/.bun .bun
-ln -s ~/.deno .deno
-ln -s ~/.local .local
-ln -s ~/go go
-ln -s ~/.opencode .opencode
-ln -s ~/.gitconfig .gitconfig
-ln -s ~/.ssh .ssh
-ln -s ~/.gnupg .gnupg
-ln -s ~/.npmrc .npmrc
-ln -s ~/Library Library
-
-mkdir -p .claude
-cp ~/.claude.json .claude.json   # seed with current MCP list; cbcode rewrites settings.json on launch
-
-# Share the static, cbcode-safe personal Claude files (guardrails, CLAUDE.md)
-# into the work directory. cbcode only rewrites settings.json/.claude.json,
-# so these symlinks are stable.
-ln -s ~/.claude/CLAUDE.md .claude/CLAUDE.md
-mkdir -p .claude/hooks
-ln -s ~/.claude/hooks/block-dangerous-bash.sh  .claude/hooks/
-ln -s ~/.claude/hooks/block-generated-edits.sh .claude/hooks/
-
-# 3. Apply the Coinbase Fish package; it provides the cbcode wrapper.
-cd ~/dotfiles
-./scripts/stow.sh --cb apply
-```
-
-Personal `~/.claude/settings.json` is Stow-managed (`stow/claude/.claude/settings.json`) and intentionally has no gateway/OTEL/secret keys, since it is the file a plain, non-cbcode `claude` binary (installed separately, e.g. `bun install -g @anthropic-ai/claude-code`) reads. Work's `~/.cbcode-home/.claude/settings.json` is NOT Stow-managed — cbcode owns and rewrites it on every launch, the same way it owns `~/.cbcode-home/.codex/config.toml`.
-
-### How it works
-
-| Path | cbcode sees | Personal Codex/Claude sees |
-|------|-------------|------------------------------|
-| `~/.codex/config.toml` | `~/.cbcode-home/.codex/config.toml` (isolated, gateway) | `~/.codex/config.toml` (yours, Stow-managed) |
-| `~/.claude/settings.json` | `~/.cbcode-home/.claude/settings.json` (isolated, gateway) | `~/.claude/settings.json` (yours, Stow-managed, gateway-free) |
-| `~/.claude.json` (MCP servers) | `~/.cbcode-home/.claude.json` (isolated, work MCPs) | `~/.claude.json` (yours, personal MCPs) |
-| `~/.cbcode/` | `~/.cbcode-home/.cbcode` → `~/.cbcode/` (shared) | N/A |
-| `~/.local/` | `~/.cbcode-home/.local` → `~/.local/` (shared) | N/A |
-| `~/.config/` | `~/.cbcode-home/.config` → `~/.config/` (shared) | N/A |
-
-### Safe cleanup rules
-
-Never treat `~/.cbcode-home` as fully isolated. `~/.cbcode-home/.codex` and `~/.cbcode-home/.claude` are intentionally separate real directories; most other paths under `~/.cbcode-home` are symlinks back to the real home.
-
-Before deleting or cleaning a path under `~/.cbcode-home`, resolve the real path:
-
-```bash
-readlink ~/.cbcode-home/.local
-python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' ~/.cbcode-home/.local/share/claude
-```
-
-If the resolved path starts with your real home directory, such as `/Users/farishabib/.local`, then the target is shared state. Do not delete it as sandbox-only cleanup. In particular, never remove `~/.cbcode-home/.local/share/claude` unless you intend to remove the real standalone Claude install. `~/.cbcode-home/.claude` and `~/.cbcode-home/.codex` are the two paths that are safe to clean as work-only state.
-
-### MCP servers: personal vs. work
-
-Personal Claude Code (`~/.claude.json`) and personal Codex (`~/.codex/config.toml`) carry a small personal MCP set (`RepoPromptCE`, `Ref`, `exa`). Work Claude (`~/.cbcode-home/.claude.json`) carries the full Coinbase MCP catalog (Sourcegraph, Glean, Confluence, Datadog, Temporal, Linear, etc.), configured through internal onboarding, not this repo.
-
-Work Codex does not automatically inherit work Claude's MCP list — the two tools use incompatible config formats (`~/.claude.json` JSON `mcpServers` vs. `~/.cbcode-home/.codex/config.toml` TOML `[mcp_servers.*]`) and cbcode does not sync them. To port the set, translate each entry once:
-
-```bash
-python3 -c "
-import json
-with open('$HOME/.cbcode-home/.claude.json') as f:
-    servers = json.load(f).get('mcpServers', {})
-lines = []
-for name, cfg in servers.items():
-    lines.append(f'\n[mcp_servers.{name}]')
-    if cfg.get('type') == 'http':
-        lines.append('type = \"http\"')
-        lines.append(f'url = {json.dumps(cfg[\"url\"])}')
-    else:
-        lines.append(f'command = {json.dumps(cfg[\"command\"])}')
-        lines.append('args = [' + ', '.join(json.dumps(a) for a in cfg.get('args', [])) + ']')
-        env = cfg.get('env') or {}
-        if env:
-            lines.append(f'\n[mcp_servers.{name}.env]')
-            for k, v in env.items():
-                lines.append(f'{k} = {json.dumps(v)}')
-with open('$HOME/.cbcode-home/.codex/config.toml', 'a') as f:
-    f.write('\n' + '\n'.join(lines) + '\n')
-"
-```
-
-This is a one-time, untracked, work-only edit to `~/.cbcode-home/.codex/config.toml` (runtime state, not Stow-managed) — rerun it if the work MCP list changes. Some remote servers (Linear, Figma, Sentry) require a one-time OAuth login rather than a static key:
-
-```bash
-cbcode --agent codex
-codex mcp login linear
-codex mcp list --json | jq '.[] | {name, auth_status}'   # AUTH_REQUIRED means it still needs codex mcp login
-```
-
-### Why this is necessary
-
-cbcode force-updates both `~/.codex/config.toml` (model, provider, gateway settings) and `~/.claude/settings.json` (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, OTEL exporters) on every launch, with no environment-variable override for either path. Sandboxing `HOME` is the only way to isolate both without patching the binary.
 
 ## Troubleshooting
 

@@ -40,7 +40,7 @@ Agent behavior:
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
-- `stow/herdr/`, `stow/ghostty/`, `stow/fish/`, `stow/fish-cb/`, `stow/git/` - user config files
+- `stow/herdr/`, `stow/ghostty/`, `stow/fish/`, `stow/git/` - user config files
 - `old/` - archived Zsh, Cursor, Zed, and other legacy areas (avoid unless explicitly requested)
 
 Subdirectory guides:
@@ -57,7 +57,7 @@ bash -n scripts/backup.sh
 bash -n scripts/stow.sh
 bash -n mcp_setup.sh
 bash -n test/run_tests.sh
-find stow/fish stow/fish-cb -name '*.fish' -print0 | xargs -0 -n1 fish -n
+find stow/fish -name '*.fish' -print0 | xargs -0 -n1 fish -n
 (cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
 ```
 
@@ -127,7 +127,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 - Use early failure (`exit 1`) for critical checks.
 - For optional installs, warn and continue rather than hard-fail.
 
-### Fish Style (`stow/fish/**/*.fish`, `stow/fish-cb/**/*.fish`)
+### Fish Style (`stow/fish/**/*.fish`)
 - Use Fish-native `set`, `fish_add_path`, `and`/`or`, and function files instead of translating POSIX shell syntax literally.
 - Keep interactive-only initialization behind `status is-interactive`.
 - Prefer lazy function files for language-manager or command startup work.

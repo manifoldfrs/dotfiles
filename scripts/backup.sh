@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Snapshot current machine config back into tracked dotfile sources.
-# Usage: ./scripts/backup.sh [--cb]
+# Usage: ./scripts/backup.sh
 
 set -e
 
@@ -15,35 +15,6 @@ NC='\033[0m'
 
 info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-
-usage() {
-    local status=${1:-1}
-
-    echo "Usage: $0 [--cb]"
-    echo ""
-    echo "Options:"
-    echo "  --cb     Backup only Coinbase local override files"
-    exit "$status"
-}
-
-parse_args() {
-    PROFILE=default
-
-    while [ "$#" -gt 0 ]; do
-        case "$1" in
-            --cb)
-                PROFILE=cb
-                ;;
-            help|--help|-h)
-                usage 0
-                ;;
-            *)
-                usage
-                ;;
-        esac
-        shift
-    done
-}
 
 copy_file() {
     local src=$1
@@ -127,24 +98,11 @@ backup_shared_config() {
     export_npm_globals
 }
 
-backup_coinbase_config() {
-    info "Backing up Coinbase local override configuration..."
-
-    backup_fish_package fish-cb
-    copy_file "$HOME/.gitconfig.local" "$STOW_DIR/git-cb/.gitconfig.local" ".gitconfig.local"
-}
-
 main() {
-    parse_args "$@"
-
-    if [ "$PROFILE" = "cb" ]; then
-        backup_coinbase_config
-    else
-        backup_shared_config
-    fi
+    backup_shared_config
 
     echo ""
     info "Backup complete. Review changes with: git status --short && git diff"
 }
 
-main "$@"
+main

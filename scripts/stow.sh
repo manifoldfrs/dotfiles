@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # Apply or remove GNU Stow-managed dotfiles.
-# Usage: ./scripts/stow.sh [--cb] [apply|dry-run|delete]
+# Usage: ./scripts/stow.sh [apply|dry-run|delete]
 
 set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-DEFAULT_STOW_PACKAGES=(fish git ghostty herdr nvim bin opencode claude codex pi amp agents)
-CB_STOW_PACKAGES=(fish fish-cb git git-cb ghostty herdr nvim bin pi agents)
+STOW_PACKAGES=(fish git ghostty herdr nvim bin opencode claude codex pi amp agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
+SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
 SHARED_BACKUP_TARGETS=(
     "$HOME/.config/herdr/plugins.txt"
     "$HOME/.config/plannotator-tui/config.toml"
@@ -36,19 +36,6 @@ AMP_BACKUP_TARGETS=(
     "$HOME/.config/amp/plugins/code-edit-reminder.ts"
     "$HOME/.config/amp/settings.json"
 )
-CB_BACKUP_TARGETS=(
-    "$HOME/.config/fish/config.fish"
-    "$HOME/.config/fish/conf.d/coinbase.fish"
-    "$HOME/.config/fish/functions/cbcode.fish"
-    "$HOME/.config/fish/functions/find_pr.fish"
-    "$HOME/.config/starship.toml"
-    "$HOME/.gitconfig"
-    "$HOME/.gitconfig.local"
-    "$HOME/.gitignore_global"
-    "$HOME/.config/nvim"
-    "$HOME/.config/ghostty/config"
-    "$HOME/.config/herdr/config.toml"
-)
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -62,15 +49,12 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 usage() {
     local status=${1:-1}
 
-    echo "Usage: $0 [--cb] [apply|dry-run|delete]"
+    echo "Usage: $0 [apply|dry-run|delete]"
     echo ""
     echo "Commands:"
     echo "  apply    Restow managed dotfiles into home"
     echo "  dry-run  Preview Stow changes without modifying files"
     echo "  delete   Remove Stow-managed symlinks from home"
-    echo ""
-    echo "Options:"
-    echo "  --cb     Use Coinbase laptop package profile"
     exit "$status"
 }
 
@@ -144,25 +128,6 @@ is_stow_managed_tree() {
     [ "$saw_entry" -eq 1 ]
 }
 
-remove_legacy_agent_skill_trees() {
-    local target
-
-    if [ ! -d "$HOME/.claude/skills" ]; then
-        return
-    fi
-
-    for target in "$HOME/.claude/skills"/*; do
-        if [ ! -e "$target" ] && [ ! -L "$target" ]; then
-            continue
-        fi
-
-        if is_stow_managed_tree "$target"; then
-            rm -rf "$target"
-            info "Removed duplicate Claude skill tree: $target"
-        fi
-    done
-}
-
 remove_legacy_tmux_links() {
     local target
     local link_dest
@@ -215,7 +180,7 @@ backup_fish_stow_targets() {
     local source
     local relative
 
-    for package in fish fish-cb; do
+    for package in fish; do
         if ! has_stow_package "$package"; then
             continue
         fi
@@ -224,14 +189,6 @@ backup_fish_stow_targets() {
             relative="${source#"$STOW_DIR/$package/"}"
             backup_stow_target "$HOME/$relative"
         done < <(find "$STOW_DIR/$package" -type f | sort)
-    done
-}
-
-backup_cb_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/fish/conf.d" "$HOME/.config/fish/functions" "$HOME/.local/bin"
-
-    for target in "${CB_BACKUP_TARGETS[@]}"; do
-        backup_stow_target "$target"
     done
 }
 
@@ -245,50 +202,50 @@ backup_codex_stow_targets() {
     done
 }
 
-backup_agent_skill_targets() {
-    local backup_dir="$HOME/.agents/skill-backups"
+backup_shared_skill_targets() {
+    local backup_dir
     local backup_name
     local skill_dir
     local target
+    local target_dir
 
     if ! has_stow_package agents; then
         return
     fi
 
-    mkdir -p "$HOME/.agents/skills" "$backup_dir"
+    for target_dir in "${SKILL_TARGET_DIRS[@]}"; do
+        backup_dir="${target_dir%/skills}/skill-backups"
+        mkdir -p "$target_dir" "$backup_dir"
 
-    for skill_dir in "$AGENT_SKILLS_DIR"/*; do
-        if [ ! -f "$skill_dir/SKILL.md" ]; then
-            continue
-        fi
-        backup_stow_target "$HOME/.agents/skills/$(basename "$skill_dir")"
-    done
+        for skill_dir in "$AGENT_SKILLS_DIR"/*; do
+            if [ ! -f "$skill_dir/SKILL.md" ]; then
+                continue
+            fi
+            backup_stow_target "$target_dir/$(basename "$skill_dir")"
+        done
 
-    for target in "$HOME/.agents/skills"/*.backup.*; do
-        if [ ! -e "$target" ] && [ ! -L "$target" ]; then
-            continue
-        fi
+        for target in "$target_dir"/*.backup.*; do
+            if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+                continue
+            fi
 
-        backup_name="$(basename "$target")"
-        if [ -e "$backup_dir/$backup_name" ] || [ -L "$backup_dir/$backup_name" ]; then
-            warn "Skipping existing skill backup destination: $backup_dir/$backup_name"
-            continue
-        fi
+            backup_name="$(basename "$target")"
+            if [ -e "$backup_dir/$backup_name" ] || [ -L "$backup_dir/$backup_name" ]; then
+                warn "Skipping existing skill backup destination: $backup_dir/$backup_name"
+                continue
+            fi
 
-        mv "$target" "$backup_dir/$backup_name"
-        info "Moved skill backup outside agent discovery: $backup_name"
+            mv "$target" "$backup_dir/$backup_name"
+            info "Moved skill backup outside agent discovery: $backup_name"
+        done
     done
 }
 
 parse_args() {
     ACTION=apply
-    PROFILE=default
 
     while [ "$#" -gt 0 ]; do
         case "$1" in
-            --cb)
-                PROFILE=cb
-                ;;
             apply|dry-run|delete)
                 ACTION=$1
                 ;;
@@ -301,15 +258,6 @@ parse_args() {
         esac
         shift
     done
-}
-
-select_packages() {
-    if [ "$PROFILE" = "cb" ]; then
-        STOW_PACKAGES=("${CB_STOW_PACKAGES[@]}")
-        return
-    fi
-
-    STOW_PACKAGES=("${DEFAULT_STOW_PACKAGES[@]}")
 }
 
 has_stow_package() {
@@ -325,213 +273,94 @@ has_stow_package() {
     return 1
 }
 
-personal_home() {
-    case "$HOME" in
-        */.cbcode-home)
-            dirname "$HOME"
-            ;;
-        *)
-            printf '%s\n' "$HOME"
-            ;;
-    esac
-}
-
-cbcode_home() {
-    printf '%s\n' "${CBCODE_HOME:-$(personal_home)/.cbcode-home}"
-}
-
-codex_theme_src() {
-    printf '%s\n' "$STOW_DIR/codex/.codex/themes/$CODEX_THEME_FILE"
-}
-
-ensure_cbcode_codex_theme_link() {
-    local cb_home
-    local src
-    local dest
-    local link_dest
-
-    if ! has_stow_package codex; then
-        return
-    fi
-
-    cb_home="$(cbcode_home)"
-    if [ ! -d "$cb_home/.codex" ]; then
-        return
-    fi
-
-    src="$(codex_theme_src)"
-    dest="$cb_home/.codex/themes/$CODEX_THEME_FILE"
-
-    if [ ! -f "$src" ]; then
-        warn "Codex theme source missing: $src"
-        return
-    fi
-
-    mkdir -p "$cb_home/.codex/themes"
-
-    if [ -L "$dest" ]; then
-        link_dest="$(readlink "$dest")"
-        if [ "$link_dest" = "$src" ]; then
-            return
-        fi
-
-        if is_stow_managed_link "$dest"; then
-            rm "$dest"
-        fi
-    fi
-
-    if [ -e "$dest" ] || [ -L "$dest" ]; then
-        backup_stow_target "$dest"
-    fi
-
-    ln -s "$src" "$dest"
-    info "Linked cbcode Codex theme: $dest -> $src"
-}
-
-remove_cbcode_codex_theme_link() {
-    local cb_home
-    local src
-    local dest
-    local link_dest
-
-    if ! has_stow_package codex; then
-        return
-    fi
-
-    cb_home="$(cbcode_home)"
-    src="$(codex_theme_src)"
-    dest="$cb_home/.codex/themes/$CODEX_THEME_FILE"
-
-    if [ ! -L "$dest" ]; then
-        return
-    fi
-
-    link_dest="$(readlink "$dest")"
-    if [ "$link_dest" != "$src" ]; then
-        return
-    fi
-
-    rm "$dest"
-    info "Removed cbcode Codex theme link: $dest"
-}
-
-ensure_agent_skill_folder_links() {
+ensure_shared_skill_folder_links() {
     local skill_dir
     local src
     local dest
     local link_dest
+    local target_dir
 
     if ! has_stow_package agents; then
         return
     fi
 
-    mkdir -p "$HOME/.agents/skills"
+    for target_dir in "${SKILL_TARGET_DIRS[@]}"; do
+        mkdir -p "$target_dir"
 
-    for skill_dir in "$AGENT_SKILLS_DIR"/*; do
-        if [ ! -f "$skill_dir/SKILL.md" ]; then
-            continue
-        fi
-
-        src="$skill_dir"
-        dest="$HOME/.agents/skills/$(basename "$skill_dir")"
-
-        if [ -L "$dest" ]; then
-            link_dest="$(readlink "$dest")"
-            if [ "$link_dest" = "$src" ]; then
+        for skill_dir in "$AGENT_SKILLS_DIR"/*; do
+            if [ ! -f "$skill_dir/SKILL.md" ]; then
                 continue
             fi
-        fi
 
-        if [ -e "$dest" ] || [ -L "$dest" ]; then
-            if ! is_stow_managed_tree "$dest"; then
+            src="$skill_dir"
+            dest="$target_dir/$(basename "$skill_dir")"
+
+            if [ -L "$dest" ]; then
+                link_dest="$(readlink "$dest")"
+                if [ "$link_dest" = "$src" ]; then
+                    continue
+                fi
+            fi
+
+            if [ -e "$dest" ] || [ -L "$dest" ]; then
                 warn "Skipping non-Stow agent skill target: $dest"
                 continue
             fi
 
-            rm -rf "$dest"
-        fi
-
-        ln -s "$src" "$dest"
-        info "Linked agent skill folder: $dest -> $src"
+            ln -s "$src" "$dest"
+            info "Linked agent skill folder: $dest -> $src"
+        done
     done
 }
 
-remove_agent_skill_folder_links() {
+remove_shared_skill_folder_links() {
     local skill_dir
     local src
     local dest
     local link_dest
+    local target_dir
 
     if ! has_stow_package agents; then
         return
     fi
 
-    for skill_dir in "$AGENT_SKILLS_DIR"/*; do
-        if [ ! -f "$skill_dir/SKILL.md" ]; then
-            continue
-        fi
+    for target_dir in "${SKILL_TARGET_DIRS[@]}"; do
+        for skill_dir in "$AGENT_SKILLS_DIR"/*; do
+            if [ ! -f "$skill_dir/SKILL.md" ]; then
+                continue
+            fi
 
-        src="$skill_dir"
-        dest="$HOME/.agents/skills/$(basename "$skill_dir")"
+            src="$skill_dir"
+            dest="$target_dir/$(basename "$skill_dir")"
 
-        if [ ! -L "$dest" ]; then
-            continue
-        fi
+            if [ ! -L "$dest" ]; then
+                continue
+            fi
 
-        link_dest="$(readlink "$dest")"
-        if [ "$link_dest" != "$src" ]; then
-            continue
-        fi
+            link_dest="$(readlink "$dest")"
+            if [ "$link_dest" != "$src" ]; then
+                continue
+            fi
 
-        rm "$dest"
-        info "Removed agent skill folder link: $dest"
+            rm "$dest"
+            info "Removed agent skill folder link: $dest"
+        done
     done
-}
-
-link_ssh_config() {
-    local src="$DOTFILES_DIR/stow/ssh-cb/.ssh/config"
-    local dest="$HOME/.ssh/config"
-
-    if [ ! -f "$src" ]; then
-        return
-    fi
-
-    mkdir -p "$HOME/.ssh"
-
-    if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
-        info "SSH config already linked: $dest"
-        return
-    fi
-
-    if [ -e "$dest" ] && [ ! -L "$dest" ]; then
-        mv "$dest" "$dest.backup.$(date +%Y%m%d%H%M%S)"
-        warn "Backed up existing SSH config: $dest"
-    fi
-
-    ln -sf "$src" "$dest"
-    info "Linked SSH config: $dest -> $src"
 }
 
 apply_dotfiles() {
     remove_legacy_tmux_links
-    remove_legacy_agent_skill_trees
     backup_fish_stow_targets
     backup_shared_stow_targets
     backup_pi_stow_targets
     backup_amp_stow_targets
-    backup_agent_skill_targets
+    backup_shared_skill_targets
 
-    if [ "$PROFILE" = "cb" ]; then
-        backup_cb_stow_targets
-        link_ssh_config
-    else
-        backup_codex_stow_targets
-    fi
+    backup_codex_stow_targets
 
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
     stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
-    ensure_agent_skill_folder_links
-    ensure_cbcode_codex_theme_link
+    ensure_shared_skill_folder_links
 }
 
 dry_run_dotfiles() {
@@ -541,15 +370,13 @@ dry_run_dotfiles() {
 
 delete_dotfiles() {
     remove_legacy_tmux_links
-    remove_agent_skill_folder_links
-    remove_cbcode_codex_theme_link
+    remove_shared_skill_folder_links
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
 }
 
 parse_args "$@"
 require_stow
-select_packages
 
 case "$ACTION" in
     apply)

@@ -34,7 +34,7 @@ cd ~/dotfiles
 
 ### Pi
 
-Pi is Stow-managed by the default and Coinbase dotfiles profiles:
+Pi is Stow-managed by the default dotfiles profile:
 
 ```bash
 cd ~/dotfiles
