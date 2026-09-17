@@ -24,7 +24,7 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "opus[1m]",
+  "model": "claude-fable-5-1[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -44,18 +44,6 @@
             "type": "command",
             "command": "$HOME/.claude/hooks/block-dangerous-bash.sh",
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PermissionRequest": [
-      {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "plannotator",
-            "timeout": 345600
           }
         ]
       }
@@ -81,6 +69,9 @@
   "modelSettings": {
     "claude-opus-5": {
       "effortLevel": "xhigh"
+    },
+    "claude-fable-5-1": {
+      "effortLevel": "high"
     }
   },
   "channelsEnabled": false

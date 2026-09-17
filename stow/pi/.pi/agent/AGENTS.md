@@ -53,6 +53,12 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - Do not commit unless explicitly asked.
 - Match the existing style before introducing a new pattern.
 
+## Planning and Review
+
+- Keep planning and review in terminal surfaces.
+- For planning tasks, maintain the plan in Markdown, present it in chat or Plannotator TUI when requested, collect feedback, revise the same file, and wait for explicit implementation approval.
+- For review tasks, present findings in chat or the requested terminal review surface and apply revisions only when requested.
+
 ## Comments and Prose
 
 - Default to no code comment.

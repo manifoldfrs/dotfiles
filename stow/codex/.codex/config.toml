@@ -47,6 +47,9 @@ trust_level = "trusted"
 [projects."/Users/frshbb/Documents/Codex/2026-09-17/doe"]
 trust_level = "trusted"
 
+[projects."/Users/frshbb/Documents/Codex/2026-09-17/giv"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 
@@ -171,13 +174,53 @@ trusted_hash = "sha256:a2700095dc44652fd944ae3421bcd7af303bf57553846c2607bc03c12
 [features]
 hooks = true
 js_repl = false
+memories = true
 
 [desktop]
 followUpQueueMode = "queue"
 conversationDetailMode = "STEPS_PROSE"
+show-context-window-usage = true
+notifications-turn-mode = "off"
+toys-confetti-enabled = true
+dock-icon-preference = "codex-system"
+appearanceLightCodeThemeId = "catppuccin"
+appearanceTheme = "dark"
+appearanceDarkCodeThemeId = "catppuccin"
+usePointerCursors = true
 
 [desktop.open-in-target-preferences]
 global = "ghostty"
+
+[desktop.appearanceLightChromeTheme]
+accent = "#8839ef"
+accentSource = "custom"
+contrast = 45
+ink = "#4c4f69"
+opaqueWindows = false
+surface = "#eff1f5"
+
+[desktop.appearanceLightChromeTheme.fonts]
+
+[desktop.appearanceLightChromeTheme.semanticColors]
+diffAdded = "#40a02b"
+diffRemoved = "#d20f39"
+skill = "#8839ef"
+
+[desktop.appearanceDarkChromeTheme]
+accent = "#cba6f7"
+accentSource = "custom"
+contrast = 60
+ink = "#cdd6f4"
+opaqueWindows = false
+surface = "#1e1e2e"
+
+[desktop.appearanceDarkChromeTheme.fonts]
+ui = '"MonoLisaCode"'
+
+[desktop.appearanceDarkChromeTheme.semanticColors]
+diffAdded = "#a6e3a1"
+diffRemoved = "#f38ba8"
+skill = "#cba6f7"
 
 [marketplaces.openai-bundled]
 source_type = "local"
@@ -189,3 +232,7 @@ source = "/Users/frshbb/.cache/codex-runtimes/codex-primary-runtime/plugins/open
 
 [shell_environment_policy.set]
 NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "028a14b6eaa6d98dac2aae00764345ab9f244801ed8493d42b9af3be5575006e,f204d340535055781952b10ed396de20b842f00a19e430852f7e121ad1ce91f6"
+
+[memories]
+generate_memories = true
+use_memories = true

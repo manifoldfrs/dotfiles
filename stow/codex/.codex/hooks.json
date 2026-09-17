@@ -23,17 +23,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/frshbb/.local/bin/plannotator",
-            "timeout": 345600
-          }
-        ]
-      }
     ]
   }
 }

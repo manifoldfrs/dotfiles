@@ -19,7 +19,7 @@ Usage: ./scripts/update_agent_skills.sh [--check|--review|--sync]
 Modes:
   (none)     Fetch both sources and print added, changed, removed, and unchanged skills.
   --check    Exit non-zero when the tracked skill tree differs from the fetched sources.
-  --review   Write a Markdown report under .scratch/ and open it in Plannotator.
+  --review   Write a Markdown report under .scratch/ for terminal review.
   --sync     Apply the fetched stable Matt catalog and dmmulroy personalization layer.
 
 The stable Matt catalog is discovered from skills/engineering and skills/productivity.
@@ -217,9 +217,6 @@ case "$MODE" in
             printf '\nRun `./scripts/update_agent_skills.sh --sync` to apply this snapshot.\n'
         } > "$review_file"
         printf 'Review written to %s\n' "$review_file"
-        if command -v plannotator >/dev/null; then
-            plannotator annotate "$review_file"
-        fi
         ;;
     sync)
         sync_dir="$DEST.sync.$$"

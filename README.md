@@ -277,10 +277,12 @@ plannotator-tui README.md       # Review a file
 plannotator-tui docs/           # Browse a folder
 plannotator-tui herdr open .    # Review this folder in a Herdr overlay
 plannotator-tui herdr last      # Annotate the agent's last reply in Herdr
+plannotator-tui last --host pi      # Review the latest Pi reply outside Herdr
+plannotator-tui last --host claude  # Review the latest Claude reply outside Herdr
 ```
 
 The `plannotator-tui` commands open the terminal interface.
-Existing `plannotator` commands and automatic review hooks still use the browser.
+The browser-based `plannotator` integration remains uninstalled.
 
 Existing `Ctrl-a o` pane cycling and `Ctrl-a z` zoom bindings are unchanged.
 Global `Ctrl-k` and `Ctrl-l` navigation takes precedence over shell line deletion and screen clearing inside Herdr.
@@ -320,38 +322,11 @@ Start a new Pi session or use `/reload` to refresh the global instructions in an
 Use `:Lazy install` to install missing plugins on an existing machine.
 The TypeScript tools reuse the existing `ts_ls` setup.
 
-## Plannotator
+## Planning and review
 
-[Plannotator](https://plannotator.ai/) is a local, browser-based review surface for AI agent plans, diffs, and documents. It intercepts Claude Code's `ExitPlanMode` and Codex's session `Stop` event to open a review UI before the agent proceeds.
-
-### Install
-
-Plannotator installs as a single ~110MB binary via its own installer, not through Stow or Homebrew:
-
-```bash
-curl -fsSL https://plannotator.ai/install.sh | bash
-```
-
-The installer owns the binary and runtime state. The three Plannotator skills are already tracked in the shared global catalog; hook entries remain in the harness-specific Stow settings.
-
-### What is Stow-managed vs. not
-
-| Path | Managed by |
-|------|-----------|
-| `~/.local/bin/plannotator` (the binary) | Plannotator's installer; not tracked, too large for git |
-| `~/.plannotator/` (runtime state, migrations, vendor helpers) | Plannotator's installer; not tracked |
-| `stow/agents/.agents/skills/plannotator-{review,annotate,last}/` | Stow (`agents` package), linked into `~/.agents/skills/` and `~/.claude/skills/` |
-| `stow/claude/.claude/settings.json` `hooks.PermissionRequest` (`ExitPlanMode`) | Stow (`claude` package) |
-| `stow/codex/.codex/hooks.json` `hooks.Stop` | Stow (`codex` package) |
-
-### Personal setup (Claude Code + Codex)
-
-```bash
-curl -fsSL https://plannotator.ai/install.sh | bash
-cd ~/dotfiles && ./scripts/stow.sh apply
-```
-
-The installer may update harness hooks through the Stow-managed settings (`~/.claude/settings.json` and `~/.codex/hooks.json`). `scripts/stow.sh` links the tracked skill catalog into both `~/.agents/skills/` and `~/.claude/skills/`. Review hook changes with `git diff`.
+Planning and review stay in terminal surfaces.
+Plans are maintained as project Markdown, reviewed in chat or Plannotator TUI, revised from feedback, and implemented only after explicit approval.
+Code review findings are returned inline unless the user opens the Plannotator TUI.
 
 ## Stow How-To
 
@@ -641,7 +616,7 @@ Preferred tool usage after setup:
 - The skill catalog is shared by Pi and Claude Code. Other harnesses do not receive separate tracked copies.
 - Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the Claude wrappers for the bash and generated-edit blockers.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
-- Update the global catalog with `./scripts/update_agent_skills.sh`. Use `--review` for a Plannotator report, `--check` for drift detection, and `--sync` to apply the fetched Matt/dmmulroy snapshot. Updates remain uncommitted for normal Git review.
+- Update the global catalog with `./scripts/update_agent_skills.sh`. Use `--review` to write a Markdown report for terminal review, `--check` for drift detection, and `--sync` to apply the fetched Matt/dmmulroy snapshot. Updates remain uncommitted for normal Git review.
 - On a new machine, the tracked snapshot needs only `./scripts/stow.sh apply`; fetching upstream skills is not part of bootstrap.
 - Do not copy live MCP URLs with real API keys into tracked files. Use environment interpolation for secrets.
 

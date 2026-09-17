@@ -9,4 +9,6 @@ Task: $ARGUMENTS
 Requirements:
 - Let RepoPrompt discover the relevant files.
 - If the context builder times out, fall back to RepoPromptCE_get_file_tree, RepoPromptCE_file_search, and RepoPromptCE_read_file.
-- Do not implement until you have a concise plan.
+- Write the plan to the requested Markdown path or the project's existing plan location.
+- Present the plan in terminal chat, or use Plannotator TUI when requested, collect feedback, and revise the same Markdown file.
+- Wait for explicit implementation approval.
