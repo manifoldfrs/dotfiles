@@ -282,7 +282,7 @@ plannotator-tui last --host claude  # Review the latest Claude reply outside Her
 ```
 
 The `plannotator-tui` commands open the terminal interface.
-The browser-based `plannotator` integration remains uninstalled.
+The browser-based `plannotator` integration is installed alongside it.
 
 Existing `Ctrl-a o` pane cycling and `Ctrl-a z` zoom bindings are unchanged.
 Global `Ctrl-k` and `Ctrl-l` navigation takes precedence over shell line deletion and screen clearing inside Herdr.
@@ -324,9 +324,12 @@ The TypeScript tools reuse the existing `ts_ls` setup.
 
 ## Planning and review
 
-Planning and review stay in terminal surfaces.
-Plans are maintained as project Markdown, reviewed in chat or Plannotator TUI, revised from feedback, and implemented only after explicit approval.
-Code review findings are returned inline unless the user opens the Plannotator TUI.
+Planning and review can use ordinary chat, Plannotator TUI, or Plannotator's browser UI.
+Plans are maintained as project Markdown, revised from feedback, and implemented only after explicit approval.
+
+Pi provides `/plannotator-plan-mode`, `/plannotator-review`, `/plannotator-annotate`, and `/plannotator-last` through `@plannotator/pi-extension`; `Ctrl+Alt+P` toggles its plan mode.
+Claude Code uses the `plannotator@plannotator` plugin to intercept plan approval and exposes the Plannotator commands after restart.
+Codex uses its managed `Stop` hook for browser review.
 
 ## Stow How-To
 
@@ -616,7 +619,7 @@ Preferred tool usage after setup:
 - The skill catalog is shared by Pi and Claude Code. Other harnesses do not receive separate tracked copies.
 - Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the Claude wrappers for the bash and generated-edit blockers.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
-- Update the global catalog with `./scripts/update_agent_skills.sh`. Use `--review` to write a Markdown report for terminal review, `--check` for drift detection, and `--sync` to apply the fetched Matt/dmmulroy snapshot. Updates remain uncommitted for normal Git review.
+- Update the global catalog with `./scripts/update_agent_skills.sh`. Use `--review` for a Plannotator browser report, `--check` for drift detection, and `--sync` to apply the fetched Matt/dmmulroy snapshot. Updates remain uncommitted for normal Git review.
 - On a new machine, the tracked snapshot needs only `./scripts/stow.sh apply`; fetching upstream skills is not part of bootstrap.
 - Do not copy live MCP URLs with real API keys into tracked files. Use environment interpolation for secrets.
 

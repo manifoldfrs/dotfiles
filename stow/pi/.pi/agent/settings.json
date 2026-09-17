@@ -16,6 +16,10 @@
     "npm:pi-mcp-adapter",
     "npm:pi-subagents",
     "npm:pi-intercom",
-    "npm:pi-prompt-template-model"
+    "npm:pi-prompt-template-model",
+    {
+      "source": "npm:@plannotator/pi-extension",
+      "skills": []
+    }
   ]
 }
