@@ -4,6 +4,7 @@
 This repository manages personal macOS dotfiles and setup automation.
 It includes shell bootstrap scripts, Neovim Lua config, MCP templates, and Docker-based validation.
 This file is the top-level guide for coding agents working in `/Users/frshbb/code/personal/dotfiles`.
+Read `CONTEXT.md` when work changes the tracked-to-live configuration lifecycle, skill ownership, or cross-harness agent setup.
 
 ## Rule File Discovery (Cursor/Copilot)
 Checked locations:
