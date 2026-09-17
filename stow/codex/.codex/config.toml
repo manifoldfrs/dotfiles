@@ -41,6 +41,12 @@ trust_level = "trusted"
 [projects."/Users/frshbb/Documents/Codex/2026-09-10/referenced-chatgpt-conversation-this-is-an"]
 trust_level = "trusted"
 
+[projects."/Users/frshbb/Documents/Codex/2026-09-16/what"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/Documents/Codex/2026-09-17/doe"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 

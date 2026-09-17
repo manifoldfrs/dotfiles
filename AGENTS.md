@@ -5,18 +5,6 @@ This repository manages personal macOS dotfiles and setup automation.
 It includes shell bootstrap scripts, Neovim Lua config, MCP templates, and Docker-based validation.
 This file is the top-level guide for coding agents working in `/Users/frshbb/code/personal/dotfiles`.
 
-## User Writing Preferences
-When writing for this user, avoid:
-- AI babble, generic filler, or overly polished phrasing.
-- Em dashes. Use commas, periods, or parentheses instead.
-- Dramatic contrast phrasing like "This is not X, it is Y".
-- Phrases like "that's the footgun", "the smoking gun is", or close variants.
-- Jargon like "fail-fast", "fails the boot", "surface early", or "shift left".
-- Verbose responses when a simple explanation is enough.
-
-Explain concepts and solutions in simple terms, like a senior engineer teaching a new teammate.
-Review prose, summaries, code comments, PR descriptions, and chat replies for these patterns before presenting them.
-
 ## Rule File Discovery (Cursor/Copilot)
 Checked locations:
 - `.cursor/rules/`
@@ -105,7 +93,6 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 - Match existing file style before introducing new patterns.
 - Prefer explicit, readable code over clever shortcuts.
 - Do not introduce secrets in tracked files.
-- Never use an em dash; use a plain hyphen instead.
 - When writing commit messages, never add your agent name as a co-author.
 - Never manually modify `CHANGELOG.md` files or files marked as auto-generated.
 - When writing or substantially editing long Markdown files, put each full sentence on its own physical line.

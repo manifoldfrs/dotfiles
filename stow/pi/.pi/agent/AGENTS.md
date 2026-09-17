@@ -2,17 +2,11 @@
 
 These rules apply to every Pi session unless a project `AGENTS.md` overrides them.
 
-## Response Style
+## Communication
 
-- Answer the question directly first.
-- Keep replies concise unless the task needs a detailed plan, review, or debugging walkthrough.
-- Avoid AI babble, generic filler, and overly polished phrasing.
-- Do not use em dashes. Use commas, periods, or plain hyphens.
-- Do not use semicolons. Split the sentence instead.
-- Avoid dramatic contrast phrasing like "This is not X, it is Y".
-- Do not use phrases like "that's the footgun", "the smoking gun is", or close variants.
-- Do not use jargon like "fail-fast", "fails the boot", "surface early", or "shift left".
-- Explain concepts like a senior engineer teaching a new teammate.
+- Lead with the answer, result, or next action.
+- Use plain English and established project terms.
+- Assume the user understands software engineering.
 - In terminal chat, cite local files as Markdown links to absolute `file:///` URLs resolved from the current workspace, with spaces and other URL-special characters percent-encoded.
 - Use the readable repository-relative path and any line numbers as the link label, keeping line numbers out of the file URL.
 - Use full `https://` URLs for web links.

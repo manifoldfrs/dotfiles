@@ -637,7 +637,7 @@ Preferred tool usage after setup:
 - Claude Code MCP servers are user-scoped, not Stow-managed. The same `RepoPromptCE`, `Ref`, and `exa` set used by Pi is in `~/.claude.json`. Ref uses `${REF_API_KEY}` from `~/.config/fish/local.fish`. Claude currently sends the user-scope Exa placeholder literally, so Exa uses a resolved key only in the untracked owner-readable `~/.claude.json` file.
 - Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML.
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
-- OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/tldr`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` appear in the OpenCode command picker.
+- OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/show-me`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` work there too.
 - The skill catalog is shared by Pi and Claude Code. Other harnesses do not receive separate tracked copies.
 - Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the Claude wrappers for the bash and generated-edit blockers.
 - Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
