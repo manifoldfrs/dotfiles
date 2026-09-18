@@ -11,9 +11,11 @@ cursor/argv.json
 # Editor and OS artifacts
 *.swp
 .DS_Store
+node_modules/
 
 # MCP configs and local API key files
 exa_api_key.txt
+typesafe_api_key.txt
 mcp/claude_desktop_config.json
 mcp/cursor_mcp.json
 mcp/codex_config.toml

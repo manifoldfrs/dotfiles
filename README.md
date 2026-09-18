@@ -84,6 +84,29 @@ The script stores relay credentials in macOS Keychain service `pi-optojr-slack-r
 Follow `optojr/docs/render.md` for the one-time worker-to-web-service cutover.
 After setup, run `/reload` in Pi and invoke `/skill:optojr`.
 
+## TypeSafe Jev for Pi
+
+The tracked Pi extension at `stow/pi/.pi/agent/extensions/typesafe-ai/` registers `typesafe_evaluate` as a first-class tool.
+The existing TypeSafe skill explains when and how to structure Jev judgments; the extension performs the authenticated API call and returns typed Choice, Score, and Noul answers.
+
+Keep the API key as machine-local state in `~/.config/fish/local.fish`:
+
+```fish
+set -gx TYPESAFE_API_KEY "YOUR_API_KEY"
+```
+
+Bootstrap installs the extension's pinned runtime dependency automatically.
+For a manual update, run:
+
+```bash
+stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow pi
+cd ~/.pi/agent/extensions/typesafe-ai
+npm install --omit=dev --no-package-lock
+```
+
+Run `/reload` in Pi after applying the extension.
+The tool sends only the supplied state and questions to TypeSafe; do not include credentials, secrets, or unrelated private data.
+
 ## OpenCode Config
 
 The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and keeps the TUI theme on `tokyonight`.

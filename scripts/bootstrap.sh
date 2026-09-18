@@ -161,6 +161,23 @@ install_npm_globals() {
     done < "$DOTFILES_DIR/npm-global-packages.txt"
 }
 
+install_pi_extension_dependencies() {
+    local extension_dir="$HOME/.pi/agent/extensions/typesafe-ai"
+
+    if ! command -v npm &> /dev/null; then
+        warn "npm not found, skipping Pi extension dependencies"
+        return
+    fi
+
+    if [ ! -f "$extension_dir/package.json" ]; then
+        warn "TypeSafe Pi extension package not found, skipping its dependencies"
+        return
+    fi
+
+    info "Installing TypeSafe Pi extension dependencies..."
+    (cd "$extension_dir" && npm install --omit=dev --no-package-lock) || warn "TypeSafe Pi extension dependency installation failed"
+}
+
 install_amp() {
     if command -v amp &> /dev/null; then
         info "Amp CLI already installed: $(amp --version)"
@@ -180,6 +197,7 @@ main() {
     install_fisher_plugins
     sync_neovim_plugins
     install_npm_globals
+    install_pi_extension_dependencies
     install_amp
 
     echo ""
