@@ -26,6 +26,11 @@
     "disableBypassPermissionsMode": "disable"
   },
   "model": "opus[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "$HOME/.claude/statusline.sh",
+    "padding": 0
+  },
   "hooks": {
     "PreToolUse": [
       {

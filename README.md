@@ -625,7 +625,9 @@ Preferred tool usage after setup:
 - Pi discovers `~/.agents/skills/` natively. Claude Code discovers the same catalog through `~/.claude/skills/`. Amp may also discover the shared Agent Skills directory.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
-- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, the `hooks/` scripts, and the opt-in request logger. Skill links reuse the shared catalog without duplicating files.
+- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, `statusline.sh`, the `hooks/` scripts, and the opt-in request logger. Skill links reuse the shared catalog without duplicating files.
+- The tracked statusline at `stow/claude/.claude/statusline.sh` prints the active model and context-window usage (`412k/1M (41%)`), turning yellow at 75% and red at 90%. It requires `jq` and degrades to a short notice without it.
+  This matters because `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is set to `95`, so the built-in auto-compact warning stays hidden until the window is nearly full.
 - Claude Code reads a project's `AGENTS.md` directly, so no tracked `CLAUDE.md` pointer file is needed. There is no global rules file for Claude Code; `stow/pi/.pi/agent/AGENTS.md` applies to Pi only.
 - Claude Code uses the native installer's latest release channel with automatic updates enabled. Do not set `DISABLE_AUTOUPDATER` or `DISABLE_UPDATES` in the tracked settings.
 - Claude Code commit and pull request attribution is disabled through empty `attribution.commit` and `attribution.pr` values in the tracked settings.
@@ -928,7 +930,7 @@ dotfiles/
 │   ├── amp/                # .config/amp/: settings.json and global AGENTS.md
 │   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
 │   ├── agents/             # Shared Agent Skills catalog linked into Pi and Claude Code
-│   ├── claude/             # .claude/: settings, hooks, request logger
+│   ├── claude/             # .claude/: settings, statusline, hooks, request logger
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
 │   └── nvim/               # .config/nvim (lazy.nvim + Catppuccin Macchiato)
