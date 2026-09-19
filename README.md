@@ -625,7 +625,8 @@ Preferred tool usage after setup:
 - Pi discovers `~/.agents/skills/` natively. Claude Code discovers the same catalog through `~/.claude/skills/`. Amp may also discover the shared Agent Skills directory.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
-- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, the global `CLAUDE.md` import, the `hooks/` scripts, and the opt-in request logger. The import reuses Pi's global rules, and skill links reuse the shared catalog without duplicating files.
+- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, the `hooks/` scripts, and the opt-in request logger. Skill links reuse the shared catalog without duplicating files.
+- Claude Code reads a project's `AGENTS.md` directly, so no tracked `CLAUDE.md` pointer file is needed. There is no global rules file for Claude Code; `stow/pi/.pi/agent/AGENTS.md` applies to Pi only.
 - Claude Code uses the native installer's latest release channel with automatic updates enabled. Do not set `DISABLE_AUTOUPDATER` or `DISABLE_UPDATES` in the tracked settings.
 - Claude Code commit and pull request attribution is disabled through empty `attribution.commit` and `attribution.pr` values in the tracked settings.
 - The tracked Claude proxy lives at `stow/claude/.claude/request-logger/claude-log.mjs`; `claude-log` enables it for one process, while captured payloads remain local under `~/.claude/logs/requests/`.
@@ -927,7 +928,7 @@ dotfiles/
 │   ├── amp/                # .config/amp/: settings.json and global AGENTS.md
 │   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
 │   ├── agents/             # Shared Agent Skills catalog linked into Pi and Claude Code
-│   ├── claude/             # .claude/: settings, global rules import, hooks, request logger
+│   ├── claude/             # .claude/: settings, hooks, request logger
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
 │   └── nvim/               # .config/nvim (lazy.nvim + Catppuccin Macchiato)

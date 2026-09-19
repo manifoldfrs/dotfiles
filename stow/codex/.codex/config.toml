@@ -50,6 +50,9 @@ trust_level = "trusted"
 [projects."/Users/frshbb/Documents/Codex/2026-09-17/giv"]
 trust_level = "trusted"
 
+[projects."/Users/frshbb/Documents/Codex/2026-09-18/what"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 

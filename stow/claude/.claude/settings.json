@@ -22,9 +22,10 @@
       "Bash(*/osascript)",
       "Bash(*/osascript *)"
     ],
+    "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "claude-fable-5-1[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -71,15 +72,25 @@
       }
     }
   },
+  "feedbackDrafts": "notify",
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "modelSettings": {
     "claude-opus-5": {
-      "effortLevel": "xhigh"
+      "effortLevel": "high"
     },
     "claude-fable-5-1": {
       "effortLevel": "high"
     }
   },
-  "channelsEnabled": false
+  "fastMode": true,
+  "pluginConfigs": {
+    "agents-md@builtin": {
+      "options": {
+        "instructionFiles": "claude-md-or-agents-md"
+      }
+    }
+  },
+  "channelsEnabled": false,
+  "switchModelsOnFlag": false
 }
