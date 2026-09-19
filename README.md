@@ -626,7 +626,7 @@ Preferred tool usage after setup:
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
 - Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, `statusline.sh`, the `hooks/` scripts, and the opt-in request logger. Skill links reuse the shared catalog without duplicating files.
-- The tracked statusline at `stow/claude/.claude/statusline.sh` prints the active model and context-window usage (`412k/1M (41%)`), turning yellow at 75% and red at 90%. It requires `jq` and degrades to a short notice without it.
+- The tracked statusline at `stow/claude/.claude/statusline.sh` prints the working directory, git branch, active model, and context-window usage (`~/code/personal/dotfiles (master) · Opus 5 · 412k/1M (41%)`), turning yellow at 75% and red at 90%. It requires `jq` and degrades to a short notice without it.
   This matters because `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is set to `95`, so the built-in auto-compact warning stays hidden until the window is nearly full.
 - Claude Code reads a project's `AGENTS.md` directly, so no tracked `CLAUDE.md` pointer file is needed. There is no global rules file for Claude Code; `stow/pi/.pi/agent/AGENTS.md` applies to Pi only.
 - Claude Code uses the native installer's latest release channel with automatic updates enabled. Do not set `DISABLE_AUTOUPDATER` or `DISABLE_UPDATES` in the tracked settings.
