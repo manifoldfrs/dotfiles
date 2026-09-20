@@ -622,6 +622,8 @@ Preferred tool usage after setup:
 - [anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) adds an evidence-based Rails review and cleanup workflow alongside those standards.
   Ask "use anti-slop-rails to review this diff" for findings only, or "use anti-slop-rails to clean up this diff" to authorize edits.
   It uses existing RuboCop checks where available and labels manual checks explicitly, rather than installing a custom linter or treating every service object as a defect.
+- [anti-slop-ts](stow/agents/.agents/skills/anti-slop-ts/SKILL.md) vendors dmmulroy's complete anti-slop installer skill, Oxlint plugin source, Effect rules, update workflow, and installer script.
+  The skill is exposed locally as `anti-slop-ts`; its bundled plugin infrastructure otherwise matches the upstream `install-anti-slop` skill.
 - Pi discovers `~/.agents/skills/` natively. Claude Code discovers the same catalog through `~/.claude/skills/`. Amp may also discover the shared Agent Skills directory.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
 - OpenCode global config is managed at `stow/opencode/.config/opencode/`.
