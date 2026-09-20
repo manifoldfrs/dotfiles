@@ -45,6 +45,13 @@ Do not add replacement layers merely to give the same indirection a different na
 
 ## 3. Use existing automation honestly
 
+RuboCop cops are Ruby's ecosystem analogue to Oxlint rules, but RuboCop is not an equivalent native-speed implementation.
+No reviewed Ruby-native alternative currently combines RuboCop's parser and configuration compatibility, plugin and autocorrect coverage, and demonstrated production readiness.
+Keep the project's configured RuboCop as the automation foundation, and treat native alternatives as opt-in experiments requiring repository-specific conformance and timing checks.
+
+If lint speed is relevant, preserve RuboCop's cache and default parallel execution, use Prism when the supported Ruby and RuboCop versions permit it, and use server or LSP mode for repeated editor runs.
+Measure the target repository, and do not present server-mode startup improvements as whole-project lint throughput.
+
 If RuboCop is configured, inspect the installed cop catalog with the project's launcher and `--show-cops`.
 Use its existing config and configured lint command first.
 These cops can supply leads when installed:
