@@ -26,11 +26,6 @@
     "disableBypassPermissionsMode": "disable"
   },
   "model": "opus[1m]",
-  "statusLine": {
-    "type": "command",
-    "command": "$HOME/.claude/statusline.sh",
-    "padding": 0
-  },
   "hooks": {
     "PreToolUse": [
       {
@@ -54,6 +49,11 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "$HOME/.claude/statusline.sh",
+    "padding": 0
   },
   "enabledPlugins": {
     "security-guidance@claude-plugins-official": true,
@@ -88,7 +88,6 @@
       "effortLevel": "high"
     }
   },
-  "fastMode": true,
   "pluginConfigs": {
     "agents-md@builtin": {
       "options": {
