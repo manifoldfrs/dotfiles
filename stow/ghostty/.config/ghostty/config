@@ -9,7 +9,7 @@ keybind = performable:ctrl+shift+c=copy_to_clipboard
 keybind = super+c=csi:99;6u
 
 # Theme
-theme = Catppuccin Macchiato
+theme = TokyoNight Night
 
 # Cursor
 cursor-style = block

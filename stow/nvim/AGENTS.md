@@ -1,7 +1,7 @@
 # AGENTS.md - Neovim Configuration
 
 ## Package Identity
-Neovim config using lazy.nvim with Catppuccin Macchiato.
+Neovim config using lazy.nvim with Tokyo Night.
 Requires Neovim >= 0.11.0 for `vim.lsp.config()`.
 
 ## Setup & Run

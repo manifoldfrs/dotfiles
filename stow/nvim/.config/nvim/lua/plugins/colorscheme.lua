@@ -1,58 +1,25 @@
 return {
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "folke/tokyonight.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("catppuccin").setup({
-        flavour = "macchiato",
-        transparent_background = false,
-        float = {
-          transparent = false,
-          solid = true,
+      require("tokyonight").setup({
+        style = "night",
+        transparent = true,
+        styles = {
+          sidebars = "transparent",
+          floats = "transparent",
         },
-        integrations = {
-          blink_cmp = true,
-          diffview = true,
-          gitsigns = true,
-          mason = true,
-          native_lsp = { enabled = true },
-          neo_tree = true,
-          noice = true,
-          notify = true,
-          render_markdown = true,
-          snacks = {
-            enabled = true,
-            indent_scope_color = "mauve",
-          },
-          treesitter = true,
-          treesitter_context = true,
-          which_key = true,
-        },
-        custom_highlights = function(colors)
-          return {
-            NormalFloat = { bg = colors.base },
-            FloatBorder = { fg = colors.blue, bg = colors.base },
-            Pmenu = { bg = colors.surface0 },
-            PmenuSel = { fg = colors.text, bg = colors.surface1, bold = true },
-            TelescopeNormal = { bg = colors.base },
-            TelescopeBorder = { fg = colors.blue, bg = colors.base },
-            TelescopePromptNormal = { bg = colors.base },
-            TelescopePromptBorder = { fg = colors.blue, bg = colors.base },
-            TelescopeResultsNormal = { bg = colors.base },
-            TelescopeResultsBorder = { fg = colors.blue, bg = colors.base },
-            TelescopePreviewNormal = { bg = colors.base },
-            TelescopePreviewBorder = { fg = colors.blue, bg = colors.base },
-            TelescopeTitle = { fg = colors.mauve, bg = colors.base },
-            TelescopePromptTitle = { fg = colors.mauve, bg = colors.base },
-            TelescopeResultsTitle = { fg = colors.mauve, bg = colors.base },
-            TelescopePreviewTitle = { fg = colors.mauve, bg = colors.base },
-          }
+        on_colors = function(colors)
+          colors.bg_statusline = colors.none
+        end,
+        on_highlights = function(hl, colors)
+          hl.TabLineFill = { bg = colors.none }
         end,
       })
 
-      vim.cmd.colorscheme("catppuccin-macchiato")
+      vim.cmd.colorscheme("tokyonight")
 
       local diagnostic_underline_colors = {
         Error = "DiagnosticError",

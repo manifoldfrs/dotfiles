@@ -192,9 +192,9 @@ show-context-window-usage = true
 notifications-turn-mode = "off"
 toys-confetti-enabled = true
 dock-icon-preference = "codex-system"
-appearanceLightCodeThemeId = "catppuccin"
+appearanceLightCodeThemeId = "tokyo-night"
 appearanceTheme = "dark"
-appearanceDarkCodeThemeId = "catppuccin"
+appearanceDarkCodeThemeId = "tokyo-night"
 usePointerCursors = true
 
 [desktop.open-in-target-preferences]
@@ -216,20 +216,20 @@ diffRemoved = "#d20f39"
 skill = "#8839ef"
 
 [desktop.appearanceDarkChromeTheme]
-accent = "#cba6f7"
+accent = "#3d59a1"
 accentSource = "custom"
 contrast = 60
-ink = "#cdd6f4"
-opaqueWindows = false
-surface = "#1e1e2e"
+ink = "#a9b1d6"
+opaqueWindows = true
+surface = "#1a1b26"
 
 [desktop.appearanceDarkChromeTheme.fonts]
 ui = '"MonoLisaCode"'
 
 [desktop.appearanceDarkChromeTheme.semanticColors]
-diffAdded = "#a6e3a1"
-diffRemoved = "#f38ba8"
-skill = "#cba6f7"
+diffAdded = "#449dab"
+diffRemoved = "#914c54"
+skill = "#9d7cd8"
 
 [marketplaces.openai-bundled]
 source_type = "local"

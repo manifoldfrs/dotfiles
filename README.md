@@ -1,14 +1,14 @@
 # dotfiles
 
-Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, OpenCode, and Starship use **Catppuccin Macchiato** with MonoLisaCode 14 pt.
+Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, OpenCode, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
 
 ## Theme and font status
 
-- Ghostty, Herdr, Neovim, Pi, OpenCode, completion menus, and Starship use Catppuccin Macchiato.
-- Neovim uses opaque Macchiato surfaces so Ghostty, Herdr, floats, completion menus, Snacks, and Diffview remain visually coherent.
+- Ghostty, Herdr, Neovim, Pi, OpenCode, and Codex use Tokyo Night.
+- Neovim uses the Tokyo Night `night` style with transparent editor, sidebar, float, statusline, and tab-fill surfaces.
 - Ghostty uses `MonoLisaCode` at 14 pt with explicit regular, italic, bold, and bold-italic styles.
 - Starship uses the intended Nerd Font glyphs through Ghostty's built-in `Symbols Nerd Font` fallback. See `plans/theme-font-glyph-followups.md`.
-- Codex and OpenCode intentionally retain their Tokyo Night themes in this pass.
+- Starship and FZF inherit the Tokyo Night terminal palette from Ghostty.
 - Cursor and Zed are archived under `old/` and are not restored or rethemed.
 
 ## Requirements
@@ -109,7 +109,7 @@ The tool sends only the supplied state and questions to TypeSafe; do not include
 
 ## OpenCode Config
 
-The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and uses Catppuccin Macchiato in the TUI.
+The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and uses Tokyo Night in the TUI.
 The TUI hides its session sidebar and persistent session tab strip to maximize transcript space.
 OpenCode globally allows all tool actions and automatically accepts permission requests, giving agents the current user's filesystem, process, and network authority without prompts.
 New OpenCode sessions default to `openai/gpt-5.6-sol-fast` with medium reasoning effort.
@@ -250,7 +250,7 @@ Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Ho
 
 What this already handles for you:
 - stows Bash, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi, Amp settings, and local bin config
-- configures Herdr with Catppuccin Macchiato, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
+- configures Herdr with Tokyo Night, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
 What `./scripts/bootstrap.sh` additionally handles for you:
@@ -585,7 +585,7 @@ cd ~/dotfiles
 - **FZF** completion and history/file keybindings through its native Bash integration
 - **Node.js** from `Brewfile`
 - **Configs stowed**: `stow/bash`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
-- **Herdr**: Stow-managed Catppuccin Macchiato config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
+- **Herdr**: Stow-managed Tokyo Night config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
 - **Global npm packages** from `npm-global-packages.txt`
@@ -905,7 +905,7 @@ CLI cheat sheet:
 
 Use `herdr <resource> --help`, such as `herdr pane --help`, for the complete command reference.
 
-The active config is `stow/herdr/.config/herdr/config.toml` and uses Catppuccin Macchiato tokens with Bash as the pane shell. `C-a s` replaces the former tmux-sessionizer workflow with Herdr's workspace picker.
+The active config is `stow/herdr/.config/herdr/config.toml` and uses its built-in Tokyo Night theme with Bash as the pane shell. `C-a s` replaces the former tmux-sessionizer workflow with Herdr's workspace picker.
 
 Install agent integrations once per machine:
 
@@ -950,7 +950,7 @@ dotfiles/
 │   ├── claude/             # .claude/: settings, statusline, hooks, request logger
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
-│   └── nvim/               # .config/nvim (lazy.nvim + Catppuccin Macchiato)
+│   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
 │       └── .config/nvim/
 │           ├── init.lua
 │           ├── lazy-lock.json
@@ -1009,7 +1009,7 @@ git push
   - rolled back recent visual plugins
   - kept only `noice.nvim` from recent additions
   - retained the safety harness (`test/nvim_plugin_safety.sh`) for one-by-one rollout checks
-- Post-recovery: switched theme from Nord to Catppuccin Macchiato across Neovim, Ghostty, and tmux. Added `flash.nvim` for motion/jump support.
+- Post-recovery history: switched theme from Nord to Catppuccin Macchiato across Neovim, Ghostty, and tmux, then later returned the active stack to Tokyo Night. Added `flash.nvim` for motion/jump support.
 
 ## Troubleshooting
 
