@@ -10,5 +10,25 @@
   },
   "tabs": {
     "enabled": false
+  },
+  "keybinds": {
+    "model.list": [
+      "<leader>m",
+      "alt+p"
+    ],
+    "session.toggle.thinking": "alt+t",
+    "session.copy": "alt+y",
+    "prompt.queue": [
+      "alt+return",
+      "ctrl+s"
+    ],
+    "input.move.up": [
+      "up",
+      "ctrl+p"
+    ],
+    "input.move.down": [
+      "down",
+      "ctrl+n"
+    ]
   }
 }

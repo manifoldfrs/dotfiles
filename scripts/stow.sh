@@ -9,7 +9,7 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr nvim bin opencode claude codex pi amp agents)
+STOW_PACKAGES=(bash git ghostty herdr nvim bin opencode claude codex pi agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
@@ -18,13 +18,14 @@ SHARED_BACKUP_TARGETS=(
     "$HOME/.config/plannotator-tui/config.toml"
     "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
     "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
-    "$HOME/.local/share/agent-guardrails/code-edit-reminder.txt"
 )
 OPENCODE_BACKUP_TARGETS=(
     "$HOME/.config/opencode/AGENTS.md"
     "$HOME/.config/opencode/cli.json"
     "$HOME/.config/opencode/opencode.jsonc"
-    "$HOME/.config/opencode/plugins/cb-guards.ts"
+    "$HOME/.config/opencode/plugins/typesafe-ai"
+    "$HOME/.config/opencode/plugins/optojr-slack"
+    "$HOME/.config/opencode/plugins/tui-conveniences"
 )
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/config.toml"
@@ -34,14 +35,8 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/themes/$CODEX_THEME_FILE"
 )
 PI_BACKUP_TARGETS=(
-    "$HOME/.pi/agent/extensions/code-edit-reminder.ts"
     "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
-)
-AMP_BACKUP_TARGETS=(
-    "$HOME/.config/amp/AGENTS.md"
-    "$HOME/.config/amp/plugins/code-edit-reminder.ts"
-    "$HOME/.config/amp/settings.json"
 )
 
 RED='\033[0;31m'
@@ -157,7 +152,10 @@ remove_legacy_tmux_links() {
 remove_legacy_opencode_links() {
     local target
 
-    for target in "$HOME/.config/opencode/tui.json" "$HOME/.config/opencode/plugin/cb-guards.ts"; do
+    for target in \
+        "$HOME/.config/opencode/tui.json" \
+        "$HOME/.config/opencode/plugin/cb-guards.ts" \
+        "$HOME/.config/opencode/plugins/cb-guards.ts"; do
         if is_stow_managed_link "$target"; then
             rm "$target"
             info "Removed legacy OpenCode symlink: $target"
@@ -214,18 +212,6 @@ backup_pi_stow_targets() {
     mkdir -p "$HOME/.pi/agent"
 
     for target in "${PI_BACKUP_TARGETS[@]}"; do
-        backup_stow_target "$target"
-    done
-}
-
-backup_amp_stow_targets() {
-    if ! has_stow_package amp; then
-        return
-    fi
-
-    mkdir -p "$HOME/.config/amp"
-
-    for target in "${AMP_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
     done
 }
@@ -419,7 +405,6 @@ apply_dotfiles() {
     backup_shared_stow_targets
     backup_opencode_stow_targets
     backup_pi_stow_targets
-    backup_amp_stow_targets
     backup_shared_skill_targets
 
     backup_codex_stow_targets

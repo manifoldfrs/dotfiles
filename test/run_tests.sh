@@ -56,6 +56,14 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
+    && [ -L "$STOW_TEST_HOME/.config/opencode/commands/lg.md" ] \
+    && [ -L "$STOW_TEST_HOME/.config/opencode/commands/rp.md" ] \
+    && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/package.json" ] \
+    && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/optojr-slack/package.json" ] \
+    && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/package.json" ] \
+    && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/node_modules" ] \
+    && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/optojr-slack/node_modules" ] \
+    && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/node_modules" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
@@ -77,6 +85,10 @@ grep -q 'name = "tokyo-night"' stow/herdr/.config/herdr/config.toml
 grep -q '^default_shell = "/opt/homebrew/bin/bash"$' stow/herdr/.config/herdr/config.toml
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
+grep -q '"session.copy": "alt+y"' stow/opencode/.config/opencode/cli.json
+grep -q 'name: "typesafe_evaluate"' stow/opencode/.config/opencode/plugins/typesafe-ai/src/index.ts
+grep -q 'name: "optojr_slack_send"' stow/opencode/.config/opencode/plugins/optojr-slack/src/index.ts
+[ ! -e stow/opencode/.config/opencode/plugins/cb-guards.ts ]
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
 grep -q '^source_cached_init mise-activate mise activate bash$' stow/bash/.bashrc

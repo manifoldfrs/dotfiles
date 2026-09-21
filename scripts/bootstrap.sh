@@ -20,7 +20,9 @@ STOW_TARGETS=(
     "$HOME/.config/opencode/AGENTS.md"
     "$HOME/.config/opencode/cli.json"
     "$HOME/.config/opencode/opencode.jsonc"
-    "$HOME/.config/opencode/plugins/cb-guards.ts"
+    "$HOME/.config/opencode/plugins/typesafe-ai"
+    "$HOME/.config/opencode/plugins/optojr-slack"
+    "$HOME/.config/opencode/plugins/tui-conveniences"
     "$HOME/.claude/settings.local.json"
     "$HOME/.config/herdr/config.toml"
     "$HOME/.config/herdr/plugins.txt"
@@ -199,6 +201,27 @@ install_pi_extension_dependencies() {
     (cd "$extension_dir" && npm install --omit=dev --no-package-lock) || warn "TypeSafe Pi extension dependency installation failed"
 }
 
+install_opencode_plugin_dependencies() {
+    local plugin_dir
+    local plugin_name
+
+    if ! command -v npm &> /dev/null; then
+        warn "npm not found, skipping OpenCode plugin dependencies"
+        return
+    fi
+
+    for plugin_name in typesafe-ai optojr-slack tui-conveniences; do
+        plugin_dir="$HOME/.config/opencode/plugins/$plugin_name"
+        if [ ! -f "$plugin_dir/package.json" ]; then
+            warn "OpenCode $plugin_name plugin not found, skipping its dependencies"
+            continue
+        fi
+
+        info "Installing OpenCode $plugin_name dependencies..."
+        (cd "$plugin_dir" && npm install --omit=dev --no-package-lock) || warn "OpenCode $plugin_name dependency installation failed"
+    done
+}
+
 install_opencode() {
     local version
 
@@ -214,16 +237,6 @@ install_opencode() {
     curl -fsSL https://opencode.ai/v2/install | bash || warn "OpenCode 2 installation failed"
 }
 
-install_amp() {
-    if command -v amp &> /dev/null; then
-        info "Amp CLI already installed: $(amp --version)"
-        return
-    fi
-
-    info "Installing Amp CLI..."
-    curl -fsSL https://ampcode.com/install.sh | bash || warn "Amp CLI installation failed"
-}
-
 main() {
     info "Bootstrapping development environment..."
     install_homebrew
@@ -235,7 +248,7 @@ main() {
     sync_neovim_plugins
     install_npm_globals
     install_pi_extension_dependencies
-    install_amp
+    install_opencode_plugin_dependencies
 
     echo ""
     info "Bootstrap complete! Restart Ghostty or run: exec \"$(brew --prefix bash)/bin/bash\" --login"

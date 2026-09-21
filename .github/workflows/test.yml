@@ -29,16 +29,30 @@ jobs:
       - name: Verify Bash Stow layout
         run: |
           tmp_home="$(mktemp -d)"
-          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp agents
+          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin opencode claude codex pi agents
           test -L "$tmp_home/.bashrc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"
           test -L "$tmp_home/.config/starship.toml"
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"
+          test -L "$tmp_home/.config/opencode/commands/lg.md"
+          test -L "$tmp_home/.config/opencode/commands/rp.md"
+          test -L "$tmp_home/.config/opencode/plugins/typesafe-ai/package.json"
+          test -L "$tmp_home/.config/opencode/plugins/optojr-slack/package.json"
+          test -L "$tmp_home/.config/opencode/plugins/tui-conveniences/package.json"
+          test ! -e "$tmp_home/.config/opencode/plugins/typesafe-ai/node_modules"
+          test ! -e "$tmp_home/.config/opencode/plugins/optojr-slack/node_modules"
+          test ! -e "$tmp_home/.config/opencode/plugins/tui-conveniences/node_modules"
           test -L "$tmp_home/.pi/agent/themes/tokyonight-frsh.json"
           test -L "$tmp_home/.agents/skills/herdr/SKILL.md"
           test ! -e "$tmp_home/AGENTS.md"
+
+      - name: Validate OpenCode plugins
+        run: |
+          for plugin in typesafe-ai optojr-slack tui-conveniences; do
+            (cd "stow/opencode/.config/opencode/plugins/$plugin" && npm install --no-package-lock && npm run check)
+          done
 
       - name: Require Neovim theme startup
         run: nvim --headless '+Lazy! restore' '+colorscheme tokyonight' +qa

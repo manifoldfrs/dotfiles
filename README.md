@@ -67,61 +67,58 @@ rm ~/.cache/dotfiles/spotify-visualizer/tokens.json
 spotify-visualizer
 ```
 
-## OptoJr Slack Bot
+## TypeSafe Jev
 
-OptoJr reads Slack through the existing Slack MCP connection and posts through the hosted OptoJr relay.
-The Pi extension never receives Slack OAuth credentials.
-The hosted service is the only process allowed to refresh Slack's rotating bot token.
+The TypeSafe skill defines when and how to request a Jev judgment.
+Harness adapters expose that behavior as the `typesafe_evaluate` tool:
 
-After deploying the relay, store its HTTPS URL and independent machine token:
+- Pi: `stow/pi/.pi/agent/extensions/typesafe-ai/`
+- OpenCode: `stow/opencode/.config/opencode/plugins/typesafe-ai/`
 
-```bash
-cd ~/code/optoai/optojr
-scripts/setup-slack-relay-client.sh
-```
+The tool accepts Choice, Score, and Noul questions and returns typed answers with probabilities.
+It sends the supplied state and questions to TypeSafe.
+Do not include credentials, secrets, or unrelated private data.
 
-The script stores relay credentials in macOS Keychain service `pi-optojr-slack-relay-credentials`.
-Follow `optojr/docs/render.md` for the one-time worker-to-web-service cutover.
-After setup, run `/reload` in Pi and invoke `/skill:optojr`.
-
-## TypeSafe Jev for Pi
-
-The tracked Pi extension at `stow/pi/.pi/agent/extensions/typesafe-ai/` registers `typesafe_evaluate` as a first-class tool.
-The existing TypeSafe skill explains when and how to structure Jev judgments; the extension performs the authenticated API call and returns typed Choice, Score, and Noul answers.
-
-Keep the API key as machine-local state in `~/.config/bash/local.bash`:
+Keep `TYPESAFE_API_KEY` as machine-local state in `~/.config/bash/local.bash`:
 
 ```bash
 export TYPESAFE_API_KEY="YOUR_API_KEY"
 ```
 
-Bootstrap installs the extension's pinned runtime dependency automatically.
-For a manual update, run:
+`scripts/bootstrap.sh` installs the pinned runtime dependencies.
+After an apply, reload Pi or OpenCode so that it loads the new adapter.
 
-```bash
-stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow pi
-cd ~/.pi/agent/extensions/typesafe-ai
-npm install --omit=dev --no-package-lock
-```
+## OpenCode Configuration
 
-Run `/reload` in Pi after applying the extension.
-The tool sends only the supplied state and questions to TypeSafe; do not include credentials, secrets, or unrelated private data.
+The `opencode` Stow package owns the tracked sources under `stow/opencode/.config/opencode/`.
 
-## OpenCode Config
+| Tracked source | Purpose |
+| --- | --- |
+| `opencode.jsonc` | Model defaults, permissions, MCP servers, providers, skills, and global instructions |
+| `cli.json` | Tokyo Night, TUI layout, permission handling, and keybindings |
+| `commands/` | Slash commands such as `/lg`, `/rp`, `/rp-plan`, `/rp-review`, `/rp-search`, and `/rp-tree` |
+| `plugins/typesafe-ai/` | TypeSafe Jev tool |
+| `plugins/tui-conveniences/` | `/copy-all`, skill-load confirmations, and the Git status footer |
 
-The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and uses Tokyo Night in the TUI.
-The TUI hides its session sidebar and persistent session tab strip to maximize transcript space.
-OpenCode globally allows all tool actions and automatically accepts permission requests, giving agents the current user's filesystem, process, and network authority without prompts.
-New OpenCode sessions default to `openai/gpt-5.6-sol-fast` with medium reasoning effort.
+New sessions use `openai/gpt-5.6-sol-fast` with medium reasoning effort and low response verbosity.
+The TUI hides the session sidebar and persistent tab strip.
+The TUI also provides Pi-style navigation shortcuts.
 
-The committed MCP config reads secrets from `REF_API_KEY` and `EXA_API_KEY`. Put real local values in `~/.config/bash/local.bash`, not in git.
+OpenCode can use the current user's filesystem, processes, and network without a permission prompt.
+Review the tracked configuration before you apply it.
 
-Apply only OpenCode config when needed:
+`REF_API_KEY`, `EXA_API_KEY`, and `TYPESAFE_API_KEY` are machine-local state.
+Do not put real credentials in tracked sources.
+
+Apply only the OpenCode Stow package with:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow opencode
+./scripts/stow.sh apply opencode
 ```
+
+Bootstrap installs plugin dependencies automatically.
+Restart OpenCode after an apply.
 
 ### GPT-5 Response Verbosity
 
@@ -249,7 +246,7 @@ herdr --version
 Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins.
 
 What this already handles for you:
-- stows Bash, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi, Amp settings, and local bin config
+- stows Bash, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi settings, and local bin config
 - configures Herdr with Tokyo Night, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
@@ -380,7 +377,7 @@ The equivalent unguarded direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi
 ```
 
 ### Run Stow Without Scripts
@@ -391,11 +388,11 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp
-stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -n -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi
+stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi
 
 ```
 
@@ -420,8 +417,6 @@ stow --no-folding -R -v -t "$HOME" -d stow claude
 # Pi settings only
 stow --no-folding -R -v -t "$HOME" -d stow pi
 
-# Amp settings only
-stow --no-folding -R -v -t "$HOME" -d stow amp
 ```
 
 ### Bash + Starship setup
@@ -563,7 +558,6 @@ cd ~/dotfiles
 | Restow Codex settings/skills/hooks | `./scripts/stow.sh apply` |
 | Restow Pi settings | `stow --no-folding -R -v -t "$HOME" -d stow pi` |
 | Run Pi with request logging | `pi-log` |
-| Restow Amp settings | `stow --no-folding -R -v -t "$HOME" -d stow amp` |
 | Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
 | Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
 | Restow Herdr config | `stow --no-folding -R -v -t "$HOME" -d stow herdr` |
@@ -584,12 +578,11 @@ cd ~/dotfiles
 - **Starship** prompt with bounded project/runtime detection
 - **FZF** completion and history/file keybindings through its native Bash integration
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/bash`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
+- **Configs stowed**: `stow/bash`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, and `stow/pi` into `$HOME`
 - **Herdr**: Stow-managed Tokyo Night config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
 - **Global npm packages** from `npm-global-packages.txt`
-- **Amp CLI** via the official installer
 
 ### npm Global Packages (`npm-global-packages.txt`)
 
@@ -606,7 +599,6 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 - **Codex**: `~/.codex/config.toml`
 - **Pi**: `~/.pi/agent/mcp.json`
 - **OpenCode**: `~/.config/opencode/opencode.jsonc`
-- **Amp**: `~/.config/amp/settings.json`
 
 See `mcp/README.md` for setup instructions and API key configuration.
 
@@ -615,55 +607,91 @@ Preferred tool usage after setup:
 - Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
 - Use exa for web search and page fetches when current web context is needed.
 
-### AI Agent Stow Notes
+### AI Agent Configuration
 
-- Pi settings are managed at `stow/pi/.pi/agent/settings.json` and are included in the default Stow profile.
-- Global agent instructions are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md), linked to `~/.pi/agent/AGENTS.md`, and exposed to OpenCode through `~/.config/opencode/AGENTS.md`.
-  The scripting policy prefers existing tools, then Bash for simple orchestration, then the project's language and runtime when shell tools are a poor fit.
-  Reload existing Pi or OpenCode sessions after changing these instructions.
-- Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer, with no custom model override required.
-- Pi MCP servers are managed at `stow/pi/.pi/agent/mcp.json` and mirror the tracked Codex/OpenCode MCP set: RepoPromptCE, Ref, and exa.
-- Pi loads MCP support through the `npm:pi-mcp-adapter` package declared in settings.
-- The tracked Pi request logger lives at `stow/pi/.pi/agent/extensions/request-logger.ts`; `pi-log` enables it for one process, while captured payloads remain local under `~/.pi/agent/logs/requests/`.
-- Do not move Pi auth, sessions, logs, or other runtime/account state into Stow; `stow/pi/.stow-local-ignore` excludes common sensitive/runtime paths.
-- Amp settings and global instructions are managed under `stow/amp/.config/amp/` in the default Stow profile.
-- Pi and Amp append the shared reminder in `stow/bin/.local/share/agent-guardrails/code-edit-reminder.txt` after successful code-edit tool calls. Their adapters live in `stow/pi/.pi/agent/extensions/code-edit-reminder.ts` and `stow/amp/.config/amp/plugins/code-edit-reminder.ts`.
-- Amp uses the same RepoPromptCE, Ref, and exa MCP servers as Pi. API keys remain in `REF_API_KEY` and `EXA_API_KEY` environment variables.
-- Global skills are tracked once under `stow/agents/.agents/skills/` and linked as complete directories into both `~/.agents/skills/` and `~/.claude/skills/` by `scripts/stow.sh`.
-- Local language standards include `coding-standards-ts`, `coding-standards-go`, and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
-  The Rails skill adapts DHH/37signals conventions with local safety and testing standards, source attribution, and explicit departures from upstream preferences.
-  Run `./scripts/stow.sh apply` after adding a skill to install its directory link.
-- [anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) adds an evidence-based Rails review and cleanup workflow alongside those standards.
-  Ask "use anti-slop-rails to review this diff" for findings only, or "use anti-slop-rails to clean up this diff" to authorize edits.
-  It uses existing RuboCop checks where available and labels manual checks explicitly, rather than installing a custom linter or treating every service object as a defect.
-- [anti-slop-ts](stow/agents/.agents/skills/anti-slop-ts/SKILL.md) vendors dmmulroy's complete anti-slop installer skill, Oxlint plugin source, Effect rules, update workflow, and installer script.
-  The skill is exposed locally as `anti-slop-ts`; its bundled plugin infrastructure otherwise matches the upstream `install-anti-slop` skill.
-- Pi and OpenCode discover `~/.agents/skills/` natively. Claude Code discovers the same catalog through `~/.claude/skills/`. Amp may also discover the shared Agent Skills directory.
-- Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
-- OpenCode 2 is installed by `scripts/bootstrap.sh`; global server config, CLI settings, shared instructions, commands, and plugins are managed at `stow/opencode/.config/opencode/`.
-- Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, `statusline.sh`, the `hooks/` scripts, and the opt-in request logger. Skill links reuse the shared catalog without duplicating files.
-- The tracked statusline at `stow/claude/.claude/statusline.sh` prints the working directory, git branch, active model, and context-window usage (`~/code/personal/dotfiles (master) · Opus 5 · 412k/1M (41%)`), turning yellow at 75% and red at 90%. It requires `jq` and degrades to a short notice without it.
-  This matters because `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is set to `95`, so the built-in auto-compact warning stays hidden until the window is nearly full.
-- Claude Code reads a project's `AGENTS.md` directly, so no tracked `CLAUDE.md` pointer file is needed. There is no global rules file for Claude Code; the tracked global `AGENTS.md` is shared by Pi and OpenCode.
-- Claude Code uses the native installer's latest release channel with automatic updates enabled. Do not set `DISABLE_AUTOUPDATER` or `DISABLE_UPDATES` in the tracked settings.
-- Claude Code commit and pull request attribution is disabled through empty `attribution.commit` and `attribution.pr` values in the tracked settings.
-- The tracked Claude proxy lives at `stow/claude/.claude/request-logger/claude-log.mjs`; `claude-log` enables it for one process, while captured payloads remain local under `~/.claude/logs/requests/`.
-- The global catalog combines Matt Pocock's stable engineering/productivity skills, dmmulroy-only personalization skills, and preserved local skills. Ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
-- Codex global config is managed at `stow/codex/.codex/config.toml` in the default Stow profile. It tracks personal defaults and MCP server definitions, while auth, sessions, logs, plugin caches, and other runtime state remain local under `~/.codex/`.
-- Codex syntax highlighting uses `stow/codex/.codex/themes/tokyonight-frsh.tmTheme`, selected by `[tui] theme = "tokyonight-frsh"` in `stow/codex/.codex/config.toml`.
-- The `agents` Stow package ignores `.agents` directly so `scripts/stow.sh` can manage folder-level links dynamically. This preserves references, scripts, templates, and metadata inside every skill directory and avoids a hard-coded skill-name list.
-- Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
-- Claude, Codex, and OpenCode use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous shell commands and generated-file edit blockers. Claude and Codex use hook wrappers; OpenCode uses the V2 plugin at `stow/opencode/.config/opencode/plugins/cb-guards.ts`.
-- Claude Code MCP servers are user-scoped, not Stow-managed. The same `RepoPromptCE`, `Ref`, and `exa` set used by Pi is in `~/.claude.json`. Ref uses `${REF_API_KEY}` from `~/.config/bash/local.bash`. Claude currently sends the user-scope Exa placeholder literally, so Exa uses a resolved key only in the untracked owner-readable `~/.claude.json` file.
-- Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML.
-- Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
-- OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/show-me`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` work there too.
-- The skill catalog is shared by Pi and Claude Code. Other harnesses do not receive separate tracked copies.
-- Hooks do not share a format. OpenCode ignores Claude's `settings.json` hooks, so `stow/opencode/.config/opencode/plugin/cb-guards.ts` adapts to OpenCode's plugin API and shells out to the Claude wrappers for the bash and generated-edit blockers.
-- Do not move Claude sessions, history, project caches, telemetry, or `.claude.json` into Stow; those contain local runtime/account state.
-- Update the global catalog with `./scripts/update_agent_skills.sh`. Use `--review` for a Plannotator browser report, `--check` for drift detection, and `--sync` to apply the fetched Matt/dmmulroy snapshot. Updates remain uncommitted for normal Git review.
-- On a new machine, the tracked snapshot needs only `./scripts/stow.sh apply`; fetching upstream skills is not part of bootstrap.
-- Do not copy live MCP URLs with real API keys into tracked files. Use environment interpolation for secrets.
+#### Shared rules and skills
+
+Global agent rules are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md).
+The `pi` and `opencode` Stow packages expose this file to Pi and OpenCode.
+Reload existing sessions after you change the rules.
+
+The shared skill catalog is tracked once under `stow/agents/.agents/skills/`.
+`scripts/stow.sh` links each complete skill directory into `~/.agents/skills/` and `~/.claude/skills/`.
+Pi and OpenCode use `~/.agents/skills/`.
+Claude Code uses `~/.claude/skills/`.
+
+The catalog combines the baseline catalog, the personalization layer, and local skills.
+Skill ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
+Use `./scripts/update_agent_skills.sh --check` to check for drift.
+Use `--review` to open a Plannotator review and `--sync` to update the tracked snapshot.
+An update stays uncommitted for normal Git review.
+
+Local language standards include `coding-standards-ts`, `coding-standards-go`, and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
+[anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) provides an evidence-based Rails review and cleanup workflow.
+Ask it to review a diff for findings only, or ask it to clean up a diff to authorize edits.
+[anti-slop-ts](stow/agents/.agents/skills/anti-slop-ts/SKILL.md) manages the vendored Oxlint anti-slop plugin and its update workflow.
+
+#### Pi
+
+The `pi` Stow package owns settings, MCP configuration, prompts, themes, and extensions under `stow/pi/.pi/agent/`.
+Pi uses RepoPromptCE, Ref, and exa through `npm:pi-mcp-adapter`.
+The MCP adapter reads `REF_API_KEY` and `EXA_API_KEY` from the environment.
+Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer.
+
+`stow/pi/.pi/agent/extensions/request-logger.ts` is an opt-in request logger.
+Run `pi-log` to enable it for one process.
+Captured requests are machine-local state under `~/.pi/agent/logs/requests/`.
+
+#### OpenCode
+
+`scripts/bootstrap.sh` installs OpenCode 2.
+The `opencode` Stow package owns server configuration, CLI settings, commands, global instructions, and plugins under `stow/opencode/.config/opencode/`.
+
+OpenCode plugins are separate harness adapters with separate owners:
+
+- `plugins/typesafe-ai/` exposes TypeSafe Jev.
+- `plugins/tui-conveniences/` adds `/copy-all`, confirms successful skill loads, and shows the Git status footer.
+
+OpenCode discovers the shared catalog under `~/.agents/skills/` as native skills.
+OpenCode 2 does not derive slash entries from skills, so each skill also has a thin wrapper command under `stow/opencode/.config/opencode/commands/<skill-id>.md` that loads it through `/skill-id`, and the TUI conveniences plugin confirms native skill activation with a success toast.
+The separate `stow/opencode/.config/opencode/commands/` directory is reserved for prompt macros such as `/lg` and the `/rp*` RepoPrompt commands.
+
+#### Claude Code
+
+The `claude` Stow package owns `settings.json`, `settings.local.json`, `statusline.sh`, hooks, and the opt-in request logger under `stow/claude/.claude/`.
+Claude Code reads project `AGENTS.md` files directly.
+It does not need a tracked `CLAUDE.md` pointer.
+
+The status line shows the working directory, Git branch, active model, and context-window usage.
+It turns yellow at 75 percent and red at 90 percent.
+It uses `jq` and shows a short notice if `jq` is not available.
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is `95`, so this status line provides the earlier warning.
+
+Claude Code uses the native installer's latest release channel with automatic updates.
+Commit and pull request attribution are disabled.
+Run `claude-log` to enable the tracked request logger for one process.
+Captured requests are machine-local state under `~/.claude/logs/requests/`.
+
+Claude Code MCP servers are user-scoped in `~/.claude.json`.
+This file is machine-local state and is not managed by Stow.
+
+#### Codex
+
+The `codex` Stow package owns personal defaults, MCP server definitions, hooks, and the Tokyo Night theme under `stow/codex/.codex/`.
+The MCP configuration reads `REF_API_KEY` and `EXA_API_KEY` through `env_http_headers`.
+Authentication, sessions, logs, plugin caches, and other runtime data are machine-local state under `~/.codex/`.
+
+#### Guardrails and secrets
+
+Claude Code and Codex use the shared guardrail scripts under `stow/bin/.local/share/agent-guardrails/`.
+These scripts block dangerous shell commands and edits to generated files.
+
+Keep credentials in machine-local state.
+Do not copy live MCP URLs, API keys, tokens, auth files, sessions, logs, or telemetry into tracked sources.
+Use environment interpolation for secrets when the harness supports it.
+
+A new machine can apply the tracked skill snapshot with `./scripts/stow.sh apply`.
+Bootstrap does not need to fetch the upstream skill catalogs.
 
 ### Karabiner Status
 
@@ -944,8 +972,7 @@ dotfiles/
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── herdr/              # .config/herdr/config.toml
 │   ├── bin/                # .local/bin tools and shared agent guardrail scripts
-│   ├── amp/                # .config/amp/: settings.json and global AGENTS.md
-│   ├── opencode/           # .config/opencode/: V2 config, CLI settings, commands, shared rules, guard plugin
+│   ├── opencode/           # .config/opencode/: V2 config, CLI settings, commands, rules, plugins
 │   ├── agents/             # Shared Agent Skills catalog used by Pi, OpenCode, and Claude Code
 │   ├── claude/             # .claude/: settings, statusline, hooks, request logger
 │   ├── codex/              # .codex/: config, hooks, themes

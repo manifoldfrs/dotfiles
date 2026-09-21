@@ -9,8 +9,10 @@
       "effect": "allow"
     }
   ],
-  "skills": [
-    "~/.agents/skills"
+  "plugins": [
+    "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/typesafe-ai",
+    "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/optojr-slack",
+    "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/tui-conveniences"
   ],
   "providers": {
     "openai": {
@@ -19,6 +21,20 @@
           "settings": {
             "reasoningEffort": "medium",
             "textVerbosity": "low"
+          }
+        },
+        "gpt-6-astra": {
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          }
+        },
+        "gpt-6-astra-fast": {
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
           }
         }
       }

@@ -1,5 +1,5 @@
 ---
-description: Pressure-test a plan or topic one question at a time
+description: A relentless interview to sharpen a plan or design.
 ---
 
 Load and follow the `grill-me` skill.

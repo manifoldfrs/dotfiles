@@ -10,7 +10,6 @@ Model Context Protocol (MCP) server configurations for AI coding assistants.
 | **Codex** | `~/.codex/config.toml` → `stow/codex/.codex/config.toml` |
 | **Pi** | `~/.pi/agent/mcp.json` → `stow/pi/.pi/agent/mcp.json` |
 | **OpenCode** | `~/.config/opencode/opencode.jsonc` → `stow/opencode/.config/opencode/opencode.jsonc` |
-| **Amp** | `~/.config/amp/settings.json` → `stow/amp/.config/amp/settings.json` |
 
 ## Setup
 
@@ -61,20 +60,6 @@ opencode mcp list
 `stow/opencode/.config/opencode/opencode.jsonc` configures RepoPromptCE, Ref, and exa using the native OpenCode 2 `mcp.servers` schema.
 RepoPromptCE uses direct tool exposure so OpenCode's shared generated-file guard can inspect its mutation calls.
 
-### Amp
-
-Amp is Stow-managed by the default dotfiles profile:
-
-```bash
-cd ~/dotfiles
-./scripts/stow.sh apply
-amp mcp list
-amp mcp doctor
-```
-
-`stow/amp/.config/amp/settings.json` configures RepoPromptCE, Ref, and exa.
-Amp also discovers the shared personal skills linked under `~/.agents/skills/`.
-
 ### API keys
 
 Edit each file and replace placeholders:
@@ -85,7 +70,6 @@ Edit each file and replace placeholders:
 Restart Claude Desktop and Codex to apply changes.
 Restart Pi after changing `~/.pi/agent/mcp.json`.
 Reload OpenCode after changing `~/.config/opencode/opencode.jsonc`.
-Restart Amp after changing `~/.config/amp/settings.json`.
 
 ## Backup
 
@@ -99,7 +83,6 @@ To backup your current MCP configs (with API keys):
 Codex MCP HTTP servers should use `env_http_headers` with `REF_API_KEY` and `EXA_API_KEY`, not API keys embedded in URLs.
 Pi MCP HTTP servers should use adapter header interpolation with `${REF_API_KEY}` and `${EXA_API_KEY}`, not embedded API keys.
 OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` interpolation, not embedded API keys.
-Amp MCP HTTP servers should use header interpolation with `${REF_API_KEY}` and `${EXA_API_KEY}`, not embedded API keys.
 
 ## MCP Servers Used
 

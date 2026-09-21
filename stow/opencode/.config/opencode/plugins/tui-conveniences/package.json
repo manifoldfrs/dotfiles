@@ -1,0 +1,33 @@
+{
+  "name": "opencode-tui-conveniences",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tui": "./src/tui.tsx"
+  },
+  "scripts": {
+    "check": "npm run typecheck && npm run test",
+    "test": "node --import tsx --test src/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode/plugin": "2.0.11"
+  },
+  "devDependencies": {
+    "@opencode/theme": "2.0.11",
+    "@opentui/core": "0.5.11",
+    "@opentui/solid": "0.5.11",
+    "@types/node": "^24.5.2",
+    "solid-js": "1.9.12",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "peerDependencies": {
+    "@opencode/theme": "2.0.11",
+    "@opentui/core": ">=0.5.8",
+    "@opentui/solid": ">=0.5.8",
+    "solid-js": ">=1.9.0"
+  }
+}
