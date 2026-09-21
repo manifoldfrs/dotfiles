@@ -9,7 +9,6 @@ DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_TARGETS=(
     "$HOME/.bash_profile"
     "$HOME/.bashrc"
-    "$HOME/.blerc"
     "$HOME/.inputrc"
     "$HOME/.config/bash/aliases.bash"
     "$HOME/.config/bash/environment.bash"
@@ -115,33 +114,6 @@ backup_existing_stow_targets() {
 apply_dotfiles() {
     backup_existing_stow_targets
     "$DOTFILES_DIR/scripts/stow.sh" apply
-}
-
-install_blesh() {
-    local blesh_commit=d81fd54feb0d996fdff20dca27eaf0201f7015cc
-    local checkout_dir
-
-    if [ -r "$HOME/.local/share/blesh/ble.sh" ]; then
-        info "ble.sh already installed"
-        return
-    fi
-
-    if ! command -v git &> /dev/null || ! command -v make &> /dev/null; then
-        warn "git and make are required to install ble.sh"
-        return
-    fi
-
-    checkout_dir="$(mktemp -d)"
-    info "Installing ble.sh..."
-    if git clone --filter=blob:none https://github.com/akinomyoga/ble.sh.git "$checkout_dir/ble.sh" \
-        && git -C "$checkout_dir/ble.sh" checkout "$blesh_commit" \
-        && git -C "$checkout_dir/ble.sh" submodule update --init --recursive \
-        && make -C "$checkout_dir/ble.sh" install PREFIX="$HOME/.local"; then
-        info "ble.sh installed"
-    else
-        warn "ble.sh installation failed"
-    fi
-    rm -rf "$checkout_dir"
 }
 
 configure_bash_login_shell() {
@@ -259,7 +231,6 @@ main() {
     install_opencode
     apply_dotfiles
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
-    install_blesh
     configure_bash_login_shell
     sync_neovim_plugins
     install_npm_globals

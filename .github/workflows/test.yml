@@ -19,7 +19,7 @@ jobs:
         run: brew install bash neovim ripgrep stow
 
       - name: Validate shell syntax
-        run: bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh test/run_tests.sh mcp_setup.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.blerc stow/bash/.config/bash/*.bash
+        run: bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh test/run_tests.sh mcp_setup.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash
 
       - name: Check Git portability
         run: |
@@ -31,7 +31,6 @@ jobs:
           tmp_home="$(mktemp -d)"
           stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp agents
           test -L "$tmp_home/.bashrc"
-          test -L "$tmp_home/.blerc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"
           test -L "$tmp_home/.config/starship.toml"

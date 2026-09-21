@@ -110,6 +110,9 @@ The tool sends only the supplied state and questions to TypeSafe; do not include
 ## OpenCode Config
 
 The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and uses Catppuccin Macchiato in the TUI.
+The TUI hides its session sidebar and persistent session tab strip to maximize transcript space.
+OpenCode globally allows all tool actions and automatically accepts permission requests, giving agents the current user's filesystem, process, and network authority without prompts.
+New OpenCode sessions default to `openai/gpt-5.6-sol-fast` with medium reasoning effort.
 
 The committed MCP config reads secrets from `REF_API_KEY` and `EXA_API_KEY`. Put real local values in `~/.config/bash/local.bash`, not in git.
 
@@ -135,11 +138,11 @@ The tracked configs currently use `low`.
 For example, an OpenCode model override uses this shape:
 
 ```jsonc
-"provider": {
+"providers": {
   "openai": {
     "models": {
-      "gpt-5.5": {
-        "options": {
+      "gpt-5.6-sol-fast": {
+        "settings": {
           "textVerbosity": "low",
         },
       },
@@ -231,7 +234,7 @@ git pull
 # First time on this machine? Install Bash, Starship, and the supporting tools:
 brew bundle --file=Brewfile
 # or only the packaged shell stack:
-# brew install bash bash-completion@2 starship zoxide fzf mise ripgrep fd gawk
+# brew install bash starship zoxide fzf mise ripgrep fd gawk
 
 # 3. Fully quit and reopen your terminal
 
@@ -423,7 +426,7 @@ stow --no-folding -R -v -t "$HOME" -d stow amp
 
 ### Bash + Starship setup
 
-The `stow/bash` package provides Homebrew Bash 5, GNU Readline settings, Starship, ble.sh integration, 171 visible Git abbreviations, bash-completion, fzf bindings, zoxide, mise, and personal tool paths.
+The `stow/bash` package provides Homebrew Bash 5, GNU Readline settings, Starship, FZF completion and keybindings, zoxide, mise, and personal tool paths.
 
 Install and apply the default profile:
 
@@ -433,11 +436,11 @@ brew bundle --file=Brewfile
 exec /opt/homebrew/bin/bash --login
 ```
 
-Ghostty and Herdr launch `/opt/homebrew/bin/bash` explicitly. Bootstrap installs ble.sh under `~/.local/share/blesh` and attempts to select Homebrew Bash as the macOS login shell. Machine-local secrets and overrides belong in `~/.config/bash/local.bash`.
+Ghostty and Herdr launch `/opt/homebrew/bin/bash` explicitly. Bootstrap attempts to select Homebrew Bash as the macOS login shell. Machine-local secrets and overrides belong in `~/.config/bash/local.bash`.
 
 #### Prompt and runtime behavior
 
-Starship keeps non-truncated directories, 18-character Git branches, project-marker-only Node detection, and the existing Nerd Font glyphs. ble.sh supplies autosuggestions, syntax highlighting, visible abbreviations, and fzf integration. GNU Readline supplies history navigation and editable keybindings. mise manages project runtime versions and environments.
+Starship keeps non-truncated directories, 18-character Git branches, project-marker-only Node detection, and the existing Nerd Font glyphs. FZF supplies fuzzy completion and history/file keybindings, with `Ctrl-F` opening fuzzy history search. GNU Readline supplies history navigation and editable keybindings. Bash caches the generated FZF, Starship, Zoxide, and mise initialization scripts until their executables change. mise manages project runtime versions and environments.
 
 #### Rollback
 
@@ -569,7 +572,7 @@ cd ~/dotfiles
 | Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
 | Open Lazy UI | `nvim +Lazy` |
 | Open Mason UI | `nvim +Mason` |
-| Shell syntax checks | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.blerc stow/bash/.config/bash/*.bash` |
+| Shell syntax checks | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash` |
 | Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD` |
 | Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
 
@@ -577,9 +580,9 @@ cd ~/dotfiles
 
 ### Bootstrap (`scripts/bootstrap.sh`)
 
-- **Homebrew** + all packages from `Brewfile` (includes Bash 5, bash-completion, Starship, Zoxide, mise, Stow, Ghostty, and Herdr)
+- **Homebrew** + all packages from `Brewfile` (includes Bash 5, Starship, Zoxide, mise, Stow, Ghostty, and Herdr)
 - **Starship** prompt with bounded project/runtime detection
-- **ble.sh** syntax highlighting, autosuggestions, visible abbreviations, and fzf integration
+- **FZF** completion and history/file keybindings through its native Bash integration
 - **Node.js** from `Brewfile`
 - **Configs stowed**: `stow/bash`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
 - **Herdr**: Stow-managed Catppuccin Macchiato config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
@@ -918,7 +921,7 @@ Generated integration files remain machine-managed. The shared `herdr` skill tea
 
 ## Shell Configuration
 
-Bash stores interactive history in `~/.bash_history`. ble.sh adds autosuggestions, syntax highlighting, visible abbreviations, and fzf integration; bash-completion supplies command completions; GNU Readline uses the tracked `.inputrc`; Starship renders the prompt; zoxide handles directory jumping; and mise activates project runtime versions and environments.
+Bash stores interactive history in `~/.bash_history`. FZF provides fuzzy completion and history/file keybindings; GNU Readline uses the tracked `.inputrc`; Starship renders the prompt; zoxide handles directory jumping; and mise activates project runtime versions and environments. Generated initialization scripts for FZF, Starship, Zoxide, and mise are cached under `${XDG_CACHE_HOME:-~/.cache}/bash/init/` and regenerated after their executables change.
 
 Cursor and Zed are intentionally archived under `old/cursor/current-archive/` and `old/zed/`. They are not Stow packages and are not restored or rethemed by this migration.
 
@@ -936,7 +939,7 @@ dotfiles/
 ├── npm-global-packages.txt # Global npm packages
 ├── CHANGELOG.md            # Change history
 ├── stow/                   # GNU Stow packages, each mirroring $HOME
-│   ├── bash/               # Bash, Readline, ble.sh config, Starship, functions
+│   ├── bash/               # Bash, Readline, FZF integration, Starship, functions
 │   ├── git/                # .gitconfig, .gitignore_global
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── herdr/              # .config/herdr/config.toml
@@ -1099,9 +1102,9 @@ Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 - The setup script runs headless `Lazy! restore` to install plugin files from `lazy-lock.json`
 
 **Prompt is plain or Bash highlighting is missing after an update?**
-- Check `brew list --versions bash bash-completion@2 starship zoxide fzf mise` and run `brew bundle --file=~/dotfiles/Brewfile` for anything missing.
+- Check `brew list --versions bash starship zoxide fzf mise` and run `brew bundle --file=~/dotfiles/Brewfile` for anything missing.
 - Reapply the Bash package with `./scripts/stow.sh apply`, then run `exec /opt/homebrew/bin/bash --login`.
-- Verify `~/.local/share/blesh/ble.sh`, `~/.blerc`, and `~/.config/starship.toml` exist.
+- Verify `fzf` is available and `~/.config/starship.toml` exists.
 - Private-use prompt glyphs use Ghostty's built-in `Symbols Nerd Font` fallback; see `plans/theme-font-glyph-followups.md`.
 
 **Herdr config not loading?**

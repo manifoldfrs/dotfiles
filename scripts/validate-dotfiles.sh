@@ -22,7 +22,6 @@ for script in \
     "$DOTFILES_DIR/scripts/validate-dotfiles.sh" \
     "$DOTFILES_DIR/stow/bash/.bash_profile" \
     "$DOTFILES_DIR/stow/bash/.bashrc" \
-    "$DOTFILES_DIR/stow/bash/.blerc" \
     "$DOTFILES_DIR/stow/bash/.config/bash/aliases.bash" \
     "$DOTFILES_DIR/stow/bash/.config/bash/environment.bash" \
     "$DOTFILES_DIR/stow/bash/.config/bash/functions.bash"; do

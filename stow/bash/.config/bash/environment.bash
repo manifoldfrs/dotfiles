@@ -20,13 +20,20 @@ fi
 
 path_prepend() {
     local entry
+    local remaining=$PATH
     local updated=$1
 
     [[ -d $1 ]] || return
-    while IFS= read -r entry; do
+    while [[ -n $remaining ]]; do
+        entry=${remaining%%:*}
+        if [[ $remaining == *:* ]]; then
+            remaining=${remaining#*:}
+        else
+            remaining=
+        fi
         [[ -z $entry || $entry == "$1" ]] && continue
         updated="$updated:$entry"
-    done < <(printf '%s\n' "$PATH" | tr ':' '\n')
+    done
     PATH=$updated
 }
 

@@ -47,7 +47,7 @@ bash -n scripts/stow.sh
 bash -n scripts/validate-dotfiles.sh
 bash -n mcp_setup.sh
 bash -n test/run_tests.sh test/bash_path_test.sh test/stow_preflight_test.sh
-bash -n stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.blerc stow/bash/.config/bash/*.bash
+bash -n stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash
 ./scripts/validate-dotfiles.sh
 (cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
 ```
@@ -178,7 +178,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 
 ## Known Gotchas
 - Docker tests run on Ubuntu; macOS-only assumptions can break CI parity.
-- Bash, ble.sh, and Starship are the active shell stack; Fish and Zsh under `old/` are rollback-only.
+- Bash, FZF, and Starship are the active shell stack; Fish and Zsh under `old/` are rollback-only.
 - Legacy references to `cursor_setup.sh` may appear in older test/workflow paths; verify current intended script before changing CI logic.
 
 ## Agent Checklist Before Hand-off

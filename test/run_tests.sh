@@ -14,7 +14,7 @@ fail() { echo "[FAIL] $1"; exit 1; }
 echo "[TEST 1] Checking Bash syntax..."
 for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh \
     scripts/setup-optojr-slack-bot.sh \
-    stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.blerc \
+    stow/bash/.bash_profile stow/bash/.bashrc \
     stow/bash/.config/bash/aliases.bash \
     stow/bash/.config/bash/environment.bash \
     stow/bash/.config/bash/functions.bash \
@@ -49,7 +49,6 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >>/tmp/stow-default.log 2>&1 \
     && [ -L "$STOW_TEST_HOME/.bash_profile" ] \
     && [ -L "$STOW_TEST_HOME/.bashrc" ] \
-    && [ -L "$STOW_TEST_HOME/.blerc" ] \
     && [ -L "$STOW_TEST_HOME/.inputrc" ] \
     && find "$STOW_TEST_HOME" -maxdepth 1 -name '.bashrc.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.config/bash/environment.bash" ] \
@@ -78,15 +77,17 @@ grep -q 'name = "catppuccin"' stow/herdr/.config/herdr/config.toml
 grep -q '^default_shell = "/opt/homebrew/bin/bash"$' stow/herdr/.config/herdr/config.toml
 grep -q 'catppuccin-macchiato' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "catppuccin-macchiato"' stow/pi/.pi/agent/settings.json
-test "$(rg '^ble-sabbrev ' stow/bash/.blerc | wc -l | tr -d ' ')" = 171
-grep -q 'source -- "$HOME/.local/share/blesh/ble.sh" --noattach' stow/bash/.bashrc
-grep -q 'mise activate bash' stow/bash/.bashrc
+grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
+grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
+grep -q '^source_cached_init mise-activate mise activate bash$' stow/bash/.bashrc
+grep -q '^source_cached_init zoxide-init zoxide init bash$' stow/bash/.bashrc
+grep -q '^source_cached_init starship-full-init starship init bash --print-full-init$' stow/bash/.bashrc
 grep -q 'detect_extensions = \[\]' stow/bash/.config/starship.toml
 for glyph in '󰘧' '' '' '' '' ''; do
     grep -Fq "$glyph" stow/bash/.config/starship.toml \
         || fail "Starship is missing intended glyph: $glyph"
 done
-pass "Macchiato, MonoLisa, Nerd Font glyphs, 171 Git abbreviations, and bounded Starship detection are configured"
+pass "Macchiato, MonoLisa, Nerd Font glyphs, FZF integration, and bounded Starship detection are configured"
 
 # Test 5: Neovim plugin safety (best effort)
 echo "[TEST 5] Running Neovim plugin safety checks..."
