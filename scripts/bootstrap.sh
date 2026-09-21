@@ -13,8 +13,10 @@ STOW_TARGETS=(
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"
+    "$HOME/.config/opencode/AGENTS.md"
+    "$HOME/.config/opencode/cli.json"
     "$HOME/.config/opencode/opencode.jsonc"
-    "$HOME/.config/opencode/tui.json"
+    "$HOME/.config/opencode/plugins/cb-guards.ts"
     "$HOME/.claude/settings.local.json"
     "$HOME/.config/herdr/config.toml"
     "$HOME/.config/herdr/plugins.txt"
@@ -178,6 +180,21 @@ install_pi_extension_dependencies() {
     (cd "$extension_dir" && npm install --omit=dev --no-package-lock) || warn "TypeSafe Pi extension dependency installation failed"
 }
 
+install_opencode() {
+    local version
+
+    if command -v opencode &> /dev/null; then
+        version="$(opencode --version 2>/dev/null || true)"
+        if [[ "$version" == "opencode v2."* ]]; then
+            info "OpenCode 2 already installed: $version"
+            return
+        fi
+    fi
+
+    info "Installing OpenCode 2..."
+    curl -fsSL https://opencode.ai/v2/install | bash || warn "OpenCode 2 installation failed"
+}
+
 install_amp() {
     if command -v amp &> /dev/null; then
         info "Amp CLI already installed: $(amp --version)"
@@ -192,6 +209,7 @@ main() {
     info "Bootstrapping development environment..."
     install_homebrew
     install_brewfile
+    install_opencode
     apply_dotfiles
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
     install_fisher_plugins

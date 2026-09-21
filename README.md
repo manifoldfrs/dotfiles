@@ -211,8 +211,8 @@ cd ~/dotfiles
 # 4. Verify Node.js works
 node --version
 
-# 5. Install OpenCode (optional, for AI features)
-curl -fsSL https://opencode.ai/install | bash
+# 5. Verify OpenCode 2 (installed by bootstrap)
+opencode --version
 ```
 
 ## Update an Existing Mac / Work Laptop
@@ -592,6 +592,7 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 - **Claude Code**: user-scoped `~/.claude.json`, kept local and configured through `claude mcp`
 - **Codex**: `~/.codex/config.toml`
 - **Pi**: `~/.pi/agent/mcp.json`
+- **OpenCode**: `~/.config/opencode/opencode.jsonc`
 - **Amp**: `~/.config/amp/settings.json`
 
 See `mcp/README.md` for setup instructions and API key configuration.
@@ -604,9 +605,9 @@ Preferred tool usage after setup:
 ### AI Agent Stow Notes
 
 - Pi settings are managed at `stow/pi/.pi/agent/settings.json` and are included in the default Stow profile.
-- Global Pi instructions are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md) and linked to `~/.pi/agent/AGENTS.md`.
+- Global agent instructions are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md), linked to `~/.pi/agent/AGENTS.md`, and exposed to OpenCode through `~/.config/opencode/AGENTS.md`.
   The scripting policy prefers existing tools, then Bash for simple orchestration, then the project's language and runtime when shell tools are a poor fit.
-  Run `/reload` in existing Pi sessions after changing these instructions.
+  Reload existing Pi or OpenCode sessions after changing these instructions.
 - Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer, with no custom model override required.
 - Pi MCP servers are managed at `stow/pi/.pi/agent/mcp.json` and mirror the tracked Codex/OpenCode MCP set: RepoPromptCE, Ref, and exa.
 - Pi loads MCP support through the `npm:pi-mcp-adapter` package declared in settings.
@@ -624,13 +625,13 @@ Preferred tool usage after setup:
   It uses existing RuboCop checks where available and labels manual checks explicitly, rather than installing a custom linter or treating every service object as a defect.
 - [anti-slop-ts](stow/agents/.agents/skills/anti-slop-ts/SKILL.md) vendors dmmulroy's complete anti-slop installer skill, Oxlint plugin source, Effect rules, update workflow, and installer script.
   The skill is exposed locally as `anti-slop-ts`; its bundled plugin infrastructure otherwise matches the upstream `install-anti-slop` skill.
-- Pi discovers `~/.agents/skills/` natively. Claude Code discovers the same catalog through `~/.claude/skills/`. Amp may also discover the shared Agent Skills directory.
+- Pi and OpenCode discover `~/.agents/skills/` natively. Claude Code discovers the same catalog through `~/.claude/skills/`. Amp may also discover the shared Agent Skills directory.
 - Amp login, device identity, thread history, downloaded binaries, and secrets remain local under `~/.amp/` and `~/.local/share/amp/`.
-- OpenCode global config is managed at `stow/opencode/.config/opencode/`.
+- OpenCode 2 is installed by `scripts/bootstrap.sh`; global server config, CLI settings, shared instructions, commands, and plugins are managed at `stow/opencode/.config/opencode/`.
 - Claude Code Stow coverage spans `stow/claude/.claude/`: `settings.json`, `settings.local.json`, `statusline.sh`, the `hooks/` scripts, and the opt-in request logger. Skill links reuse the shared catalog without duplicating files.
 - The tracked statusline at `stow/claude/.claude/statusline.sh` prints the working directory, git branch, active model, and context-window usage (`~/code/personal/dotfiles (master) · Opus 5 · 412k/1M (41%)`), turning yellow at 75% and red at 90%. It requires `jq` and degrades to a short notice without it.
   This matters because `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is set to `95`, so the built-in auto-compact warning stays hidden until the window is nearly full.
-- Claude Code reads a project's `AGENTS.md` directly, so no tracked `CLAUDE.md` pointer file is needed. There is no global rules file for Claude Code; `stow/pi/.pi/agent/AGENTS.md` applies to Pi only.
+- Claude Code reads a project's `AGENTS.md` directly, so no tracked `CLAUDE.md` pointer file is needed. There is no global rules file for Claude Code; the tracked global `AGENTS.md` is shared by Pi and OpenCode.
 - Claude Code uses the native installer's latest release channel with automatic updates enabled. Do not set `DISABLE_AUTOUPDATER` or `DISABLE_UPDATES` in the tracked settings.
 - Claude Code commit and pull request attribution is disabled through empty `attribution.commit` and `attribution.pr` values in the tracked settings.
 - The tracked Claude proxy lives at `stow/claude/.claude/request-logger/claude-log.mjs`; `claude-log` enables it for one process, while captured payloads remain local under `~/.claude/logs/requests/`.
@@ -639,7 +640,7 @@ Preferred tool usage after setup:
 - Codex syntax highlighting uses `stow/codex/.codex/themes/tokyonight-frsh.tmTheme`, selected by `[tui] theme = "tokyonight-frsh"` in `stow/codex/.codex/config.toml`.
 - The `agents` Stow package ignores `.agents` directly so `scripts/stow.sh` can manage folder-level links dynamically. This preserves references, scripts, templates, and metadata inside every skill directory and avoids a hard-coded skill-name list.
 - Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
-- Claude and Codex both use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous bash commands and generated-file edit blockers. The Claude hook files and Codex hook files are harness-specific wrappers around the same implementation.
+- Claude, Codex, and OpenCode use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous shell commands and generated-file edit blockers. Claude and Codex use hook wrappers; OpenCode uses the V2 plugin at `stow/opencode/.config/opencode/plugins/cb-guards.ts`.
 - Claude Code MCP servers are user-scoped, not Stow-managed. The same `RepoPromptCE`, `Ref`, and `exa` set used by Pi is in `~/.claude.json`. Ref uses `${REF_API_KEY}` from `~/.config/fish/local.fish`. Claude currently sends the user-scope Exa placeholder literally, so Exa uses a resolved key only in the untracked owner-readable `~/.claude.json` file.
 - Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML.
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
@@ -930,8 +931,8 @@ dotfiles/
 │   ├── herdr/              # .config/herdr/config.toml
 │   ├── bin/                # .local/bin tools and shared agent guardrail scripts
 │   ├── amp/                # .config/amp/: settings.json and global AGENTS.md
-│   ├── opencode/           # .config/opencode/: opencode.jsonc, tui.json, plugin/cb-guards.ts
-│   ├── agents/             # Shared Agent Skills catalog linked into Pi and Claude Code
+│   ├── opencode/           # .config/opencode/: V2 config, CLI settings, commands, shared rules, guard plugin
+│   ├── agents/             # Shared Agent Skills catalog used by Pi, OpenCode, and Claude Code
 │   ├── claude/             # .claude/: settings, statusline, hooks, request logger
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions

@@ -19,6 +19,12 @@ SHARED_BACKUP_TARGETS=(
     "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
     "$HOME/.local/share/agent-guardrails/code-edit-reminder.txt"
 )
+OPENCODE_BACKUP_TARGETS=(
+    "$HOME/.config/opencode/AGENTS.md"
+    "$HOME/.config/opencode/cli.json"
+    "$HOME/.config/opencode/opencode.jsonc"
+    "$HOME/.config/opencode/plugins/cb-guards.ts"
+)
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/config.toml"
     "$HOME/.codex/hooks.json"
@@ -144,6 +150,33 @@ remove_legacy_tmux_links() {
                 info "Removed archived tmux symlink: $target"
                 ;;
         esac
+    done
+}
+
+remove_legacy_opencode_links() {
+    local target
+
+    for target in "$HOME/.config/opencode/tui.json" "$HOME/.config/opencode/plugin/cb-guards.ts"; do
+        if is_stow_managed_link "$target"; then
+            rm "$target"
+            info "Removed legacy OpenCode symlink: $target"
+        fi
+    done
+
+    rmdir "$HOME/.config/opencode/plugin" 2>/dev/null || true
+}
+
+backup_opencode_stow_targets() {
+    local target
+
+    if ! has_stow_package opencode; then
+        return
+    fi
+
+    mkdir -p "$HOME/.config/opencode/plugins"
+
+    for target in "${OPENCODE_BACKUP_TARGETS[@]}"; do
+        backup_stow_target "$target"
     done
 }
 
@@ -350,8 +383,10 @@ remove_shared_skill_folder_links() {
 
 apply_dotfiles() {
     remove_legacy_tmux_links
+    remove_legacy_opencode_links
     backup_fish_stow_targets
     backup_shared_stow_targets
+    backup_opencode_stow_targets
     backup_pi_stow_targets
     backup_amp_stow_targets
     backup_shared_skill_targets
@@ -370,6 +405,7 @@ dry_run_dotfiles() {
 
 delete_dotfiles() {
     remove_legacy_tmux_links
+    remove_legacy_opencode_links
     remove_shared_skill_folder_links
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"

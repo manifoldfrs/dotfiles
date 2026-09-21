@@ -1,6 +1,6 @@
-# Global Pi Agent Rules
+# Global Agent Rules
 
-These rules apply to every Pi session unless a project `AGENTS.md` overrides them.
+These rules apply to every supported coding-agent session unless a project `AGENTS.md` overrides them.
 
 ## Communication
 

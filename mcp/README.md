@@ -9,6 +9,7 @@ Model Context Protocol (MCP) server configurations for AI coding assistants.
 | **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | **Codex** | `~/.codex/config.toml` → `stow/codex/.codex/config.toml` |
 | **Pi** | `~/.pi/agent/mcp.json` → `stow/pi/.pi/agent/mcp.json` |
+| **OpenCode** | `~/.config/opencode/opencode.jsonc` → `stow/opencode/.config/opencode/opencode.jsonc` |
 | **Amp** | `~/.config/amp/settings.json` → `stow/amp/.config/amp/settings.json` |
 
 ## Setup
@@ -47,6 +48,19 @@ pi
 `stow/pi/.pi/agent/settings.json` installs `npm:pi-mcp-adapter`.
 `stow/pi/.pi/agent/mcp.json` mirrors the tracked Codex/OpenCode MCP set: RepoPromptCE, Ref, and exa.
 
+### OpenCode
+
+OpenCode is Stow-managed by the default dotfiles profile:
+
+```bash
+cd ~/dotfiles
+./scripts/stow.sh apply
+opencode mcp list
+```
+
+`stow/opencode/.config/opencode/opencode.jsonc` configures RepoPromptCE, Ref, and exa using the native OpenCode 2 `mcp.servers` schema.
+RepoPromptCE uses direct tool exposure so OpenCode's shared generated-file guard can inspect its mutation calls.
+
 ### Amp
 
 Amp is Stow-managed by the default dotfiles profile:
@@ -70,6 +84,7 @@ Edit each file and replace placeholders:
 
 Restart Claude Desktop and Codex to apply changes.
 Restart Pi after changing `~/.pi/agent/mcp.json`.
+Reload OpenCode after changing `~/.config/opencode/opencode.jsonc`.
 Restart Amp after changing `~/.config/amp/settings.json`.
 
 ## Backup
@@ -83,6 +98,7 @@ To backup your current MCP configs (with API keys):
 **Note:** Untracked template outputs containing literal API keys are gitignored. Stow-managed configs use environment interpolation and contain no secrets.
 Codex MCP HTTP servers should use `env_http_headers` with `REF_API_KEY` and `EXA_API_KEY`, not API keys embedded in URLs.
 Pi MCP HTTP servers should use adapter header interpolation with `${REF_API_KEY}` and `${EXA_API_KEY}`, not embedded API keys.
+OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` interpolation, not embedded API keys.
 Amp MCP HTTP servers should use header interpolation with `${REF_API_KEY}` and `${EXA_API_KEY}`, not embedded API keys.
 
 ## MCP Servers Used
