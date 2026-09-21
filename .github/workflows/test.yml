@@ -16,24 +16,24 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@master
 
       - name: Install required validation tools
-        run: brew install fish neovim ripgrep stow
+        run: brew install bash neovim ripgrep stow
 
       - name: Validate shell syntax
-        run: |
-          bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh test/run_tests.sh mcp_setup.sh
-          find stow/fish -name '*.fish' -print0 | xargs -0 -n1 fish -n
+        run: bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh test/run_tests.sh mcp_setup.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.blerc stow/bash/.config/bash/*.bash
 
       - name: Check Git portability
         run: |
           ! grep -E '^\s*insteadOf\s*=' stow/git/.gitconfig
           ! grep -E '^\s*sshCommand\s*=' stow/git/.gitconfig
 
-      - name: Verify Fish Stow layout
+      - name: Verify Bash Stow layout
         run: |
           tmp_home="$(mktemp -d)"
-          stow --no-folding -R -t "$tmp_home" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp agents
-          test -L "$tmp_home/.config/fish/config.fish"
-          test -L "$tmp_home/.config/fish/conf.d/catppuccin_macchiato_theme.fish"
+          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp agents
+          test -L "$tmp_home/.bashrc"
+          test -L "$tmp_home/.blerc"
+          test -L "$tmp_home/.inputrc"
+          test -L "$tmp_home/.config/bash/environment.bash"
           test -L "$tmp_home/.config/starship.toml"
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"

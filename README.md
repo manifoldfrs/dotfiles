@@ -1,10 +1,10 @@
 # dotfiles
 
-Configuration files for Fish, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, Fish, and Starship use **Catppuccin Macchiato** with MonoLisaCode 14 pt.
+Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, OpenCode, and Starship use **Catppuccin Macchiato** with MonoLisaCode 14 pt.
 
 ## Theme and font status
 
-- Ghostty, Herdr, Neovim, Pi, Fish, completion menus, and Starship use Catppuccin Macchiato.
+- Ghostty, Herdr, Neovim, Pi, OpenCode, completion menus, and Starship use Catppuccin Macchiato.
 - Neovim uses opaque Macchiato surfaces so Ghostty, Herdr, floats, completion menus, Snacks, and Diffview remain visually coherent.
 - Ghostty uses `MonoLisaCode` at 14 pt with explicit regular, italic, bold, and bold-italic styles.
 - Starship uses the intended Nerd Font glyphs through Ghostty's built-in `Symbols Nerd Font` fallback. See `plans/theme-font-glyph-followups.md`.
@@ -89,10 +89,10 @@ After setup, run `/reload` in Pi and invoke `/skill:optojr`.
 The tracked Pi extension at `stow/pi/.pi/agent/extensions/typesafe-ai/` registers `typesafe_evaluate` as a first-class tool.
 The existing TypeSafe skill explains when and how to structure Jev judgments; the extension performs the authenticated API call and returns typed Choice, Score, and Noul answers.
 
-Keep the API key as machine-local state in `~/.config/fish/local.fish`:
+Keep the API key as machine-local state in `~/.config/bash/local.bash`:
 
-```fish
-set -gx TYPESAFE_API_KEY "YOUR_API_KEY"
+```bash
+export TYPESAFE_API_KEY="YOUR_API_KEY"
 ```
 
 Bootstrap installs the extension's pinned runtime dependency automatically.
@@ -109,9 +109,9 @@ The tool sends only the supplied state and questions to TypeSafe; do not include
 
 ## OpenCode Config
 
-The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and keeps the TUI theme on `tokyonight`.
+The tracked personal OpenCode config lives in `stow/opencode/.config/opencode/`. It manages `RepoPromptCE`, `Ref`, and `exa` MCP servers from `opencode.jsonc` and uses Catppuccin Macchiato in the TUI.
 
-The committed MCP config reads secrets from `REF_API_KEY` and `EXA_API_KEY`. Put real local values in `~/.config/fish/local.fish`, not in git.
+The committed MCP config reads secrets from `REF_API_KEY` and `EXA_API_KEY`. Put real local values in `~/.config/bash/local.bash`, not in git.
 
 Apply only OpenCode config when needed:
 
@@ -224,13 +224,14 @@ Use the daily Stow wrapper when the repo is already on the machine and you just 
 cd ~/dotfiles
 git pull
 
-# 2. Reapply all tracked shell/editor/terminal and Herdr config
-./scripts/stow.sh
+# 2. Validate, then reapply all tracked shell/editor/terminal and Herdr config
+./scripts/validate-dotfiles.sh
+./scripts/stow.sh apply
 
-# First time on this machine? Install Fish, Starship, and the supporting tools:
+# First time on this machine? Install Bash, Starship, and the supporting tools:
 brew bundle --file=Brewfile
-# or only the shell stack:
-# brew install fish starship zoxide fzf ripgrep fd
+# or only the packaged shell stack:
+# brew install bash bash-completion@2 starship zoxide fzf mise ripgrep fd gawk
 
 # 3. Fully quit and reopen your terminal
 
@@ -245,8 +246,8 @@ herdr --version
 Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins.
 
 What this already handles for you:
-- stows Fish, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi, Amp settings, and local bin config
-- configures Herdr with Catppuccin Macchiato, Fish, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
+- stows Bash, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi, Amp settings, and local bin config
+- configures Herdr with Catppuccin Macchiato, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
 What `./scripts/bootstrap.sh` additionally handles for you:
@@ -333,7 +334,7 @@ Start a new Pi session or use `/reload` to refresh the global instructions in an
 
 ### Neovim secret masking and TypeScript tools
 
-- `cloak.nvim` visually masks values in `.env`, `.dev.vars`, selected Fish configuration files, and TOML token assignments.
+- `cloak.nvim` visually masks values in `.env`, `.dev.vars`, selected shell configuration files, and TOML token assignments.
   Use `<leader>uC` to toggle masking.
   This only affects display, not file contents, clipboard access, or agent access.
 - `:TSC` runs the project's TypeScript compiler with `--noEmit` and opens errors in quickfix.
@@ -366,14 +367,17 @@ Use the wrapper for normal dotfile updates:
 
 ```bash
 cd ~/dotfiles
-./scripts/stow.sh
+./scripts/stow.sh dry-run
+./scripts/stow.sh apply
 ```
 
-This defaults to `apply`. The equivalent direct Stow command is:
+With no action, the wrapper defaults to `dry-run` and does not change the live configuration.
+An explicit `apply` runs the isolated preflight before making changes.
+The equivalent unguarded direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp
 ```
 
 ### Run Stow Without Scripts
@@ -384,11 +388,11 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
-stow --no-folding -R -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -n -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude codex pi amp
+stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi amp
 
 ```
 
@@ -401,8 +405,8 @@ stow --no-folding -R -v -t "$HOME" -d stow nvim
 # Herdr only
 stow --no-folding -R -v -t "$HOME" -d stow herdr
 
-# Fish and Starship only
-stow --no-folding -R -v -t "$HOME" -d stow fish
+# Bash and Starship only
+stow --no-folding -R -v -t "$HOME" -d stow bash
 
 # OpenCode only
 stow --no-folding -R -v -t "$HOME" -d stow opencode
@@ -417,27 +421,27 @@ stow --no-folding -R -v -t "$HOME" -d stow pi
 stow --no-folding -R -v -t "$HOME" -d stow amp
 ```
 
-### Fish + Starship setup
+### Bash + Starship setup
 
-The `stow/fish` package provides Fish, the Catppuccin Macchiato syntax/completion palette, Starship, Fisher's plugin list, 171 Git abbreviations, lazy utility functions, completions, fzf bindings, zoxide, and personal tool paths.
+The `stow/bash` package provides Homebrew Bash 5, GNU Readline settings, Starship, ble.sh integration, 171 visible Git abbreviations, bash-completion, fzf bindings, zoxide, mise, and personal tool paths.
 
 Install and apply the default profile:
 
 ```bash
-brew install fish starship zoxide fzf ripgrep fd
-./scripts/stow.sh apply
-exec fish --login
+brew bundle --file=Brewfile
+./scripts/bootstrap.sh
+exec /opt/homebrew/bin/bash --login
 ```
 
-The Homebrew Fish binary is `/opt/homebrew/bin/fish` on Apple Silicon. Ghostty and Herdr launch it explicitly, so changing the macOS account login shell is not required. Machine-local secrets and overrides belong in `~/.config/fish/local.fish`.
+Ghostty and Herdr launch `/opt/homebrew/bin/bash` explicitly. Bootstrap installs ble.sh under `~/.local/share/blesh` and attempts to select Homebrew Bash as the macOS login shell. Machine-local secrets and overrides belong in `~/.config/bash/local.bash`.
 
 #### Prompt and runtime behavior
 
-Starship uses dmmulroy's module order, non-truncated directories, 18-character Git branches, and project-marker-only Node detection. Prompt icons use Ghostty's built-in `Symbols Nerd Font` fallback, which preserves unmodified MonoLisa text while rendering the intended glyphs. The research and verification are recorded in `plans/theme-font-glyph-followups.md`. pyenv and rbenv initialize only when first invoked, while their shims remain available on PATH. NVM is supplied through `jorgebucaran/nvm.fish`.
+Starship keeps non-truncated directories, 18-character Git branches, project-marker-only Node detection, and the existing Nerd Font glyphs. ble.sh supplies autosuggestions, syntax highlighting, visible abbreviations, and fzf integration. GNU Readline supplies history navigation and editable keybindings. mise manages project runtime versions and environments.
 
 #### Rollback
 
-The former Zsh package is preserved under `old/zsh`. To roll back, remove the Fish profile with `./scripts/stow.sh delete`, Stow the archived package explicitly, and point Ghostty and Herdr back to Zsh.
+The former Fish package is preserved under `old/fish`. To roll back, remove the Bash profile with `./scripts/stow.sh delete`, Stow the archived package explicitly, and point Ghostty and Herdr back to Fish.
 
 ### Migrate An Existing Machine
 
@@ -468,13 +472,18 @@ timestamp=$(date +%Y%m%d%H%M%S)
 stow --no-folding -R -v -t "$HOME" -d stow nvim ghostty herdr
 ```
 
-After migration, future updates are just:
+After migration, validate tracked configuration before applying it:
 
 ```bash
 cd ~/dotfiles
 git pull
-./scripts/stow.sh
+./scripts/validate-dotfiles.sh
+./scripts/stow.sh apply
 ```
+
+`stow.sh apply` repeats the isolated preflight before changing the live configuration.
+The preflight checks Bash syntax, sources every Bash startup path 100 times without losing or duplicating PATH entries, applies every package into a temporary home directory, and smoke-tests a clean Bash startup.
+If any check fails, the live home directory is not changed.
 
 ### Preview Changes
 
@@ -512,8 +521,8 @@ Use one package per tool when possible. That keeps `stow nvim`, `stow herdr`, an
 Edit either the `$HOME` path or the repo path. Because Stow creates symlinks, both point to the same file.
 
 ```bash
-nvim ~/.config/fish/config.fish
-nvim ~/dotfiles/stow/fish/.config/fish/config.fish
+nvim ~/.bashrc
+nvim ~/dotfiles/stow/bash/.bashrc
 ```
 
 After editing, check repo changes:
@@ -540,10 +549,11 @@ cd ~/dotfiles
 |------|---------|
 | Full install/update | `./scripts/bootstrap.sh` |
 | Backup shell/editor config | `./scripts/backup.sh` |
-| Apply all Stow packages | `./scripts/stow.sh` |
+| Validate without live changes | `./scripts/validate-dotfiles.sh` |
+| Apply all Stow packages after preflight | `./scripts/stow.sh apply` |
 | Preview all Stow changes | `./scripts/stow.sh dry-run` |
 | Remove all Stow symlinks | `./scripts/stow.sh delete` |
-| Restow fishrc | `stow --no-folding -R -v -t "$HOME" -d stow fish` |
+| Restow Bash config | `stow --no-folding -R -v -t "$HOME" -d stow bash` |
 | Restow OpenCode | `stow --no-folding -R -v -t "$HOME" -d stow opencode` |
 | Restow Claude Code settings | `stow --no-folding -R -v -t "$HOME" -d stow claude` |
 | Run Claude with request logging | `claude-log` |
@@ -559,7 +569,7 @@ cd ~/dotfiles
 | Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
 | Open Lazy UI | `nvim +Lazy` |
 | Open Mason UI | `nvim +Mason` |
-| Shell syntax checks | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh && find stow/fish -name '*.fish' -print0 | xargs -0 -n1 fish -n` |
+| Shell syntax checks | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.blerc stow/bash/.config/bash/*.bash` |
 | Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD` |
 | Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
 
@@ -567,12 +577,12 @@ cd ~/dotfiles
 
 ### Bootstrap (`scripts/bootstrap.sh`)
 
-- **Homebrew** + all packages from `Brewfile` (includes Fish, Starship, Zoxide, Stow, Ghostty, and Herdr)
+- **Homebrew** + all packages from `Brewfile` (includes Bash 5, bash-completion, Starship, Zoxide, mise, Stow, Ghostty, and Herdr)
 - **Starship** prompt with bounded project/runtime detection
-- **Fish** native syntax highlighting and autosuggestions plus the Catppuccin Macchiato palette
+- **ble.sh** syntax highlighting, autosuggestions, visible abbreviations, and fzf integration
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/fish`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
-- **Herdr**: Stow-managed Catppuccin Macchiato config with Fish and preserved `Ctrl-a` workspace, tab, and pane controls
+- **Configs stowed**: `stow/bash`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, `stow/pi`, and `stow/amp` into `$HOME`
+- **Herdr**: Stow-managed Catppuccin Macchiato config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
 - **Global npm packages** from `npm-global-packages.txt`
@@ -641,7 +651,7 @@ Preferred tool usage after setup:
 - The `agents` Stow package ignores `.agents` directly so `scripts/stow.sh` can manage folder-level links dynamically. This preserves references, scripts, templates, and metadata inside every skill directory and avoids a hard-coded skill-name list.
 - Codex hook bindings live in `stow/codex/.codex/hooks.json` and call wrappers under `stow/codex/.codex/hooks/`.
 - Claude, Codex, and OpenCode use the shared guardrail scripts in `stow/bin/.local/share/agent-guardrails/` for dangerous shell commands and generated-file edit blockers. Claude and Codex use hook wrappers; OpenCode uses the V2 plugin at `stow/opencode/.config/opencode/plugins/cb-guards.ts`.
-- Claude Code MCP servers are user-scoped, not Stow-managed. The same `RepoPromptCE`, `Ref`, and `exa` set used by Pi is in `~/.claude.json`. Ref uses `${REF_API_KEY}` from `~/.config/fish/local.fish`. Claude currently sends the user-scope Exa placeholder literally, so Exa uses a resolved key only in the untracked owner-readable `~/.claude.json` file.
+- Claude Code MCP servers are user-scoped, not Stow-managed. The same `RepoPromptCE`, `Ref`, and `exa` set used by Pi is in `~/.claude.json`. Ref uses `${REF_API_KEY}` from `~/.config/bash/local.bash`. Claude currently sends the user-scope Exa placeholder literally, so Exa uses a resolved key only in the untracked owner-readable `~/.claude.json` file.
 - Codex MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables via `env_http_headers`, so no MCP API keys are stored in the Stow-managed TOML.
 - Pi MCP servers use the same `REF_API_KEY` and `EXA_API_KEY` environment variables through adapter header interpolation.
 - OpenCode slash wrappers for the interactive personal skills live in `stow/opencode/.config/opencode/commands/`, so `/show-me`, `/grill-me`, `/grill-me-with-docs`, and `/quiz-me` work there too.
@@ -709,8 +719,8 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 - Ruby formats through Ruby LSP on save, while ERB uses the project's `bundle exec erb-format` through Conform.
 - Existing vim-test mappings support the app's test runner: `<leader>tt` for nearest, `<leader>tf` for file, and `<leader>ts` for suite.
 
-Fish defaults to Homebrew Ruby and puts its Ruby and Bundler executables ahead of inherited rbenv shims.
-After changing shell paths, open a new terminal or run `exec fish` before launching Neovim.
+Bash puts Homebrew Ruby and Bundler ahead of inherited rbenv shims.
+After changing shell paths, open a new terminal or run `exec /opt/homebrew/bin/bash --login` before launching Neovim.
 From the Rails app directory, confirm that this Ruby matches the app's required version, then install Ruby LSP:
 
 ```bash
@@ -892,7 +902,7 @@ CLI cheat sheet:
 
 Use `herdr <resource> --help`, such as `herdr pane --help`, for the complete command reference.
 
-The active config is `stow/herdr/.config/herdr/config.toml` and uses Catppuccin Macchiato tokens with Fish as the pane shell. `C-a s` replaces the former tmux-sessionizer workflow with Herdr's workspace picker.
+The active config is `stow/herdr/.config/herdr/config.toml` and uses Catppuccin Macchiato tokens with Bash as the pane shell. `C-a s` replaces the former tmux-sessionizer workflow with Herdr's workspace picker.
 
 Install agent integrations once per machine:
 
@@ -908,7 +918,7 @@ Generated integration files remain machine-managed. The shared `herdr` skill tea
 
 ## Shell Configuration
 
-Fish manages history natively under `~/.local/share/fish/`, with autosuggestions and syntax highlighting enabled by the shell. The tracked `conf.d` fragments keep startup work bounded: runtime shims are on PATH, pyenv/rbenv initialize lazily, and Starship only probes configured project markers.
+Bash stores interactive history in `~/.bash_history`. ble.sh adds autosuggestions, syntax highlighting, visible abbreviations, and fzf integration; bash-completion supplies command completions; GNU Readline uses the tracked `.inputrc`; Starship renders the prompt; zoxide handles directory jumping; and mise activates project runtime versions and environments.
 
 Cursor and Zed are intentionally archived under `old/cursor/current-archive/` and `old/zed/`. They are not Stow packages and are not restored or rethemed by this migration.
 
@@ -919,13 +929,14 @@ dotfiles/
 ├── scripts/                # Bootstrap, backup, and Stow wrappers
 │   ├── bootstrap.sh        # Full machine bootstrap for non-Stow setup
 │   ├── backup.sh           # Backup current machine config into repo
-│   └── stow.sh             # Apply/delete/dry-run GNU Stow packages
+│   ├── stow.sh             # Apply/delete/dry-run GNU Stow packages
+│   └── validate-dotfiles.sh # Isolated preflight before live Stow apply
 ├── mcp_setup.sh            # MCP config backup/install
 ├── Brewfile                # Homebrew packages
 ├── npm-global-packages.txt # Global npm packages
 ├── CHANGELOG.md            # Change history
 ├── stow/                   # GNU Stow packages, each mirroring $HOME
-│   ├── fish/               # Fish, Starship, Catppuccin, functions/completions
+│   ├── bash/               # Bash, Readline, ble.sh config, Starship, functions
 │   ├── git/                # .gitconfig, .gitignore_global
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── herdr/              # .config/herdr/config.toml
@@ -1000,12 +1011,12 @@ git push
 ## Troubleshooting
 
 **Stow says `WARNING! stowing ... would cause conflicts`**
-- A real file already exists at the target path, for example `~/.config/fish/config.fish` or `~/.config/nvim`.
+- A real file already exists at the target path, for example `~/.bashrc` or `~/.config/nvim`.
 - If you trust the repo version, move the existing file aside and restow:
 
 ```bash
-mv ~/.config/fish/config.fish ~/.config/fish/config.fish.backup.$(date +%Y%m%d%H%M%S)
-stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow fish
+mv ~/.bashrc ~/.bashrc.backup.$(date +%Y%m%d%H%M%S)
+stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow bash
 ```
 
 For a full migration, prefer `./scripts/bootstrap.sh`; it backs up known target paths before stowing.
@@ -1014,7 +1025,7 @@ For a full migration, prefer `./scripts/bootstrap.sh`; it backs up known target 
 - Check the symlink target:
 
 ```bash
-readlink ~/.config/fish/config.fish
+readlink ~/.bashrc
 readlink ~/.config/nvim
 ```
 
@@ -1022,7 +1033,7 @@ readlink ~/.config/nvim
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow fish nvim
+stow --no-folding -R -v -t "$HOME" -d stow bash nvim
 ```
 
 **I edited `~/.config/nvim`, but Git does not show changes**
@@ -1054,7 +1065,7 @@ cd ~/dotfiles && ./scripts/bootstrap.sh
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -D -v -t "$HOME" -d stow fish git ghostty herdr nvim bin opencode claude pi
+stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude pi
 ```
 
 Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
@@ -1087,10 +1098,10 @@ Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 - Re-stow your dotfiles Neovim config and rerun setup: `./scripts/bootstrap.sh`
 - The setup script runs headless `Lazy! restore` to install plugin files from `lazy-lock.json`
 
-**Prompt is plain or Fish coloring is missing after an update?**
-- Check `brew list --versions fish starship zoxide fzf` and run `brew bundle --file=~/dotfiles/Brewfile` for anything missing.
-- Reapply the Fish package with `./scripts/stow.sh apply`, then run `exec fish --login`.
-- Verify the theme fragment is linked at `~/.config/fish/conf.d/catppuccin_macchiato_theme.fish` and Starship is linked at `~/.config/starship.toml`.
+**Prompt is plain or Bash highlighting is missing after an update?**
+- Check `brew list --versions bash bash-completion@2 starship zoxide fzf mise` and run `brew bundle --file=~/dotfiles/Brewfile` for anything missing.
+- Reapply the Bash package with `./scripts/stow.sh apply`, then run `exec /opt/homebrew/bin/bash --login`.
+- Verify `~/.local/share/blesh/ble.sh`, `~/.blerc`, and `~/.config/starship.toml` exist.
 - Private-use prompt glyphs use Ghostty's built-in `Symbols Nerd Font` fallback; see `plans/theme-font-glyph-followups.md`.
 
 **Herdr config not loading?**
@@ -1107,9 +1118,9 @@ Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 - Bare `C-h/j/k/l` navigate Neovim windows, including moving between Neo-tree and editor splits.
 - Use prefixed `C-a h/j/k/l` to navigate Herdr panes.
 
-**nvm not found?**
-- `nvm` is optional now; `scripts/bootstrap.sh` installs Node.js from `Brewfile`
-- `jorgebucaran/nvm.fish` is declared in `fish_plugins`; run `fisher update` and restart Fish if the function is missing
+**A project runtime is missing?**
+- `scripts/bootstrap.sh` installs Node.js from `Brewfile` and activates mise in interactive Bash sessions.
+- Add the project runtime with `mise use`, then open a new shell or run `mise install`.
 
 **Terminal debugging workflow**
 - Go: run `dlv debug` or `dlv test` in a Herdr pane
@@ -1118,4 +1129,4 @@ Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 
 ## Zoxide
 
-Zoxide is installed from `Brewfile` and initialized for interactive Fish sessions. Use `z dotfiles` to jump to frequently used directories.
+Zoxide is installed from `Brewfile` and initialized for interactive Bash sessions. Use `z dotfiles` to jump to frequently used directories.

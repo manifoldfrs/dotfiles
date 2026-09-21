@@ -2,13 +2,14 @@
 
 # Apply or remove GNU Stow-managed dotfiles.
 # Usage: ./scripts/stow.sh [apply|dry-run|delete]
+# With no action, this script performs a dry run and does not change HOME.
 
 set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(fish git ghostty herdr nvim bin opencode claude codex pi amp agents)
+STOW_PACKAGES=(bash git ghostty herdr nvim bin opencode claude codex pi amp agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
@@ -58,7 +59,7 @@ usage() {
     echo "Usage: $0 [apply|dry-run|delete]"
     echo ""
     echo "Commands:"
-    echo "  apply    Restow managed dotfiles into home"
+    echo "  apply    Validate in isolation, then restow managed dotfiles into home"
     echo "  dry-run  Preview Stow changes without modifying files"
     echo "  delete   Remove Stow-managed symlinks from home"
     exit "$status"
@@ -166,6 +167,35 @@ remove_legacy_opencode_links() {
     rmdir "$HOME/.config/opencode/plugin" 2>/dev/null || true
 }
 
+remove_legacy_fish_links() {
+    local link_dest
+    local target
+
+    if [ -d "$HOME/.config/fish" ]; then
+        while IFS= read -r target; do
+            link_dest="$(readlink "$target")"
+            case "$link_dest" in
+                *dotfiles/stow/fish/*|*"$DOTFILES_DIR/stow/fish/"*)
+                    rm "$target"
+                    info "Removed archived Fish symlink: $target"
+                    ;;
+            esac
+        done < <(find "$HOME/.config/fish" -type l | sort)
+        find "$HOME/.config/fish" -depth -type d -empty -delete 2>/dev/null || true
+    fi
+
+    target="$HOME/.config/starship.toml"
+    if [ -L "$target" ]; then
+        link_dest="$(readlink "$target")"
+        case "$link_dest" in
+            *dotfiles/stow/fish/*|*"$DOTFILES_DIR/stow/fish/"*)
+                rm "$target"
+                info "Removed archived Fish Starship symlink: $target"
+                ;;
+        esac
+    fi
+}
+
 backup_opencode_stow_targets() {
     local target
 
@@ -208,21 +238,18 @@ backup_shared_stow_targets() {
     done
 }
 
-backup_fish_stow_targets() {
-    local package
+backup_bash_stow_targets() {
     local source
     local relative
 
-    for package in fish; do
-        if ! has_stow_package "$package"; then
-            continue
-        fi
+    if ! has_stow_package bash; then
+        return
+    fi
 
-        while IFS= read -r source; do
-            relative="${source#"$STOW_DIR/$package/"}"
-            backup_stow_target "$HOME/$relative"
-        done < <(find "$STOW_DIR/$package" -type f | sort)
-    done
+    while IFS= read -r source; do
+        relative="${source#"$STOW_DIR/bash/"}"
+        backup_stow_target "$HOME/$relative"
+    done < <(find "$STOW_DIR/bash" -type f | sort)
 }
 
 backup_codex_stow_targets() {
@@ -275,7 +302,7 @@ backup_shared_skill_targets() {
 }
 
 parse_args() {
-    ACTION=apply
+    ACTION=dry-run
 
     while [ "$#" -gt 0 ]; do
         case "$1" in
@@ -382,9 +409,13 @@ remove_shared_skill_folder_links() {
 }
 
 apply_dotfiles() {
+    info "Running isolated preflight before changing $HOME"
+    "$DOTFILES_DIR/scripts/validate-dotfiles.sh" "$DOTFILES_DIR" "${STOW_PACKAGES[@]}"
+
     remove_legacy_tmux_links
     remove_legacy_opencode_links
-    backup_fish_stow_targets
+    remove_legacy_fish_links
+    backup_bash_stow_targets
     backup_shared_stow_targets
     backup_opencode_stow_targets
     backup_pi_stow_targets
@@ -406,6 +437,7 @@ dry_run_dotfiles() {
 delete_dotfiles() {
     remove_legacy_tmux_links
     remove_legacy_opencode_links
+    remove_legacy_fish_links
     remove_shared_skill_folder_links
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"

@@ -29,8 +29,8 @@ Agent behavior:
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
-- `stow/herdr/`, `stow/ghostty/`, `stow/fish/`, `stow/git/` - user config files
-- `old/` - archived Zsh, Cursor, Zed, and other legacy areas (avoid unless explicitly requested)
+- `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files
+- `old/` - archived Fish, Zsh, Cursor, Zed, and other legacy areas (avoid unless explicitly requested)
 
 Subdirectory guides:
 - `stow/nvim/AGENTS.md`
@@ -44,9 +44,11 @@ Subdirectory guides:
 bash -n scripts/bootstrap.sh
 bash -n scripts/backup.sh
 bash -n scripts/stow.sh
+bash -n scripts/validate-dotfiles.sh
 bash -n mcp_setup.sh
-bash -n test/run_tests.sh
-find stow/fish -name '*.fish' -print0 | xargs -0 -n1 fish -n
+bash -n test/run_tests.sh test/bash_path_test.sh test/stow_preflight_test.sh
+bash -n stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.blerc stow/bash/.config/bash/*.bash
+./scripts/validate-dotfiles.sh
 (cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
 ```
 
@@ -67,6 +69,9 @@ bash test/run_tests.sh
 bash -n scripts/bootstrap.sh
 bash -n scripts/backup.sh
 bash -n scripts/stow.sh
+bash -n scripts/validate-dotfiles.sh
+bash test/bash_path_test.sh "$PWD"
+bash test/stow_preflight_test.sh "$PWD"
 
 # MCP script syntax gate
 bash -n mcp_setup.sh
@@ -115,11 +120,11 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 - Use early failure (`exit 1`) for critical checks.
 - For optional installs, warn and continue rather than hard-fail.
 
-### Fish Style (`stow/fish/**/*.fish`)
-- Use Fish-native `set`, `fish_add_path`, `and`/`or`, and function files instead of translating POSIX shell syntax literally.
-- Keep interactive-only initialization behind `status is-interactive`.
-- Prefer lazy function files for language-manager or command startup work.
-- Validate every tracked Fish file with `fish -n`.
+### Interactive Bash Style (`stow/bash/`)
+- Target Homebrew Bash 5 while keeping ordinary shell functions readable and portable where practical.
+- Keep environment setup in `.config/bash/environment.bash`, aliases in `aliases.bash`, and functions in `functions.bash`.
+- Keep interactive-only initialization after the `.bashrc` interactive-shell guard.
+- Validate every tracked Bash file with `bash -n`.
 
 ### Lua Style (`stow/nvim/.config/nvim/**/*.lua`)
 - Indentation: 2 spaces, no tabs.
@@ -151,11 +156,19 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 - Prefer idempotent setup logic (safe to rerun).
 - In Lua, avoid crashing startup for optional integrations; guard risky calls when needed.
 
+### Live Configuration Approval Gate
+- Treat the live home directory and running terminal applications as production infrastructure.
+- Editing tracked sources does not authorize applying them to the live configuration.
+- Do not run `scripts/stow.sh apply`, `scripts/bootstrap.sh`, package installation or removal, shell changes, service reloads, or direct writes under `$HOME` unless the user separately and explicitly approves the live mutation after reviewing the planned changes and validation results.
+- Use `scripts/stow.sh dry-run`, `scripts/validate-dotfiles.sh`, and temporary home directories for validation before requesting approval.
+- Never run `chsh` or modify `/etc/shells` for the user.
+- After approval, run the smallest live mutation necessary and immediately verify the affected public behavior.
+
 ## Security and Secrets
 - Never commit API keys/tokens or real local credentials.
 - Real MCP configs (`mcp/*.json`, `mcp/*.toml`) are local; keep templates in `mcp/*.example`.
 - Preserve placeholders like `YOUR_*` in examples.
-- Treat `~/.config/fish/local.fish` as sensitive, machine-local content.
+- Treat `~/.config/bash/local.bash` as sensitive, machine-local content.
 
 ## Change Management Expectations
 - Update `README.md` when user-facing commands/keymaps/setup behavior changes.
@@ -165,7 +178,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 
 ## Known Gotchas
 - Docker tests run on Ubuntu; macOS-only assumptions can break CI parity.
-- Fish and Starship are the active shell stack; Zsh packages under `old/` are rollback-only.
+- Bash, ble.sh, and Starship are the active shell stack; Fish and Zsh under `old/` are rollback-only.
 - Legacy references to `cursor_setup.sh` may appear in older test/workflow paths; verify current intended script before changing CI logic.
 
 ## Agent Checklist Before Hand-off

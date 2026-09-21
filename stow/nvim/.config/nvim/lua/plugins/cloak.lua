@@ -16,6 +16,11 @@ return {
         replace = "%1",
       },
       {
+        file_pattern = { "local.bash", "secrets.bash" },
+        cloak_pattern = "^(%s*export%s+[%w_]+%=).+",
+        replace = "%1",
+      },
+      {
         file_pattern = "config.toml",
         cloak_pattern = "(token%s*=%s*).+",
         replace = "%1",

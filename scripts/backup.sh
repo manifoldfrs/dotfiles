@@ -72,7 +72,7 @@ backup_warp_themes() {
     cp -R "$HOME/.warp/themes" "$DOTFILES_DIR/warp/"
 }
 
-backup_fish_package() {
+backup_stow_package() {
     local package=$1
     local tracked
     local relative
@@ -87,7 +87,7 @@ backup_shared_config() {
     info "Backing up shell/editor configuration..."
 
     export_brewfile
-    backup_fish_package fish
+    backup_stow_package bash
     copy_file "$HOME/.gitconfig" "$STOW_DIR/git/.gitconfig" ".gitconfig"
     copy_file "$HOME/.gitignore_global" "$STOW_DIR/git/.gitignore_global" ".gitignore_global"
     copy_file "$HOME/.config/ghostty/config" "$STOW_DIR/ghostty/.config/ghostty/config" "Ghostty config"

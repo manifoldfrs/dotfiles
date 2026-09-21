@@ -7,8 +7,13 @@ set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_TARGETS=(
-    "$HOME/.config/fish/config.fish"
-    "$HOME/.config/fish/fish_plugins"
+    "$HOME/.bash_profile"
+    "$HOME/.bashrc"
+    "$HOME/.blerc"
+    "$HOME/.inputrc"
+    "$HOME/.config/bash/aliases.bash"
+    "$HOME/.config/bash/environment.bash"
+    "$HOME/.config/bash/functions.bash"
     "$HOME/.config/starship.toml"
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
@@ -100,7 +105,7 @@ backup_stow_target() {
 }
 
 backup_existing_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/fish" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
 
     for target in "${STOW_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -112,20 +117,62 @@ apply_dotfiles() {
     "$DOTFILES_DIR/scripts/stow.sh" apply
 }
 
-install_fisher_plugins() {
-    if ! command -v fish &> /dev/null; then
-        warn "Fish not found, skipping Fisher plugins"
+install_blesh() {
+    local blesh_commit=d81fd54feb0d996fdff20dca27eaf0201f7015cc
+    local checkout_dir
+
+    if [ -r "$HOME/.local/share/blesh/ble.sh" ]; then
+        info "ble.sh already installed"
         return
     fi
 
-    info "Installing Fisher and declared Fish plugins..."
-    fish -c '
-        if not functions -q fisher
-            curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
-            fisher install jorgebucaran/fisher
-        end
-        fisher update
-    ' || warn "Fisher plugin installation failed"
+    if ! command -v git &> /dev/null || ! command -v make &> /dev/null; then
+        warn "git and make are required to install ble.sh"
+        return
+    fi
+
+    checkout_dir="$(mktemp -d)"
+    info "Installing ble.sh..."
+    if git clone --filter=blob:none https://github.com/akinomyoga/ble.sh.git "$checkout_dir/ble.sh" \
+        && git -C "$checkout_dir/ble.sh" checkout "$blesh_commit" \
+        && git -C "$checkout_dir/ble.sh" submodule update --init --recursive \
+        && make -C "$checkout_dir/ble.sh" install PREFIX="$HOME/.local"; then
+        info "ble.sh installed"
+    else
+        warn "ble.sh installation failed"
+    fi
+    rm -rf "$checkout_dir"
+}
+
+configure_bash_login_shell() {
+    local bash_path
+    local current_shell
+
+    if command -v brew &> /dev/null && [ -x "$(brew --prefix bash)/bin/bash" ]; then
+        bash_path="$(brew --prefix bash)/bin/bash"
+    else
+        bash_path="$(command -v bash)"
+    fi
+    current_shell="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
+    if [ "$current_shell" = "$bash_path" ]; then
+        info "Login shell already uses $bash_path"
+        return
+    fi
+
+    if ! grep -Fxq "$bash_path" /etc/shells; then
+        if sudo -n true 2>/dev/null; then
+            printf '%s\n' "$bash_path" | sudo tee -a /etc/shells >/dev/null
+        else
+            warn "Add $bash_path to /etc/shells, then run: chsh -s $bash_path"
+            return
+        fi
+    fi
+
+    if sudo -n chsh -s "$bash_path" "$USER" 2>/dev/null; then
+        info "Changed login shell to $bash_path"
+    else
+        warn "Run this to change the login shell: chsh -s $bash_path"
+    fi
 }
 
 sync_neovim_plugins() {
@@ -212,14 +259,15 @@ main() {
     install_opencode
     apply_dotfiles
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
-    install_fisher_plugins
+    install_blesh
+    configure_bash_login_shell
     sync_neovim_plugins
     install_npm_globals
     install_pi_extension_dependencies
     install_amp
 
     echo ""
-    info "Bootstrap complete! Restart Ghostty or run: exec fish --login"
+    info "Bootstrap complete! Restart Ghostty or run: exec \"$(brew --prefix bash)/bin/bash\" --login"
 }
 
 main
