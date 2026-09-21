@@ -12,6 +12,7 @@
     "enabled": false
   },
   "keybinds": {
+    "model.dialog.provider": "ctrl+shift+p",
     "model.list": [
       "<leader>m",
       "alt+p"
