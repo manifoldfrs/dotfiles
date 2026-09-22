@@ -100,7 +100,7 @@ The `opencode` Stow package owns the tracked sources under `stow/opencode/.confi
 | `plugins/typesafe-ai/` | TypeSafe Jev tool |
 | `plugins/tui-conveniences/` | `/copy-all`, skill-load confirmations, and the Git status footer |
 
-New sessions use `openai/gpt-5.6-sol-fast` with medium reasoning effort and low response verbosity.
+New sessions use `openai/gpt-6-sol-fast` with medium reasoning effort and low response verbosity.
 The TUI hides the session sidebar and persistent tab strip.
 The TUI also provides Pi-style navigation shortcuts.
 
