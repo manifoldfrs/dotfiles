@@ -26,7 +26,12 @@
         "gpt-6-sol-fast": {
           "settings": {
             "reasoningEffort": "medium",
-            "textVerbosity": "low"
+            "textVerbosity": "medium"
+          }
+        },
+        "gpt-6-luna": {
+          "settings": {
+            "textVerbosity": "medium"
           }
         },
         "gpt-6-astra": {
