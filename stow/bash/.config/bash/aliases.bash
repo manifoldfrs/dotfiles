@@ -9,6 +9,7 @@ alias pn='pnpm'
 alias vimdiff='nvim -d'
 alias wr='wrangler'
 alias cc='claude'
+alias ccc='claude --continue'
 alias oc='opencode'
 
 if [[ $(uname -m) == arm64 && -x /opt/homebrew/bin/brew ]]; then
