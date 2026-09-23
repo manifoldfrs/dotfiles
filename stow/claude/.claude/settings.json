@@ -96,8 +96,16 @@
     }
   },
   "channelsEnabled": false,
+  "theme": "auto",
+  "editorMode": "vim",
+  "preferredNotifChannel": "ghostty",
   "switchModelsOnFlag": false,
+  "inputNeededNotifEnabled": false,
   "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(psql:*) writes against non-local/production database targets in this repo — Production Reads/Deploy overlap not fully covered by defaults for raw psql invocations"
+    ],
     "environment": [
       "### Org-wide",
       "**Organization**: joinopto (GitHub org; origin remote is github.com:joinopto/opto2.git)",
@@ -124,10 +132,6 @@
       "**Trusted repo**: /Users/frshbb/code/optoai/opto2 (github.com:joinopto/opto2.git, private) — confidential material is fine here; content ported from outside this repo is not its own work",
       "**Org-specific CLIs**: None configured",
       "routine under joinopto/opto2 prefix: git and bundle/rails operations scoped to this trusted repo and its origin remote"
-    ],
-    "soft_deny": [
-      "$defaults",
-      "Bash(psql:*) writes against non-local/production database targets in this repo — Production Reads/Deploy overlap not fully covered by defaults for raw psql invocations"
     ]
   }
 }

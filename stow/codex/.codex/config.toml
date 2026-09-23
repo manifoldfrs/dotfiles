@@ -4,8 +4,10 @@ model_verbosity = "low"
 tool_output_token_limit = 25000
 personality = "pragmatic"
 approvals_reviewer = "user"
-
-notify = ["/Users/frshbb/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+notify = [
+    "/Users/frshbb/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
+    "turn-ended",
+]
 service_tier = "fast"
 
 [projects."/Users/frshbb/code"]
@@ -98,6 +100,12 @@ enabled = true
 [plugins."computer-use@openai-bundled"]
 enabled = true
 
+[plugins."plannotator@plannotator"]
+enabled = true
+
+[plugins."typesafe@typesafe-ai"]
+enabled = true
+
 [tui]
 theme = "tokyonight-frsh"
 
@@ -117,14 +125,18 @@ approval_mode = "approve"
 [mcp_servers.Ref]
 type = "http"
 url = "https://api.ref.tools/mcp"
-env_http_headers = { "x-ref-api-key" = "REF_API_KEY" }
 enabled = true
+
+[mcp_servers.Ref.env_http_headers]
+x-ref-api-key = "REF_API_KEY"
 
 [mcp_servers.exa]
 type = "http"
 url = "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
-env_http_headers = { "x-api-key" = "EXA_API_KEY" }
 enabled = true
+
+[mcp_servers.exa.env_http_headers]
+x-api-key = "EXA_API_KEY"
 
 [mcp_servers.node_repl]
 args = []
@@ -143,8 +155,8 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.915.31945"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.915.31945/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.917.62051"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.917.62051/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/frshbb/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
@@ -153,8 +165,6 @@ command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.
 args = ["mcp"]
 cwd = "."
 enabled = false
-
-[hooks.state]
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:23a8ebf007ace63070ce68117cc10069ec15dae1861e6913cf7de5eae02e297f"
@@ -196,6 +206,8 @@ appearanceLightCodeThemeId = "tokyo-night"
 appearanceTheme = "dark"
 appearanceDarkCodeThemeId = "tokyo-night"
 usePointerCursors = true
+external-agent-import-sync-enabled = true
+external-agent-import-sync-item-types = "all"
 
 [desktop.open-in-target-preferences]
 global = "ghostty"
@@ -239,8 +251,27 @@ source = "/Users/frshbb/.codex/.tmp/bundled-marketplaces/openai-bundled"
 source_type = "local"
 source = "/Users/frshbb/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
+[marketplaces.plannotator]
+source_type = "git"
+source = "https://github.com/backnotprop/plannotator.git"
+
+[marketplaces.typesafe-ai]
+source_type = "git"
+source = "https://github.com/typesafe-ai/skills.git"
+
+[shell_environment_policy]
+inherit = "core"
+
 [shell_environment_policy.set]
 NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "028a14b6eaa6d98dac2aae00764345ab9f244801ed8493d42b9af3be5575006e,f204d340535055781952b10ed396de20b842f00a19e430852f7e121ad1ce91f6"
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "95"
+ENABLE_PROMPT_CACHING_1H = "1"
+CLAUDE_CODE_ALWAYS_ENABLE_EFFORT = "1"
+CLAUDE_CODE_WORKFLOWS = "1"
+CLAUDE_CODE_MAX_OUTPUT_TOKENS = "128000"
+ENABLE_TOOL_SEARCH = "true"
+MAX_MCP_OUTPUT_TOKENS = "30000"
+MCP_TIMEOUT = "60000"
 
 [memories]
 generate_memories = true
