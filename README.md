@@ -611,8 +611,8 @@ Preferred tool usage after setup:
 
 #### Shared rules and skills
 
-Global agent rules are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md).
-The `pi` and `opencode` Stow packages expose this file to Pi and OpenCode.
+Global agent rules are tracked in [stow/claude/.claude/AGENTS.md](stow/claude/.claude/AGENTS.md).
+The `pi`, `opencode`, and `codex` Stow packages link to this file, so Claude Code, Pi, OpenCode, and Codex share one copy.
 Reload existing sessions after you change the rules.
 
 The shared skill catalog is tracked once under `stow/agents/.agents/skills/`.

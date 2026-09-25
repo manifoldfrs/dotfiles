@@ -1,1 +1,1 @@
-../../../pi/.pi/agent/AGENTS.md
+../../../claude/.claude/AGENTS.md

@@ -28,6 +28,7 @@ OPENCODE_BACKUP_TARGETS=(
     "$HOME/.config/opencode/plugins/tui-conveniences"
 )
 CODEX_BACKUP_TARGETS=(
+    "$HOME/.codex/AGENTS.md"
     "$HOME/.codex/config.toml"
     "$HOME/.codex/hooks.json"
     "$HOME/.codex/hooks/block-dangerous-bash.sh"
