@@ -20,13 +20,6 @@
         "x-api-key": "${EXA_API_KEY}"
       },
       "directTools": true
-    },
-    "RepoPromptCE": {
-      "type": "stdio",
-      "command": "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp",
-      "args": [],
-      "env": {},
-      "directTools": true
     }
   }
 }

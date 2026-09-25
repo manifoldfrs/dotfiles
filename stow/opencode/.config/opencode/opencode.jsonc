@@ -63,18 +63,6 @@
   },
   "mcp": {
     "servers": {
-      "RepoPromptCE": {
-        "type": "local",
-        "command": [
-          "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp"
-        ],
-        "disabled": false,
-        "codemode": false,
-        "timeout": {
-          "catalog": 3600000,
-          "execution": 3600000
-        }
-      },
       "ref": {
         "type": "remote",
         "url": "https://api.ref.tools/mcp?apiKey={env:REF_API_KEY}",

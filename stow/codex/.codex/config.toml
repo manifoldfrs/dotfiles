@@ -112,16 +112,6 @@ theme = "tokyonight-frsh"
 [tui.model_availability_nux]
 "gpt-5.5" = 4
 
-[mcp_servers.RepoPromptCE]
-command = "/Applications/RepoPrompt CE.app/Contents/MacOS/repoprompt-mcp"
-args = []
-tool_timeout_sec = 10000
-supports_parallel_tool_calls = true
-enabled = true
-
-[mcp_servers.RepoPromptCE.tools.apply_edits]
-approval_mode = "approve"
-
 [mcp_servers.Ref]
 type = "http"
 url = "https://api.ref.tools/mcp"

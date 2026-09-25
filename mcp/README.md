@@ -45,7 +45,7 @@ pi
 ```
 
 `stow/pi/.pi/agent/settings.json` installs `npm:pi-mcp-adapter`.
-`stow/pi/.pi/agent/mcp.json` mirrors the tracked Codex/OpenCode MCP set: RepoPromptCE, Ref, and exa.
+`stow/pi/.pi/agent/mcp.json` mirrors the tracked Codex/OpenCode MCP set: Ref and exa.
 
 ### OpenCode
 
@@ -57,8 +57,7 @@ cd ~/dotfiles
 opencode mcp list
 ```
 
-`stow/opencode/.config/opencode/opencode.jsonc` configures RepoPromptCE, Ref, and exa using the native OpenCode 2 `mcp.servers` schema.
-RepoPromptCE uses direct tool exposure so OpenCode's shared generated-file guard can inspect its mutation calls.
+`stow/opencode/.config/opencode/opencode.jsonc` configures Ref and exa using the native OpenCode 2 `mcp.servers` schema.
 
 ### API keys
 
@@ -86,7 +85,6 @@ OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` inte
 
 ## MCP Servers Used
 
-- **RepoPromptCE** - Local file system access via the RepoPrompt CE app
 - **Ref** - Documentation search
 - **Exa** - Web search
 - **Context7** - Library documentation

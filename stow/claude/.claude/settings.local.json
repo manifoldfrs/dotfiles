@@ -6,8 +6,7 @@
       "Bash(python3 -m json.tool)",
       "Bash(python3 *)",
       "mcp__Ref__ref_search_documentation",
-      "mcp__exa__web_search_exa",
-      "mcp__RepoPromptCE__file_search"
+      "mcp__exa__web_search_exa"
     ]
   }
 }

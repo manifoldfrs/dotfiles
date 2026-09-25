@@ -14,23 +14,11 @@ These rules apply to every supported coding-agent session unless a project `AGEN
 
 ## Tool Preferences
 
-Prefer RepoPromptCE MCP tools for codebase work when available.
-
-| Task | Prefer |
-| --- | --- |
-| Search file contents or paths | `RepoPromptCE_file_search` |
-| Browse directory trees | `RepoPromptCE_get_file_tree` |
-| Read files | `RepoPromptCE_read_file` |
-| Edit files | `RepoPromptCE_apply_edits` |
-| Create, delete, or move files | `RepoPromptCE_file_actions` |
-| Inspect code structure | `RepoPromptCE_get_code_structure` |
-| Git status, diff, log, blame | `RepoPromptCE_git` |
-
 Use normal shell commands for validation, tests, package commands, and write-side git operations such as commits and pushes.
 
 ### Scripting Language Selection
 
-- Prefer existing project scripts and CLI tools, while following the RepoPromptCE tool preferences above.
+- Prefer existing project scripts and CLI tools.
 - Use Bash for simple command orchestration.
 - When shell tools are a poor fit, use the project's primary language and existing runtime, following its scripting conventions.
 - Inspect project manifests and existing scripts before choosing a language or runtime.

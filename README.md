@@ -96,7 +96,7 @@ The `opencode` Stow package owns the tracked sources under `stow/opencode/.confi
 | --- | --- |
 | `opencode.jsonc` | Model defaults, permissions, MCP servers, providers, skills, and global instructions |
 | `cli.json` | Tokyo Night, TUI layout, permission handling, and keybindings |
-| `commands/` | Slash commands such as `/lg`, `/rp`, `/rp-plan`, `/rp-review`, `/rp-search`, and `/rp-tree` |
+| `commands/` | Slash commands such as `/lg` |
 | `plugins/typesafe-ai/` | TypeSafe Jev tool |
 | `plugins/tui-conveniences/` | `/copy-all`, skill-load confirmations, and the Git status footer |
 
@@ -604,7 +604,6 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 See `mcp/README.md` for setup instructions and API key configuration.
 
 Preferred tool usage after setup:
-- Use `RepoPromptCE_*` tools for repo discovery, file reads, selection management, planning, review, and git context whenever RepoPromptCE is available.
 - Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
 - Use exa for web search and page fetches when current web context is needed.
 
@@ -635,7 +634,7 @@ Ask it to review a diff for findings only, or ask it to clean up a diff to autho
 #### Pi
 
 The `pi` Stow package owns settings, MCP configuration, prompts, themes, and extensions under `stow/pi/.pi/agent/`.
-Pi uses RepoPromptCE, Ref, and exa through `npm:pi-mcp-adapter`.
+Pi uses Ref and exa through `npm:pi-mcp-adapter`.
 The MCP adapter reads `REF_API_KEY` and `EXA_API_KEY` from the environment.
 Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer.
 
@@ -655,7 +654,7 @@ OpenCode plugins are separate harness adapters with separate owners:
 
 OpenCode discovers the shared catalog under `~/.agents/skills/` as native skills.
 OpenCode 2 does not derive slash entries from skills, so each skill also has a thin wrapper command under `stow/opencode/.config/opencode/commands/<skill-id>.md` that loads it through `/skill-id`, and the TUI conveniences plugin confirms native skill activation with a success toast.
-The separate `stow/opencode/.config/opencode/commands/` directory is reserved for prompt macros such as `/lg` and the `/rp*` RepoPrompt commands.
+The separate `stow/opencode/.config/opencode/commands/` directory is reserved for prompt macros such as `/lg`.
 
 #### Claude Code
 

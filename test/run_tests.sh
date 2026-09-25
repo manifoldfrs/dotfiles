@@ -57,7 +57,6 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/commands/lg.md" ] \
-    && [ -L "$STOW_TEST_HOME/.config/opencode/commands/rp.md" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/package.json" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/optojr-slack/package.json" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/package.json" ] \

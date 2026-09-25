@@ -85,33 +85,6 @@ Applies only to comments on GitHub or GHE pull requests. Overrides the Response 
 
 ---
 
-## Tool Preferences
-
-MUST use RepoPromptCE MCP tools (`mcp__RepoPromptCE__*`) in place of the built-in equivalents listed below. RepoPromptCE tools are optimized for reliability and token efficiency. If the RepoPromptCE MCP server is not connected in the current session, let the user know so they can attempt to reconnect, otherwise fall back to the built-in equivalent.
-
-| Task                                 | MUST use                                             | MUST NOT use                     |
-| ------------------------------------ | ---------------------------------------------------- | -------------------------------- |
-| Search file contents or paths        | `mcp__RepoPromptCE__file_search`                       | `Grep`, `Glob`                   |
-| Browse directory tree                | `mcp__RepoPromptCE__get_file_tree`                     | `Bash ls`, `Bash find`           |
-| Read files                           | `mcp__RepoPromptCE__read_file`                         | `Read`, `Bash cat/head/tail`     |
-| Edit files (targeted changes)        | `mcp__RepoPromptCE__apply_edits` (search/replace mode) | `Edit`                           |
-| Write or rewrite files               | `mcp__RepoPromptCE__apply_edits` (rewrite mode)        | `Write`                          |
-| Inspect function and type signatures | `mcp__RepoPromptCE__get_code_structure`                | manual grep for signatures       |
-| Create, delete, or move files        | `mcp__RepoPromptCE__file_actions`                      | `Bash mv/rm/cp/mkdir`            |
-| Git status, diff, log, blame         | `mcp__RepoPromptCE__git`                               | `Bash git` for read-only queries |
-
-Additional RepoPromptCE tools to use when relevant:
-
-- `mcp__RepoPromptCE__context_builder`: Build deep codebase context before implementing or reviewing. Use with `response_type="plan"` before writing code and `response_type="review"` before submitting a review.
-- `mcp__RepoPromptCE__oracle_send`: Continue a `context_builder` chat by passing its returned `chat_id`. Use for follow-up questions within the same context session.
-- `mcp__RepoPromptCE__manage_selection`: Curate the file context used by `oracle_send` and `mcp__RepoPromptCE__workspace_context`. Update before oracle calls.
-- `mcp__RepoPromptCE__agent_run`: Delegate to a separate Agent Mode session. Use the `explore` role for lightweight codebase investigation before starting implementation.
-- `mcp__RepoPromptCE__bind_context`: Route context to a specific workspace tab when running parallel tasks.
-
-The only exception is `Bash` for write-side git operations (commit, push, branch creation) and for shell commands that have no RepoPromptCE equivalent. All read-side file and search operations MUST go through RepoPromptCE.
-
----
-
 ## Implementation Rules
 
 These rules fire at specific moments during implementation. Each states its trigger. When the trigger fires, execute the rule immediately.

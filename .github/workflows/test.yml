@@ -37,7 +37,6 @@ jobs:
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"
           test -L "$tmp_home/.config/opencode/commands/lg.md"
-          test -L "$tmp_home/.config/opencode/commands/rp.md"
           test -L "$tmp_home/.config/opencode/plugins/typesafe-ai/package.json"
           test -L "$tmp_home/.config/opencode/plugins/optojr-slack/package.json"
           test -L "$tmp_home/.config/opencode/plugins/tui-conveniences/package.json"
