@@ -280,7 +280,7 @@ No need for a templating tool like chezmoi. Stow is fine.
 
 | File | Issue | Fix |
 |---|---|---|
-| `stow/herdr/.config/herdr/config.toml` | `default_shell = "/opt/homebrew/bin/bash"` doesn't exist on Linux. | **Delete the line.** When it's missing, herdr uses `$SHELL`. On your Mac, `$SHELL` is already `/opt/homebrew/bin/bash`, so nothing changes there. On the box it's the system Bash 5. |
+| `stow/herdr/.config/herdr/config.toml` | `default_shell = "/opt/homebrew/bin/bash"` doesn't exist on Linux. | **Changed to `default_shell = "bash"`.** herdr looks the name up on its `PATH`, which finds Homebrew Bash 5 on the Mac and the system Bash on Linux. Deleting the line didn't work: herdr then uses the `$SHELL` it started with, and a long-running herdr server can still have an old value (yours had `/bin/zsh`). |
 | `stow/claude/.claude/settings.json` | The `autoMode.environment` "Trusted repo" line says `/Users/frshbb/code/optoai/opto2`. | Change it to `~/code/optoai/opto2`. These lines are plain-English notes to the auto mode checker, not exact path matches, so `~` works on both machines. The line already names the GitHub remote, which is the same everywhere. |
 | `stow/bash/.config/bash/functions.bash` (`claude-log`) | Sets `ANTHROPIC_BASE_URL`, which turns Remote Control off. | No change. `claude-log` sends requests through your local request logger, and Remote Control only works when requests go straight to Anthropic. Use plain `claude --rc` for sessions you want on your phone. |
 
@@ -292,7 +292,7 @@ Your config also doesn't set any of the environment variables that disable Remot
 ### Done (2026-09-26)
 
 - [x] Spec reviewed and approved.
-- [x] Removed `default_shell` from `stow/herdr/.config/herdr/config.toml`.
+- [x] Set `default_shell = "bash"` in `stow/herdr/.config/herdr/config.toml`, reloaded herdr, and confirmed new panes start Homebrew Bash 5.3.
 - [x] Changed the auto mode "Trusted repo" path in `stow/claude/.claude/settings.json` to `~/code/optoai/opto2`.
 - [x] `scripts/stow.sh dry-run` against an empty temporary home folder: no conflicts.
 - [x] `scripts/validate-dotfiles.sh` and `test/stow_preflight_test.sh` pass.

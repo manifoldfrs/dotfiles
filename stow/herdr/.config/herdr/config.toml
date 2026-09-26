@@ -1,6 +1,7 @@
 onboarding = false
 
 [terminal]
+default_shell = "bash"
 shell_mode = "auto"
 new_cwd = "follow"
 
