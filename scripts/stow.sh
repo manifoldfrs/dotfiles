@@ -131,70 +131,6 @@ is_stow_managed_tree() {
     [ "$saw_entry" -eq 1 ]
 }
 
-remove_legacy_tmux_links() {
-    local target
-    local link_dest
-
-    for target in "$HOME/.tmux.conf" "$HOME/.local/bin/tmux-sessionizer"; do
-        if [ ! -L "$target" ]; then
-            continue
-        fi
-
-        link_dest="$(readlink "$target")"
-        case "$link_dest" in
-            *dotfiles/stow/tmux/*|*dotfiles/stow/bin/.local/bin/tmux-sessionizer|*"$DOTFILES_DIR/stow/tmux/"*|*"$DOTFILES_DIR/stow/bin/.local/bin/tmux-sessionizer")
-                rm "$target"
-                info "Removed archived tmux symlink: $target"
-                ;;
-        esac
-    done
-}
-
-remove_legacy_opencode_links() {
-    local target
-
-    for target in \
-        "$HOME/.config/opencode/tui.json" \
-        "$HOME/.config/opencode/plugin/cb-guards.ts" \
-        "$HOME/.config/opencode/plugins/cb-guards.ts"; do
-        if is_stow_managed_link "$target"; then
-            rm "$target"
-            info "Removed legacy OpenCode symlink: $target"
-        fi
-    done
-
-    rmdir "$HOME/.config/opencode/plugin" 2>/dev/null || true
-}
-
-remove_legacy_fish_links() {
-    local link_dest
-    local target
-
-    if [ -d "$HOME/.config/fish" ]; then
-        while IFS= read -r target; do
-            link_dest="$(readlink "$target")"
-            case "$link_dest" in
-                *dotfiles/stow/fish/*|*"$DOTFILES_DIR/stow/fish/"*)
-                    rm "$target"
-                    info "Removed archived Fish symlink: $target"
-                    ;;
-            esac
-        done < <(find "$HOME/.config/fish" -type l | sort)
-        find "$HOME/.config/fish" -depth -type d -empty -delete 2>/dev/null || true
-    fi
-
-    target="$HOME/.config/starship.toml"
-    if [ -L "$target" ]; then
-        link_dest="$(readlink "$target")"
-        case "$link_dest" in
-            *dotfiles/stow/fish/*|*"$DOTFILES_DIR/stow/fish/"*)
-                rm "$target"
-                info "Removed archived Fish Starship symlink: $target"
-                ;;
-        esac
-    fi
-}
-
 backup_opencode_stow_targets() {
     local target
 
@@ -399,9 +335,6 @@ apply_dotfiles() {
     info "Running isolated preflight before changing $HOME"
     "$DOTFILES_DIR/scripts/validate-dotfiles.sh" "$DOTFILES_DIR" "${STOW_PACKAGES[@]}"
 
-    remove_legacy_tmux_links
-    remove_legacy_opencode_links
-    remove_legacy_fish_links
     backup_bash_stow_targets
     backup_shared_stow_targets
     backup_opencode_stow_targets
@@ -421,9 +354,6 @@ dry_run_dotfiles() {
 }
 
 delete_dotfiles() {
-    remove_legacy_tmux_links
-    remove_legacy_opencode_links
-    remove_legacy_fish_links
     remove_shared_skill_folder_links
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"

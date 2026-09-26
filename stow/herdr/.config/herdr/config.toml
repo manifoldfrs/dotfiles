@@ -1,7 +1,6 @@
 onboarding = false
 
 [terminal]
-default_shell = "/opt/homebrew/bin/bash"
 shell_mode = "auto"
 new_cwd = "follow"
 

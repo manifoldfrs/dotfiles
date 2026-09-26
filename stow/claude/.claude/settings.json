@@ -88,7 +88,7 @@
       "effortLevel": "high"
     },
     "claude-opus-5-5": {
-      "effortLevel": "high"
+      "effortLevel": "medium"
     }
   },
   "pluginConfigs": {
@@ -132,7 +132,7 @@
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
       "### User-specific",
       "**Primary use of Claude Code**: software development (Rails app — Opto2, couples' financial conversations product)",
-      "**Trusted repo**: /Users/frshbb/code/optoai/opto2 (github.com:joinopto/opto2.git, private) — confidential material is fine here; content ported from outside this repo is not its own work",
+      "**Trusted repo**: ~/code/optoai/opto2 (github.com:joinopto/opto2.git, private) — confidential material is fine here; content ported from outside this repo is not its own work",
       "**Org-specific CLIs**: None configured",
       "routine under joinopto/opto2 prefix: git and bundle/rails operations scoped to this trusted repo and its origin remote"
     ]
