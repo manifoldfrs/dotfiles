@@ -26,6 +26,12 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - If the project has no clear scripting convention, explain the tradeoff before choosing.
 - Keep scripts readable, with one statement per line.
 
+### Web Research
+
+- For library, framework, and API docs, use Ref: `ref_search_documentation`, then `ref_read_url`.
+- For general web search, use Exa: `web_search_exa`, or `web_search_advanced_exa` for domain, date, or category filters.
+- To read a specific non-docs URL, use `web_fetch_exa`.
+
 ## Implementation Rules
 
 - Keep changes minimal and scoped to the requested task.

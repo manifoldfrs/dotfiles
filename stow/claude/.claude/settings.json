@@ -1,140 +1,143 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "cleanupPeriodDays": 14,
-  "env": {
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "95",
-    "ENABLE_PROMPT_CACHING_1H": "1",
-    "CLAUDE_CODE_ALWAYS_ENABLE_EFFORT": "1",
-    "CLAUDE_CODE_WORKFLOWS": "1",
-    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "128000",
-    "ENABLE_TOOL_SEARCH": "true",
-    "MAX_MCP_OUTPUT_TOKENS": "30000",
-    "MCP_TIMEOUT": "60000"
-  },
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
-  "permissions": {
-    "deny": [
-      "Bash(osascript)",
-      "Bash(osascript *)",
-      "Bash(*/osascript)",
-      "Bash(*/osascript *)"
-    ],
-    "defaultMode": "auto",
-    "disableBypassPermissionsMode": "disable"
-  },
-  "model": "opus[1m]",
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/block-generated-edits.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/block-dangerous-bash.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "$HOME/.claude/statusline.sh",
-    "padding": 0
-  },
-  "enabledPlugins": {
-    "security-guidance@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true,
-    "typesafe@typesafe-ai": true,
-    "ruby-lsp@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "plannotator@plannotator": true
-  },
-  "extraKnownMarketplaces": {
-    "typesafe-ai": {
-      "source": {
-        "source": "github",
-        "repo": "typesafe-ai/skills"
-      }
-    },
-    "plannotator": {
-      "source": {
-        "source": "github",
-        "repo": "backnotprop/plannotator"
-      }
-    }
-  },
-  "feedbackDrafts": "notify",
-  "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
-  "modelSettings": {
-    "claude-opus-5": {
-      "effortLevel": "high"
-    },
-    "claude-fable-5-1": {
-      "effortLevel": "high"
-    },
-    "claude-opus-5-5": {
-      "effortLevel": "medium"
-    }
-  },
-  "pluginConfigs": {
-    "agents-md@builtin": {
-      "options": {
-        "instructionFiles": "claude-md-or-agents-md"
-      }
-    }
-  },
-  "channelsEnabled": false,
-  "theme": "auto",
-  "editorMode": "vim",
-  "preferredNotifChannel": "ghostty",
-  "switchModelsOnFlag": false,
-  "inputNeededNotifEnabled": false,
-  "autoMode": {
-    "soft_deny": [
-      "$defaults",
-      "Bash(psql:*) writes against non-local/production database targets in this repo — Production Reads/Deploy overlap not fully covered by defaults for raw psql invocations"
-    ],
-    "environment": [
-      "### Org-wide",
-      "**Organization**: joinopto (GitHub org; origin remote is github.com:joinopto/opto2.git)",
-      "**Cloud provider(s)**: Amazon S3 (referenced in .env.example for deployed recording audio; not configured for local/dev/test)",
-      "**Repository visibility**: private (joinopto/opto2, confirmed via gh)",
-      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
-      "**Secrets management**: Rails encrypted credentials (config/credentials*.yml.enc, config/*.key) and .env-based local secrets, both gitignored",
-      "**Default / protected branches**: master (default and protected, confirmed via gh; no rulesets listed)",
-      "**CI/CD deploy targets**: None configured — README states production deployment is not configured yet",
-      "**Network posture**: None configured",
-      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
-      "**Source control**: joinopto/opto2 (github.com:joinopto/opto2.git) only — no additional orgs configured",
-      "**Trusted internal domains**: None configured",
-      "**Trusted cloud buckets**: opto2-sandbox-voice-notes (config-derived — not a confirmed upload destination; uploads of local data still require confirmation)",
-      "**Key internal services**: None configured",
-      "**Internal package registry**: None configured",
-      "**Sensitive data locations & audiences**: .env, .env.local, config/*.key, config/credentials*.yml.enc, config/credentials/, tmp/local_secret.txt, db/baseline/credential_authority.sql, db/migrate/20260909000003_separate_profile_credential_authorities.rb — share only with audiences cleared at the [named+specifics] bar",
-      "**Data retention / declassification**: None configured",
-      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
-      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
-      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
-      "### User-specific",
-      "**Primary use of Claude Code**: software development (Rails app — Opto2, couples' financial conversations product)",
-      "**Trusted repo**: ~/code/optoai/opto2 (github.com:joinopto/opto2.git, private) — confidential material is fine here; content ported from outside this repo is not its own work",
-      "**Org-specific CLIs**: None configured",
-      "routine under joinopto/opto2 prefix: git and bundle/rails operations scoped to this trusted repo and its origin remote"
-    ]
-  }
+        "$schema": "https://json.schemastore.org/claude-code-settings.json",
+        "cleanupPeriodDays": 14,
+        "env": {
+                "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "95",
+                "ENABLE_PROMPT_CACHING_1H": "1",
+                "CLAUDE_CODE_ALWAYS_ENABLE_EFFORT": "1",
+                "CLAUDE_CODE_WORKFLOWS": "1",
+                "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "128000",
+                "ENABLE_TOOL_SEARCH": "true",
+                "MAX_MCP_OUTPUT_TOKENS": "30000",
+                "MCP_TIMEOUT": "60000"
+        },
+        "attribution": {
+                "commit": "",
+                "pr": ""
+        },
+        "permissions": {
+                "deny": [
+                        "WebFetch",
+                        "WebSearch"
+                ],
+                "defaultMode": "dontAsk",
+                "disableBypassPermissionsMode": "disable"
+        },
+        "model": "opus[1m]",
+        "hooks": {
+                "PreToolUse": [
+                        {
+                                "matcher": "Edit|Write|MultiEdit",
+                                "hooks": [
+                                        {
+                                                "type": "command",
+                                                "command": "$HOME/.claude/hooks/block-generated-edits.sh",
+                                                "timeout": 5
+                                        }
+                                ]
+                        },
+                        {
+                                "matcher": "Bash",
+                                "hooks": [
+                                        {
+                                                "type": "command",
+                                                "command": "$HOME/.claude/hooks/block-dangerous-bash.sh",
+                                                "timeout": 5
+                                        }
+                                ]
+                        }
+                ]
+        },
+        "enableArtifact": false,
+        "statusLine": {
+                "type": "command",
+                "command": "$HOME/.claude/statusline.sh",
+                "padding": 0
+        },
+        "enabledPlugins": {
+                "security-guidance@claude-plugins-official": true,
+                "gopls-lsp@claude-plugins-official": true,
+                "typesafe@typesafe-ai": true,
+                "ruby-lsp@claude-plugins-official": true,
+                "frontend-design@claude-plugins-official": true,
+                "plannotator@plannotator": true
+        },
+        "extraKnownMarketplaces": {
+                "typesafe-ai": {
+                        "source": {
+                                "source": "github",
+                                "repo": "typesafe-ai/skills"
+                        }
+                },
+                "plannotator": {
+                        "source": {
+                                "source": "github",
+                                "repo": "backnotprop/plannotator"
+                        }
+                }
+        },
+        "feedbackDrafts": "notify",
+        "alwaysThinkingEnabled": true,
+        "effortLevel": "high",
+        "modelSettings": {
+                "claude-opus-5": {
+                        "effortLevel": "high"
+                },
+                "claude-fable-5-1": {
+                        "effortLevel": "high"
+                },
+                "claude-opus-5-5": {
+                        "effortLevel": "medium"
+                }
+        },
+        "fastMode": true,
+        "dialogExpiry": "never",
+        "pluginConfigs": {
+                "agents-md@builtin": {
+                        "options": {
+                                "instructionFiles": "claude-md-or-agents-md"
+                        }
+                }
+        },
+        "channelsEnabled": false,
+        "timeFormat": "24-hour-utc",
+        "theme": "auto",
+        "editorMode": "normal",
+        "preferredNotifChannel": "ghostty",
+        "switchModelsOnFlag": false,
+        "inputNeededNotifEnabled": false,
+        "useAutoModeDuringPlan": true,
+        "autoMode": {
+                "soft_deny": [
+                        "$defaults",
+                        "Bash(psql:*) writes against non-local/production database targets in this repo — Production Reads/Deploy overlap not fully covered by defaults for raw psql invocations"
+                ],
+                "environment": [
+                        "### Org-wide",
+                        "**Organization**: joinopto (GitHub org; origin remote is github.com:joinopto/opto2.git)",
+                        "**Cloud provider(s)**: Amazon S3 (referenced in .env.example for deployed recording audio; not configured for local/dev/test)",
+                        "**Repository visibility**: private (joinopto/opto2, confirmed via gh)",
+                        "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+                        "**Secrets management**: Rails encrypted credentials (config/credentials*.yml.enc, config/*.key) and .env-based local secrets, both gitignored",
+                        "**Default / protected branches**: master (default and protected, confirmed via gh; no rulesets listed)",
+                        "**CI/CD deploy targets**: None configured — README states production deployment is not configured yet",
+                        "**Network posture**: None configured",
+                        "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
+                        "**Source control**: joinopto/opto2 (github.com:joinopto/opto2.git) only — no additional orgs configured",
+                        "**Trusted internal domains**: None configured",
+                        "**Trusted cloud buckets**: opto2-sandbox-voice-notes (config-derived — not a confirmed upload destination; uploads of local data still require confirmation)",
+                        "**Key internal services**: None configured",
+                        "**Internal package registry**: None configured",
+                        "**Sensitive data locations & audiences**: .env, .env.local, config/*.key, config/credentials*.yml.enc, config/credentials/, tmp/local_secret.txt, db/baseline/credential_authority.sql, db/migrate/20260909000003_separate_profile_credential_authorities.rb — share only with audiences cleared at the [named+specifics] bar",
+                        "**Data retention / declassification**: None configured",
+                        "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+                        "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+                        "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+                        "### User-specific",
+                        "**Primary use of Claude Code**: software development (Rails app — Opto2, couples' financial conversations product)",
+                        "**Trusted repo**: ~/code/optoai/opto2 (github.com:joinopto/opto2.git, private) — confidential material is fine here; content ported from outside this repo is not its own work",
+                        "**Org-specific CLIs**: None configured",
+                        "routine under joinopto/opto2 prefix: git and bundle/rails operations scoped to this trusted repo and its origin remote"
+                ]
+        }
 }
