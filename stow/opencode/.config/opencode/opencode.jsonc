@@ -26,21 +26,24 @@
         "gpt-6-sol-fast": {
           "settings": {
             "reasoningEffort": "medium",
-            "textVerbosity": "medium"
+            "textVerbosity": "low"
           }
         },
         "gpt-6.1-sol-fast": {
           "settings": {
             "reasoningEffort": "medium",
-            "textVerbosity": "medium"
+            "textVerbosity": "low"
           }
         },
         "gpt-6-luna": {
           "settings": {
-            "textVerbosity": "medium"
+            "textVerbosity": "low"
           }
         },
         "gpt-6-astra": {
+          "settings": {
+            "textVerbosity": "low"
+          },
           "limit": {
             "context": 1050000,
             "input": 922000,
@@ -48,6 +51,9 @@
           }
         },
         "gpt-6-astra-fast": {
+          "settings": {
+            "textVerbosity": "low"
+          },
           "limit": {
             "context": 1050000,
             "input": 922000,
