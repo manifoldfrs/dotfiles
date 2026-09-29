@@ -1,4 +1,4 @@
-model = "gpt-6-astra"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "low"
 model_verbosity = "low"
 tool_output_token_limit = 25000
@@ -109,6 +109,9 @@ enabled = true
 [plugins."typesafe@typesafe-ai"]
 enabled = true
 
+[plugins."code-review@openai-bundled"]
+enabled = true
+
 [tui]
 theme = "tokyonight-frsh"
 
@@ -142,14 +145,14 @@ NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_n
 NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/frshbb/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 CODEX_HOME = "/Users/frshbb/.codex"
-BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab,mcpapps"
 BROWSER_USE_TINYSKY_ENABLED = "1"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.924.22138"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.924.22138/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.928.20755"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.928.20755/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/frshbb/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 
@@ -158,6 +161,13 @@ command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.
 args = ["mcp"]
 cwd = "."
 enabled = false
+
+[mcp_servers.jev]
+command = "npx"
+args = [
+    "-y",
+    "@jkudish/jev-mcp",
+]
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:23a8ebf007ace63070ce68117cc10069ec15dae1861e6913cf7de5eae02e297f"

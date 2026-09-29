@@ -70,7 +70,8 @@ cd ~/dotfiles
 opencode mcp list
 ```
 
-`stow/opencode/.config/opencode/opencode.jsonc` configures Ref and exa using the native OpenCode 2 `mcp.servers` schema.
+`stow/opencode/.config/opencode/opencode.jsonc` configures Ref, exa, and Chrome DevTools using the native OpenCode 2 `mcp.servers` schema.
+Chrome DevTools launches a separate Chrome with a temporary profile (`--isolated`) for app testing and screenshots.
 
 ### API keys
 
@@ -101,4 +102,5 @@ OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` inte
 - **Ref** - Documentation search
 - **Exa** - Web search
 - **Jev** - Typed judgments from TypeSafe's Jev model (Claude Code only)
+- **Chrome DevTools** - Browser testing, screenshots, console, and network inspection (OpenCode)
 - **Context7** - Library documentation

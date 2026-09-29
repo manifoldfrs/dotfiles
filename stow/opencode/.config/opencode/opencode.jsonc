@@ -83,6 +83,15 @@
           "catalog": 10000,
           "execution": 10000
         }
+      },
+      "chrome-devtools": {
+        "type": "local",
+        "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--isolated", "--no-usage-statistics"],
+        "disabled": false,
+        "timeout": {
+          "catalog": 30000,
+          "execution": 60000
+        }
       }
     }
   }

@@ -93,7 +93,6 @@
       "effortLevel": "medium"
     }
   },
-  "fastMode": true,
   "dialogExpiry": "never",
   "pluginConfigs": {
     "agents-md@builtin": {
