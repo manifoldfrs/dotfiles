@@ -16,6 +16,9 @@
     "pr": ""
   },
   "permissions": {
+    "allow": [
+      "mcp__jev__*"
+    ],
     "deny": [
       "WebFetch",
       "WebSearch"
@@ -103,6 +106,7 @@
   "timeFormat": "24-hour-utc",
   "theme": "auto",
   "editorMode": "normal",
+  "verbose": false,
   "preferredNotifChannel": "ghostty",
   "switchModelsOnFlag": false,
   "inputNeededNotifEnabled": false,

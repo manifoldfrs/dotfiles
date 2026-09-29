@@ -32,6 +32,19 @@ cd ~/dotfiles
 
 `mcp/codex_config.toml.example` remains as a standalone template, but the active tracked config is `stow/codex/.codex/config.toml`.
 
+### Claude Code
+
+Claude Code stores user-scoped MCP servers in the untracked `~/.claude.json`.
+Register Jev once per machine:
+
+```bash
+claude mcp add -s user jev -- npx -y @jkudish/jev-mcp
+claude mcp list
+```
+
+The server reads `TYPESAFE_API_KEY` from the shell environment.
+`stow/claude/.claude/settings.json` allows `mcp__jev__*`, and the vendored `jev` skill in `stow/agents/.agents/skills/jev` tells agents when to call each tool.
+
 ### Pi
 
 Pi is Stow-managed by the default dotfiles profile:
@@ -87,4 +100,5 @@ OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` inte
 
 - **Ref** - Documentation search
 - **Exa** - Web search
+- **Jev** - Typed judgments from TypeSafe's Jev model (Claude Code only)
 - **Context7** - Library documentation

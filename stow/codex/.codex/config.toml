@@ -61,6 +61,9 @@ trust_level = "trusted"
 [projects."/Users/frshbb/github/dotfiles"]
 trust_level = "trusted"
 
+[projects."/Users/frshbb/Documents/Codex/2026-09-28/i-m"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 
@@ -145,10 +148,10 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.917.62051"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.917.62051/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.924.22138"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.924.22138/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/frshbb/.codex/computer-use/Codex Computer Use.app"
-CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 
 [mcp_servers.computer-use]
 command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
@@ -160,7 +163,7 @@ enabled = false
 trusted_hash = "sha256:23a8ebf007ace63070ce68117cc10069ec15dae1861e6913cf7de5eae02e297f"
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:1:0"]
-trusted_hash = "sha256:5a5a626d74a7c584c0e45e5268f87517317db69d9de5d983637c80a6345de51b"
+trusted_hash = "sha256:840efbd93a1c19fc8c4a4f1ba27e91d260e25754dd4e0cabbef7d4691f312f20"
 
 [hooks.state."/Users/farishabib/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:23a8ebf007ace63070ce68117cc10069ec15dae1861e6913cf7de5eae02e297f"
@@ -178,7 +181,13 @@ trusted_hash = "sha256:3530443a8b55e99ba5dbcabc61802450deb8f91cff4e97521c167899c
 trusted_hash = "sha256:bbc9b0c1b854b94ea5a971b78518b1977f261f49a00f3e3683eb12643e1f8c45"
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:a2700095dc44652fd944ae3421bcd7af303bf57553846c2607bc03c12d118657"
+trusted_hash = "sha256:59bf13bb29ad671028bc36692e32ca9e585598a36c520b86275dc5a5153e0ce2"
+
+[hooks.state."plannotator@plannotator:hooks/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:c14c21d72b8ddb7a4dbd7eedcac9d3fff0d7b4b97e4f24dd8f6277d78c45329e"
+
+[hooks.state."plannotator@plannotator:hooks/hooks.json:permission_request:0:0"]
+trusted_hash = "sha256:c8ae3770a85b13f9f51aabce263943340a878625c5e71eadb429bb2743835d9e"
 
 [features]
 hooks = true
