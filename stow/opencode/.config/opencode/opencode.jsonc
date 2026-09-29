@@ -92,6 +92,18 @@
           "catalog": 30000,
           "execution": 60000
         }
+      },
+      "jev": {
+        "type": "local",
+        "command": ["npx", "-y", "@jkudish/jev-mcp"],
+        "environment": {
+          "TYPESAFE_API_KEY": "{env:TYPESAFE_API_KEY}"
+        },
+        "disabled": false,
+        "timeout": {
+          "catalog": 30000,
+          "execution": 30000
+        }
       }
     }
   }
