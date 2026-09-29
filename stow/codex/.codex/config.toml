@@ -112,6 +112,9 @@ enabled = true
 [plugins."code-review@openai-bundled"]
 enabled = true
 
+[plugins."chrome@openai-bundled"]
+enabled = true
+
 [tui]
 theme = "tokyonight-frsh"
 

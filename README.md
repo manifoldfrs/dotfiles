@@ -121,6 +121,33 @@ cd ~/dotfiles
 Bootstrap installs plugin dependencies automatically.
 Restart OpenCode after an apply.
 
+### Codex Chrome Extension Bridge
+
+OpenCode's `codex-chrome` MCP server uses [codex-control-chrome-mcp](https://github.com/iola1999/codex-control-chrome-mcp) to control the existing Chrome profile through the Codex Chrome extension.
+Unlike the isolated `chrome-devtools` server, it can use existing signed-in tabs and capture screenshots of localhost apps.
+It grants access to page contents and browser actions; the community bridge does not enforce per-site permissions.
+
+After approving live configuration changes, install the bridge and register it for Google Chrome only:
+
+```bash
+npm install -g codex-control-chrome-mcp@1.4.1
+codex-control-chrome-mcp install-native-host --browser chrome
+codex-control-chrome-mcp status --browser chrome
+```
+
+The tracked MCP entry expects the binary at `/opt/homebrew/bin/codex-control-chrome-mcp`.
+The installer backs up Chrome's existing native-host manifest and records its original host for proxy mode.
+Reload the Codex Chrome extension after installation, then reconnect `codex-chrome` through OpenCode's `/mcps` menu or restart OpenCode.
+Automatic registration repair remains enabled: after a Codex update restores its own host registration, starting the bridge re-registers it, and the extension may need another reload.
+
+To restore the previous Chrome native-host registration, disconnect `codex-chrome` in OpenCode and run:
+
+```bash
+codex-control-chrome-mcp uninstall-native-host --browser chrome
+```
+
+Also remove the `codex-chrome` MCP entry if you no longer want OpenCode to start the bridge.
+
 ### GPT-5 Response Verbosity
 
 OpenAI GPT-5 models using the Responses API support `low`, `medium`, and `high` output verbosity.

@@ -31,7 +31,8 @@
         },
         "gpt-6.1-sol-fast": {
           "settings": {
-            "reasoningEffort": "medium"
+            "reasoningEffort": "medium",
+            "textVerbosity": "medium"
           }
         },
         "gpt-6-luna": {
@@ -109,6 +110,13 @@
           "catalog": 30000,
           "execution": 30000
         }
+      },
+      "codex-chrome": {
+        "type": "local",
+        "command": [
+          "/opt/homebrew/bin/codex-control-chrome-mcp",
+          "--stdio"
+        ]
       }
     }
   }
