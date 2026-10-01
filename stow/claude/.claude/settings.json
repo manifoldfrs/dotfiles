@@ -23,8 +23,7 @@
       "WebFetch",
       "WebSearch"
     ],
-    "defaultMode": "auto",
-    "disableBypassPermissionsMode": "disable"
+    "defaultMode": "bypassPermissions"
   },
   "model": "opus[1m]",
   "hooks": {
@@ -63,7 +62,8 @@
     "typesafe@typesafe-ai": true,
     "ruby-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "plannotator@plannotator": true
+    "plannotator@plannotator": true,
+    "swift-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "typesafe-ai": {
