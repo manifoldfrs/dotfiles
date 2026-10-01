@@ -1,0 +1,1 @@
+{ "name": "optojr-slack", "version": "0.1.0", "description": "optojr_slack_send tool: post one Slack message as the @OptoJr bot through the hosted relay" }

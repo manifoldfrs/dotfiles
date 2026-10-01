@@ -1,6 +1,6 @@
 # dotfiles
 
-Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, OpenCode, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
+Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
 
 ## Theme and font status
 
@@ -200,6 +200,20 @@ rm -rf ~/.claude/logs/requests
 
 Set `CLAUDE_REQUEST_LOG_DIR` to store logs somewhere else.
 Normal `claude` sessions do not write request logs.
+
+## Claude Code theme and mods
+
+Claude Code uses the Tokyo Night `night` theme from `stow/claude/.claude/themes/tokyonight-night.json`, taken from folke's [tokyonight.nvim Claude Code extras](https://github.com/folke/tokyonight.nvim/commit/bb2ebf3af93da023c93bbc8dcee79690d9755bce).
+Claude Code watches `~/.claude/themes/`, so theme edits apply to running sessions.
+
+Mods live in `stow/claude/.claude/mods/` and are not stowed.
+`CLAUDE_CODE_PLUGIN_DIRS` in `settings.json` loads them from the repository, and interactive sessions reload a mod when its files are saved.
+
+- `optojr-slack` registers `optojr_slack_send`, which posts as `@OptoJr` through the relay credentials in the macOS Keychain.
+- `skill-toast` shows a toast when a skill loads.
+
+Add a new mod folder to `CLAUDE_CODE_PLUGIN_DIRS` to load it.
+Check a mod with `claude plugin validate <folder>` and `claude plugin test <folder>`.
 
 ## Pi provider request logger
 

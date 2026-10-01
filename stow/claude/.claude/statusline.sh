@@ -42,7 +42,11 @@ if [ -n "${dir:-}" ]; then
   branch=$(git -C "$dir" symbolic-ref --short -q HEAD 2>/dev/null) \
     || branch=$(git -C "$dir" rev-parse --short HEAD 2>/dev/null) \
     || branch=""
-  [ -n "$branch" ] && location="$location ($branch)"
+  if [ -n "$branch" ]; then
+    unstaged=$(git -C "$dir" status --porcelain --untracked-files=normal 2>/dev/null \
+      | awk 'substr($0, 1, 2) == "??" || substr($0, 2, 1) != " " { n++ } END { print n + 0 }')
+    location="$location ($branch · ${unstaged:-0} unstaged)"
+  fi
   location="${DIM}${location}${RESET} · "
 fi
 
