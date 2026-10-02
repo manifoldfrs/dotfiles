@@ -211,6 +211,9 @@ Mods live in `stow/claude/.claude/mods/` and are not stowed.
 
 - `optojr-slack` registers `optojr_slack_send`, which posts as `@OptoJr` through the relay credentials in the macOS Keychain.
 - `skill-toast` shows a toast when a skill loads.
+- `session-relaunch` adds `/update`, which runs `claude update` and resumes the session on the new version, and `/restart`, which resumes the session on whatever version is installed.
+  The relaunch comes from the `claude` function in `stow/bash/.config/bash/functions.bash`.
+  Sessions started any other way print the `claude --resume` command instead of exiting.
 
 Add a new mod folder to `CLAUDE_CODE_PLUGIN_DIRS` to load it.
 Check a mod with `claude plugin validate <folder>` and `claude plugin test <folder>`.

@@ -151,6 +151,22 @@ grt() {
     cd "$root" || return
 }
 
+# The session-relaunch mod's /update and /restart write a session id to CLAUDE_RELAUNCH_FILE before exiting.
+claude() {
+    local relaunch_file session_id status
+    relaunch_file=$(mktemp "${TMPDIR:-/tmp}/claude-relaunch.XXXXXX") || return
+    CLAUDE_RELAUNCH_FILE=$relaunch_file command claude "$@"
+    status=$?
+    while [[ -s $relaunch_file ]]; do
+        session_id=$(<"$relaunch_file")
+        : >"$relaunch_file"
+        CLAUDE_RELAUNCH_FILE=$relaunch_file command claude --resume "$session_id"
+        status=$?
+    done
+    rm -f "$relaunch_file"
+    return "$status"
+}
+
 claude-log() {
     ANTHROPIC_BASE_URL=http://127.0.0.1:8787 command claude "$@"
 }
