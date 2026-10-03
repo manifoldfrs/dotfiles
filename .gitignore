@@ -16,6 +16,7 @@ node_modules/
 # MCP configs and local API key files
 exa_api_key.txt
 typesafe_api_key.txt
+sonar_api_key.txt
 mcp/claude_desktop_config.json
 mcp/cursor_mcp.json
 mcp/codex_config.toml
