@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process"
 import { Plugin } from "@opencode/plugin/tui"
 import { createSignal } from "solid-js"
+import { requestSessionRelaunch } from "./session-relaunch.ts"
 
 const UPDATE_INTERVAL_MS = 2_000
 
@@ -45,10 +46,50 @@ function Footer(props: {
   context: Plugin.Context
   status: () => string
 }) {
+  let relaunching = false
+  const relaunch = async (action: "restart" | "update") => {
+    if (relaunching) return
+    const route = props.context.ui.router.current()
+    if (route.type !== "session") {
+      props.context.ui.toast.show({
+        message: "Open a session before restarting OpenCode.",
+        variant: "warning",
+      })
+      return
+    }
+    relaunching = true
+    const result = await requestSessionRelaunch(
+      action,
+      route.sessionID,
+      process.env.OPENCODE_RELAUNCH_FILE,
+    )
+    if (!result.ok) {
+      relaunching = false
+      props.context.ui.toast.show({ message: result.message, variant: "error" })
+      return
+    }
+    props.context.keymap.dispatch("app.exit")
+  }
   props.context.keymap.layer(() => ({
     mode: "global",
     priority: 10,
     commands: [
+      {
+        id: "frsh.session.restart",
+        title: "Restart OpenCode and shared server",
+        group: "OpenCode",
+        palette: true,
+        slash: { name: "restart" },
+        run: () => relaunch("restart"),
+      },
+      {
+        id: "frsh.session.update",
+        title: "Upgrade OpenCode and restart shared server",
+        group: "OpenCode",
+        palette: true,
+        slash: { name: "update", aliases: ["upgrade"] },
+        run: () => relaunch("update"),
+      },
       {
         id: "frsh.copy-all",
         title: "Copy complete session transcript",

@@ -41,12 +41,20 @@ export type TypeSafeEvaluationInput = {
   }>
 }
 
+/** Evaluation provider boundary; parse its response before using answers. */
 export type TypeSafeEvaluate = (
   request: SystemOneRequest,
   options: RequestOptions,
-) => Promise<SystemOneResult<Questions>>
+) => Promise<unknown>
 
 export class TypeSafeToolInputError extends Error {}
+
+/** Marks an invalid provider response without retaining its raw payload. */
+export class TypeSafeToolResponseError extends Error {
+  constructor() {
+    super("TypeSafe returned an invalid evaluation response")
+  }
+}
 
 class TypeSafeCredentialError extends Error {}
 
@@ -142,6 +150,7 @@ export function safeTypeSafeToolError(
   if (signal?.aborted || error instanceof APIUserAbortError) {
     return new Error("TypeSafe evaluation was cancelled")
   }
+  if (error instanceof TypeSafeToolResponseError) return new Error(error.message)
   if (
     error instanceof TypeSafeCredentialError ||
     error instanceof AuthenticationError

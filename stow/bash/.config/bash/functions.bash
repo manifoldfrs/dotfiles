@@ -167,6 +167,61 @@ claude() {
     return "$status"
 }
 
+# Relaunch requests are handled after the TUI exits, outside the shared server being restarted.
+opencode() {
+    local arg relaunch_file action session_id status
+    local -a launch_args=("$@")
+    local -a resume_args=()
+    for arg in "$@"; do
+        case "$arg" in
+            --server|--server=*|--standalone|mini|run|serve|acp)
+                OPENCODE_RELAUNCH_FILE= command opencode "$@"
+                return $?
+                ;;
+        esac
+    done
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --session|-s|--prompt)
+                shift
+                if [[ $# -gt 0 ]]; then shift; fi
+                ;;
+            --session=*|--continue|-c|--prompt=*) shift ;;
+            *) resume_args+=("$1"); shift ;;
+        esac
+    done
+    relaunch_file=$(mktemp "${TMPDIR:-/tmp}/opencode-relaunch.XXXXXX") || return
+    status=0
+    OPENCODE_RELAUNCH_FILE=$relaunch_file command opencode "${launch_args[@]}" || status=$?
+    while [[ -s $relaunch_file ]]; do
+        if ! {
+            IFS= read -r action
+            IFS= read -r session_id
+        } <"$relaunch_file"; then
+            printf 'OpenCode relaunch: incomplete request.\n' >&2
+            status=1
+            break
+        fi
+        : >"$relaunch_file"
+        if [[ $action != restart && $action != update ]] || [[ ! $session_id =~ ^ses[A-Za-z0-9_-]+$ ]]; then
+            printf 'OpenCode relaunch: invalid request.\n' >&2
+            status=1
+            break
+        fi
+        if [[ $action == update ]] && ! command opencode upgrade; then
+            printf 'OpenCode upgrade failed; resuming without restarting the shared server.\n' >&2
+        elif ! command opencode service restart; then
+            printf 'OpenCode shared server restart failed. Resume with: opencode --session %s\n' "$session_id" >&2
+            status=1
+            break
+        fi
+        status=0
+        OPENCODE_RELAUNCH_FILE=$relaunch_file command opencode "${resume_args[@]}" --session "$session_id" || status=$?
+    done
+    rm -f "$relaunch_file"
+    return "$status"
+}
+
 claude-log() {
     ANTHROPIC_BASE_URL=http://127.0.0.1:8787 command claude "$@"
 }

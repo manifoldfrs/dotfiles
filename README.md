@@ -79,6 +79,26 @@ The tool accepts Choice, Score, and Noul questions and returns typed answers wit
 It sends the supplied state and questions to TypeSafe.
 Do not include credentials, secrets, or unrelated private data.
 
+OpenCode pins the TypeSafe tool in its Code Mode catalog and adds a compact judgment reminder to outgoing contexts where the catalog lists it.
+The reminder favors specialized Jev tools when available and does not make automatic model calls.
+Use exact search, parsing, arithmetic, and tests for deterministic facts.
+Inside `execute`, the tool returns a validated object with `answers`, `model`, and `usage`; no `JSON.parse` is needed.
+For example, when the catalog lists `tools.typesafe_evaluate`:
+
+```js
+const result = await tools.typesafe_evaluate({
+  state: "A customer asks to cancel today",
+  noul_questions: [{ id: "urgent", instructions: "Does this need a reply today?" }],
+});
+return result.answers.urgent;
+```
+
+The Noul answer is `{ type: "noul", noul: probability }`, not a boolean.
+Choice and Score answers include confidence and probability distributions.
+Missing or malformed provider answers fail explicitly rather than returning an empty success.
+Tool results retain readable text and model/token metadata for other consumers.
+Judgments advise; they do not replace permission checks or prove correctness.
+
 Keep `TYPESAFE_API_KEY` as machine-local state in `~/.config/bash/local.bash`:
 
 ```bash
@@ -98,7 +118,7 @@ The `opencode` Stow package owns the tracked sources under `stow/opencode/.confi
 | `cli.json` | Tokyo Night, TUI layout, permission handling, and keybindings |
 | `commands/` | Slash commands such as `/lg` |
 | `plugins/typesafe-ai/` | TypeSafe Jev tool |
-| `plugins/tui-conveniences/` | `/copy-all`, skill-load confirmations, and the Git status footer |
+| `plugins/tui-conveniences/` | `/copy-all`, `/restart`, `/update`, skill-load confirmations, and the Git status footer |
 
 New sessions use `openai/gpt-6-sol-fast` with medium reasoning effort and medium response verbosity.
 `openai/gpt-6-luna` also uses medium response verbosity when selected.
@@ -695,6 +715,13 @@ OpenCode plugins are separate harness adapters with separate owners:
 
 - `plugins/typesafe-ai/` exposes TypeSafe Jev.
 - `plugins/tui-conveniences/` adds `/copy-all`, confirms successful skill loads, and shows the Git status footer.
+
+The TUI conveniences plugin also adds `/restart` and `/update` (alias `/upgrade`).
+Both exit the terminal cleanly, restart the shared background server, and reopen the current session through the Bash `opencode` wrapper.
+`/update` runs `opencode upgrade` before restarting; if the upgrade fails, it resumes without restarting the server.
+Restarting the shared server affects other connected clients and can interrupt their running work.
+These commands require launching from the managed Bash configuration and do not support `--server`, `--standalone`, or Mini launches.
+Resume preserves the launch directory and flags, replaces the session selector, and does not replay an initial `--prompt`.
 
 OpenCode discovers the shared catalog under `~/.agents/skills/` as native skills.
 OpenCode 2 does not derive slash entries from skills, so each skill also has a thin wrapper command under `stow/opencode/.config/opencode/commands/<skill-id>.md` that loads it through `/skill-id`, and the TUI conveniences plugin confirms native skill activation with a success toast.

@@ -30,6 +30,7 @@ pass "Shell syntax is valid"
 
 bash test/bash_path_test.sh "$DOTFILES_DIR"
 bash test/stow_preflight_test.sh "$DOTFILES_DIR"
+bash test/opencode_relaunch_test.sh "$DOTFILES_DIR"
 
 # Test 2: portable Git config
 echo "[TEST 2] Checking .gitconfig for forced SSH rewrites..."
