@@ -234,6 +234,15 @@ Mods live in `stow/claude/.claude/mods/` and are not stowed.
 - `session-relaunch` adds `/update`, which runs `claude update` and resumes the session on the new version, and `/restart`, which resumes the session on whatever version is installed.
   The relaunch comes from the `claude` function in `stow/bash/.config/bash/functions.bash`.
   Sessions started any other way print the `claude --resume` command instead of exiting.
+- `jev-pipeline` registers `mcp__jev-pipeline__run`, which fetches a list from one MCP tool, optionally enriches each item with a second MCP call, and classifies or reranks every item with Jev.
+  The items never enter the model's context: the reply holds counts and the top items, and the full results go to `$TMPDIR/jev-pipeline-<session id>-<timestamp>.json`.
+- `jev-coding` adds a `jev_decide` reminder to the first `Edit` or `Write` of each turn, and records every edit the turn makes.
+  When the agent tries to finish, Jev classifies each edit against the recent prompts as requested, scope creep, speculative, or leftover.
+  A confidently flagged edit blocks the stop once with the list, so the agent reverts or justifies it; a Jev failure shows a toast and lets the turn finish.
+- `jev-screen` runs `jev_screen` on every Exa and Ref fetch result, in 20,000-character chunks.
+  A `review` or `block` verdict, or a failed screen, adds a warning the model reads after the result, and `block` also shows a toast.
+- `model-cost` writes the session's cost per model to `$TMPDIR/claude-model-cost-<session id>.json`, and `statusline.sh` shows it after the context usage.
+  The engine reports only a session total, so each response is charged the total's growth since the previous response.
 
 Add a new mod folder to `CLAUDE_CODE_PLUGIN_DIRS` to load it.
 Check a mod with `claude plugin validate <folder>` and `claude plugin test <folder>`.

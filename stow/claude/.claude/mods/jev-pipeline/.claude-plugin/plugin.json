@@ -1,0 +1,1 @@
+{ "name": "jev-pipeline", "version": "0.1.0", "description": "Fetch items over MCP and judge them with Jev without passing the data through context" }

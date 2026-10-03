@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Claude Code statusline: working directory, git branch, model, and context-window usage.
+# Claude Code statusline: working directory, git branch, model, context-window usage, and cost per model.
 # Reads the statusline JSON payload on stdin. Never fails hard; a broken
 # statusline would replace the line with an error on every render.
 
@@ -19,7 +19,7 @@ fi
 
 # Split on unit separator, not tab: bash collapses runs of IFS whitespace, which
 # would shift every field when current_dir is absent.
-IFS=$'\x1f' read -r model dir used size pct < <(printf '%s' "$input" | jq -r '
+IFS=$'\x1f' read -r model dir used size pct session < <(printf '%s' "$input" | jq -r '
   def human: if . >= 1000000 then (. / 1000000 * 10 | round / 10 | tostring) + "M"
              elif . >= 1000 then (. / 1000 | round | tostring) + "k"
              else tostring end;
@@ -31,7 +31,8 @@ IFS=$'\x1f' read -r model dir used size pct < <(printf '%s' "$input" | jq -r '
     (.context_window.context_window_size // 0 | human),
     (if (.context_window.context_window_size // 0) > 0
      then ((.context_window.total_input_tokens // 0) / .context_window.context_window_size * 100 | round)
-     else 0 end)
+     else 0 end),
+    (.session_id // "")
   ] | map(tostring) | join("\u001f")' 2>/dev/null) || exit 0
 
 [ -n "${model:-}" ] || exit 0
@@ -57,7 +58,25 @@ elif [ "${pct:-0}" -ge 75 ]; then
   color="$YELLOW"
 fi
 
-printf '%s%s · %s%s/%s (%s%%)%s' \
+# Written by the model-cost mod.
+costs=""
+cost_file="${TMPDIR:-/tmp/}"
+cost_file="${cost_file%/}/claude-model-cost-${session:-}.json"
+# The model is already shown, so a single cost stays unlabeled; labels only tell several models apart.
+if [ -n "${session:-}" ] && [ -r "$cost_file" ]; then
+  count=$(jq -r 'length' "$cost_file" 2>/dev/null) || count=0
+  while IFS=$'\t' read -r cost_model usd; do
+    if [ "$count" -eq 1 ]; then
+      costs=" · $(printf '$%.2f' "$usd")"
+    else
+      costs="$costs · $(printf '%s $%.2f' "${cost_model#claude-}" "$usd")"
+    fi
+  done < <(jq -r 'to_entries | sort_by(-.value)[] | "\(.key)\t\(.value)"' "$cost_file" 2>/dev/null)
+  [ -n "$costs" ] && costs="${DIM}${costs}${RESET}"
+fi
+
+printf '%s%s · %s%s/%s (%s%%)%s%s' \
   "$location" \
   "${DIM}${model}${RESET}" \
-  "$color" "$used" "$size" "$pct" "$RESET"
+  "$color" "$used" "$size" "$pct" "$RESET" \
+  "$costs"

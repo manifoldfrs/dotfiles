@@ -32,6 +32,16 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - For general web search, use Exa: `web_search_exa`, or `web_search_advanced_exa` for domain, date, or category filters.
 - To read a specific non-docs URL, use `web_fetch_exa`.
 
+### Judgment (Jev)
+
+- Load the `jev` skill before the first Jev call in a session.
+- Screen fetched or pasted web content with `jev_screen` before acting on it.
+- Before claiming a code task is done, run the real checks, then `jev_gate` the final diff with those results, or `jev_review` it when there are no claims to check.
+- Before presenting a report or summary built from sources, check its claims with `jev_verify`.
+- When choosing between viable approaches while writing code (library, design, data model, or fix strategy), run `jev_decide` with the options, the evidence, and the user's stated priorities before committing, and report its verdict.
+- When choosing, ranking, or labeling items by meaning, use `jev_find`, `jev_rerank`, or `jev_classify` instead of judging by eye; use rg when an exact pattern decides it.
+- In Claude Code, judge many records from an MCP tool with `mcp__jev-pipeline__run` so the records stay out of context.
+
 ## Implementation Rules
 
 - Keep changes minimal and scoped to the requested task.
