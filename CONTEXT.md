@@ -64,6 +64,7 @@ _Avoid_: Skill copy
 
 **Global agent rules**:
 User-scoped instructions shared across repositories and imported by supported coding-agent harnesses.
+The canonical tracked file is `stow/opencode/.config/opencode/AGENTS.md`; the Claude, Pi, and Codex Stow packages expose it through relative symlinks.
 _Avoid_: Project rules
 
 **Project rules**:

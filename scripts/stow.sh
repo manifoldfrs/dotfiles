@@ -26,6 +26,7 @@ OPENCODE_BACKUP_TARGETS=(
     "$HOME/.config/opencode/plugins/typesafe-ai"
     "$HOME/.config/opencode/plugins/optojr-slack"
     "$HOME/.config/opencode/plugins/tui-conveniences"
+    "$HOME/.config/opencode/plugins/request-logger"
 )
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/AGENTS.md"

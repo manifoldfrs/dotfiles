@@ -90,13 +90,9 @@ const typeSafeInputSchema = {
   },
 } as const
 
-const typeSafeGuidance = `# TypeSafe Jev judgments
-Use the available Jev tools for verification, content screening, and completion judgments; prefer them for selection, classification, ranking, and comparison by meaning. If a specialized Jev tool fits, use it; otherwise use typesafe_evaluate for bounded Choice, Score, or Noul questions.
-Use exact search, parsing, arithmetic, and tests for deterministic facts, not Jev. A judgment is evidence, not proof; inspect probabilities and escalate uncertain consequential decisions.
-Inside execute, call tools only by the paths and signatures in the Code Mode catalog or search results. Batch independent judgments inside execute and return only the useful answers. Inputs leave this machine: do not send secrets or unrelated private data. Never invoke a paid classifier just to satisfy this instruction.
-Example inside execute, when the catalog lists tools.typesafe_evaluate:
-const result = await tools.typesafe_evaluate({ state: "A customer asks to cancel today", noul_questions: [{ id: "urgent", instructions: "Does this need a reply today?" }] });
-return result.answers.urgent; // { type: "noul", noul: probability }, not a boolean. No JSON.parse needed.`
+const typeSafeGuidance = `# TypeSafe Code Mode
+If no specialized Jev tool fits, typesafe_evaluate accepts bounded Choice, Score, or Noul questions.
+Inside execute, use the exact tool path and signature listed in the catalog or returned by search. The result is a validated object with answers, model, and usage; no JSON.parse is needed. Noul answers contain a probability, not a boolean.`
 
 /** Creates the Jev harness adapter with a replaceable evaluation boundary. */
 export function createTypeSafePlugin(evaluate: TypeSafeEvaluate = evaluateTypeSafeRequest) {

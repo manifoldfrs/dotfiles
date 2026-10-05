@@ -79,8 +79,8 @@ The tool accepts Choice, Score, and Noul questions and returns typed answers wit
 It sends the supplied state and questions to TypeSafe.
 Do not include credentials, secrets, or unrelated private data.
 
-OpenCode pins the TypeSafe tool in its Code Mode catalog and adds a compact judgment reminder to outgoing contexts where the catalog lists it.
-The reminder favors specialized Jev tools when available and does not make automatic model calls.
+OpenCode pins the TypeSafe tool in its Code Mode catalog and adds tool invocation guidance to outgoing contexts where the catalog lists it.
+Shared global rules and the Jev skill own judgment policy; the adapter explains only the Code Mode calling convention and result shape.
 Use exact search, parsing, arithmetic, and tests for deterministic facts.
 Inside `execute`, the tool returns a validated object with `answers`, `model`, and `usage`; no `JSON.parse` is needed.
 For example, when the catalog lists `tools.typesafe_evaluate`:
@@ -119,9 +119,12 @@ The `opencode` Stow package owns the tracked sources under `stow/opencode/.confi
 | `commands/` | Slash commands such as `/lg` |
 | `plugins/typesafe-ai/` | TypeSafe Jev tool |
 | `plugins/tui-conveniences/` | `/copy-all`, `/restart`, `/update`, skill-load confirmations, and the Git status footer |
+| `plugins/request-logger/` | Opt-in private HTTP request capture |
 
-New sessions use `openai/gpt-6-sol-fast` with medium reasoning effort and medium response verbosity.
-`openai/gpt-6-luna` also uses medium response verbosity when selected.
+New sessions use `openai/gpt-6.1-sol-fast` with medium reasoning effort and low response verbosity.
+Its pinned limits match the running ChatGPT catalog checked on 2026-10-04: 400,000 context, 272,000 input, and 128,000 output tokens.
+This catalog alias sends `gpt-6.1-sol` with the priority service tier.
+The limits preserve the current compaction budget rather than assuming the public API's larger window applies to this connection.
 The TUI hides the session sidebar and persistent tab strip.
 The TUI also provides Pi-style navigation shortcuts.
 
@@ -140,6 +143,41 @@ cd ~/dotfiles
 
 Bootstrap installs plugin dependencies automatically.
 Restart OpenCode after an apply.
+
+### OpenCode HTTP request logger
+
+The last local plugin is `request-logger`, disabled by default with `options.enabled: false`.
+After reviewing the tracked changes and approving live activation, enable it through the plugin's options in `opencode.jsonc`:
+
+```jsonc
+{
+  "package": "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/request-logger",
+  "options": {
+    "enabled": true,
+    "maxFiles": 100
+  }
+}
+```
+
+This is an entry in the existing `plugins` array, not a replacement configuration.
+Bootstrap installs its dependencies along with the other local plugins.
+The logger runs in the background service, so a flag on a new CLI process is not used to enable it.
+It writes to `~/.local/state/opencode/requests`, or an absolute `options.directory`, with directory mode `0700` and file mode `0600`.
+It refuses a symlink at the log directory and retains the newest 100 logger-owned files by default; `maxFiles` must be a positive integer.
+Retention limits file count, not total bytes, and leaves unrelated files alone.
+
+Each JSON file records the timestamp, session, agent, catalog model, request kind, raw body string, and byte counts for instructions, input, and tools when those fields exist.
+The body shows the actual wire model and provider options; the catalog model can be an alias.
+Byte counts are not token counts, and the instruction count excludes system messages embedded in the input array.
+For non-UTF-8 bodies, `bodyBase64` preserves the original bytes.
+The original request remains unchanged and readable; logging failures emit a generic server warning without error details and do not block dispatch.
+
+**Logs contain full prompts, tool schemas, and file contents, including any secrets already present in the body.**
+The logger deliberately omits URLs and request headers, but does not redact bodies because that would hide what was sent.
+Keep logs outside version control, review them before sharing, and disable logging when the investigation ends.
+Capture covers HTTP requests for primary turns, compaction, titles, transient generation, and retries, not responses or WebSocket frames.
+Keep the logger after request-mutating plugins; hooks registered later can still change the request after capture.
+Automatic updates, MCP package updates, and automatic compaction remain unchanged.
 
 ### Codex Chrome Extension Bridge
 
@@ -684,8 +722,8 @@ Preferred tool usage after setup:
 
 #### Shared rules and skills
 
-Global agent rules are tracked in [stow/claude/.claude/AGENTS.md](stow/claude/.claude/AGENTS.md).
-The `pi`, `opencode`, and `codex` Stow packages link to this file, so Claude Code, Pi, OpenCode, and Codex share one copy.
+Global agent rules are tracked in [stow/opencode/.config/opencode/AGENTS.md](stow/opencode/.config/opencode/AGENTS.md).
+The `claude`, `pi`, and `codex` Stow packages link to this file, so OpenCode, Claude Code, Pi, and Codex share one copy.
 Reload existing sessions after you change the rules.
 
 The shared skill catalog is tracked once under `stow/agents/.agents/skills/`.

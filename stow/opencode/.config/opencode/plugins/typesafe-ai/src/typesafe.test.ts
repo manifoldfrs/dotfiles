@@ -66,9 +66,11 @@ test("plugin keeps Jev visible and adds guidance once per Code Mode request", as
   assert.equal(event.system.length, 2)
   const guidance = event.system[1]
   assert.ok(guidance?.type === "text")
-  assert.match(guidance.text, /verification|verify/)
-  assert.match(guidance.text, /arithmetic/)
-  assert.match(guidance.text, /secrets/)
+  assert.match(guidance.text, /specialized Jev tool/)
+  assert.match(guidance.text, /exact tool path and signature/)
+  assert.match(guidance.text, /no JSON.parse/)
+  assert.match(guidance.text, /probability, not a boolean/)
+  assert.doesNotMatch(guidance.text, /verification|screening|completion|arithmetic|secrets/)
 
   // A fresh outgoing context after compaction must receive the same guidance.
   event.system.splice(1)
