@@ -94,6 +94,38 @@ if echo "$cmd" | grep -qE 'git[[:space:]]+(checkout[[:space:]]+--[[:space:]]+\.|
   exit 2
 fi
 
+# Rails and Rake commands, used by the Rails checks below
+rails_command='(^|[^A-Za-z0-9_./-])(bin/rails|bin/rake|rails|rake)[[:space:]]'
+
+# Destructive Rails database tasks, allowed only when explicitly targeting the test database
+if echo "$cmd" | grep -qE "$rails_command" \
+   && echo "$cmd" | grep -qE '(^|[[:space:]])db:(drop|reset|purge|truncate_all|schema:load|structure:load|seed:replant)([[:space:]]|$)' \
+   && ! echo "$cmd" | grep -qE '(^|[[:space:]])RAILS_ENV=test([[:space:]]|$)'; then
+  echo "Refusing a destructive Rails database task outside RAILS_ENV=test." >&2
+  echo "These tasks erase development data. Ask the user to run it, or prefix RAILS_ENV=test for the test database." >&2
+  exit 2
+fi
+
+# Rails or Rake commands targeting production
+if echo "$cmd" | grep -qE "$rails_command" \
+   && echo "$cmd" | grep -qE '((RAILS|RACK)_ENV=production|(-e|--environment)[[:space:]=]production)([[:space:]]|$)'; then
+  echo "Refusing a Rails command against production. Ask the user to run it." >&2
+  exit 2
+fi
+
+# Disabling Rails' protected-environment check
+if echo "$cmd" | grep -qE '(^|[[:space:]])DISABLE_DATABASE_ENVIRONMENT_CHECK=1'; then
+  echo "Refusing to bypass Rails' protected-environment database check." >&2
+  exit 2
+fi
+
+# Interactive credentials editing (needs a terminal editor and the master key)
+if echo "$cmd" | grep -qE "$rails_command" \
+   && echo "$cmd" | grep -qE '(^|[[:space:]])credentials:edit([[:space:]]|$)'; then
+  echo "Refusing 'credentials:edit'. It opens an interactive editor on secrets; ask the user to run it." >&2
+  exit 2
+fi
+
 # git branch -D (force-delete branch)
 if echo "$cmd" | grep -qE 'git[[:space:]]+branch[[:space:]].*-D([[:space:]]|$)'; then
   echo "Refusing 'git branch -D' (force-delete). Use '-d' or ask the user." >&2

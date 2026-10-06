@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     bash \
     curl \
     git \
+    jq \
     ripgrep \
     stow \
     sudo \

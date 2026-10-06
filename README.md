@@ -761,6 +761,8 @@ Research and review default to direct execution for small tasks; independent rev
 The `coding-standards` skill handles Effect-specific work; `coding-standards-ts` handles ordinary TypeScript.
 
 Local language standards include `coding-standards-ts`, `coding-standards-go`, and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
+The Rails standards are a short router that loads per-concern references, such as persistence, jobs, and lint policy, only when a change touches that concern.
+The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.bare` repository root for parallel agent work.
 [anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) provides an evidence-based Rails review and cleanup workflow.
 Ask it to review a diff for findings only, or ask it to clean up a diff to authorize edits.
 [anti-slop-ts](stow/agents/.agents/skills/anti-slop-ts/SKILL.md) manages the vendored Oxlint anti-slop plugin and its update workflow.
@@ -786,6 +788,9 @@ Sign in to Claude Code with your Claude subscription first.
 Configure the subscription tier in machine-local `~/.pi/agent/claude-bridge.json`.
 For Max without opting into extra-usage long context or delegation, set `provider.plan: "max"`, `provider.longContextExtraUsage: false`, and `askClaude.enabled: false`.
 New Pi sessions default to `claude-bridge/claude-opus-5-5` with medium thinking.
+
+`stow/pi/.pi/agent/extensions/continue-after-compaction.ts` resumes the task after automatic compaction by having the agent recover its context from the session log.
+It does nothing after a manual `/compact`.
 
 `stow/pi/.pi/agent/extensions/request-logger.ts` is an opt-in request logger.
 Run `pi-log` to enable it for one process.
@@ -857,8 +862,16 @@ Authentication, sessions, logs, plugin caches, and other runtime data are machin
 
 #### Guardrails and secrets
 
-Claude Code and Codex use the shared guardrail scripts under `stow/bin/.local/share/agent-guardrails/`.
+Claude Code, Codex, and Pi use the shared guardrail scripts under `stow/bin/.local/share/agent-guardrails/`.
 These scripts block dangerous shell commands and edits to generated files.
+Pi runs them from `stow/pi/.pi/agent/extensions/agent-guardrails.ts`, including calls made from Codemode scripts, and warns once if the `bin` Stow package is missing.
+
+The Rails rules block hand edits to `db/schema.rb`, `db/structure.sql`, `Gemfile.lock`, encrypted credentials, and key files.
+They also block editing a migration whose version the schema already records; roll it back first if it exists only on your branch.
+Destructive database tasks such as `db:drop`, `db:reset`, and `db:schema:load` are allowed only with `RAILS_ENV=test`.
+Rails commands against production, `DISABLE_DATABASE_ENVIRONMENT_CHECK=1`, and `credentials:edit` are blocked for agents.
+Pi and Claude Code set `GIT_EDITOR=true` for agent git commands so a rebase or merge never waits on an interactive editor.
+Run `bash test/agent_guardrails_test.sh "$PWD"` to test the rules.
 
 Keep credentials in machine-local state.
 Do not copy live MCP URLs, API keys, tokens, auth files, sessions, logs, or telemetry into tracked sources.

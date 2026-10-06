@@ -2,7 +2,7 @@
   "name": "dotfiles-pi-tests",
   "private": true,
   "scripts": {
-    "test": "node --import tsx --test pi_commands_test.ts ../stow/pi/.pi/agent/extensions/jev-guardrails/index.test.ts",
+    "test": "node --import tsx --test pi_commands_test.ts pi_guardrails_test.ts pi_compaction_test.ts ../stow/pi/.pi/agent/extensions/jev-guardrails/index.test.ts",
     "typecheck": "tsc --project tsconfig.pi.json"
   },
   "devDependencies": {

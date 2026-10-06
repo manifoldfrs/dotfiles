@@ -27,6 +27,10 @@
     "./pi_commands_test.ts",
     "../stow/pi/.pi/agent/extensions/jev-guardrails/*.ts",
     "../stow/pi/.pi/agent/extensions/lg.ts",
-    "../stow/pi/.pi/agent/extensions/update.ts"
+    "../stow/pi/.pi/agent/extensions/update.ts",
+    "./pi_guardrails_test.ts",
+    "./pi_compaction_test.ts",
+    "../stow/pi/.pi/agent/extensions/agent-guardrails.ts",
+    "../stow/pi/.pi/agent/extensions/continue-after-compaction.ts"
   ]
 }
