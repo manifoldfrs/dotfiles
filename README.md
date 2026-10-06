@@ -785,7 +785,7 @@ Use `/model` and select a `claude-bridge` model after restarting Pi.
 Sign in to Claude Code with your Claude subscription first.
 Configure the subscription tier in machine-local `~/.pi/agent/claude-bridge.json`.
 For Max without opting into extra-usage long context or delegation, set `provider.plan: "max"`, `provider.longContextExtraUsage: false`, and `askClaude.enabled: false`.
-The default Pi model remains unchanged.
+New Pi sessions default to `claude-bridge/claude-opus-5-5` with medium thinking.
 
 `stow/pi/.pi/agent/extensions/request-logger.ts` is an opt-in request logger.
 Run `pi-log` to enable it for one process.

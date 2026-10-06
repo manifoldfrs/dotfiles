@@ -1,8 +1,8 @@
 {
   "lastChangelogVersion": "1.0.4",
   "theme": "tokyonight-frsh",
-  "defaultProvider": "openai",
-  "defaultModel": "gpt-6.1-sol",
+  "defaultProvider": "claude-bridge",
+  "defaultModel": "claude-opus-5-5",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": false,
   "enableSkillCommands": true,
