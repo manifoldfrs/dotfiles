@@ -1,19 +1,56 @@
 import type { ExtensionAPI, ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
-import { DynamicBorder, getMarkdownTheme } from "@earendil-works/pi-coding-agent";
-import { Container, Markdown, matchesKey, Text } from "@earendil-works/pi-tui";
+import { DynamicBorder, getMarkdownTheme, getSelectListTheme } from "@earendil-works/pi-coding-agent";
+import { Container, Markdown, matchesKey, SelectList, Text } from "@earendil-works/pi-tui";
 import { buildSkillPage, findSkills, type LoadedSkill, readSkillPage, type SkillGroup, summarizeSkill } from "./skill-pages.ts";
 
 const SKILL_COMMAND_PREFIX = "skill:";
+// Rows the menu's borders, title, filter, and hints take outside the scrolling list.
+const MENU_CHROME_ROWS = 10;
+const MIN_VISIBLE_SKILLS = 5;
 
 function groupOf(sourceInfo: { scope: string; origin: string }): SkillGroup {
   if (sourceInfo.origin === "package") return "Pi packages";
   return sourceInfo.scope === "project" ? "Project" : "User";
 }
 
+/** Shows a scrolling, one-line-per-skill menu; typing filters by name prefix. */
 async function chooseSkill(ctx: ExtensionCommandContext, skills: LoadedSkill[], title: string): Promise<LoadedSkill | undefined> {
-  const options = skills.map((skill) => `${skill.name} — ${summarizeSkill(skill.description)}`);
-  const choice = await ctx.ui.select(title, options);
-  return choice === undefined ? undefined : skills[options.indexOf(choice)];
+  const items = skills.map((skill) => ({ value: skill.name, label: skill.name, description: summarizeSkill(skill.description) }));
+  const name = await ctx.ui.custom<string | undefined>((tui, theme, _keybindings, done) => {
+    const visible = Math.max(MIN_VISIBLE_SKILLS, Math.min(items.length, tui.terminal.rows - MENU_CHROME_ROWS));
+    const list = new SelectList(items, visible, getSelectListTheme());
+    list.onSelect = (item) => done(item.value);
+    list.onCancel = () => done(undefined);
+    let filter = "";
+    const filterText = new Text("", 1, 0);
+    const showFilter = () => filterText.setText(theme.fg("dim", filter ? `Filter: ${filter}` : "Type to filter"));
+    showFilter();
+    const container = new Container();
+    const border = new DynamicBorder((text: string) => theme.fg("accent", text));
+    container.addChild(border);
+    container.addChild(new Text(theme.fg("accent", theme.bold(title)), 1, 0));
+    container.addChild(filterText);
+    container.addChild(list);
+    container.addChild(new Text(theme.fg("dim", "↑↓ navigate  Enter open  Esc cancel"), 1, 0));
+    container.addChild(border);
+    return {
+      render: (width: number) => container.render(width),
+      invalidate: () => container.invalidate(),
+      handleInput: (data: string) => {
+        if (matchesKey(data, "backspace")) filter = filter.slice(0, -1);
+        else if (/^[a-z0-9-]$/i.test(data)) filter += data.toLowerCase();
+        else {
+          list.handleInput(data);
+          tui.requestRender();
+          return;
+        }
+        list.setFilter(filter);
+        showFilter();
+        tui.requestRender();
+      },
+    };
+  });
+  return skills.find((skill) => skill.name === name);
 }
 
 async function showPage(ctx: ExtensionCommandContext, page: string): Promise<void> {

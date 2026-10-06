@@ -764,7 +764,7 @@ Local language standards include `coding-standards-ts`, `coding-standards-go`, a
 The Rails standards are a short router that loads per-concern references, such as persistence, jobs, and lint policy, only when a change touches that concern.
 The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.bare` repository root for parallel agent work.
 
-In Pi, `/skills` opens a menu of every loaded skill with a one-line summary.
+In Pi, `/skills` opens a scrolling menu of every loaded skill with a one-line summary; type to filter by name.
 Pick one, or run `/skills <name>`, to open a tldr-style page that shows how to invoke it in each harness, whether agents load it automatically, what it covers, and where its full instructions live.
 `/skills <words>`, such as `/skills rails`, searches names and descriptions.
 [anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) provides an evidence-based Rails review and cleanup workflow.

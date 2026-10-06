@@ -3,7 +3,7 @@ anti-slop-rails	local
 anti-slop-ts	local
 ask-matt	excluded
 bro	local
-cloudflare-composition-root	dmmulroy
+cloudflare-composition-root	excluded
 code-review	local
 codebase-design	local
 coding-standards	local
