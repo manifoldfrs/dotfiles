@@ -1,0 +1,198 @@
+# Remote Agent Server Checklist
+
+Goal: run Pi, Claude Code, Codex, and OpenCode inside Herdr on a DigitalOcean Droplet so agents keep working while the MacBook is closed.
+The Mac becomes a thin client: `herdr` on the Mac shows the Droplet's panes over SSH through Tailscale.
+
+Shape:
+
+```text
+MacBook (Herdr client) ──ssh over Tailscale──▶ Droplet "agentbox"
+                                               ├─ Herdr server (keeps panes alive)
+                                               ├─ pi / claude / codex / opencode
+                                               ├─ ~/dotfiles (this repo, stowed)
+                                               └─ ~/code/... (repos the agents work on)
+```
+
+Estimated cost: $24/month for a Basic Regular Droplet with 4 GiB and 2 vCPUs, plus 20% if weekly backups are enabled.
+DigitalOcean bills powered-off Droplets, so destroy the Droplet (optionally after a snapshot) to stop billing.
+
+## Phase 0: Decide the Linux-incompatible tracked config
+
+These tracked files assume macOS and will misbehave when stowed on Linux.
+Decide each one before Phase 5.
+
+- [ ] **Pi `shellPath`** in `stow/pi/.pi/agent/settings.json` is `/opt/homebrew/bin/bash`, which does not exist on Linux.
+  Do not create `/opt/homebrew` on the server as a workaround, because `stow/bash/.config/bash/environment.bash` would then pick the wrong Homebrew prefix.
+  Recommended: set `shellPath` to `~/.local/bin/bash`, and on each machine create an untracked symlink `~/.local/bin/bash` pointing at that machine's Bash 5 (`/opt/homebrew/bin/bash` on the Mac, `/home/linuxbrew/.linuxbrew/bin/bash` on the server).
+- [ ] **Pi MCP** in `stow/pi/.pi/agent/mcp.json` and **OpenCode MCP** in `stow/opencode/.config/opencode/opencode.jsonc` start `/opt/homebrew/bin/codex-control-chrome-mcp`, which is macOS-only.
+  Expect a startup error for that one server on Linux, or make it conditional.
+- [ ] **Codex** `stow/codex/.codex/config.toml` hardcodes `/Users/frshbb/...` project, hook, and Computer Use paths.
+  Either skip the `codex` Stow package on the server and keep a server-local `~/.codex/config.toml`, or accept that those entries are inert there.
+- [ ] **Aliases** `pbc`/`pbp` and the FZF `ctrl-y` binding use `pbcopy`, so they will fail on the server; this is cosmetic.
+- [ ] Commit and push any Phase 0 changes, then confirm the Mac still works after re-applying them locally.
+
+## Phase 1: Create the Droplet
+
+- [ ] Create an SSH key for this Droplet on the Mac: `ssh-keygen -t ed25519 -f ~/.ssh/agentbox -C "agentbox"`.
+- [ ] In the DigitalOcean console, create a Droplet:
+  - Image: Ubuntu 24.04 LTS (x86_64).
+  - Plan: Basic, Regular, 4 GiB / 2 vCPUs / 80 GiB ($24/month). The $12 plan with 2 GiB runs out of memory with Node builds and several agents.
+  - Region: the one closest to you.
+  - Authentication: SSH key, upload `~/.ssh/agentbox.pub`. Do not use password authentication.
+  - Hostname: `agentbox`.
+  - Optional: enable weekly backups.
+- [ ] Note the public IPv4 address; it is only needed until Tailscale is up.
+
+## Phase 2: Base server setup
+
+Run as `root` over the public IP the first time: `ssh -i ~/.ssh/agentbox root@<public-ip>`.
+
+- [ ] Update packages: `apt update && apt full-upgrade -y`, then reboot if a kernel update was installed.
+- [ ] Create your user, matching the Mac username so `$HOME`-relative paths line up:
+
+  ```bash
+  adduser --disabled-password --gecos "" frshbb
+  usermod -aG sudo frshbb
+  echo 'frshbb ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/frshbb
+  rsync -a --chown=frshbb:frshbb ~/.ssh /home/frshbb/
+  ```
+
+- [ ] Keep user processes alive after SSH disconnects: `loginctl enable-linger frshbb`.
+  Ubuntu does not kill them by default, but linger makes it explicit.
+- [ ] Add swap so a memory spike slows agents down instead of killing them:
+
+  ```bash
+  fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  ```
+
+- [ ] Install build prerequisites for Linuxbrew: `apt install -y build-essential procps curl file git`.
+- [ ] Disable root and password SSH login in `/etc/ssh/sshd_config` (`PermitRootLogin no`, `PasswordAuthentication no`), then `systemctl restart ssh`.
+- [ ] From a second Mac terminal, verify `ssh -i ~/.ssh/agentbox frshbb@<public-ip>` works before closing the root session.
+
+## Phase 3: Tailscale
+
+- [ ] Install Tailscale on the Mac from https://tailscale.com/download and sign in.
+- [ ] On the server: `curl -fsSL https://tailscale.com/install.sh | sh`, then `sudo tailscale up --hostname=agentbox`.
+- [ ] Open the printed URL to add the server to your tailnet.
+- [ ] In the Tailscale admin console Machines page, disable key expiry for `agentbox` so the server does not drop off the tailnet.
+- [ ] Use regular OpenSSH over the tailnet rather than Tailscale SSH (`--ssh`).
+  Tailscale's default SSH policy uses check mode, which requires browser re-authentication every 12 hours and would break Herdr's unattended background reconnects.
+- [ ] From the Mac, verify `ssh -i ~/.ssh/agentbox frshbb@agentbox` works over MagicDNS.
+- [ ] In DigitalOcean, attach a Cloud Firewall to the Droplet with **no inbound rules** and the default allow-all outbound rules.
+  Tailscale only needs outbound connectivity, so public SSH is now closed.
+  The DigitalOcean web console remains the break-glass path.
+- [ ] Verify `ssh frshbb@<public-ip>` now times out while `ssh frshbb@agentbox` still works.
+
+## Phase 4: Mac SSH config
+
+- [ ] Add to `~/.ssh/config` on the Mac:
+
+  ```text
+  Host agentbox
+    HostName agentbox
+    User frshbb
+    IdentityFile ~/.ssh/agentbox
+    IdentitiesOnly yes
+    ServerAliveInterval 30
+  ```
+
+- [ ] Verify `ssh agentbox` works with no extra flags.
+- [ ] Install Ghostty's terminfo on the server so plain SSH sessions render correctly: `infocmp -x xterm-ghostty | ssh agentbox -- tic -x -`.
+
+## Phase 5: Toolchain on the server
+
+Use Linuxbrew, because `stow/bash/.config/bash/environment.bash` already detects `/home/linuxbrew/.linuxbrew` and it keeps tool names identical to the Mac.
+Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy packages (Qt, OpenJDK, PostgreSQL) that the server does not need.
+
+- [ ] Install Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`, then `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"`.
+- [ ] Install the agent-relevant subset:
+
+  ```bash
+  brew install bash git stow ripgrep fd fzf jq bat eza zoxide starship neovim lazygit tree glow gh mise node oven-sh/bun/bun herdr
+  ```
+
+- [ ] Create the per-machine Bash symlink from Phase 0: `mkdir -p ~/.local/bin && ln -s /home/linuxbrew/.linuxbrew/bin/bash ~/.local/bin/bash`.
+- [ ] Optionally make Homebrew Bash the login shell: append `/home/linuxbrew/.linuxbrew/bin/bash` to `/etc/shells`, then `chsh -s /home/linuxbrew/.linuxbrew/bin/bash`.
+  `/bin/bash` on Ubuntu 24.04 is already Bash 5, so this is optional.
+
+## Phase 6: Dotfiles
+
+- [ ] Give the server its own GitHub credentials, because agents need git while the Mac is closed and a forwarded SSH agent disappears when the Mac disconnects.
+  Recommended: `gh auth login` with a fine-grained token scoped to the repos the agents should touch, then `gh auth setup-git`.
+- [ ] Clone this repo: `git clone https://github.com/manifoldfrs/dotfiles.git ~/dotfiles`.
+- [ ] Preview: `cd ~/dotfiles && ./scripts/stow.sh dry-run`.
+- [ ] Validate in isolation: `./scripts/validate-dotfiles.sh`.
+- [ ] Apply: `./scripts/stow.sh apply`.
+  This is the server's own fresh home directory, but it is still a live change on that machine.
+- [ ] Do not run `scripts/bootstrap.sh`; it is macOS-specific (`dscl`, full `Brewfile`, casks).
+- [ ] Open a new login shell and confirm the prompt, aliases, `rg`, `fzf`, and `nvim` work.
+- [ ] Restore Neovim plugins: `nvim --headless -c "Lazy! restore" -c "qa"`.
+
+## Phase 7: Secrets
+
+- [ ] Create `~/.config/bash/local.bash` on the server with only the keys agents need (for example Jev/TypeSafe and provider API keys).
+  Type or paste them over SSH; do not commit them, and do not blindly `scp` the whole Mac file.
+- [ ] `chmod 600 ~/.config/bash/local.bash`.
+- [ ] Copy any untracked MCP config the harnesses need from `mcp/*.json` or `mcp/*.toml`, keeping them out of git.
+
+## Phase 8: Harnesses and auth
+
+- [ ] Install Pi with the pinned installer: `curl -fsSL https://pi.dev/install.sh | sh`.
+- [ ] Install Pi packages declared in `settings.json`: `pi update --extensions`, then `pi list`.
+- [ ] Install the global npm tools: `grep -v '^#' ~/dotfiles/npm-global-packages.txt | xargs npm install -g`.
+- [ ] Install OpenCode 2: `curl -fsSL https://opencode.ai/v2/install | bash`.
+- [ ] Install OpenCode plugin dependencies, mirroring `install_opencode_plugin_dependencies` in `scripts/bootstrap.sh`:
+
+  ```bash
+  for p in typesafe-ai optojr-slack tui-conveniences request-logger; do
+    (cd ~/.config/opencode/plugins/$p && npm install --omit=dev --no-package-lock)
+  done
+  ```
+
+- [ ] Log in to Claude Code first, because Pi's default provider is `claude-bridge`: run `claude`, then `/login`, and paste the code from the browser on the Mac.
+- [ ] Log in to Codex: `codex login` (use the device-code option if offered, since the server has no browser).
+- [ ] Log in to any other Pi providers with `/login` inside `pi`.
+- [ ] Start each harness once (`pi`, `claude`, `codex`, `opencode`) and fix any extension or MCP errors other than the expected macOS-only ones from Phase 0.
+
+## Phase 9: Herdr
+
+- [ ] On the Mac: `herdr machine add agentbox`.
+  It finds the Homebrew-installed `herdr` on the server, starts its background server, and saves the machine profile.
+- [ ] On the server, install the agent integrations so Herdr can track agent state: `herdr integration install pi`, and likewise `claude`, `codex`, and `opencode`.
+- [ ] On the server, sync Herdr plugins: `~/dotfiles/scripts/sync_herdr_plugins.sh`.
+- [ ] On the Mac, run `herdr` and confirm `agentbox` appears in the sidebar next to Local.
+- [ ] Herdr does not copy local plugins, config, or secrets to the server; everything server-side comes from Phases 5–8.
+
+## Phase 10: End-to-end verification
+
+- [ ] Clone a real project on the server under `~/code/...`.
+- [ ] In Herdr on the Mac, open a workspace on `agentbox`, start `pi` in that project, and give it a task that takes several minutes.
+- [ ] Close the MacBook lid for at least five minutes.
+- [ ] Reopen it, run `herdr`, and confirm the agent kept working and its output is intact.
+- [ ] Confirm the agent can `git push` from the server with its own credentials.
+- [ ] Reboot the Droplet (`sudo reboot`) and confirm `herdr --remote agentbox` restores the session layout; running agents do not survive a reboot, but Pi sessions can be resumed with `/resume`.
+
+## Daily workflow
+
+- Start long tasks in `agentbox` workspaces, not Local.
+- Detach or close the lid; the Herdr server on the Droplet keeps the panes running.
+- Reattach with `herdr`; the saved machine reconnects automatically.
+- From a phone, use the Tailscale app plus an SSH client, `ssh agentbox`, then run `herdr` there.
+
+## Maintenance
+
+- Pull dotfile changes on the server with `cd ~/dotfiles && git pull && ./scripts/stow.sh apply`.
+- Update tools with `brew upgrade`, `pi update`, and `npm update -g`.
+- Updating Herdr on the Mac does not restart the server's Herdr; update the server separately when you need new server-side behavior.
+- Ubuntu's unattended upgrades install security patches but do not reboot by default; reboot deliberately when no agents are running.
+- To stop paying, snapshot the Droplet if you want to keep it ($0.06/GB/month), then destroy it.
+
+## Sources
+
+- Herdr connecting machines: https://herdr.dev/docs/connecting-machines/
+- Herdr persistence and remote access: https://herdr.dev/docs/persistence-remote/
+- Tailscale on Linux: https://tailscale.com/docs/install/linux
+- Tailscale servers and SSH: https://tailscale.com/docs/how-to/set-up-servers
+- DigitalOcean Droplet pricing: https://www.digitalocean.com/pricing/droplets
+- Pi shell configuration: `docs/shell-aliases.md` in the installed `@earendil-works/pi-coding-agent` package

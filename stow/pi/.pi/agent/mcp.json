@@ -27,6 +27,11 @@
       "timeout": 60,
       "exposure": "codemode"
     },
+    "claude-in-chrome": {
+      "command": "claude",
+      "args": ["--claude-in-chrome-mcp"],
+      "exposure": "codemode"
+    },
     "codex-chrome": {
       "command": "/opt/homebrew/bin/codex-control-chrome-mcp",
       "args": ["--stdio"],
