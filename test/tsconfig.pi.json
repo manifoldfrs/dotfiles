@@ -31,6 +31,8 @@
     "./pi_guardrails_test.ts",
     "./pi_compaction_test.ts",
     "../stow/pi/.pi/agent/extensions/agent-guardrails.ts",
-    "../stow/pi/.pi/agent/extensions/continue-after-compaction.ts"
+    "../stow/pi/.pi/agent/extensions/continue-after-compaction.ts",
+    "./skill_pages_test.ts",
+    "../stow/pi/.pi/agent/extensions/skills-manual/*.ts"
   ]
 }
