@@ -1,6 +1,7 @@
 ---
 name: quiz-me
-description: Active-recall tutoring that tests and strengthens the user's understanding of a topic, concept, or codebase area. Use when the user types /quiz-me or says "quiz me", "test me on X", "test my understanding", "drill me on", "check what I know about", or "flashcards on X". One question at a time, escalating hints, never hands over the answer. Not for pressure-testing a plan or design (use grill-me), and not for writing code.
+description: Active-recall quiz on a topic, concept, or codebase area, one question at a time with escalating hints, grounded in the real code.
+disable-model-invocation: true
 ---
 
 # quiz-me
@@ -31,5 +32,5 @@ If quizzing on code, docs, or any external contract, read the real files first a
 
 ## End of session
 
-Give a short score, list the red-flagged items, and suggest when to review them again (most is forgotten within a day). Offer to save the red-flagged items to `~/.claude/quiz/<topic>.md` so a later `/quiz-me` can re-drill them.
+Give a short score, list the red-flagged items, and suggest when to review them again (most is forgotten within a day). Offer to save the red-flagged items to `~/.agents/quiz/<topic>.md` so a later `/quiz-me` can re-drill them.
 

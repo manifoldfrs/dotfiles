@@ -1,11 +1,15 @@
 {
-  "lastChangelogVersion": "0.86.1",
+  "lastChangelogVersion": "1.0.4",
   "theme": "tokyonight-frsh",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-sol",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": false,
   "enableSkillCommands": true,
+  "shellPath": "/opt/homebrew/bin/bash",
+  "defaultTools": [
+    "+codemode"
+  ],
   "themes": [
     "themes"
   ],
@@ -13,13 +17,14 @@
     "extensions"
   ],
   "packages": [
-    "npm:pi-mcp-adapter",
     "npm:pi-subagents",
     "npm:pi-intercom",
     "npm:pi-prompt-template-model",
     {
       "source": "npm:@plannotator/pi-extension",
       "skills": []
-    }
-  ]
+    },
+    "npm:pi-claude-bridge@0.9.1"
+  ],
+  "deviceId": "c91864e6-5d9d-42ae-843b-511b1a2e71bb"
 }

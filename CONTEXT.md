@@ -56,6 +56,8 @@ _Avoid_: Personalization layer
 
 **Skill ownership**:
 The recorded source of authority for a skill, which determines whether synchronization follows Matt Pocock, Dillon Mulroy, or this repository.
+Explicit local ownership preserves personalized skills against both upstream catalogs.
+Excluded ownership keeps a deliberately removed upstream skill out of the catalog during synchronization.
 _Avoid_: Skill location
 
 **Harness adapter**:
@@ -64,7 +66,7 @@ _Avoid_: Skill copy
 
 **Global agent rules**:
 User-scoped instructions shared across repositories and imported by supported coding-agent harnesses.
-The canonical tracked file is `stow/opencode/.config/opencode/AGENTS.md`; the Claude, Pi, and Codex Stow packages expose it through relative symlinks.
+The canonical tracked file is `stow/pi/.pi/agent/AGENTS.md`; the Claude, OpenCode, and Codex Stow packages expose it through relative symlinks.
 _Avoid_: Project rules
 
 **Project rules**:

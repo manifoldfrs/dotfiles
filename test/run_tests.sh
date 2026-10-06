@@ -31,6 +31,7 @@ pass "Shell syntax is valid"
 bash test/bash_path_test.sh "$DOTFILES_DIR"
 bash test/stow_preflight_test.sh "$DOTFILES_DIR"
 bash test/opencode_relaunch_test.sh "$DOTFILES_DIR"
+bash test/agent_skills_sync_test.sh "$DOTFILES_DIR"
 
 # Test 2: portable Git config
 echo "[TEST 2] Checking .gitconfig for forced SSH rewrites..."
@@ -58,14 +59,14 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/commands/lg.md" ] \
-    && [ ! -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
-    && [ -f "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
+    && [ ! -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
+    && [ -f "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
+    && [ -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
-    && [ -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
-    && cmp "$STOW_TEST_HOME/.config/opencode/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
-    && cmp "$STOW_TEST_HOME/.config/opencode/AGENTS.md" "$STOW_TEST_HOME/.pi/agent/AGENTS.md" \
-    && cmp "$STOW_TEST_HOME/.config/opencode/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
+    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
+    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.config/opencode/AGENTS.md" \
+    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/package.json" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/optojr-slack/package.json" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/package.json" ] \

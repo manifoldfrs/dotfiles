@@ -1,9 +1,4 @@
 {
-  "imports": [
-    "cursor",
-    "claude-code",
-    "claude-desktop"
-  ],
   "mcpServers": {
     "Ref": {
       "type": "http",
@@ -11,7 +6,7 @@
       "headers": {
         "x-ref-api-key": "${REF_API_KEY}"
       },
-      "directTools": true
+      "exposure": "direct"
     },
     "exa": {
       "type": "http",
@@ -19,7 +14,31 @@
       "headers": {
         "x-api-key": "${EXA_API_KEY}"
       },
-      "directTools": true
+      "exposure": "direct"
+    },
+    "jev": {
+      "command": "npx",
+      "args": ["-y", "@jkudish/jev-mcp"],
+      "exposure": "codemode"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest", "--isolated", "--no-usage-statistics"],
+      "timeout": 60,
+      "exposure": "codemode"
+    },
+    "codex-chrome": {
+      "command": "/opt/homebrew/bin/codex-control-chrome-mcp",
+      "args": ["--stdio"],
+      "exposure": "codemode"
+    },
+    "sonar": {
+      "command": "npx",
+      "args": ["-y", "@sonarapp/mcp"],
+      "env": {
+        "SONAR_API_KEY": "${SONAR_API_KEY}"
+      },
+      "exposure": "codemode"
     }
   }
 }

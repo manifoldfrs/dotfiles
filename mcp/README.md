@@ -53,12 +53,19 @@ Pi is Stow-managed by the default dotfiles profile:
 cd ~/dotfiles
 ./scripts/stow.sh apply
 pi list
+pi mcp list
 pi
 /mcp
 ```
 
-`stow/pi/.pi/agent/settings.json` installs `npm:pi-mcp-adapter`.
-`stow/pi/.pi/agent/mcp.json` mirrors the tracked Codex/OpenCode MCP set: Ref and exa.
+`stow/pi/.pi/agent/settings.json` leaves Pi's built-in MCP support enabled.
+`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, codex-chrome, and Sonar.
+Ref and exa remain directly exposed; the other servers use Codemode exposure.
+The settings explicitly enable Codemode alongside the ordinary coding tools.
+Jev reads `TYPESAFE_API_KEY` from the environment; Sonar passes `${SONAR_API_KEY}` through `env`.
+Chrome DevTools launches isolated Chrome with usage statistics disabled.
+The codex-chrome bridge uses the existing Chrome profile and requires the binary and native-host setup described in the root README.
+Adding these entries does not install their packages or configure the browser bridge.
 
 ### OpenCode
 
@@ -81,7 +88,7 @@ Edit each file and replace placeholders:
 - `EXA_API_KEY` → environment variable containing your Exa API key
 
 Restart Claude Desktop and Codex to apply changes.
-Restart Pi after changing `~/.pi/agent/mcp.json`.
+Run `/reload` or restart Pi after changing `~/.pi/agent/mcp.json`.
 Reload OpenCode after changing `~/.config/opencode/opencode.jsonc`.
 
 ## Backup
@@ -94,13 +101,18 @@ To backup your current MCP configs (with API keys):
 
 **Note:** Untracked template outputs containing literal API keys are gitignored. Stow-managed configs use environment interpolation and contain no secrets.
 Codex MCP HTTP servers should use `env_http_headers` with `REF_API_KEY` and `EXA_API_KEY`, not API keys embedded in URLs.
-Pi MCP HTTP servers should use adapter header interpolation with `${REF_API_KEY}` and `${EXA_API_KEY}`, not embedded API keys.
+Codex stdio servers should forward keys such as `TYPESAFE_API_KEY` and `SONAR_API_KEY` with `env_vars`, not literal `env` values.
+Claude Code's user-scope servers in `~/.claude.json` should use `${EXA_API_KEY}`-style expansion in headers and `env`.
+Export every key from machine-local `~/.config/bash/local.bash`; do not keep keys in loose files in the repository.
+Pi MCP HTTP servers should use built-in header interpolation with `${REF_API_KEY}` and `${EXA_API_KEY}`, not embedded API keys.
 OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` interpolation, not embedded API keys.
 
 ## MCP Servers Used
 
 - **Ref** - Documentation search
 - **Exa** - Web search
-- **Jev** - Typed judgments from TypeSafe's Jev model (Claude Code and OpenCode)
-- **Chrome DevTools** - Browser testing, screenshots, console, and network inspection (OpenCode)
+- **Jev** - Typed judgments from TypeSafe's Jev model (Claude Code, OpenCode, and Pi)
+- **Chrome DevTools** - Browser testing, screenshots, console, and network inspection (OpenCode and Pi)
+- **codex-chrome** - Existing-profile Chrome control (OpenCode and Pi)
+- **Sonar** - App Store optimization data (Claude Code, Codex, and Pi)
 - **Context7** - Library documentation

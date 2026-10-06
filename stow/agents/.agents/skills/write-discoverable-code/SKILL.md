@@ -13,13 +13,13 @@ license: MIT
 
 # Write discoverable code
 
-Coding agents discover code by searching for strings and reading small windows around the
-hits. They have no hover text, no jump-to-definition, and no memory between sessions. These
-rules make code resolvable in one search instead of five.
+Coding agents often discover code through plain-text search and focused reads.
+Semantic navigation may also be available; use it when the harness supports it.
+Searchable vocabulary keeps code discoverable across both modes.
 
 ## 1. Names are search queries
 
-- **Exported symbols get 2–4 word names, at least one of them a domain word.**
+- **Use concise, domain-specific exported names when generic names would be ambiguous.**
   `diffUserObjects`, not `diff`. `queueEventForDispatch`, not `queue`.
   Measured on a ~700k-line monorepo: 1-word exported names are globally unique 61% of
   the time; 3-word names 96%; 4+ words 98%. Three words is the knee of the curve.
@@ -41,7 +41,7 @@ rules make code resolvable in one search instead of five.
 - **When behavior or audience changes, rename in the same commit.** A stale name is
   misinformation with a 100% open rate — that includes visibility markers: a `_private`
   helper that other modules now import needs a public name.
-- **Filenames are names too — never use bare-role filenames.** `config.ts`, `types.ts`,
+- **Prefer domain-specific filenames when they fit the repository's conventions.** `config.ts`, `types.ts`,
   `utils.ts`, `helpers.ts`, `handlers.ts` say nothing in a search result and collide with
   every other module's config/types/utils in the repo. Prefix the domain:
   `billing-plan-config.ts`, not `config.ts`. (`index.ts` is acceptable only as a
@@ -63,14 +63,12 @@ rules make code resolvable in one search instead of five.
 
 ## 3. Say it where the search lands
 
-- **One-line doc comment on every export**, stating the sharpest constraint the code
-  itself can't show (units, timezone, "source time, not insert time", ownership).
+- **Add a short doc comment when an export has a constraint the type or name cannot show** (units, timezone, "source time, not insert time", ownership).
   The definition is where a name search lands; that line is your whole message.
 - **Write the plain-words phrase in the doc comment.** Searches arrive as natural language
   ("rate limit", "retry delay"), and camelCase identifiers don't match phrase greps —
-  `RateLimiter` is invisible to a search for "rate limit". The doc comment above each
-  export should contain, in ordinary spaced-out words, the phrase someone would search
-  for: a `SessionExpiryChecker` should say /\*_ Checks whether the user session has
+  `RateLimiter` is invisible to a search for "rate limit".
+  When a doc comment is needed, include the ordinary spaced-out phrase someone would search for: a `SessionExpiryChecker` should say /\*_ Checks whether the user session has
   expired. _/ so that a grep for "session expired" or "session has expired" lands here.
 - **A module should make sense with its imports unread.** Each imported name plus its
   doc line should say enough that the reader never has to open the source module. If

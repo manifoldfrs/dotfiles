@@ -24,8 +24,9 @@ Modes:
 
 The stable Matt catalog is discovered from skills/engineering and skills/productivity.
 Dmmulroy skills not present in Matt's stable catalog are treated as personalization.
-Existing local-owned skills win over same-name dmmulroy skills. Matt owns collisions with
-its stable catalog so that its composed workflow stays internally consistent.
+Explicit local-owned skills are preserved against both upstream catalogs.
+Excluded skills are never copied from either catalog.
+Otherwise Matt owns collisions with its stable catalog and dmmulroy supplements it.
 EOF
 }
 
@@ -104,9 +105,12 @@ for group in engineering productivity; do
 done
 sort -o "$matt_catalog" "$matt_catalog"
 
-# Matt's stable catalog is the baseline and wins same-name collisions.
+# Explicit local or excluded ownership keeps upstream copies out.
 while IFS=$'\t' read -r skill skill_dir; do
     [ -n "$skill" ] || continue
+    case "$(owner_of "$skill")" in
+        local|excluded) continue ;;
+    esac
     copy_skill "$skill_dir" "$skill"
     set_owner "$skill" "matt"
 done < "$matt_catalog"
@@ -128,7 +132,7 @@ while IFS=$'\t' read -r skill skill_dir; do
     fi
 
     owner="$(owner_of "$skill")"
-    if [ "$owner" = "local" ]; then
+    if [ "$owner" = "local" ] || [ "$owner" = "excluded" ]; then
         continue
     fi
     if [ -z "$owner" ] && [ -d "$DEST/$skill" ]; then

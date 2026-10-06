@@ -23,6 +23,15 @@ typed answers and probabilities rather
 than generating text or reasoning explanations. Code owns the workflow; the model
 supplies programmable common sense where ordinary code needs semantic understanding.
 
+## Judgment access in the harness
+
+In Pi 1.0, use native Codemode `models.classify` rather than a custom `typesafe_evaluate` SDK adapter.
+Look up `models.getModelOfType("classifier", "typesafe", "jev-latest")`, check availability, and check the result's `stopReason` before consuming answers.
+Native questions use `choice`, `score`, and `bool`; the `bool` answer's `probability` is the probability of true, not a boolean verdict.
+Read Pi's installed Codemode documentation for the current contract.
+Other harnesses may expose `typesafe_evaluate`; discover its schema before use.
+Specialized Jev MCP tools remain separate from the generic classifier API.
+
 ## Read the live docs
 
 **The live TypeSafe docs are the source of truth. Read them as part of the task.**

@@ -1,11 +1,12 @@
 ---
 name: diagnosing-bugs
-description: Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow.
+description: Diagnosis loop for hard bugs and performance regressions. Use for persistent, ambiguous, intermittent, or performance failures, or when the user explicitly requests a structured diagnosis.
 ---
 
 # Diagnosing Bugs
 
-A discipline for hard bugs. Skip phases only when explicitly justified.
+A discipline for hard bugs.
+For a straightforward reproduced defect with a confirmed cause, add a regression test, apply the minimal fix, and verify it without expanding into every phase.
 
 When exploring the codebase, read `CONTEXT.md` (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
 
@@ -81,7 +82,8 @@ Do not proceed until you have reproduced **and** minimised.
 
 ## Phase 3 — Hypothesise
 
-Generate **3–5 ranked hypotheses** before testing any of them. Single-hypothesis generation anchors on the first plausible idea.
+For an unresolved cause, list plausible competing hypotheses and the observations that distinguish them.
+Use enough alternatives to avoid anchoring; a fixed count is not a prerequisite for testing a concrete prediction.
 
 Each hypothesis must be **falsifiable**: state the prediction it makes.
 
@@ -131,4 +133,4 @@ Required before declaring done:
 - [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message — so the next debugger learns
 
-**Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the `/improve-codebase-architecture` skill with the specifics. Make the recommendation **after** the fix is in, not before — you have more information now than when you started.
+**Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) use the `/codebase-design` skill to propose the deeper module, with the specifics. Make the recommendation **after** the fix is in, not before — you have more information now than when you started.

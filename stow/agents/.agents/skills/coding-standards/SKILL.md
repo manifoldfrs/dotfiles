@@ -1,9 +1,11 @@
 ---
 name: coding-standards
-description: Correct-by-construction TypeScript and Effect standards. Use for TypeScript engineering, Effect code, or when another skill needs the user's coding standards.
+description: Effect-specific engineering standards and references. Use when changing Effect services, schemas, resource scopes, or Effect-based Alchemy integrations. For ordinary TypeScript, use coding-standards-ts.
 ---
 
-# TypeScript and Effect Coding Standards
+# Effect Coding Standards
+
+For ordinary TypeScript without Effect concerns, use [`../coding-standards-ts/SKILL.md`](../coding-standards-ts/SKILL.md) and stop here.
 
 Build **correct by construction**: parse data into meaningful types, make expected failures explicit, keep effects behind cohesive services, and test through real interfaces.
 
@@ -42,7 +44,8 @@ Apply the decision priority above when local conventions conflict with these sta
 
 Trace each caller-visible operation from input through every decision and effect to its observable result. Classify each changed concern as domain behavior, application policy, technology/framework mechanics, or composition/resource wiring.
 
-Read every applicable reference completely before designing the change:
+Use [`../coding-standards-ts/SKILL.md`](../coding-standards-ts/SKILL.md) for ordinary TypeScript principles.
+Load the references relevant to the Effect behavior being changed, following branch pointers when they apply:
 
 - [`references/effect.md`](references/effect.md) — whenever Effect code changes; follow its branch pointers before editing.
 - [`references/effect-alchemy.md`](references/effect-alchemy.md) — when an Alchemy Worker, Durable Object, Workflow, binding-backed service, or two-phase runtime constructor changes.
@@ -77,6 +80,6 @@ Implement every path required by the caller-visible operation, including expecte
 
 ## 5. Verify through public interfaces
 
-Add or update the tests required by [`references/testing.md`](references/testing.md). Run the repository's required verification commands, adding individual typecheck, test, build, or lint commands only when they are not already covered. Re-read each applicable reference and check every changed symbol against it. Fix each exception or report it with concrete evidence.
+Add or update the tests required by [`references/testing.md`](references/testing.md). Run the repository's required verification commands, adding individual typecheck, test, build, or lint commands only when they are not already covered. Check the changed public behavior against the relevant rules and report any exception with concrete evidence.
 
 **Complete when:** every required check passes or has a reported failure with concrete evidence; every applicable reference rule has been checked; every caller-visible feature has its required coverage; every added or changed export is intentional and has the documentation required by [`references/comments-and-jsdoc.md`](references/comments-and-jsdoc.md); each abstraction, helper, and cast in the changed behavior is required and conforms to its applicable reference; and all changes remain within the requested scope.

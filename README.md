@@ -70,13 +70,31 @@ spotify-visualizer
 ## TypeSafe Jev
 
 The TypeSafe skill defines when and how to request a Jev judgment.
-Harness adapters expose that behavior as the `typesafe_evaluate` tool:
+Pi 1.0 uses native Codemode classifiers; it no longer installs a custom TypeSafe SDK adapter.
+OpenCode retains its `typesafe_evaluate` adapter under `stow/opencode/.config/opencode/plugins/typesafe-ai/`.
+Both send the supplied state and questions to TypeSafe and return typed judgments.
 
-- Pi: `stow/pi/.pi/agent/extensions/typesafe-ai/`
-- OpenCode: `stow/opencode/.config/opencode/plugins/typesafe-ai/`
+In Pi Codemode:
 
-The tool accepts Choice, Score, and Noul questions and returns typed answers with probabilities.
-It sends the supplied state and questions to TypeSafe.
+```js
+const jev = await models.getModelOfType("classifier", "typesafe", "jev-latest");
+if (!jev) throw new Error("Jev classifier is unavailable");
+const result = await models.classify(jev, {
+  state: { message: "A customer asks to cancel today" },
+  questions: {
+    urgent: {
+      type: "bool",
+      instructions: "Does this need a reply today?",
+      criteria: { true: "Needs a reply today", false: "Can wait" },
+    },
+  },
+});
+if (result.stopReason !== "stop") throw new Error(result.errorMessage || "Jev classification failed");
+return result.answers.urgent;
+```
+
+Native questions use `choice`, `score`, or `bool`; a `bool` answer supplies a `probability`, not a boolean decision.
+Specialized Jev MCP tools remain available for screening, verification, and gates.
 Do not include credentials, secrets, or unrelated private data.
 
 OpenCode pins the TypeSafe tool in its Code Mode catalog and adds tool invocation guidance to outgoing contexts where the catalog lists it.
@@ -105,8 +123,9 @@ Keep `TYPESAFE_API_KEY` as machine-local state in `~/.config/bash/local.bash`:
 export TYPESAFE_API_KEY="YOUR_API_KEY"
 ```
 
-`scripts/bootstrap.sh` installs the pinned runtime dependencies.
-After an apply, reload Pi or OpenCode so that it loads the new adapter.
+`scripts/bootstrap.sh` installs the OpenCode adapters' pinned runtime dependencies.
+Pi's native classifier needs no separate SDK installation.
+Apply and reload live configuration only after reviewing and approving the tracked changes.
 
 ## OpenCode Configuration
 
@@ -206,13 +225,13 @@ codex-control-chrome-mcp uninstall-native-host --browser chrome
 
 Also remove the `codex-chrome` MCP entry if you no longer want OpenCode to start the bridge.
 
-### GPT-5 Response Verbosity
+### GPT Response Verbosity
 
-OpenAI GPT-5 models using the Responses API support `low`, `medium`, and `high` output verbosity.
+OpenAI GPT-5 models and the verified GPT-6 Astra, GPT-6 Sol, and GPT-6.1 Sol models support `low`, `medium`, and `high` output verbosity through the Responses API.
 The tracked configs currently use `low`.
 
-- Pi sets verbosity for every GPT-5 model using `openai-responses` or `openai-codex-responses` in `stow/pi/.pi/agent/extensions/gpt-verbosity.ts`.
-  Change the `VERBOSITY` constant, then run `/reload` in Pi.
+- Pi sets verbosity for every GPT-5 model and the verified `gpt-6-astra`, `gpt-6-sol`, and `gpt-6.1-sol` IDs using `openai-responses` or `openai-codex-responses` in `stow/pi/.pi/agent/extensions/gpt-verbosity.ts`.
+  Change the `verbosity: "low"` value, then run `/reload` in Pi.
 - Codex sets verbosity with `model_verbosity` in `stow/codex/.codex/config.toml`.
   Change the value, then restart Codex.
 - OpenCode sets `textVerbosity` per provider and model in `stow/opencode/.config/opencode/opencode.jsonc`.
@@ -722,8 +741,8 @@ Preferred tool usage after setup:
 
 #### Shared rules and skills
 
-Global agent rules are tracked in [stow/opencode/.config/opencode/AGENTS.md](stow/opencode/.config/opencode/AGENTS.md).
-The `claude`, `pi`, and `codex` Stow packages link to this file, so OpenCode, Claude Code, Pi, and Codex share one copy.
+Global agent rules are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md).
+The `claude`, `opencode`, and `codex` Stow packages link to this file, so Pi, Claude Code, OpenCode, and Codex share one copy.
 Reload existing sessions after you change the rules.
 
 The shared skill catalog is tracked once under `stow/agents/.agents/skills/`.
@@ -736,6 +755,10 @@ Skill ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
 Use `./scripts/update_agent_skills.sh --check` to check for drift.
 Use `--review` to open a Plannotator review and `--sync` to update the tracked snapshot.
 An update stays uncommitted for normal Git review.
+Explicit `local` ownership protects personalized skills against both upstream catalogs.
+To remove an upstream skill for good, delete its folder and set its manifest owner to `excluded`; synchronization then never copies it back.
+Research and review default to direct execution for small tasks; independent reviewers and investigators remain available when scope warrants authorized delegation.
+The `coding-standards` skill handles Effect-specific work; `coding-standards-ts` handles ordinary TypeScript.
 
 Local language standards include `coding-standards-ts`, `coding-standards-go`, and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
 [anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) provides an evidence-based Rails review and cleanup workflow.
@@ -745,13 +768,45 @@ Ask it to review a diff for findings only, or ask it to clean up a diff to autho
 #### Pi
 
 The `pi` Stow package owns settings, MCP configuration, prompts, themes, and extensions under `stow/pi/.pi/agent/`.
-Pi uses Ref and exa through `npm:pi-mcp-adapter`.
-The MCP adapter reads `REF_API_KEY` and `EXA_API_KEY` from the environment.
+Pi uses its built-in MCP support for Ref, exa, Jev, Chrome DevTools, codex-chrome, and Sonar.
+The MCP config reads `REF_API_KEY`, `EXA_API_KEY`, `TYPESAFE_API_KEY`, and `SONAR_API_KEY` from the environment.
+Codemode is explicitly enabled alongside the ordinary coding tools.
+Ref and exa remain directly exposed; Jev, Sonar, and browser tools are discovered through Codemode.
+Chrome DevTools uses an isolated browser; codex-chrome controls the existing profile using the same machine-local bridge setup as OpenCode.
+Run `pi mcp list` to check connections after applying the configuration.
+Pi's native `shellPath` selects `/opt/homebrew/bin/bash` for both model commands and user `!`/`!!` commands; the Zsh override is removed.
+Adjust that path on machines with a different Homebrew prefix.
+`/lg` expands the shared `lg` skill and preserves follow-up queuing while busy.
+`/update` asks for confirmation, waits for idle, and runs native `pi update`; unattended startup updating and custom package-manager detection are removed.
 Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer.
+
+`pi-claude-bridge@0.9.1` provides Claude models through Claude Code's Agent SDK.
+Use `/model` and select a `claude-bridge` model after restarting Pi.
+Sign in to Claude Code with your Claude subscription first.
+Configure the subscription tier in machine-local `~/.pi/agent/claude-bridge.json`.
+For Max without opting into extra-usage long context or delegation, set `provider.plan: "max"`, `provider.longContextExtraUsage: false`, and `askClaude.enabled: false`.
+The default Pi model remains unchanged.
 
 `stow/pi/.pi/agent/extensions/request-logger.ts` is an opt-in request logger.
 Run `pi-log` to enable it for one process.
 Captured requests are machine-local state under `~/.pi/agent/logs/requests/`.
+
+`extensions/jev-guardrails/` uses Pi's native `typesafe/jev-latest` classifier for automatic web screening and edit-scope audits.
+It requires `TYPESAFE_API_KEY` and makes paid external calls with fetched text and edited code.
+Ref and Exa text results, including nested Codemode calls, are screened in 20,000-character chunks before delivery.
+Passing results are unchanged; suspicious or uncertain results and screening failures are withheld, without warning annotations or toasts.
+Successful `edit` calls record every `edits[]` replacement, and successful `write` calls record their content for one audit before settlement.
+Writes preserve unknown before-text as `null`; the duplicate first-edit decision reminder is removed.
+The audit considers the first 2,000 characters of each before/after value and does not cover shell-based edits or replace a final-diff review.
+Confident findings request one continuation to review the changes; failed audits request one continuation to report the failure and use the normal completion checks.
+The extension never reverts files automatically.
+These automatic checks use native classifier questions; the specialized Jev MCP tools remain available for explicit screening, verification, decisions, and completion gates.
+Global rules own judgment policy; already-screened content does not need a duplicate screen unless it changes.
+
+Pi regression tests and strict typechecking live in `test/package.json` and `test/tsconfig.pi.json`.
+With the declared development dependencies installed, run `npm --prefix test test` and `npm --prefix test run typecheck`.
+Run `bash test/agent_skills_sync_test.sh "$PWD"` for the offline skill-ownership regression test.
+The test uses fake upstream fixtures and does not fetch repositories or mutate live configuration.
 
 #### OpenCode
 
@@ -797,6 +852,7 @@ This file is machine-local state and is not managed by Stow.
 
 The `codex` Stow package owns personal defaults, MCP server definitions, hooks, and the Tokyo Night theme under `stow/codex/.codex/`.
 The MCP configuration reads `REF_API_KEY` and `EXA_API_KEY` through `env_http_headers`.
+Stdio servers forward `TYPESAFE_API_KEY` (Jev) and `SONAR_API_KEY` (Sonar) with `env_vars`; never put literal keys in `env`.
 Authentication, sessions, logs, plugin caches, and other runtime data are machine-local state under `~/.codex/`.
 
 #### Guardrails and secrets

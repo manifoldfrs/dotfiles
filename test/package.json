@@ -1,0 +1,14 @@
+{
+  "name": "dotfiles-pi-tests",
+  "private": true,
+  "scripts": {
+    "test": "node --import tsx --test pi_commands_test.ts ../stow/pi/.pi/agent/extensions/jev-guardrails/index.test.ts",
+    "typecheck": "tsc --project tsconfig.pi.json"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "1.0.4",
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,7 +1,7 @@
 # AGENTS.md - MCP Configurations
 
 ## Package Identity
-MCP server configs for Claude Desktop and Codex.
+MCP server configs for Claude Desktop plus tracked MCP guidance for Codex, Pi, and OpenCode.
 Templates stored as `.example` files with placeholders.
 
 ## Setup & Run
@@ -44,6 +44,7 @@ rg 'command' mcp/*.example
 
 ## Common Gotchas
 - Restart Claude Desktop/Codex after `./mcp_setup.sh install`
+- Run `/reload` or restart Pi after Stowing `stow/pi/.pi/agent/mcp.json`
 - TOML syntax is strict; keep `command` arrays
 - Templates must keep `.example` suffix to avoid commits
 
