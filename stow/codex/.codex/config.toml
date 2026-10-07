@@ -117,6 +117,7 @@ enabled = true
 
 [tui]
 theme = "tokyonight-frsh"
+screen_reader_detection_done = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
@@ -295,6 +296,9 @@ ENABLE_TOOL_SEARCH = "true"
 MAX_MCP_OUTPUT_TOKENS = "30000"
 MCP_TIMEOUT = "60000"
 CLAUDE_CODE_PLUGIN_DIRS = "~/code/personal/dotfiles/stow/claude/.claude/mods/optojr-slack:~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-pipeline:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-screen:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-coding"
+GIT_EDITOR = "true"
+GIT_SEQUENCE_EDITOR = "true"
+GIT_MERGE_AUTOEDIT = "no"
 
 [memories]
 generate_memories = true

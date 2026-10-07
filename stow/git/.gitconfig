@@ -10,6 +10,9 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[hook "strip-co-authors"]
+	event = commit-msg
+	command = perl -i -ne 'print unless /^\\s*co-authored-by:/i'
 [alias]
 	co = checkout
 	ci = commit
