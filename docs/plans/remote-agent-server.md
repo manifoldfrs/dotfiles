@@ -173,12 +173,34 @@ Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy p
 - [ ] Confirm the agent can `git push` from the server with its own credentials.
 - [ ] Reboot the Droplet (`sudo reboot`) and confirm `herdr --remote agentbox` restores the session layout; running agents do not survive a reboot, but Pi sessions can be resumed with `/resume`.
 
+## Phase 11: Phone access (Galaxy Fold 8)
+
+The phone is another thin client, like the Mac.
+Agents keep running in Herdr on the Droplet; the phone only attaches to them.
+
+- [ ] Install the Tailscale app from Google Play and sign in to the same tailnet.
+- [ ] Install Termius from Google Play.
+  The free Starter plan includes SSH, Mosh, port forwarding, SFTP, a special-key toolbar, and tabs; Pro ($15/month or $119/year) mainly adds encrypted vault sync across devices.
+- [ ] In Termius, generate an ed25519 key named `fold8` and copy its public key.
+  Give the phone its own key; do not copy `~/.ssh/agentbox` from the Mac, so a lost phone can be revoked on its own.
+- [ ] Append the public key to `~/.ssh/authorized_keys` on `agentbox` from the Mac: `ssh agentbox 'cat >> ~/.ssh/authorized_keys'`, paste the key, then press Ctrl-D.
+- [ ] In Termius, add a host `agentbox` with hostname `agentbox`, user `frshbb`, and the `fold8` key.
+- [ ] Optional: install Mosh on the server (`brew install mosh`) and enable Mosh for the host in Termius, so sessions survive switching between Wi-Fi and cellular.
+  Mosh uses UDP ports 60000–61000, which travel inside the tailnet; verify it connects with the Cloud Firewall from Phase 3 still closed.
+- [ ] Verify: connect from the phone, run `herdr`, attach to a running Pi pane, lock the phone for a few minutes, then reconnect and confirm the agent kept working.
+- [ ] To revoke a lost phone, delete its line from `~/.ssh/authorized_keys` and remove the device in the Tailscale admin console.
+
+Alternative clients:
+
+- Termux (from F-Droid or GitHub) works as a free, open-source SSH client: `pkg install openssh mosh`, then `ssh frshbb@agentbox`.
+- Termux can also run Pi directly on the phone, but that is a separate setup this plan does not need, because the agents live on the Droplet.
+
 ## Daily workflow
 
 - Start long tasks in `agentbox` workspaces, not Local.
 - Detach or close the lid; the Herdr server on the Droplet keeps the panes running.
 - Reattach with `herdr`; the saved machine reconnects automatically.
-- From a phone, use the Tailscale app plus an SSH client, `ssh agentbox`, then run `herdr` there.
+- From the phone, open the `agentbox` host in Termius (Phase 11), then run `herdr` there.
 
 ## Maintenance
 
@@ -195,4 +217,7 @@ Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy p
 - Tailscale on Linux: https://tailscale.com/docs/install/linux
 - Tailscale servers and SSH: https://tailscale.com/docs/how-to/set-up-servers
 - DigitalOcean Droplet pricing: https://www.digitalocean.com/pricing/droplets
+- Termius for Android: https://play.google.com/store/apps/details?id=com.server.auditor.ssh.client
+- Termux: https://github.com/termux/termux-app
+- Pi on Android with Termux: https://pi.dev/docs/latest/termux
 - Pi shell configuration: `docs/shell-aliases.md` in the installed `@earendil-works/pi-coding-agent` package
