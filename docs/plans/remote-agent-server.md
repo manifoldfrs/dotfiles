@@ -84,60 +84,58 @@ Steps:
 
 Run as `root` over the public IP the first time: `ssh -i ~/.ssh/agentbox root@<public-ip>`.
 
-- [ ] Update packages: `apt update && apt full-upgrade -y`, then reboot if a kernel update was installed.
-- [ ] Create your user, matching the Mac username so `$HOME`-relative paths line up:
+Admin model: no passwords anywhere.
+`root` logs in only with the Mac's `~/.ssh/agentbox` key (`PermitRootLogin prohibit-password`), and `frshbb`, which runs Herdr and the agents, has no sudo at all.
+An agent therefore cannot become root, and you run admin commands (`apt`, Tailscale, reboots) with `ssh root@agentbox` from the Mac, never inside an agent pane.
+Do not add the phone's key to root; the phone only needs `frshbb`.
+Agents running as `frshbb` can still read every credential that user owns, so keep DigitalOcean and Tailscale admin credentials off the server.
+
+- [x] Update packages: `apt update && apt full-upgrade -y`, then reboot if a kernel update was installed.
+- [x] Create your user without a password, matching the Mac username so `$HOME`-relative paths line up:
 
   ```bash
-  adduser --gecos "" frshbb
-  usermod -aG sudo frshbb
+  adduser --disabled-password --gecos "" frshbb
   rsync -a --chown=frshbb:frshbb ~/.ssh /home/frshbb/
   ```
 
-  Give `frshbb` a sudo password and do not add `NOPASSWD`.
-  The agents run unattended as this user, so passwordless sudo would give a runaway or prompt-injected agent root, including the power to turn off Tailscale or the firewall.
-  Keep the password in your password manager; you only need it for `apt`, reboots, and Phase 3.
-
-  Trust boundary: a sudo password slows an agent down but does not isolate it.
-  Agents running as `frshbb` can read every credential that user owns and edit its shell startup files, so `chmod 600` protects secrets from other users, not from the agents.
-  Do admin work (`sudo`, Tailscale, firewall) in a separate SSH session, never in an agent pane, and keep DigitalOcean and Tailscale admin credentials off the server.
-  If agent-to-root escalation must be impossible, run agents under a second account with no sudo; this plan accepts the single-account risk for simplicity.
-
-- [ ] Keep user processes alive after SSH disconnects: `loginctl enable-linger frshbb`.
+- [x] Keep user processes alive after SSH disconnects: `loginctl enable-linger frshbb`.
   Ubuntu does not kill them by default, but linger makes it explicit.
-- [ ] Add swap so a memory spike slows agents down instead of killing them:
+- [x] Add swap so a memory spike slows agents down instead of killing them:
 
   ```bash
   fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
   echo '/swapfile none swap sw 0 0' >> /etc/fstab
   ```
 
-- [ ] Install build prerequisites for Linuxbrew: `apt install -y build-essential procps curl file git`.
-- [ ] Disable root and password SSH login with a drop-in, `/etc/ssh/sshd_config.d/10-hardening.conf`, containing `PermitRootLogin no` and `PasswordAuthentication no`.
+- [x] Install build prerequisites for Linuxbrew, plus Mosh for the phone: `apt install -y build-essential procps curl file git mosh`.
+- [x] Pre-create the Linuxbrew prefix so Homebrew installs without sudo: `mkdir -p /home/linuxbrew/.linuxbrew && chown -R frshbb:frshbb /home/linuxbrew`.
+- [x] Harden SSH with a drop-in, `/etc/ssh/sshd_config.d/10-hardening.conf`, containing `PermitRootLogin prohibit-password`, `PasswordAuthentication no`, and `KbdInteractiveAuthentication no`.
   Ubuntu reads drop-ins first and the first value wins, so a cloud-init drop-in can override edits to the main file.
-- [ ] Run `sshd -t` (syntax), then `sshd -T | grep -Ei '^(permitrootlogin|passwordauthentication)'` and confirm `no` for both before `systemctl restart ssh`.
-- [ ] From a second Mac terminal, verify `ssh -i ~/.ssh/agentbox frshbb@<public-ip>` works and `sudo -v` accepts the password, before closing the root session.
-- [ ] From here on, run everything as `frshbb`, not root; confirm with `id -un` and `echo $HOME`.
+- [x] Run `sshd -t`, then `sshd -T | grep -Ei '^(permitrootlogin|passwordauthentication)'` (expect `without-password` and `no`) before `systemctl restart ssh`.
+- [x] Verify root and `frshbb` key logins work, password login is refused, and `sudo -l -U frshbb` reports no sudo rights.
+- [ ] From here on, run tool installs, Stow, logins, and Herdr as `frshbb`, and only admin commands as root.
 
 ## Phase 3: Tailscale
 
-- [ ] Install Tailscale on the Mac from https://tailscale.com/download and sign in.
-- [ ] On the server: `curl -fsSL https://tailscale.com/install.sh | sh`, then `sudo tailscale up --hostname=agentbox`.
-- [ ] Open the printed URL to add the server to your tailnet.
-- [ ] In the Tailscale admin console Machines page, disable key expiry for `agentbox` so the server does not drop off the tailnet.
-- [ ] Use regular OpenSSH over the tailnet rather than Tailscale SSH (`--ssh`).
+- [x] Install Tailscale on the Mac from https://tailscale.com/download and sign in.
+- [x] On the server as root: `curl -fsSL https://tailscale.com/install.sh | sh`, then `tailscale up --hostname=agentbox`.
+- [x] Open the printed URL to add the server to your tailnet.
+- [x] In the Tailscale admin console Machines page, disable key expiry for `agentbox` so the server does not drop off the tailnet.
+- [x] Use regular OpenSSH over the tailnet rather than Tailscale SSH (`--ssh`).
   Tailscale's default SSH policy uses check mode, which requires browser re-authentication every 12 hours and would break Herdr's unattended background reconnects.
-- [ ] From the Mac, verify `ssh -i ~/.ssh/agentbox frshbb@agentbox` works over MagicDNS.
-- [ ] Test the break-glass path before closing public access: open the Droplet's **Recovery Console** in DigitalOcean, log in as `frshbb` with the sudo password, and run `sudo -v`.
+- [x] From the Mac, verify `ssh -i ~/.ssh/agentbox frshbb@agentbox` works over MagicDNS.
+- [x] Know the break-glass path before closing public access: if Tailscale or SSH breaks, use the Droplet's **Reset root password** in DigitalOcean (it powers the Droplet off and sets a new root password), then log in through the **Recovery Console**.
   The Recovery Console works without network access, so it still works when the firewall or Tailscale is broken.
-- [ ] In DigitalOcean, attach a Cloud Firewall to the Droplet with **no inbound rules** and the default allow-all outbound rules.
+  Afterwards, lock the root password again with `passwd -l root`.
+- [x] In DigitalOcean, attach a Cloud Firewall to the Droplet with **no inbound rules** and the default allow-all outbound rules.
   Tailscale only needs outbound connectivity, so public SSH is now closed.
-- [ ] Verify `ssh frshbb@<public-ip>` now times out while `ssh frshbb@agentbox` still works.
-- [ ] Check the connection type with `tailscale ping agentbox` from the Mac.
+- [x] Verify `ssh frshbb@<public-ip>` now times out while `ssh frshbb@agentbox` still works.
+- [x] Check the connection type with `tailscale ping agentbox` from the Mac.
   If it reports `via DERP` and the phone feels laggy, add one inbound Cloud Firewall rule for UDP 41641 so peers can connect directly.
 
 ## Phase 4: Mac SSH config
 
-- [ ] Add to `~/.ssh/config` on the Mac:
+- [x] Add to `~/.ssh/config` on the Mac:
 
   ```text
   Host agentbox
@@ -148,56 +146,65 @@ Run as `root` over the public IP the first time: `ssh -i ~/.ssh/agentbox root@<p
     ServerAliveInterval 30
   ```
 
-- [ ] Verify `ssh agentbox` works with no extra flags.
-- [ ] Install Ghostty's terminfo on the server so plain SSH sessions render correctly: `infocmp -x xterm-ghostty | ssh agentbox -- tic -x -`.
+- [x] Verify `ssh agentbox` works with no extra flags.
+- [x] Install Ghostty's terminfo on the server for both accounts so SSH sessions render correctly: `infocmp -x xterm-ghostty | ssh agentbox -- tic -x -`, and the same with `root@agentbox`.
 
 ## Phase 5: Toolchain on the server
 
 Use Linuxbrew, because `stow/bash/.config/bash/environment.bash` already detects `/home/linuxbrew/.linuxbrew` and it keeps tool names identical to the Mac.
 Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy packages (Qt, OpenJDK, PostgreSQL) that the server does not need.
 
-- [ ] Install Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`, then `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"`.
-- [ ] Install the agent-relevant subset:
+- [x] Install Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`, then `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"`.
+- [x] Install the agent-relevant subset:
 
   ```bash
   brew install git stow ripgrep fd fzf jq bat eza zoxide starship neovim lazygit tree glow gh mise node oven-sh/bun/bun herdr
   ```
 
-- [ ] Keep `/bin/bash` as the login shell; Ubuntu 24.04 ships Bash 5.2, so there is no reason to switch to Linuxbrew Bash.
+- [x] Keep `/bin/bash` as the login shell; Ubuntu 24.04 ships Bash 5.2, so there is no reason to switch to Linuxbrew Bash.
 
 ## Phase 6: Dotfiles
 
-- [ ] Give the server its own GitHub credentials, because agents need git while the Mac is closed and a forwarded SSH agent disappears when the Mac disconnects.
-  Create a fine-grained personal access token with only the repos the agents should touch, Contents read/write, any other permission they actually need (for example Pull requests), and an expiry date.
-  Phase 7 exports it as `GH_TOKEN` in `local.bash`; until then, `export GH_TOKEN=...` in the current shell.
-  Run `gh auth setup-git` so HTTPS git uses it, and set a calendar reminder to rotate it before it expires.
-- [ ] Clone this repo to the same path as on the Mac, because the OpenCode plugin paths and `CLAUDE_CODE_PLUGIN_DIRS` point there:
+- [x] Give the server its own GitHub credentials, because agents need git while the Mac is closed and a forwarded SSH agent disappears when the Mac disconnects.
+  A fine-grained token has exactly one owner, so there are two, each limited to selected repos with Contents and Pull requests read/write and a 90-day expiry:
+  `GH_TOKEN` (owner `joinopto`, for `opto2`) and `GH_TOKEN_PERSONAL` (owner `manifoldfrs`, for `dotfiles` and other personal repos), both in `local.bash` (Phase 7).
+  Git picks the token by URL in the untracked `~/.config/git/config`: `https://github.com/manifoldfrs/` uses `GH_TOKEN_PERSONAL` through a small helper, and every other GitHub URL uses `gh auth git-credential`, which reads `GH_TOKEN`.
+  Do not run `gh auth setup-git` or `git config --global` on the server: `~/.gitconfig` is a Stow link, so they write into the tracked `stow/git/.gitconfig`.
+  The `gh` CLI itself only reads `GH_TOKEN`; prefix personal-repo commands with `GH_TOKEN=$GH_TOKEN_PERSONAL gh ...`.
+  Verified with `git credential fill` (each URL gets its own token) and `git push --dry-run` to both repos.
+  Set calendar reminders to rotate both tokens before they expire.
+- [x] Clone this repo to the same path as on the Mac, because the OpenCode plugin paths and `CLAUDE_CODE_PLUGIN_DIRS` point there:
   `git clone https://github.com/manifoldfrs/dotfiles.git ~/code/personal/dotfiles`.
-- [ ] Preview: `cd ~/code/personal/dotfiles && ./scripts/stow.sh dry-run`.
-- [ ] Validate in isolation: `./scripts/validate-dotfiles.sh`.
-- [ ] Apply: `./scripts/stow.sh apply`.
+- [x] Preview: `cd ~/code/personal/dotfiles && ./scripts/stow.sh dry-run`.
+- [x] Validate in isolation: `./scripts/validate-dotfiles.sh`.
+- [x] Apply: `./scripts/stow.sh apply`.
   This is the server's own fresh home directory, but it is still a live change on that machine.
-- [ ] Confirm the Phase 0 link: `readlink ~/.local/bin/bash` prints `/bin/bash`, `~/.local/bin/bash --version` reports 5.x, and `~/.codex/config.toml` is not a link into the repo.
-- [ ] Do not run `scripts/bootstrap.sh`; it is macOS-specific (`dscl`, full `Brewfile`, casks).
-- [ ] Open a new login shell and confirm the prompt, aliases, `rg`, `fzf`, and `nvim` work.
-- [ ] Restore Neovim plugins: `nvim --headless -c "Lazy! restore" -c "qa"`.
+- [x] Confirm the Phase 0 link: `readlink ~/.local/bin/bash` prints `/bin/bash`, `~/.local/bin/bash --version` reports 5.x, and `~/.codex/config.toml` is not a link into the repo.
+- [x] Do not run `scripts/bootstrap.sh`; it is macOS-specific (`dscl`, full `Brewfile`, casks).
+- [x] Open a new login shell and confirm the prompt, aliases, `rg`, `fzf`, and `nvim` work.
+- [x] Restore Neovim plugins: `nvim --headless -c "Lazy! restore" -c "qa"`.
 
 ## Phase 7: Secrets
 
-- [ ] Create `~/.config/bash/local.bash` on the server with only the keys agents need (for example Jev/TypeSafe and provider API keys) plus the `GH_TOKEN` from Phase 6.
+- [x] Create `~/.config/bash/local.bash` on the server with only the keys agents need (for example Jev/TypeSafe and provider API keys) plus the `GH_TOKEN` from Phase 6.
   Type or paste them over SSH; do not commit them, and do not blindly `scp` the whole Mac file.
-- [ ] Add `export PLANNOTATOR_REMOTE=1` to `local.bash`.
+- [x] Add `export PLANNOTATOR_REMOTE=1` to `local.bash`.
   Plannotator only detects SSH sessions on its own, and agents in Herdr panes may not inherit the SSH variables.
-- [ ] `chmod 600 ~/.config/bash/local.bash`.
-- [ ] Copy any untracked MCP config the harnesses need from `mcp/*.json` or `mcp/*.toml`, keeping them out of git.
+- [x] `chmod 600 ~/.config/bash/local.bash`.
+- [x] Pi needs no untracked MCP config: `stow/pi/.pi/agent/mcp.json` is tracked and reads the four keys from `local.bash`.
+- [ ] Only if you use Claude Code's own MCP servers on the server: add them with `claude mcp add`, because they live in the machine-local `~/.claude.json`.
 
 ## Phase 8: Harnesses and auth
 
-- [ ] Install Pi with the official installer: `curl -fsSL https://pi.dev/install.sh | sh`.
-- [ ] Install Pi packages declared in `settings.json`: `pi update --extensions`, then `pi list`.
-- [ ] Install the global npm tools: `grep -v '^#' ~/code/personal/dotfiles/npm-global-packages.txt | xargs npm install -g`.
+Pi is the primary harness on the server.
+Claude Code is required too, because Pi's default provider, `claude-bridge`, runs through Claude Code's Agent SDK and its login.
+Codex and OpenCode are optional; skip their install and login steps if you do not need them on the server.
+
+- [x] Install Pi with the official installer: `curl -fsSL https://pi.dev/install.sh | sh`.
+- [x] Install Pi packages declared in `settings.json`: `pi update --extensions`, then `pi list`.
+- [x] Install the global npm tools: `grep -v '^#' ~/code/personal/dotfiles/npm-global-packages.txt | xargs npm install -g`.
 - [ ] Install OpenCode 2: `curl -fsSL https://opencode.ai/v2/install | bash`.
-- [ ] Install Plannotator: `curl -fsSL https://plannotator.ai/install.sh | bash`.
+- [x] Install Plannotator: `curl -fsSL https://plannotator.ai/install.sh | bash`.
   It installs to `~/.local/bin/plannotator`, the path the tracked Codex Stop hook calls.
   Trust the hook in Codex's `/hooks` on the server, then confirm a review page opens from the Mac at `http://agentbox:19432` with the Cloud Firewall still closed.
 - [ ] Install OpenCode plugin dependencies, mirroring `install_opencode_plugin_dependencies` in `scripts/bootstrap.sh`:
@@ -208,19 +215,23 @@ Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy p
   done
   ```
 
-- [ ] Log in to Claude Code first, because Pi's default provider is `claude-bridge`: run `claude`, then `/login`, and paste the code from the browser on the Mac.
+- [x] `claude-bridge` settings (`provider.plan = "max"` for Opus's 1M context, `askClaude.enabled = false`) are tracked in `stow/pi/.pi/agent/claude-bridge.json`.
+  The extension only writes its `startupNoticeShown` marker when one of those two settings is unset, so the tracked file stays clean.
+- [x] Log in to Claude Code first, because Pi's default provider is `claude-bridge`: run `claude`, then `/login`, and paste the code from the browser on the Mac.
 - [ ] Log in to Codex: `codex login` (use the device-code option if offered, since the server has no browser).
 - [ ] Log in to any other Pi providers with `/login` inside `pi`.
 - [ ] Start each harness once (`pi`, `claude`, `codex`, `opencode`) and fix any extension or MCP errors other than the expected macOS-only ones from Phase 0.
 
 ## Phase 9: Herdr
 
-- [ ] On the Mac: `herdr machine add agentbox`.
+- [x] On the Mac: `herdr machine add agentbox`.
   It finds the Homebrew-installed `herdr` on the server, starts its background server, and saves the machine profile.
-- [ ] On the server, install the agent integrations so Herdr can track agent state: `herdr integration install pi`, and likewise `claude`, `codex`, and `opencode`.
-- [ ] On the server, sync Herdr plugins: `~/code/personal/dotfiles/scripts/sync_herdr_plugins.sh`.
+- [x] On the server, install the Pi integration so Herdr can track agent state: `herdr integration install pi` (v9, an untracked file in `~/.pi/agent/extensions/`).
+  Matching the Mac, skip the `claude` integration: it adds hooks to `~/.claude/settings.json`, which is a Stow link into the tracked repo.
+- [x] On the server, sync Herdr plugins: `~/code/personal/dotfiles/scripts/sync_herdr_plugins.sh`.
+  The `annotate` plugin calls `plannotator-tui`, so also run `brew install plannotator/tap/plannotator-tui` there.
 - [ ] On the Mac, run `herdr` and confirm `agentbox` appears in the sidebar next to Local.
-- [ ] Herdr does not copy local plugins, config, or secrets to the server; everything server-side comes from Phases 5–8.
+- [x] Herdr does not copy local plugins, config, or secrets to the server; everything server-side comes from Phases 5–8.
 
 ## Phase 10: End-to-end verification
 
@@ -231,7 +242,7 @@ Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy p
 - [ ] While the lid is closed, attach from the phone (Phase 11) and confirm all four agents are still working and none is stuck on a permission or trust prompt.
 - [ ] Reopen the Mac, run `herdr`, and confirm each agent's output is intact.
 - [ ] Confirm an agent can `git push` from the server with its own credentials and no Mac agent forwarding.
-- [ ] Reboot the Droplet (`sudo reboot`) and confirm `herdr --remote agentbox` restores the session layout; running agents do not survive a reboot, but Pi sessions can be resumed with `/resume`.
+- [ ] Reboot the Droplet (`ssh root@agentbox reboot`) and confirm `herdr --remote agentbox` restores the session layout; running agents do not survive a reboot, but Pi sessions can be resumed with `/resume`.
 
 ## Phase 11: Phone access (Galaxy Fold 8)
 
@@ -243,10 +254,10 @@ Agents keep running in Herdr on the Droplet; the phone only attaches to them.
   The free Starter plan includes SSH, Mosh, port forwarding, SFTP, a special-key toolbar, and tabs; Pro ($15/month or $119/year) mainly adds encrypted vault sync across devices.
 - [ ] In Termius, generate an ed25519 key named `fold8` and copy its public key.
   Give the phone its own key; do not copy `~/.ssh/agentbox` from the Mac, so a lost phone can be revoked on its own.
-- [ ] Append the public key to `~/.ssh/authorized_keys` on `agentbox` from the Mac: `ssh agentbox 'cat >> ~/.ssh/authorized_keys'`, paste the key, then press Ctrl-D.
+- [x] Append the public key to `~/.ssh/authorized_keys` on `agentbox` from the Mac: `ssh agentbox 'cat >> ~/.ssh/authorized_keys'`, paste the key, then press Ctrl-D.
 - [ ] In Termius, add a host `agentbox` with hostname `agentbox`, user `frshbb`, and the `fold8` key.
-- [ ] Optional: install Mosh on the server (`sudo apt install -y mosh`) and enable Mosh for the host in Termius, so sessions survive switching between Wi-Fi and cellular.
-  Use `apt` rather than Homebrew so `mosh-server` lives in `/usr/bin`, where Termius finds it without shell setup.
+- [ ] Optional: enable Mosh for the host in Termius, so sessions survive switching between Wi-Fi and cellular.
+  Phase 2 installed Mosh with `apt`, so `mosh-server` lives in `/usr/bin`, where Termius finds it without shell setup.
   Mosh uses UDP ports 60000–61000, which travel inside the tailnet; verify it connects with the Cloud Firewall from Phase 3 still closed.
 - [ ] Verify: connect from the phone, run `herdr`, attach to a running Pi pane, lock the phone for a few minutes, then reconnect and confirm the agent kept working.
 - [ ] To revoke a lost phone, delete its line from `~/.ssh/authorized_keys` and remove the device in the Tailscale admin console.
@@ -266,6 +277,7 @@ Alternative clients:
 ## Maintenance
 
 - Pull dotfile changes on the server with `cd ~/code/personal/dotfiles && git pull && ./scripts/stow.sh apply`.
+  If `git pull` refuses because of local changes, check `git diff` first: tools rewrite stowed files through their links (Claude Code reorders `settings.json`, `gh auth setup-git` and `git config --global` write `.gitconfig`). Revert those with `git checkout -- <file>`.
 - Update tools with `brew upgrade`, `pi update`, and `npm update -g`.
 - Updating Herdr on the Mac does not restart the server's Herdr; update the server separately when you need new server-side behavior.
 - Ubuntu's unattended upgrades install security patches but do not reboot by default; reboot deliberately when no agents are running.

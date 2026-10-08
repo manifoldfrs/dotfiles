@@ -47,6 +47,8 @@ STOW_TEST_BIN="$(mktemp -d)"
 mkdir -p "$STOW_TEST_HOME/.agents/skills/show-me" "$STOW_TEST_HOME/.claude/skills/show-me" "$STOW_TEST_HOME/.local/bin"
 touch "$STOW_TEST_HOME/.agents/skills/show-me/SKILL.md"
 printf '%s\n' '# existing Bash config' >"$STOW_TEST_HOME/.bashrc"
+mkdir -p "$STOW_TEST_HOME/.pi/agent"
+printf '%s\n' '{"startupNoticeShown": "2026-01-01"}' >"$STOW_TEST_HOME/.pi/agent/claude-bridge.json"
 ln -s "$(command -v stow)" "$STOW_TEST_BIN/stow"
 if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >/tmp/stow-default.log 2>&1 \
     && HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >>/tmp/stow-default.log 2>&1 \
@@ -54,6 +56,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.bashrc" ] \
     && [ -L "$STOW_TEST_HOME/.inputrc" ] \
     && find "$STOW_TEST_HOME" -maxdepth 1 -name '.bashrc.backup.*' | grep -q . \
+    && find "$STOW_TEST_HOME/.pi/agent" -maxdepth 1 -name 'claude-bridge.json.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.config/bash/environment.bash" ] \
     && [ -L "$STOW_TEST_HOME/.config/starship.toml" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
@@ -77,6 +80,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/node_modules" ] \
     && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/request-logger/node_modules" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
+    && [ -L "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
@@ -97,6 +101,7 @@ grep -q 'name = "tokyo-night"' stow/herdr/.config/herdr/config.toml
 grep -q '^default_shell = "bash"$' stow/herdr/.config/herdr/config.toml
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
+jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agent/claude-bridge.json >/dev/null
 grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '"session.copy": "alt+y"' stow/opencode/.config/opencode/cli.json
 grep -q 'name: "typesafe_evaluate"' stow/opencode/.config/opencode/plugins/typesafe-ai/src/index.ts

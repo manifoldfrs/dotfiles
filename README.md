@@ -799,6 +799,8 @@ Apply stops if a regular file already sits at `~/.local/bin/bash`.
 Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer.
 
 `pi-claude-bridge@0.9.1` provides Claude models through Claude Code's Agent SDK.
+Its tracked `stow/pi/.pi/agent/claude-bridge.json` sets `provider.plan` to `max` for Opus's 1M context and keeps the `AskClaude` tool off.
+Because both settings are explicit, the extension never writes its `startupNoticeShown` marker into the tracked file.
 Use `/model` and select a `claude-bridge` model after restarting Pi.
 Sign in to Claude Code with your Claude subscription first.
 Configure the subscription tier in machine-local `~/.pi/agent/claude-bridge.json`.

@@ -39,6 +39,7 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/themes/$CODEX_THEME_FILE"
 )
 PI_BACKUP_TARGETS=(
+    "$HOME/.pi/agent/claude-bridge.json"
     "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
 )
