@@ -1,0 +1,3 @@
+interface:
+  display_name: "Rust Standards"
+  short_description: "Rust API Guidelines, the compiler as first reviewer"

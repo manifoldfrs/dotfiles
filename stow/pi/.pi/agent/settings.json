@@ -26,5 +26,19 @@
     },
     "npm:pi-claude-bridge@0.9.1"
   ],
+  "subagents": {
+    "agentOverridesByProvider": {
+      "claude-bridge": {
+        "reviewer": {
+          "model": "openai/gpt-6.1-sol"
+        }
+      },
+      "openai": {
+        "reviewer": {
+          "model": "claude-bridge/claude-opus-5-5"
+        }
+      }
+    }
+  },
   "deviceId": "c91864e6-5d9d-42ae-843b-511b1a2e71bb"
 }

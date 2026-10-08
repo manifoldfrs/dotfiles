@@ -1,0 +1,3 @@
+interface:
+  display_name: "JavaScript Standards"
+  short_description: "Plain JavaScript with no build, Stimulus, and no TypeScript"

@@ -1,0 +1,5 @@
+interface:
+  display_name: "fstack"
+  short_description: "Route a task through investigate, fix, build, or reshape"
+policy:
+  allow_implicit_invocation: false

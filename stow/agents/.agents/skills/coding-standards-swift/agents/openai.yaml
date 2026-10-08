@@ -1,0 +1,3 @@
+interface:
+  display_name: "Swift Standards"
+  short_description: "Swift API Design Guidelines and Swift 6 concurrency"

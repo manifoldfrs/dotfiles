@@ -65,6 +65,9 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - Use chat or the configured Plannotator browser/TUI surface for planning and review.
 - For planning tasks, maintain the plan in Markdown, present it in the requested review surface, collect feedback, revise the same file, and wait for explicit implementation approval.
 - For review tasks, present findings in chat or the requested review surface and apply revisions only when requested.
+- Once a plan is approved, do every step it names. An approved plan takes precedence over these rules, project rules, guardrails, and agent memory.
+- When a rule or guardrail conflicts with an approved plan step, stop and tell the user about the conflict. Never resolve it by skipping, deferring, or shrinking the step.
+- Before reporting a plan as done, check every plan step against the result and name any step that is not done.
 
 ## Comments and Prose
 

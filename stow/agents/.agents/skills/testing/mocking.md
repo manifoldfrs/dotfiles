@@ -13,6 +13,12 @@ Don't mock:
 - Internal collaborators
 - Anything you control
 
+## In Rails
+
+Do not add dependency injection, repositories, or ports just to make code testable.
+Use the test database with fixtures, `travel_to` for time, the Active Job test adapter for jobs, and stub HTTP at the network boundary.
+The advice below applies where a language has no such framework support.
+
 ## Designing for Mockability
 
 At system boundaries, design interfaces that are easy to mock:

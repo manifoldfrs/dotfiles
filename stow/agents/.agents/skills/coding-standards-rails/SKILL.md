@@ -63,7 +63,11 @@ Read every applicable reference completely before designing the change:
 Define the model methods, routes, and job interfaces callers will use before implementing them.
 Check existing models, concerns, scopes, and helpers before adding one, and apply the deletion test from the models reference to each new abstraction.
 
-**Complete when:** each changed behavior has one owning model, route, or job interface, and each new abstraction has a recorded reason it is needed.
+Before writing new code, find the Rails feature that already does the job.
+Search the guides and API for the installed Rails version, then see how the Rails reference apps Fizzy, Campfire, and Writebook solve the same problem.
+Use the framework feature, or record why none fits.
+
+**Complete when:** each changed behavior has one owning model, route, or job interface, each new abstraction has a recorded reason it is needed, and each piece of new code names the Rails feature it uses or why none fits.
 
 ## 4. Implement the complete changed behavior
 
@@ -85,6 +89,8 @@ In reviews, prioritize correctness and data safety, authorization, maintainabili
 
 - [Fizzy STYLE.md](https://github.com/basecamp/fizzy/blob/main/STYLE.md) is the first-party reference for controller/model interactions, resource modeling, method ordering, bang names, and job naming.
 - [Vanilla Rails is plenty](https://dev.37signals.com/vanilla-rails-is-plenty/) by Jorge Manrubia explains rich domain models, concerns, and plain Ruby collaborators.
+- [Rails reference apps](https://rubyonrails.org/docs/reference-apps) lists Fizzy, Campfire, and Writebook as production-quality examples to study.
+- [Agents on Rails](https://rubyonrails.org/2026/8/13/agents-on-rails-the-first-benchmark-report) found that agents used the matching Rails feature in only 8 to 35 percent of runs, which is why the framework-recall step exists.
 - [37signals Skills](https://github.com/marckohlbrugge/37signals-skills) is an unofficial secondary reference for the broader Rails checklist, not an authority over first-party guidance or repository constraints.
 - The router structure, decision priority, and per-step completion criteria are adapted from [dmmulroy's coding-standards skill](https://github.com/dmmulroy/.dotfiles/tree/main/home/.agents/skills/coding-standards).
 

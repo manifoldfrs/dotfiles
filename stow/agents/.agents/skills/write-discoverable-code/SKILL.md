@@ -24,6 +24,10 @@ Searchable vocabulary keeps code discoverable across both modes.
   Measured on a ~700k-line monorepo: 1-word exported names are globally unique 61% of
   the time; 3-word names 96%; 4+ words 98%. Three words is the knee of the curve.
   Use the shortest name that greps uniquely; put the rest in the doc comment.
+- **Ruby and Rails exception.** Follow Rails naming instead: a model method such as
+  `Card#close` carries its context in the class, and conventions such as
+  `*_controller.rb` and namespaced concerns like `Card::Closeable` carry it in the path.
+  Apply the multi-word rule to free functions, constants, and non-Ruby exports.
 - **Give generic verbs their object.** `sanitizeEmailHtml`, not `sanitize`;
   `validateSmtpConfig`, not `validateConfig`. Qualify only as far as uniqueness
   requires, then stop.

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Dig"
+  short_description: "Ground brief: facts, then recall, radius, and edges"

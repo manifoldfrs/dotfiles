@@ -760,8 +760,19 @@ To remove an upstream skill for good, delete its folder and set its manifest own
 Research and review default to direct execution for small tasks; independent reviewers and investigators remain available when scope warrants authorized delegation.
 The `coding-standards` skill handles Effect-specific work; `coding-standards-ts` handles ordinary TypeScript.
 
-Local language standards include `coding-standards-ts`, `coding-standards-go`, and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
+Local language standards include `coding-standards-ts`, `coding-standards-go`, [coding-standards-javascript](stow/agents/.agents/skills/coding-standards-javascript/SKILL.md) for plain JavaScript without TypeScript, [coding-standards-rust](stow/agents/.agents/skills/coding-standards-rust/SKILL.md), [coding-standards-swift](stow/agents/.agents/skills/coding-standards-swift/SKILL.md), [coding-standards-kotlin](stow/agents/.agents/skills/coding-standards-kotlin/SKILL.md), and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
+New language packs start from [the language pack template](stow/agents/.agents/skills/fstack/references/language-pack-template.md).
 The Rails standards are a short router that loads per-concern references, such as persistence, jobs, and lint policy, only when a change touches that concern.
+
+[fstack](stow/agents/.agents/skills/fstack/SKILL.md) is a local skill stack that does deep work before most builds and proves changes before review.
+Run `/fstack <task>` to route a task through investigate, fix, build, or reshape.
+The routes call model-invoked skills that also work on their own: `dig` writes a ground brief of facts, framework recall, blast radius, and edge cases; `sketch` offers two or three options for a contested design; `testing` writes a failing test first for bugs and designs first for features; `prove` verifies the change on the real app; and `pr` opens a pull request with screenshots, GIFs, and cleanup of old evidence.
+`/correct` turns a mistake agents keep repeating into a lint rule, type, or test.
+The shared doctrine, which applies the Rails Doctrine to every language, lives in [fstack/references/doctrine.md](stow/agents/.agents/skills/fstack/references/doctrine.md).
+`code-review` reviews Standards and Intent, then gets a second review from a different model family.
+In Pi, the `reviewer` subagent model is pinned per parent provider in `stow/pi/.pi/agent/settings.json`.
+Elsewhere, the second review runs through the other family's command line: `claude -p` for changes a GPT model wrote, and `codex exec` for changes a Claude model wrote.
+The `testing` skill replaces `tdd`, and fstack's build route replaces `implement`; both upstream skills are `excluded`.
 The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.bare` repository root for parallel agent work.
 
 In Pi, `/skills` opens a scrolling menu of every loaded skill with a one-line summary; type to filter by name.

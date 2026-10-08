@@ -91,6 +91,8 @@ Each hypothesis must be **falsifiable**: state the prediction it makes.
 
 If you cannot state the prediction, the hypothesis is a vibe — discard or sharpen it.
 
+When the bug appears after a restart, deploy, or upgrade, rank stale state first: caches, lock files, serialized state, and configuration. If clearing that state fixes the bug, the fix is validating the state.
+
 **Show the ranked list to the user before testing.** They often have domain knowledge that re-ranks instantly ("we just deployed a change to #3"), or know hypotheses they've already ruled out. Cheap checkpoint, big time saver. Don't block on it — proceed with your ranking if the user is AFK.
 
 ## Phase 4 — Instrument
@@ -122,6 +124,8 @@ If a correct seam exists:
 3. Apply the fix.
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
+
+Fix the whole class, not only the instance. Grep for every code path that produces the same defect, list them, fix each one, and report the full list.
 
 ## Phase 6 — Cleanup + post-mortem
 
