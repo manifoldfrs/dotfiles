@@ -121,6 +121,7 @@ screen_reader_detection_done = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
+"gpt-6.1-sol" = 1
 
 [mcp_servers.Ref]
 type = "http"
