@@ -70,15 +70,15 @@ Steps:
 
 ## Phase 1: Create the Droplet
 
-- [ ] Create an SSH key for this Droplet on the Mac: `ssh-keygen -t ed25519 -f ~/.ssh/agentbox -C "agentbox"`.
-- [ ] In the DigitalOcean console, create a Droplet:
+- [x] Create an SSH key for this Droplet on the Mac: `ssh-keygen -t ed25519 -f ~/.ssh/agentbox -C "agentbox"`.
+- [x] In the DigitalOcean console, create a Droplet:
   - Image: Ubuntu 24.04 LTS (x86_64).
   - Plan: Basic, Regular, 4 GiB / 2 vCPUs / 80 GiB ($24/month). The $12 plan with 2 GiB runs out of memory with Node builds and several agents.
   - Region: the one closest to you.
   - Authentication: SSH key, upload `~/.ssh/agentbox.pub`. Do not use password authentication.
   - Hostname: `agentbox`.
   - Optional: enable weekly backups.
-- [ ] Note the public IPv4 address; it is only needed until Tailscale is up.
+- [x] Note the public IPv4 address; it is only needed until Tailscale is up.
 
 ## Phase 2: Base server setup
 
@@ -113,7 +113,7 @@ Agents running as `frshbb` can still read every credential that user owns, so ke
   Ubuntu reads drop-ins first and the first value wins, so a cloud-init drop-in can override edits to the main file.
 - [x] Run `sshd -t`, then `sshd -T | grep -Ei '^(permitrootlogin|passwordauthentication)'` (expect `without-password` and `no`) before `systemctl restart ssh`.
 - [x] Verify root and `frshbb` key logins work, password login is refused, and `sudo -l -U frshbb` reports no sudo rights.
-- [ ] From here on, run tool installs, Stow, logins, and Herdr as `frshbb`, and only admin commands as root.
+- [x] From here on, run tool installs, Stow, logins, and Herdr as `frshbb`, and only admin commands as root.
 
 ## Phase 3: Tailscale
 
@@ -218,7 +218,18 @@ Codex and OpenCode are optional; skip their install and login steps if you do no
 - [x] `claude-bridge` settings (`provider.plan = "max"` for Opus's 1M context, `askClaude.enabled = false`) are tracked in `stow/pi/.pi/agent/claude-bridge.json`.
   The extension only writes its `startupNoticeShown` marker when one of those two settings is unset, so the tracked file stays clean.
 - [x] Log in to Claude Code first, because Pi's default provider is `claude-bridge`: run `claude`, then `/login`, and paste the code from the browser on the Mac.
-- [ ] Log in to Codex: `codex login` (use the device-code option if offered, since the server has no browser).
+- [x] Log in to Codex: `ssh -t agentbox codex login --device-auth`, then open the printed URL on the Mac and enter the code.
+  Without it, `codex exec` fails with `401 Unauthorized` after a few retries.
+- [x] Make Codex's Linux sandbox work (Ubuntu 24.04 restricts unprivileged user namespaces, so `bwrap` fails with `loopback: Failed RTM_NEWADDR`), as root:
+
+  ```bash
+  apt install -y bubblewrap apparmor-profiles apparmor-utils
+  install -m 0644 /usr/share/apparmor/extra-profiles/bwrap-userns-restrict /etc/apparmor.d/bwrap-userns-restrict
+  apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
+  ```
+
+  This is OpenAI's documented fix and keeps the restriction on for everything except `/usr/bin/bwrap`.
+  Verified as `frshbb`: `codex sandbox` reads project files, cannot write outside the project, and has no network.
 - [ ] Log in to any other Pi providers with `/login` inside `pi`.
 - [ ] Start each harness once (`pi`, `claude`, `codex`, `opencode`) and fix any extension or MCP errors other than the expected macOS-only ones from Phase 0.
 
@@ -230,37 +241,38 @@ Codex and OpenCode are optional; skip their install and login steps if you do no
   Matching the Mac, skip the `claude` integration: it adds hooks to `~/.claude/settings.json`, which is a Stow link into the tracked repo.
 - [x] On the server, sync Herdr plugins: `~/code/personal/dotfiles/scripts/sync_herdr_plugins.sh`.
   The `annotate` plugin calls `plannotator-tui`, so also run `brew install plannotator/tap/plannotator-tui` there.
-- [ ] On the Mac, run `herdr` and confirm `agentbox` appears in the sidebar next to Local.
+- [x] On the Mac, run `herdr` and confirm `agentbox` appears in the sidebar next to Local.
 - [x] Herdr does not copy local plugins, config, or secrets to the server; everything server-side comes from Phases 5–8.
 
 ## Phase 10: End-to-end verification
 
-- [ ] Clone a real project on the server under `~/code/...`.
-- [ ] In Herdr on the Mac, open a workspace on `agentbox` and start `pi`, `claude`, `codex`, and `opencode` in separate panes, each with a task that takes several minutes.
+- [x] Clone a real project on the server under `~/code/...`.
+- [x] In Herdr on the Mac, open a workspace on `agentbox` and start `pi` with a task that takes several minutes (other harnesses are optional and can be tested the same way).
   Use new panes so they load the server's `local.bash` and provider logins.
-- [ ] Close the MacBook lid for at least five minutes.
-- [ ] While the lid is closed, attach from the phone (Phase 11) and confirm all four agents are still working and none is stuck on a permission or trust prompt.
-- [ ] Reopen the Mac, run `herdr`, and confirm each agent's output is intact.
-- [ ] Confirm an agent can `git push` from the server with its own credentials and no Mac agent forwarding.
-- [ ] Reboot the Droplet (`ssh root@agentbox reboot`) and confirm `herdr --remote agentbox` restores the session layout; running agents do not survive a reboot, but Pi sessions can be resumed with `/resume`.
+- [x] Close the MacBook lid for at least five minutes.
+- [x] While the lid is closed, attach from the phone (Phase 11) and confirm the agent is still working and not stuck on a permission or trust prompt.
+- [x] Reopen the Mac, run `herdr`, and confirm the agent's output is intact.
+  Verified 2026-10-08: Pi wrote the doc, pushed `agentbox-test` to `joinopto/opto2`, and ran a Codex review while the Mac was closed.
+- [x] Confirm an agent can `git push` from the server with its own credentials and no Mac agent forwarding.
+- [x] Reboot the Droplet (`ssh root@agentbox reboot`) and confirm `herdr --remote agentbox` restores the session layout; running agents do not survive a reboot, but Pi sessions can be resumed with `/resume`.
 
 ## Phase 11: Phone access (Galaxy Fold 8)
 
 The phone is another thin client, like the Mac.
 Agents keep running in Herdr on the Droplet; the phone only attaches to them.
 
-- [ ] Install the Tailscale app from Google Play and sign in to the same tailnet.
-- [ ] Install Termius from Google Play.
+- [x] Install the Tailscale app from Google Play and sign in to the same tailnet.
+- [x] Install Termius from Google Play.
   The free Starter plan includes SSH, Mosh, port forwarding, SFTP, a special-key toolbar, and tabs; Pro ($15/month or $119/year) mainly adds encrypted vault sync across devices.
-- [ ] In Termius, generate an ed25519 key named `fold8` and copy its public key.
+- [x] In Termius, generate an ed25519 key named `fold8` and copy its public key.
   Give the phone its own key; do not copy `~/.ssh/agentbox` from the Mac, so a lost phone can be revoked on its own.
 - [x] Append the public key to `~/.ssh/authorized_keys` on `agentbox` from the Mac: `ssh agentbox 'cat >> ~/.ssh/authorized_keys'`, paste the key, then press Ctrl-D.
-- [ ] In Termius, add a host `agentbox` with hostname `agentbox`, user `frshbb`, and the `fold8` key.
+- [x] In Termius, add a host `agentbox` with hostname `agentbox`, user `frshbb`, and the `fold8` key.
 - [ ] Optional: enable Mosh for the host in Termius, so sessions survive switching between Wi-Fi and cellular.
   Phase 2 installed Mosh with `apt`, so `mosh-server` lives in `/usr/bin`, where Termius finds it without shell setup.
   Mosh uses UDP ports 60000–61000, which travel inside the tailnet; verify it connects with the Cloud Firewall from Phase 3 still closed.
 - [ ] Verify: connect from the phone, run `herdr`, attach to a running Pi pane, lock the phone for a few minutes, then reconnect and confirm the agent kept working.
-- [ ] To revoke a lost phone, delete its line from `~/.ssh/authorized_keys` and remove the device in the Tailscale admin console.
+- To revoke a lost phone, delete its line from `~/.ssh/authorized_keys` and remove the device in the Tailscale admin console.
 
 Alternative clients:
 
