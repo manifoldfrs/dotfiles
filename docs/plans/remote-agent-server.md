@@ -203,11 +203,11 @@ Codex and OpenCode are optional; skip their install and login steps if you do no
 - [x] Install Pi with the official installer: `curl -fsSL https://pi.dev/install.sh | sh`.
 - [x] Install Pi packages declared in `settings.json`: `pi update --extensions`, then `pi list`.
 - [x] Install the global npm tools: `grep -v '^#' ~/code/personal/dotfiles/npm-global-packages.txt | xargs npm install -g`.
-- [ ] Install OpenCode 2: `curl -fsSL https://opencode.ai/v2/install | bash`.
+- [ ] Skipped for now: Install OpenCode 2: `curl -fsSL https://opencode.ai/v2/install | bash`.
 - [x] Install Plannotator: `curl -fsSL https://plannotator.ai/install.sh | bash`.
   It installs to `~/.local/bin/plannotator`, the path the tracked Codex Stop hook calls.
   Trust the hook in Codex's `/hooks` on the server, then confirm a review page opens from the Mac at `http://agentbox:19432` with the Cloud Firewall still closed.
-- [ ] Install OpenCode plugin dependencies, mirroring `install_opencode_plugin_dependencies` in `scripts/bootstrap.sh`:
+- [ ] Skipped for now: Install OpenCode plugin dependencies, mirroring `install_opencode_plugin_dependencies` in `scripts/bootstrap.sh`:
 
   ```bash
   for p in typesafe-ai optojr-slack tui-conveniences request-logger; do
@@ -268,10 +268,10 @@ Agents keep running in Herdr on the Droplet; the phone only attaches to them.
   Give the phone its own key; do not copy `~/.ssh/agentbox` from the Mac, so a lost phone can be revoked on its own.
 - [x] Append the public key to `~/.ssh/authorized_keys` on `agentbox` from the Mac: `ssh agentbox 'cat >> ~/.ssh/authorized_keys'`, paste the key, then press Ctrl-D.
 - [x] In Termius, add a host `agentbox` with hostname `agentbox`, user `frshbb`, and the `fold8` key.
-- [ ] Optional: enable Mosh for the host in Termius, so sessions survive switching between Wi-Fi and cellular.
+- [x] Optional: enable Mosh for the host in Termius, so sessions survive switching between Wi-Fi and cellular.
   Phase 2 installed Mosh with `apt`, so `mosh-server` lives in `/usr/bin`, where Termius finds it without shell setup.
   Mosh uses UDP ports 60000–61000, which travel inside the tailnet; verify it connects with the Cloud Firewall from Phase 3 still closed.
-- [ ] Verify: connect from the phone, run `herdr`, attach to a running Pi pane, lock the phone for a few minutes, then reconnect and confirm the agent kept working.
+- [x] Verify: connect from the phone, run `herdr`, attach to a running Pi pane, lock the phone for a few minutes, then reconnect and confirm the agent kept working.
 - To revoke a lost phone, delete its line from `~/.ssh/authorized_keys` and remove the device in the Tailscale admin console.
 
 Alternative clients:
@@ -290,6 +290,8 @@ Alternative clients:
 
 - Pull dotfile changes on the server with `cd ~/code/personal/dotfiles && git pull && ./scripts/stow.sh apply`.
   If `git pull` refuses because of local changes, check `git diff` first: tools rewrite stowed files through their links (Claude Code reorders `settings.json`, `gh auth setup-git` and `git config --global` write `.gitconfig`). Revert those with `git checkout -- <file>`.
+- The `codex-chrome` MCP warning on the server is expected; leave it.
+  Disabling it through `/mcp` writes `"enabled": false` into the tracked `mcp.json`, which would turn it off on the Mac if committed.
 - Update tools with `brew upgrade`, `pi update`, and `npm update -g`.
 - Updating Herdr on the Mac does not restart the server's Herdr; update the server separately when you need new server-side behavior.
 - Ubuntu's unattended upgrades install security patches but do not reboot by default; reboot deliberately when no agents are running.
