@@ -6,7 +6,7 @@
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": false,
   "enableSkillCommands": true,
-  "shellPath": "/opt/homebrew/bin/bash",
+  "shellPath": "~/.local/bin/bash",
   "defaultTools": [
     "+codemode"
   ],

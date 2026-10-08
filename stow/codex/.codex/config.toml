@@ -182,6 +182,8 @@ args = [
 ]
 env_vars = ["SONAR_API_KEY"]
 
+[hooks.state]
+
 [hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:23a8ebf007ace63070ce68117cc10069ec15dae1861e6913cf7de5eae02e297f"
 
@@ -204,7 +206,7 @@ trusted_hash = "sha256:3530443a8b55e99ba5dbcabc61802450deb8f91cff4e97521c167899c
 trusted_hash = "sha256:bbc9b0c1b854b94ea5a971b78518b1977f261f49a00f3e3683eb12643e1f8c45"
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:59bf13bb29ad671028bc36692e32ca9e585598a36c520b86275dc5a5153e0ce2"
+trusted_hash = "sha256:a638898dcc8555db61cebdc42e6ba4e35e78d1df55f8832f4aa7c0996d5a984a"
 
 [hooks.state."plannotator@plannotator:hooks/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:c14c21d72b8ddb7a4dbd7eedcac9d3fff0d7b4b97e4f24dd8f6277d78c45329e"

@@ -33,7 +33,7 @@
       "exposure": "codemode"
     },
     "codex-chrome": {
-      "command": "/opt/homebrew/bin/codex-control-chrome-mcp",
+      "command": "codex-control-chrome-mcp",
       "args": ["--stdio"],
       "exposure": "codemode"
     },

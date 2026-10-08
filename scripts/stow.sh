@@ -11,6 +11,9 @@ STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
 STOW_PACKAGES=(bash git ghostty herdr nvim bin opencode claude codex pi agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
+OS_NAME="$(uname -s)"
+BASH_LINK="$HOME/.local/bin/bash"
+CODEX_CONFIG_TARGET="$HOME/.codex/config.toml"
 AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
 SHARED_BACKUP_TARGETS=(
@@ -30,7 +33,6 @@ OPENCODE_BACKUP_TARGETS=(
 )
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/AGENTS.md"
-    "$HOME/.codex/config.toml"
     "$HOME/.codex/hooks.json"
     "$HOME/.codex/hooks/block-dangerous-bash.sh"
     "$HOME/.codex/hooks/block-generated-edits.sh"
@@ -40,6 +42,13 @@ PI_BACKUP_TARGETS=(
     "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
 )
+
+# The tracked Codex config is mostly state written by the macOS ChatGPT app, so other systems keep their own.
+if [ "$OS_NAME" = "Darwin" ]; then
+    CODEX_BACKUP_TARGETS+=("$CODEX_CONFIG_TARGET")
+else
+    STOW_FLAGS+=(--ignore='^\.codex/config\.toml$')
+fi
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -184,6 +193,69 @@ backup_codex_stow_targets() {
     for target in "${CODEX_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
     done
+}
+
+remove_codex_config_link_off_macos() {
+    if [ "$OS_NAME" = "Darwin" ] || ! has_stow_package codex; then
+        return
+    fi
+
+    if is_stow_managed_link "$CODEX_CONFIG_TARGET"; then
+        rm "$CODEX_CONFIG_TARGET"
+        info "Removed macOS Codex config link: $CODEX_CONFIG_TARGET"
+    fi
+}
+
+bash5_candidates() {
+    if [ "$OS_NAME" = "Darwin" ]; then
+        echo "${HOMEBREW_PREFIX:-/opt/homebrew}/bin/bash"
+        echo "/usr/local/bin/bash"
+    else
+        echo "/bin/bash"
+    fi
+}
+
+find_bash5() {
+    local candidate
+    local major
+
+    while IFS= read -r candidate; do
+        if [ ! -x "$candidate" ]; then
+            continue
+        fi
+
+        major="$("$candidate" -c 'echo "${BASH_VERSINFO[0]}"' 2>/dev/null)" || continue
+        if [ "$major" -ge 4 ] 2>/dev/null; then
+            echo "$candidate"
+            return 0
+        fi
+    done < <(bash5_candidates)
+
+    return 1
+}
+
+require_bash_link_slot() {
+    if [ -e "$BASH_LINK" ] && [ ! -L "$BASH_LINK" ]; then
+        error "Refusing to replace non-link file at $BASH_LINK; move it aside and rerun."
+    fi
+}
+
+# Pi's shellPath points at this link because Pi needs an existing path and does not search PATH.
+ensure_bash_link() {
+    local target
+
+    if ! target="$(find_bash5)"; then
+        warn "No Bash 4+ found for $BASH_LINK; Pi's shellPath will not resolve. Checked: $(bash5_candidates | tr '\n' ' ')"
+        return
+    fi
+
+    if [ -L "$BASH_LINK" ] && [ "$(readlink "$BASH_LINK")" = "$target" ]; then
+        return
+    fi
+
+    mkdir -p "$(dirname "$BASH_LINK")"
+    ln -sfn "$target" "$BASH_LINK"
+    info "Linked Bash for Pi: $BASH_LINK -> $target"
 }
 
 backup_shared_skill_targets() {
@@ -335,6 +407,7 @@ remove_shared_skill_folder_links() {
 apply_dotfiles() {
     info "Running isolated preflight before changing $HOME"
     "$DOTFILES_DIR/scripts/validate-dotfiles.sh" "$DOTFILES_DIR" "${STOW_PACKAGES[@]}"
+    require_bash_link_slot
 
     backup_bash_stow_targets
     backup_shared_stow_targets
@@ -343,10 +416,12 @@ apply_dotfiles() {
     backup_shared_skill_targets
 
     backup_codex_stow_targets
+    remove_codex_config_link_off_macos
 
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
     stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
     ensure_shared_skill_folder_links
+    ensure_bash_link
 }
 
 dry_run_dotfiles() {

@@ -131,7 +131,7 @@
       "codex-chrome": {
         "type": "local",
         "command": [
-          "/opt/homebrew/bin/codex-control-chrome-mcp",
+          "codex-control-chrome-mcp",
           "--stdio"
         ]
       }

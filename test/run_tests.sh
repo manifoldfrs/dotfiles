@@ -97,6 +97,7 @@ grep -q 'name = "tokyo-night"' stow/herdr/.config/herdr/config.toml
 grep -q '^default_shell = "bash"$' stow/herdr/.config/herdr/config.toml
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
+grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '"session.copy": "alt+y"' stow/opencode/.config/opencode/cli.json
 grep -q 'name: "typesafe_evaluate"' stow/opencode/.config/opencode/plugins/typesafe-ai/src/index.ts
 grep -q 'name: "optojr_slack_send"' stow/opencode/.config/opencode/plugins/optojr-slack/src/index.ts

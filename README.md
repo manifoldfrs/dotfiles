@@ -212,7 +212,7 @@ codex-control-chrome-mcp install-native-host --browser chrome
 codex-control-chrome-mcp status --browser chrome
 ```
 
-The tracked MCP entry expects the binary at `/opt/homebrew/bin/codex-control-chrome-mcp`.
+The tracked MCP entry starts `codex-control-chrome-mcp` from `PATH`; on Linux the binary is absent, so only that server fails to start.
 The installer backs up Chrome's existing native-host manifest and records its original host for proxy mode.
 Reload the Codex Chrome extension after installation, then reconnect `codex-chrome` through OpenCode's `/mcps` menu or restart OpenCode.
 Automatic registration repair remains enabled: after a Codex update restores its own host registration, starting the bridge re-registers it, and the extension may need another reload.
@@ -791,8 +791,9 @@ Codemode is explicitly enabled alongside the ordinary coding tools.
 Ref and exa remain directly exposed; Jev, Sonar, and browser tools are discovered through Codemode.
 Chrome DevTools uses an isolated browser; codex-chrome controls the existing profile using the same machine-local bridge setup as OpenCode.
 Run `pi mcp list` to check connections after applying the configuration.
-Pi's native `shellPath` selects `/opt/homebrew/bin/bash` for both model commands and user `!`/`!!` commands; the Zsh override is removed.
-Adjust that path on machines with a different Homebrew prefix.
+Pi's native `shellPath` selects `~/.local/bin/bash` for both model commands and user `!`/`!!` commands; the Zsh override is removed.
+`scripts/stow.sh apply` links that path to the machine's Bash 4+ (Homebrew Bash on macOS, `/bin/bash` on Linux), because Pi needs an existing path and does not search `PATH`.
+Apply stops if a regular file already sits at `~/.local/bin/bash`.
 `/lg` expands the shared `lg` skill and preserves follow-up queuing while busy.
 `/update` asks for confirmation, waits for idle, and runs native `pi update`; unattended startup updating and custom package-manager detection are removed.
 Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer.
@@ -874,6 +875,7 @@ The `codex` Stow package owns personal defaults, MCP server definitions, hooks, 
 The MCP configuration reads `REF_API_KEY` and `EXA_API_KEY` through `env_http_headers`.
 Stdio servers forward `TYPESAFE_API_KEY` (Jev) and `SONAR_API_KEY` (Sonar) with `env_vars`; never put literal keys in `env`.
 Authentication, sessions, logs, plugin caches, and other runtime data are machine-local state under `~/.codex/`.
+On Linux, `scripts/stow.sh` leaves `~/.codex/config.toml` out of Stow and backups, because the tracked file is mostly state written by the macOS ChatGPT app; Codex creates its own config there.
 
 #### Guardrails and secrets
 

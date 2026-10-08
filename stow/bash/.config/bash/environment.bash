@@ -23,7 +23,7 @@ path_prepend() {
     local remaining=$PATH
     local updated=$1
 
-    [[ -d $1 ]] || return
+    [[ -d $1 ]] || return 0
     while [[ -n $remaining ]]; do
         entry=${remaining%%:*}
         if [[ $remaining == *:* ]]; then

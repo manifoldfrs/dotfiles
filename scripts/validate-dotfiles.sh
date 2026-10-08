@@ -38,7 +38,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if ! stow -R --no-folding -t "$validation_home" -d "$STOW_DIR" "${STOW_PACKAGES[@]}" >"$validation_log" 2>&1; then
+stow_flags=(--no-folding -t "$validation_home" -d "$STOW_DIR")
+if [[ $(uname -s) != Darwin ]]; then
+    stow_flags+=(--ignore='^\.codex/config\.toml$')
+fi
+
+if ! stow -R "${stow_flags[@]}" "${STOW_PACKAGES[@]}" >"$validation_log" 2>&1; then
     cat "$validation_log" >&2
     printf 'ERROR: isolated Stow preflight failed\n' >&2
     exit 1
