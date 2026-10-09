@@ -286,6 +286,21 @@ Alternative clients:
 - Reattach with `herdr`; the saved machine reconnects automatically.
 - From the phone, open the `agentbox` host in Termius (Phase 11), then run `herdr` there.
 
+### Browser tasks for agentbox agents
+
+The browser (Claude in Chrome, `codex-chrome`) only works on the Mac, so agents on agentbox hand browser work to a Local Pi on the Mac:
+
+1. The agentbox agent writes the browser request in its pane.
+2. Run it in a Local Pi on the Mac (Mac awake, lid open).
+3. The Mac agent sends the result back with the `intercom` tool, to `<session>@agentbox`.
+   Cross-machine targets match Herdr's agent name, not Pi's `/alias`: name the agentbox pane with `herdr --machine agentbox agent rename <pane-id> <name>` (pane IDs from `herdr --machine agentbox agent list`), or use the full session UUID from the session file name there.
+   Describe screenshots in text, or `scp` the file to `agentbox` first; Mac paths mean nothing there.
+
+This needs only the untracked link `~/.local/bin/pi-intercom` -> `~/.pi/agent/npm/node_modules/.bin/pi-intercom` on the server, because the relay runs `pi-intercom` over non-interactive SSH.
+Messages are one-way `send`s marked as unverified cross-machine origin.
+agentbox cannot message the Mac: that would need Remote Login on the Mac and a server key with shell access to it, so the reply hint in incoming messages will fail if an agent tries it.
+Verified 2026-10-09: a Mac session's messages reached the agentbox Pi by UUID and by Herdr name (`worker@agentbox`), and it replied in its pane.
+
 ## Maintenance
 
 - Pull dotfile changes on the server with `cd ~/code/personal/dotfiles && git pull && ./scripts/stow.sh apply`.
