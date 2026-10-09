@@ -1,5 +1,6 @@
-import type { Api, Model } from "@earendil-works/pi-ai";
+import type { Api, Model, Provider, StreamOptions } from "@earendil-works/pi-ai";
 import { getModels } from "@earendil-works/pi-ai/compat";
+import { builtinProviders } from "@earendil-works/pi-ai/providers/all";
 import type {
 	ExtensionFactory,
 	ProviderModelConfig,
@@ -12,9 +13,11 @@ import {
 	fetchLatestCodexClientVersion,
 } from "./codex-fast-catalog.ts";
 import { createCodexFastStream } from "./codex-fast-stream.ts";
+import { rewriteCodexFastRequestPayload } from "./codex-fast-request.ts";
 import {
 	createCodexFastVariantModels,
 	restoreCodexFastVariantModels,
+	resolveCodexFastUpstreamModelId,
 } from "./codex-fast-variants.ts";
 type CodexModel = Model<"openai-codex-responses">;
 
@@ -105,9 +108,41 @@ export function createCodexFastVariantsExtension(
 	};
 }
 
-/** Register Codex Fast Mode variants using Pi's runtime fetch implementation. */
+function createOpenAIFastProvider(): Provider {
+	const provider = builtinProviders().find((candidate) => candidate.id === "openai");
+	if (!provider) throw new Error("OpenAI Fast built-in provider is unavailable");
+	const baseModels = provider.getModels();
+	const getAllModels = provider.getAllModels;
+	if (!getAllModels) throw new Error("OpenAI Fast provider has no mixed-operation catalog");
+	const fastVariants = createCodexFastVariantModels(
+		baseModels,
+		new Set(baseModels.filter((model) => /^gpt-6(?:\.1)?-(?:sol|astra|luna)$/.test(model.id)).map((model) => model.id)),
+	);
+
+	function requestOptions(model: Model<Api>, options?: StreamOptions): StreamOptions | undefined {
+		if (!resolveCodexFastUpstreamModelId(model.id, baseModels)) return options;
+		return {
+			...options,
+			onPayload: async (payload, requestModel) => {
+				const callerPayload = await options?.onPayload?.(payload, requestModel) ?? payload;
+				return rewriteCodexFastRequestPayload(callerPayload, model.id, baseModels);
+			},
+		};
+	}
+
+	return {
+		...provider,
+		getModels: () => [...provider.getModels(), ...fastVariants],
+		getAllModels: () => [...getAllModels(), ...fastVariants],
+		stream: (model, context, options) => provider.stream<Api>(model, context, { ...options, ...requestOptions(model, options) }),
+		streamSimple: (model, context, options) => provider.streamSimple(model, context, requestOptions(model, options)),
+	};
+}
+
+/** Register current OpenAI priority variants and legacy Codex catalog discovery. */
 export default function codexFastVariantsExtension(
 	pi: Parameters<ExtensionFactory>[0],
 ): void {
+	pi.registerProvider(createOpenAIFastProvider());
 	createCodexFastVariantsExtension({ fetchCatalog: globalThis.fetch })(pi);
 }

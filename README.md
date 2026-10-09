@@ -796,7 +796,11 @@ Pi's native `shellPath` selects `~/.local/bin/bash` for both model commands and 
 Apply stops if a regular file already sits at `~/.local/bin/bash`.
 `/lg` expands the shared `lg` skill and preserves follow-up queuing while busy.
 `/update` asks for confirmation, waits for idle, and runs native `pi update`; unattended startup updating and custom package-manager detection are removed.
-Astra uses Pi's built-in `openai-codex` catalog in Pi 0.85.1 and newer.
+For a ChatGPT subscription on Pi 1.0 and newer, use `/login openai` and choose **Sign in with ChatGPT**.
+The tracked `codex-fast-variants` extension adds selectable `openai` priority variants for GPT-6 and GPT-6.1 Sol, Astra, and Luna chat models, such as `gpt-6.1-sol-fast`, while preserving normal models and authentication.
+Only models present in Pi's built-in catalog get Fast variants; the separate Luna classifier is unchanged.
+Fast variants request `service_tier: "priority"`; their availability and usage remain subject to OpenAI's rules.
+The legacy `openai-codex` provider retains its account-specific Fast capability discovery.
 
 `pi-claude-bridge@0.9.1` provides Claude models through Claude Code's Agent SDK.
 Its tracked `stow/pi/.pi/agent/claude-bridge.json` sets `provider.plan` to `max` for Opus's 1M context and keeps the `AskClaude` tool off.

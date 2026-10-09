@@ -1,14 +1,14 @@
-import type { Api, Model } from "@earendil-works/pi-ai";
+import type { AnyModel, Api, Model } from "@earendil-works/pi-ai";
 
 const CODEX_FAST_VARIANT_SUFFIX = "-fast";
 
 type CodexModel = Model<"openai-codex-responses">;
 
-/** Create selectable `-fast` variants for built-in Codex models that advertise Fast Mode. */
-export function createCodexFastVariantModels(
-	baseModels: readonly CodexModel[],
+/** Create selectable `-fast` variants for the specified upstream model IDs. */
+export function createCodexFastVariantModels<TApi extends Api>(
+	baseModels: readonly Model<TApi>[],
 	fastCapableModelIds: ReadonlySet<string>,
-): readonly CodexModel[] {
+): readonly Model<TApi>[] {
 	const baseModelIds = new Set(baseModels.map((model) => model.id));
 	return baseModels.flatMap((model) => {
 		if (!fastCapableModelIds.has(model.id)) return [];
@@ -37,11 +37,11 @@ export function resolveCodexFastUpstreamModelId(
 /** Rebuild cached Fast Mode variants with metadata from the current built-in Codex catalog. */
 export function restoreCodexFastVariantModels(
 	baseModels: readonly CodexModel[],
-	storedModels: readonly Model<Api>[],
+	storedModels: readonly AnyModel[],
 ): readonly CodexModel[] {
 	const storedUpstreamModelIds = new Set(
 		storedModels.flatMap((model) => {
-			if (model.provider !== "openai-codex") return [];
+			if (model.provider !== "openai-codex" || (model.type !== undefined && model.type !== "chat")) return [];
 			const upstreamModelId = resolveCodexFastUpstreamModelId(model.id, baseModels);
 			return upstreamModelId ? [upstreamModelId] : [];
 		}),
