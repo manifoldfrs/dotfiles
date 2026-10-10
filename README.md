@@ -785,10 +785,13 @@ Ask it to review a diff for findings only, or ask it to clean up a diff to autho
 #### Pi
 
 The `pi` Stow package owns settings, MCP configuration, prompts, themes, and extensions under `stow/pi/.pi/agent/`.
-Pi uses its built-in MCP support for Ref, exa, Jev, Chrome DevTools, codex-chrome, and Sonar.
+Pi uses its built-in MCP support for Ref, exa, Jev, Chrome DevTools, codex-chrome, Sonar, and HEY.
 The MCP config reads `REF_API_KEY`, `EXA_API_KEY`, `TYPESAFE_API_KEY`, and `SONAR_API_KEY` from the environment.
 Codemode is explicitly enabled alongside the ordinary coding tools.
-Ref and exa remain directly exposed; Jev, Sonar, and browser tools are discovered through Codemode.
+Ref and exa remain directly exposed; Jev, Sonar, HEY, and browser tools are discovered through Codemode.
+The HEY server runs `hey mcp` from the `basecamp/tap/hey` cask in `Brewfile` and uses the account from `hey auth login`, stored in the macOS keychain.
+It has read and write access to mail, calendars, todos, and contacts; change its args to `["mcp", "--read-only"]` to limit it to reads.
+The `hey` skill is machine-local: run `hey skill install` once, and the CLI owns `~/.agents/skills/hey` and refreshes it on each release.
 Chrome DevTools uses an isolated browser; codex-chrome controls the existing profile using the same machine-local bridge setup as OpenCode.
 Run `pi mcp list` to check connections after applying the configuration.
 Pi's native `shellPath` selects `~/.local/bin/bash` for both model commands and user `!`/`!!` commands; the Zsh override is removed.

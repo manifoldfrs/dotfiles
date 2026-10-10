@@ -1,3 +1,4 @@
+tap "basecamp/tap"
 tap "oven-sh/bun"
 tap "plannotator/tap"
 tap "pulumi/tap"
@@ -72,6 +73,7 @@ brew "withgraphite/tap/graphite"
 cask "font-jetbrains-mono-nerd-font"
 cask "font-meslo-lg-nerd-font"
 cask "ghostty"
+cask "basecamp/tap/hey"
 cask "notunes"
 
 # ngrok - install separately with: brew install ngrok/ngrok/ngrok

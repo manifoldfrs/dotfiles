@@ -40,5 +40,11 @@
       }
     }
   },
-  "deviceId": "c91864e6-5d9d-42ae-843b-511b1a2e71bb"
+  "deviceId": "c91864e6-5d9d-42ae-843b-511b1a2e71bb",
+  "retry": {
+    "enabled": false
+  },
+  "compaction": {
+    "enabled": false
+  }
 }

@@ -44,6 +44,11 @@
         "SONAR_API_KEY": "${SONAR_API_KEY}"
       },
       "exposure": "codemode"
+    },
+    "hey": {
+      "command": "hey",
+      "args": ["mcp"],
+      "exposure": "codemode"
     }
   }
 }

@@ -59,10 +59,11 @@ pi
 ```
 
 `stow/pi/.pi/agent/settings.json` leaves Pi's built-in MCP support enabled.
-`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, codex-chrome, and Sonar.
+`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, codex-chrome, Sonar, and HEY.
 Ref and exa remain directly exposed; the other servers use Codemode exposure.
 The settings explicitly enable Codemode alongside the ordinary coding tools.
 Jev reads `TYPESAFE_API_KEY` from the environment; Sonar passes `${SONAR_API_KEY}` through `env`.
+HEY runs `hey mcp` and needs no key in the config; it uses the keychain credentials from `hey auth login`.
 Chrome DevTools launches isolated Chrome with usage statistics disabled.
 The codex-chrome bridge uses the existing Chrome profile and requires the binary and native-host setup described in the root README.
 Adding these entries does not install their packages or configure the browser bridge.
