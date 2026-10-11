@@ -256,23 +256,43 @@ Codex and OpenCode are optional; skip their install and login steps if you do no
 - [x] Confirm an agent can `git push` from the server with its own credentials and no Mac agent forwarding.
 - [x] Reboot the Droplet (`ssh root@agentbox reboot`) and confirm `herdr --remote agentbox` restores the session layout; running agents do not survive a reboot, but Pi sessions can be resumed with `/resume`.
 
-## Phase 11: Phone access (Galaxy Fold 8)
+## Phase 11: Phone access (Termius, synced)
 
 The phone is another thin client, like the Mac.
 Agents keep running in Herdr on the Droplet; the phone only attaches to them.
+Termius syncs one `termius-mobile` host and key across phones, so a new phone only needs sign-ins.
 
-- [x] Install the Tailscale app from Google Play and sign in to the same tailnet.
-- [x] Install Termius from Google Play.
-  The free Starter plan includes SSH, Mosh, port forwarding, SFTP, a special-key toolbar, and tabs; Pro ($15/month or $119/year) mainly adds encrypted vault sync across devices.
-- [x] In Termius, generate an ed25519 key named `fold8` and copy its public key.
-  Give the phone its own key; do not copy `~/.ssh/agentbox` from the Mac, so a lost phone can be revoked on its own.
-- [x] Append the public key to `~/.ssh/authorized_keys` on `agentbox` from the Mac: `ssh agentbox 'cat >> ~/.ssh/authorized_keys'`, paste the key, then press Ctrl-D.
-- [x] In Termius, add a host `agentbox` with hostname `agentbox`, user `frshbb`, and the `fold8` key.
-- [x] Optional: enable Mosh for the host in Termius, so sessions survive switching between Wi-Fi and cellular.
+Termius account facts (from docs.termius.com):
+
+- Sync needs a paid plan.
+  Creating an account starts a Pro trial; after it ends, the free Starter plan keeps working locally but stops syncing.
+  Keep Pro if you want new phones to pick up the host and key automatically.
+- Every account has a separate **encryption password**, even with Google sign-in.
+  It encrypts the vault, is never sent to Termius, and cannot be recovered.
+  Save it in your password manager when you create it; every new device asks for it.
+- A forgotten encryption password can only be fixed by resetting the vault in the account management portal, which deletes all synced data.
+
+Setup:
+
+- [x] Reset the Termius vault (the first Fold sign-in created an encryption password that was never saved) and save the new encryption password in the password manager.
+- [x] Install Tailscale on the phone, sign in to the same tailnet, and allow the VPN.
+- [x] Install Termius, sign in with Google, and enter the encryption password.
+- [x] Keep **Settings → Account → Sync keys and identities** on, so the key syncs to other phones.
+- [x] In Termius, generate an ED25519 key named `termius-mobile` and add its public key to `frshbb` only (not root):
+  `ssh agentbox 'cat >> ~/.ssh/authorized_keys'`, paste the key, then press Ctrl-D.
+  Do not copy `~/.ssh/agentbox` from the Mac.
+- [x] Add a host `agentbox` with hostname `agentbox` (or the Tailscale IP `100.82.139.102` if MagicDNS does not resolve), user `frshbb`, the `termius-mobile` key, and Mosh on.
   Phase 2 installed Mosh with `apt`, so `mosh-server` lives in `/usr/bin`, where Termius finds it without shell setup.
-  Mosh uses UDP ports 60000–61000, which travel inside the tailnet; verify it connects with the Cloud Firewall from Phase 3 still closed.
-- [x] Verify: connect from the phone, run `herdr`, attach to a running Pi pane, lock the phone for a few minutes, then reconnect and confirm the agent kept working.
-- To revoke a lost phone, delete its line from `~/.ssh/authorized_keys` and remove the device in the Tailscale admin console.
+  Mosh uses UDP ports 60000–61000, which travel inside the tailnet with the Cloud Firewall from Phase 3 still closed.
+- [x] Verify: connect, run `herdr`, attach to a running Pi pane, lock the phone for a few minutes, then reconnect and confirm the agent kept working.
+  Verified on the Galaxy Fold 8 (2026-10-08); the iPhone connected over the synced setup on 2026-10-10.
+- [x] Retire an old phone: sign out of Termius on it, remove it in the Tailscale admin console, and delete its key line from `~/.ssh/authorized_keys`.
+  Done for the Fold 8: its `fold8` key is removed.
+
+New phone (for example the Duo): install Tailscale and Termius, sign in to both, and enter the encryption password; the host and key arrive by sync, and the server needs no change.
+
+Lost phone: sign it out from the Devices section of the Termius account portal and remove it in Tailscale.
+Because the key is synced to every phone, also generate a new key, add it to `frshbb`, and delete the `termius-mobile` line.
 
 Alternative clients:
 
@@ -320,6 +340,9 @@ Verified 2026-10-09: a Mac session's messages reached the agentbox Pi by UUID an
 - Tailscale servers and SSH: https://tailscale.com/docs/how-to/set-up-servers
 - DigitalOcean Droplet pricing: https://www.digitalocean.com/pricing/droplets
 - Termius for Android: https://play.google.com/store/apps/details?id=com.server.auditor.ssh.client
+- Termius encryption overview: https://docs.termius.com/security/encryption-overview
+- Termius sync of keys and passwords: https://docs.termius.com/keychain/sync-of-keys-and-passwords
+- Termius account management (vault reset): https://docs.termius.com/administration/account-management
 - Termux: https://github.com/termux/termux-app
 - Pi on Android with Termux: https://pi.dev/docs/latest/termux
 - Pi shell configuration: `docs/shell-aliases.md` in the installed `@earendil-works/pi-coding-agent` package
