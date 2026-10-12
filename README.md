@@ -781,6 +781,9 @@ Pick one, or run `/skills <name>`, to open a tldr-style page that shows how to i
 [anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) provides an evidence-based Rails review and cleanup workflow.
 Ask it to review a diff for findings only, or ask it to clean up a diff to authorize edits.
 [anti-slop-ts](stow/agents/.agents/skills/anti-slop-ts/SKILL.md) manages the vendored Oxlint anti-slop plugin and its update workflow.
+[learn-visually](stow/agents/.agents/skills/learn-visually/SKILL.md) teaches a technical concept from one tested running example, rendered as an interactive HTML lesson, an illustrated PDF manual, or a Psychopomp animation.
+Run `/skill:learn-visually <topic> mode=interactive,manual,animation`; lessons are written to `~/code/personal/learn-visually/<slug>/` unless `LEARN_VISUALLY_OUT` or `out=` says otherwise.
+Animation mode needs the pinned Psychopomp renderer; `scripts/psychopomp.sh status` in the skill reports what is missing, and `setup` installs it after approval.
 
 #### Pi
 

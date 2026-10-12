@@ -1,0 +1,17 @@
+[package]
+name = "lv-@SLUG@-scene"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "lv-@SLUG@-scene"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+serde_json = "1.0"
+psychopomp = { path = "@PSYCHOPOMP_DIR@/crates/psychopomp" }
+
+# A standalone crate, not a member of any surrounding workspace.
+[workspace]
