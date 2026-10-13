@@ -9,6 +9,35 @@
           "contextWindow": 1050000
         }
       }
+    },
+    "meta": {
+      "models": [
+        {
+          "id": "muse-wonder-full-1.0",
+          "name": "Muse Wonder Full",
+          "api": "openai-responses",
+          "baseUrl": "https://api.meta.ai/v1",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 1048576,
+          "maxTokens": 131072,
+          "thinkingLevelMap": {
+            "off": null,
+            "minimal": "minimal",
+            "low": "low",
+            "medium": "medium",
+            "high": "high",
+            "xhigh": "xhigh",
+            "max": "max"
+          }
+        }
+      ]
     }
   }
 }
