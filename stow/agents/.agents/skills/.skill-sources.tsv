@@ -30,9 +30,9 @@ jev	local
 learn-visually	local
 lg	local
 optojr	local
-plannotator-annotate	local
-plannotator-last	local
-plannotator-review	local
+plannotator-annotate	excluded
+plannotator-last	excluded
+plannotator-review	excluded
 pr	local
 prototype	excluded
 prove	local

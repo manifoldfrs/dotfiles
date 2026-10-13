@@ -757,6 +757,7 @@ Use `--review` to open a Plannotator review and `--sync` to update the tracked s
 An update stays uncommitted for normal Git review.
 Explicit `local` ownership protects personalized skills against both upstream catalogs.
 To remove an upstream skill for good, delete its folder and set its manifest owner to `excluded`; synchronization then never copies it back.
+The `plannotator-review`, `plannotator-annotate`, and `plannotator-last` skills are `excluded` because Plannotator's own installer writes them into every harness; `scripts/bootstrap.sh` runs that installer when `plannotator` is missing, and rerunning it updates the CLI and the skills together.
 Research and review default to direct execution for small tasks; independent reviewers and investigators remain available when scope warrants authorized delegation.
 The `coding-standards` skill handles Effect-specific work; `coding-standards-ts` handles ordinary TypeScript.
 
@@ -771,6 +772,7 @@ The routes call model-invoked skills that also work on their own: `dig` writes a
 The shared doctrine, which applies the Rails Doctrine to every language, lives in [fstack/references/doctrine.md](stow/agents/.agents/skills/fstack/references/doctrine.md).
 `code-review` reviews Standards and Intent, then gets a second review from a different model family.
 In Pi, the `reviewer` subagent model is pinned per parent provider in `stow/pi/.pi/agent/settings.json`.
+Its prompt lives in `stow/pi/.pi/agent/agents/reviewer.md`, which replaces the `pi-subagents` builtin and requires every finding to name a trigger and survive a refutation attempt.
 Elsewhere, the second review runs through the other family's command line: `claude -p` for changes a GPT model wrote, and `codex exec` for changes a Claude model wrote.
 The `testing` skill replaces `tdd`, and fstack's build route replaces `implement`; both upstream skills are `excluded`.
 The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.bare` repository root for parallel agent work.

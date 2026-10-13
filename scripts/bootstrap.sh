@@ -221,6 +221,17 @@ install_opencode() {
     curl -fsSL https://opencode.ai/v2/install | bash || warn "OpenCode 2 installation failed"
 }
 
+# Plannotator's installer owns its CLI and its plannotator-* skills in every agent harness.
+install_plannotator() {
+    if command -v plannotator &> /dev/null; then
+        info "Plannotator already installed: $(plannotator --version 2>/dev/null || true)"
+        return
+    fi
+
+    info "Installing Plannotator..."
+    curl -fsSL https://plannotator.ai/install.sh | bash || warn "Plannotator installation failed"
+}
+
 main() {
     info "Bootstrapping development environment..."
     install_homebrew
@@ -232,6 +243,7 @@ main() {
     sync_neovim_plugins
     install_npm_globals
     install_opencode_plugin_dependencies
+    install_plannotator
 
     echo ""
     info "Bootstrap complete! Restart Ghostty or run: exec \"$(brew --prefix bash)/bin/bash\" --login"
