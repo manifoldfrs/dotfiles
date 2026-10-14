@@ -9,23 +9,24 @@ Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCo
 - Ghostty uses `MonoLisaCode` at 14 pt with explicit regular, italic, bold, and bold-italic styles.
 - Starship uses the intended Nerd Font glyphs through Ghostty's built-in `Symbols Nerd Font` fallback. See `plans/theme-font-glyph-followups.md`.
 - Starship and FZF inherit the Tokyo Night terminal palette from Ghostty.
-- Cursor and Zed are archived under `old/` and are not restored or rethemed.
+- Zed is the GUI code reader and debugger, Tokyo Night with `MonoLisaCode` at 14 pt to match Ghostty and Neovim; its settings, keymap, and tasks are the `zed` Stow package.
+- Cursor remains archived under `old/` and is not restored or rethemed.
 
 ## Requirements
 
-| Tool | Minimum Version | Notes |
-|------|-----------------|-------|
-| **Neovim** | >= 0.11.0 | Required for mason-lspconfig v2 and vim.lsp.config() |
-| **Git** | >= 2.19.0 | Required for lazy.nvim partial clones |
-| **GNU Stow** | >= 2.4.0 | Symlink manager for tracked dotfiles |
-| **Ghostty** | Latest | Uses `macos-option-as-alt` syntax |
-| **Herdr** | Latest | Agent-aware terminal workspace manager |
-| **Node.js** | LTS | For LSP servers via Mason |
-| **tree-sitter-cli** | >= 0.26.1 | Required for nvim-treesitter `main` branch parser compilation |
-| **lazygit** | >= 0.40 | Required for snacks.lazygit keymap (`<leader>gg`) |
-| **ripgrep** | >= 13.0 | Required for nvim-spectre search backend |
-| **gnu-sed** | Latest | Recommended on macOS for nvim-spectre replace engine (`brew install gnu-sed`) |
-| **imagemagick** | >= 7.0 | Required for snacks.image preview support |
+| Tool                | Minimum Version | Notes                                                                         |
+| ------------------- | --------------- | ----------------------------------------------------------------------------- |
+| **Neovim**          | >= 0.11.0       | Required for mason-lspconfig v2 and vim.lsp.config()                          |
+| **Git**             | >= 2.19.0       | Required for lazy.nvim partial clones                                         |
+| **GNU Stow**        | >= 2.4.0        | Symlink manager for tracked dotfiles                                          |
+| **Ghostty**         | Latest          | Uses `macos-option-as-alt` syntax                                             |
+| **Herdr**           | Latest          | Agent-aware terminal workspace manager                                        |
+| **Node.js**         | LTS             | For LSP servers via Mason                                                     |
+| **tree-sitter-cli** | >= 0.26.1       | Required for nvim-treesitter `main` branch parser compilation                 |
+| **lazygit**         | >= 0.40         | Required for snacks.lazygit keymap (`<leader>gg`)                             |
+| **ripgrep**         | >= 13.0         | Required for nvim-spectre search backend                                      |
+| **gnu-sed**         | Latest          | Recommended on macOS for nvim-spectre replace engine (`brew install gnu-sed`) |
+| **imagemagick**     | >= 7.0          | Required for snacks.image preview support                                     |
 
 ## Spotify Terminal Visualizer
 
@@ -47,14 +48,14 @@ The command stores OAuth tokens under `~/.cache/dotfiles/spotify-visualizer/`. R
 
 Controls:
 
-| Key | Action |
-|-----|--------|
-| `Space` | Toggle Spotify play or pause |
-| `n` | Skip to the next track |
-| `p` | Skip to the previous track |
-| `s` | Toggle shuffle |
-| `r` | Cycle repeat off, context, and current track |
-| `q` / `Ctrl-C` | Quit and restore the terminal |
+| Key            | Action                                       |
+| -------------- | -------------------------------------------- |
+| `Space`        | Toggle Spotify play or pause                 |
+| `n`            | Skip to the next track                       |
+| `p`            | Skip to the previous track                   |
+| `s`            | Toggle shuffle                               |
+| `r`            | Cycle repeat off, context, and current track |
+| `q` / `Ctrl-C` | Quit and restore the terminal                |
 
 The visualizer shows this key legend in the header. Short notices, such as pressing a playback key before Spotify has an active track, replace the legend for about 3 seconds.
 
@@ -70,6 +71,7 @@ spotify-visualizer
 ## TypeSafe Jev
 
 The TypeSafe skill defines when and how to request a Jev judgment.
+
 Pi 1.0 uses native Codemode classifiers; it no longer installs a custom TypeSafe SDK adapter.
 OpenCode retains its `typesafe_evaluate` adapter under `stow/opencode/.config/opencode/plugins/typesafe-ai/`.
 Both send the supplied state and questions to TypeSafe and return typed judgments.
@@ -80,16 +82,17 @@ In Pi Codemode:
 const jev = await models.getModelOfType("classifier", "typesafe", "jev-latest");
 if (!jev) throw new Error("Jev classifier is unavailable");
 const result = await models.classify(jev, {
-  state: { message: "A customer asks to cancel today" },
-  questions: {
-    urgent: {
-      type: "bool",
-      instructions: "Does this need a reply today?",
-      criteria: { true: "Needs a reply today", false: "Can wait" },
+    state: { message: "A customer asks to cancel today" },
+    questions: {
+        urgent: {
+            type: "bool",
+            instructions: "Does this need a reply today?",
+            criteria: { true: "Needs a reply today", false: "Can wait" },
+        },
     },
-  },
 });
-if (result.stopReason !== "stop") throw new Error(result.errorMessage || "Jev classification failed");
+if (result.stopReason !== "stop")
+    throw new Error(result.errorMessage || "Jev classification failed");
 return result.answers.urgent;
 ```
 
@@ -105,8 +108,10 @@ For example, when the catalog lists `tools.typesafe_evaluate`:
 
 ```js
 const result = await tools.typesafe_evaluate({
-  state: "A customer asks to cancel today",
-  noul_questions: [{ id: "urgent", instructions: "Does this need a reply today?" }],
+    state: "A customer asks to cancel today",
+    noul_questions: [
+        { id: "urgent", instructions: "Does this need a reply today?" },
+    ],
 });
 return result.answers.urgent;
 ```
@@ -131,14 +136,14 @@ Apply and reload live configuration only after reviewing and approving the track
 
 The `opencode` Stow package owns the tracked sources under `stow/opencode/.config/opencode/`.
 
-| Tracked source | Purpose |
-| --- | --- |
-| `opencode.jsonc` | Model defaults, permissions, MCP servers, providers, skills, and global instructions |
-| `cli.json` | Tokyo Night, TUI layout, permission handling, and keybindings |
-| `commands/` | Slash commands such as `/lg` |
-| `plugins/typesafe-ai/` | TypeSafe Jev tool |
+| Tracked source              | Purpose                                                                                 |
+| --------------------------- | --------------------------------------------------------------------------------------- |
+| `opencode.jsonc`            | Model defaults, permissions, MCP servers, providers, skills, and global instructions    |
+| `cli.json`                  | Tokyo Night, TUI layout, permission handling, and keybindings                           |
+| `commands/`                 | Slash commands such as `/lg`                                                            |
+| `plugins/typesafe-ai/`      | TypeSafe Jev tool                                                                       |
 | `plugins/tui-conveniences/` | `/copy-all`, `/restart`, `/update`, skill-load confirmations, and the Git status footer |
-| `plugins/request-logger/` | Opt-in private HTTP request capture |
+| `plugins/request-logger/`   | Opt-in private HTTP request capture                                                     |
 
 New sessions use `openai/gpt-6.1-sol-fast` with medium reasoning effort and low response verbosity.
 Its pinned limits match the running ChatGPT catalog checked on 2026-10-04: 400,000 context, 272,000 input, and 128,000 output tokens.
@@ -170,11 +175,11 @@ After reviewing the tracked changes and approving live activation, enable it thr
 
 ```jsonc
 {
-  "package": "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/request-logger",
-  "options": {
-    "enabled": true,
-    "maxFiles": 100
-  }
+    "package": "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/request-logger",
+    "options": {
+        "enabled": true,
+        "maxFiles": 100,
+    },
 }
 ```
 
@@ -377,16 +382,19 @@ herdr --version
 Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins.
 
 What this already handles for you:
+
 - stows Bash, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi settings, and local bin config
 - configures Herdr with Tokyo Night, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
 What `./scripts/bootstrap.sh` additionally handles for you:
+
 - installs Homebrew packages from `Brewfile`
 - runs Neovim headless plugin sync automatically
 - installs Bun and Plannotator TUI, then syncs the declared Herdr plugins
 
 What is still separate:
+
 - `./mcp_setup.sh install` for the optional Claude Desktop MCP config
 - Claude Code's user-scoped MCP config in `~/.claude.json`, which stays local because it contains credentials and account-specific state
 - OpenCode install if you use it on that machine
@@ -413,15 +421,15 @@ Plannotator TUI opens in a full-tab overlay.
 The agent sidebar prioritizes agents needing attention, uses distinct status symbols, and asks before closing workspaces.
 Pane-history persistence remains disabled.
 
-| Shortcut | Action |
-| --- | --- |
-| `Ctrl-h/j/k/l` | Navigate Neovim splits, then adjacent Herdr panes at the edge |
-| `Ctrl-a a` | Annotate selected terminal text |
-| `Ctrl-a Shift-a` | Copy annotations as agent context |
-| `Ctrl-a m` | Manage annotations |
-| `Ctrl-a Shift-o` | Review documents in the current folder |
-| `Ctrl-a Shift-l` | Review the agent's last reply |
-| Neovim visual `<leader>a` | Send the selection to Herdr Annotate |
+| Shortcut                  | Action                                                        |
+| ------------------------- | ------------------------------------------------------------- |
+| `Ctrl-h/j/k/l`            | Navigate Neovim splits, then adjacent Herdr panes at the edge |
+| `Ctrl-a a`                | Annotate selected terminal text                               |
+| `Ctrl-a Shift-a`          | Copy annotations as agent context                             |
+| `Ctrl-a m`                | Manage annotations                                            |
+| `Ctrl-a Shift-o`          | Review documents in the current folder                        |
+| `Ctrl-a Shift-l`          | Review the agent's last reply                                 |
+| Neovim visual `<leader>a` | Send the selection to Herdr Annotate                          |
 
 Press `Ctrl-a`, release it, then press the shortcut's second key.
 
@@ -674,32 +682,32 @@ cd ~/dotfiles
 
 ## Command Cheatsheet
 
-| Task | Command |
-|------|---------|
-| Full install/update | `./scripts/bootstrap.sh` |
-| Backup shell/editor config | `./scripts/backup.sh` |
-| Validate without live changes | `./scripts/validate-dotfiles.sh` |
-| Apply all Stow packages after preflight | `./scripts/stow.sh apply` |
-| Preview all Stow changes | `./scripts/stow.sh dry-run` |
-| Remove all Stow symlinks | `./scripts/stow.sh delete` |
-| Restow Bash config | `stow --no-folding -R -v -t "$HOME" -d stow bash` |
-| Restow OpenCode | `stow --no-folding -R -v -t "$HOME" -d stow opencode` |
-| Restow Claude Code settings | `stow --no-folding -R -v -t "$HOME" -d stow claude` |
-| Run Claude with request logging | `claude-log` |
-| Restow Codex settings/skills/hooks | `./scripts/stow.sh apply` |
-| Restow Pi settings | `stow --no-folding -R -v -t "$HOME" -d stow pi` |
-| Run Pi with request logging | `pi-log` |
-| Unstow Neovim | `stow --no-folding -D -v -t "$HOME" -d stow nvim` |
-| Restow Neovim | `stow --no-folding -R -v -t "$HOME" -d stow nvim` |
-| Restow Herdr config | `stow --no-folding -R -v -t "$HOME" -d stow herdr` |
-| Reload Herdr config | `herdr server reload-config` |
-| Check Herdr integrations | `herdr integration status` |
-| Restore Neovim plugins | `nvim --headless -c "Lazy! restore" -c "qa"` |
-| Open Lazy UI | `nvim +Lazy` |
-| Open Mason UI | `nvim +Mason` |
-| Shell syntax checks | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash` |
-| Neovim safety check | `bash test/nvim_plugin_safety.sh --base-ref HEAD` |
-| Docker test suite | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test` |
+| Task                                    | Command                                                                                                                                  |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Full install/update                     | `./scripts/bootstrap.sh`                                                                                                                 |
+| Backup shell/editor config              | `./scripts/backup.sh`                                                                                                                    |
+| Validate without live changes           | `./scripts/validate-dotfiles.sh`                                                                                                         |
+| Apply all Stow packages after preflight | `./scripts/stow.sh apply`                                                                                                                |
+| Preview all Stow changes                | `./scripts/stow.sh dry-run`                                                                                                              |
+| Remove all Stow symlinks                | `./scripts/stow.sh delete`                                                                                                               |
+| Restow Bash config                      | `stow --no-folding -R -v -t "$HOME" -d stow bash`                                                                                        |
+| Restow OpenCode                         | `stow --no-folding -R -v -t "$HOME" -d stow opencode`                                                                                    |
+| Restow Claude Code settings             | `stow --no-folding -R -v -t "$HOME" -d stow claude`                                                                                      |
+| Run Claude with request logging         | `claude-log`                                                                                                                             |
+| Restow Codex settings/skills/hooks      | `./scripts/stow.sh apply`                                                                                                                |
+| Restow Pi settings                      | `stow --no-folding -R -v -t "$HOME" -d stow pi`                                                                                          |
+| Run Pi with request logging             | `pi-log`                                                                                                                                 |
+| Unstow Neovim                           | `stow --no-folding -D -v -t "$HOME" -d stow nvim`                                                                                        |
+| Restow Neovim                           | `stow --no-folding -R -v -t "$HOME" -d stow nvim`                                                                                        |
+| Restow Herdr config                     | `stow --no-folding -R -v -t "$HOME" -d stow herdr`                                                                                       |
+| Reload Herdr config                     | `herdr server reload-config`                                                                                                             |
+| Check Herdr integrations                | `herdr integration status`                                                                                                               |
+| Restore Neovim plugins                  | `nvim --headless -c "Lazy! restore" -c "qa"`                                                                                             |
+| Open Lazy UI                            | `nvim +Lazy`                                                                                                                             |
+| Open Mason UI                           | `nvim +Mason`                                                                                                                            |
+| Shell syntax checks                     | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash` |
+| Neovim safety check                     | `bash test/nvim_plugin_safety.sh --base-ref HEAD`                                                                                        |
+| Docker test suite                       | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test`                                                    |
 
 ## What Gets Installed
 
@@ -725,6 +733,7 @@ cd ~/dotfiles
 ### MCP Setup (`mcp_setup.sh install`)
 
 MCP (Model Context Protocol) configs for AI coding assistants:
+
 - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Claude Code**: user-scoped `~/.claude.json`, kept local and configured through `claude mcp`
 - **Codex**: `~/.codex/config.toml`
@@ -734,6 +743,7 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 See `mcp/README.md` for setup instructions and API key configuration.
 
 Preferred tool usage after setup:
+
 - Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
 - Use exa for web search and page fetches when current web context is needed.
 
@@ -920,33 +930,34 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 
 ### Primary Tools
 
-| Tool | Purpose |
-|------|---------|
-| **Neovim** | Primary editor (lazy.nvim) |
-| **OpenCode** | AI-assisted coding CLI |
-| **Ghostty** | Terminal emulator |
-| **Herdr** | Agent-aware terminal workspace manager |
+| Tool         | Purpose                                |
+| ------------ | -------------------------------------- |
+| **Neovim**   | Primary editor (lazy.nvim)             |
+| **OpenCode** | AI-assisted coding CLI                 |
+| **Ghostty**  | Terminal emulator                      |
+| **Herdr**    | Agent-aware terminal workspace manager |
 
 ### Neovim Plugins
 
-| Plugin | Purpose |
-|--------|---------|
-| snacks.nvim | Modern QoL plugins (replaces telescope, alpha, indent-blankline, nvim-surround, Comment.nvim) |
-| neo-tree | File explorer |
-| blink.cmp | High-performance autocompletion (Rust-based fuzzy matching) |
-| flash.nvim | Motion/jump plugin (character, word, line jumps) |
-| mason + lspconfig | LSP support |
-| treesitter | Syntax highlighting + parser management |
-| treesitter-context | Sticky one-line code context |
-| noice.nvim | Command-line, message, and LSP UI |
-| gitsigns | Git integration |
-| diffview.nvim | Git diff review and file history UI |
-| nvim-spectre | Project-wide search and replace panel |
-| lualine | Status line |
-| bufferline | Buffer tabs |
-| vim-test | Test runner using Neovim terminal splits |
+| Plugin             | Purpose                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| snacks.nvim        | Modern QoL plugins (replaces telescope, alpha, indent-blankline, nvim-surround, Comment.nvim) |
+| neo-tree           | File explorer                                                                                 |
+| blink.cmp          | High-performance autocompletion (Rust-based fuzzy matching)                                   |
+| flash.nvim         | Motion/jump plugin (character, word, line jumps)                                              |
+| mason + lspconfig  | LSP support                                                                                   |
+| treesitter         | Syntax highlighting + parser management                                                       |
+| treesitter-context | Sticky one-line code context                                                                  |
+| noice.nvim         | Command-line, message, and LSP UI                                                             |
+| gitsigns           | Git integration                                                                               |
+| diffview.nvim      | Git diff review and file history UI                                                           |
+| nvim-spectre       | Project-wide search and replace panel                                                         |
+| lualine            | Status line                                                                                   |
+| bufferline         | Buffer tabs                                                                                   |
+| vim-test           | Test runner using Neovim terminal splits                                                      |
 
 **Key plugins explained:**
+
 - **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
 - **blink.cmp**: Rust-based completion engine with 0.5-4ms response time, typo-resistant fuzzy matching, and native LuaSnip support
 - **flash.nvim**: Fast motion plugin under the `<leader>j` group for jumping to characters (`<leader>jj`), words (`<leader>jw`), and lines (`<leader>jl`)
@@ -1014,91 +1025,91 @@ Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<l
 
 VSpaceCode-style aliases are also available: `<leader>f` File, `<leader>b` Buffer, `<leader>p` Project, `<leader>w` Window, `<leader>q` Quit/Session, and `,` Major Mode.
 
-| Keys | Action |
-|------|--------|
-| `Space` | Leader key |
-| `jk` (insert) | Escape to Normal |
-| `%%` (command) | Insert current file directory |
-| `<C-n>` | Toggle neo-tree |
-| `<leader>h` | Clear search highlight |
-| **VSpaceCode-style File/Project** ||
-| `<leader>ff` / `<leader>pf` | Find files / project files |
-| `<leader>fr` / `<leader>pp` | Recent files |
-| `<leader>fs` / `<leader>fS` | Save file / save all |
-| `<leader>ft` / `<leader>pt` | File/project tree |
-| `<leader>fT` | Reveal current file in tree |
-| `<leader>fy` | Copy current file path |
-| `<leader>fe` | Edit Neovim config |
-| **VSpaceCode-style Buffer/Window** ||
-| `<leader>bb` | Buffer picker |
-| `<leader>bn` / `<leader>bN` | Next / previous buffer |
-| `<leader>bu` | Alternate buffer |
-| `<leader>wh/j/k/l` | Move between windows |
-| `<leader>w/` / `<leader>w-` | Split right / below |
-| `<leader>wd` / `<leader>w=` | Close / balance windows |
-| `<leader>qq` / `<leader>qf` / `<leader>qr` | Quit all / close window / reload config |
-| **Major Mode `,`** ||
-| `,f` | Format buffer |
-| `,t` / `,T` | Test nearest / test file |
-| `,r` / `,a` | Rename symbol / code action |
-| `,d` / `,s` | Line diagnostics / document symbols |
-| **snacks.picker (Search)** ||
-| `<C-p>` / `<leader>sf` | Find files |
-| `<leader>sg` | Grep |
-| `<leader>sb` | Buffers |
-| `<leader>sr` | Recent files |
-| `<leader>sh` | Help pages |
-| `<leader>sk` | Keymaps |
-| `<leader>sc` | Colorschemes |
-| `<leader>sn` | Notification history |
-| `<leader><space>` | Smart find files |
-| `<leader>ss` | LSP symbols |
-| `<leader>sS` | LSP workspace symbols |
-| `<leader>sd` | Diagnostics |
-| `<leader>sj` | Document symbols (VSpaceCode alias) |
-| `<leader>sJ` | Jumps |
-| `<leader>sm` | Marks |
-| `<leader>sq` | Quickfix list |
-| `<leader>su` | Undo history |
-| `<leader>sR` | Spectre: replace in project |
-| `<leader>sw` / visual `<leader>sw` | Spectre: search current word / selection |
-| `<leader>sW` | Spectre: search current file |
-| `gd` / `gr` / `gI` / `gy` | LSP: definition / references / implementation / type definition |
-| **flash.nvim (Jump)** ||
-| `<leader>jj` | Jump to character |
-| `<leader>jw` | Jump to word |
-| `<leader>jl` | Jump to line |
-| **snacks (Utilities)** ||
-| `<leader>bd` | Delete buffer |
-| `<leader>e` | File explorer |
-| `<leader>gg` | Lazygit |
-| `<leader>z` | Zen mode |
-| `<leader>.` | Toggle scratch buffer |
-| `<leader>S` | Select scratch buffer |
-| `<leader>cR` | Rename file |
-| `]]` / `[[` | Next/prev LSP reference |
-| **snacks (Git)** ||
-| `<leader>gb` | Git branches |
-| `<leader>gl` | Git log |
-| `<leader>gs` | Git status |
-| `<leader>gB` | Git browse (opens in browser) |
-| **Navigation** ||
-| `<C-h/j/k/l>` | Navigate Neovim windows |
-| `<S-h>` / `<S-l>` | Previous/next buffer |
-| **LSP** ||
-| `K` | LSP: hover documentation |
-| `<leader>rn` / `<leader>ca` | LSP: rename / code action |
-| `<leader>lf` | Format file |
-| `gl` / `[d` / `]d` | Diagnostics: float / prev / next |
-| **Testing & Git** ||
-| `<leader>tt` / `<leader>tf` / `<leader>ts` | Test: nearest / file / suite |
-| `<leader>gp` / `<leader>gt` | Git: preview hunk / toggle blame |
-| `<leader>gd` | Git: picker diff |
-| `<leader>gD` / `<leader>gC` | Diffview: open / close |
-| `<leader>gh` / `<leader>gH` | Diffview: file history (current/repo) |
-| `]h` / `[h` | Git: next/prev hunk |
-| **Markdown** ||
-| `<leader>mp` / `,p` | Preview current Markdown file with `glow` |
+| Keys                                       | Action                                                          |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| `Space`                                    | Leader key                                                      |
+| `jk` (insert)                              | Escape to Normal                                                |
+| `%%` (command)                             | Insert current file directory                                   |
+| `<C-n>`                                    | Toggle neo-tree                                                 |
+| `<leader>h`                                | Clear search highlight                                          |
+| **VSpaceCode-style File/Project**          |                                                                 |
+| `<leader>ff` / `<leader>pf`                | Find files / project files                                      |
+| `<leader>fr` / `<leader>pp`                | Recent files                                                    |
+| `<leader>fs` / `<leader>fS`                | Save file / save all                                            |
+| `<leader>ft` / `<leader>pt`                | File/project tree                                               |
+| `<leader>fT`                               | Reveal current file in tree                                     |
+| `<leader>fy`                               | Copy current file path                                          |
+| `<leader>fe`                               | Edit Neovim config                                              |
+| **VSpaceCode-style Buffer/Window**         |                                                                 |
+| `<leader>bb`                               | Buffer picker                                                   |
+| `<leader>bn` / `<leader>bN`                | Next / previous buffer                                          |
+| `<leader>bu`                               | Alternate buffer                                                |
+| `<leader>wh/j/k/l`                         | Move between windows                                            |
+| `<leader>w/` / `<leader>w-`                | Split right / below                                             |
+| `<leader>wd` / `<leader>w=`                | Close / balance windows                                         |
+| `<leader>qq` / `<leader>qf` / `<leader>qr` | Quit all / close window / reload config                         |
+| **Major Mode `,`**                         |                                                                 |
+| `,f`                                       | Format buffer                                                   |
+| `,t` / `,T`                                | Test nearest / test file                                        |
+| `,r` / `,a`                                | Rename symbol / code action                                     |
+| `,d` / `,s`                                | Line diagnostics / document symbols                             |
+| **snacks.picker (Search)**                 |                                                                 |
+| `<C-p>` / `<leader>sf`                     | Find files                                                      |
+| `<leader>sg`                               | Grep                                                            |
+| `<leader>sb`                               | Buffers                                                         |
+| `<leader>sr`                               | Recent files                                                    |
+| `<leader>sh`                               | Help pages                                                      |
+| `<leader>sk`                               | Keymaps                                                         |
+| `<leader>sc`                               | Colorschemes                                                    |
+| `<leader>sn`                               | Notification history                                            |
+| `<leader><space>`                          | Smart find files                                                |
+| `<leader>ss`                               | LSP symbols                                                     |
+| `<leader>sS`                               | LSP workspace symbols                                           |
+| `<leader>sd`                               | Diagnostics                                                     |
+| `<leader>sj`                               | Document symbols (VSpaceCode alias)                             |
+| `<leader>sJ`                               | Jumps                                                           |
+| `<leader>sm`                               | Marks                                                           |
+| `<leader>sq`                               | Quickfix list                                                   |
+| `<leader>su`                               | Undo history                                                    |
+| `<leader>sR`                               | Spectre: replace in project                                     |
+| `<leader>sw` / visual `<leader>sw`         | Spectre: search current word / selection                        |
+| `<leader>sW`                               | Spectre: search current file                                    |
+| `gd` / `gr` / `gI` / `gy`                  | LSP: definition / references / implementation / type definition |
+| **flash.nvim (Jump)**                      |                                                                 |
+| `<leader>jj`                               | Jump to character                                               |
+| `<leader>jw`                               | Jump to word                                                    |
+| `<leader>jl`                               | Jump to line                                                    |
+| **snacks (Utilities)**                     |                                                                 |
+| `<leader>bd`                               | Delete buffer                                                   |
+| `<leader>e`                                | File explorer                                                   |
+| `<leader>gg`                               | Lazygit                                                         |
+| `<leader>z`                                | Zen mode                                                        |
+| `<leader>.`                                | Toggle scratch buffer                                           |
+| `<leader>S`                                | Select scratch buffer                                           |
+| `<leader>cR`                               | Rename file                                                     |
+| `]]` / `[[`                                | Next/prev LSP reference                                         |
+| **snacks (Git)**                           |                                                                 |
+| `<leader>gb`                               | Git branches                                                    |
+| `<leader>gl`                               | Git log                                                         |
+| `<leader>gs`                               | Git status                                                      |
+| `<leader>gB`                               | Git browse (opens in browser)                                   |
+| **Navigation**                             |                                                                 |
+| `<C-h/j/k/l>`                              | Navigate Neovim windows                                         |
+| `<S-h>` / `<S-l>`                          | Previous/next buffer                                            |
+| **LSP**                                    |                                                                 |
+| `K`                                        | LSP: hover documentation                                        |
+| `<leader>rn` / `<leader>ca`                | LSP: rename / code action                                       |
+| `<leader>lf`                               | Format file                                                     |
+| `gl` / `[d` / `]d`                         | Diagnostics: float / prev / next                                |
+| **Testing & Git**                          |                                                                 |
+| `<leader>tt` / `<leader>tf` / `<leader>ts` | Test: nearest / file / suite                                    |
+| `<leader>gp` / `<leader>gt`                | Git: preview hunk / toggle blame                                |
+| `<leader>gd`                               | Git: picker diff                                                |
+| `<leader>gD` / `<leader>gC`                | Diffview: open / close                                          |
+| `<leader>gh` / `<leader>gH`                | Diffview: file history (current/repo)                           |
+| `]h` / `[h`                                | Git: next/prev hunk                                             |
+| **Markdown**                               |                                                                 |
+| `<leader>mp` / `,p`                        | Preview current Markdown file with `glow`                       |
 
 Snacks file discovery includes hidden and ignored files by default, so local-only files such as `override.yml` still appear in `<C-p>`, `<leader>sf`, `<leader><space>`, `<leader>sg`, and the file explorer.
 
@@ -1110,44 +1121,83 @@ Use a terminal-first debugging flow instead of an in-editor DAP stack.
 - Python: use `python -m debugpy --listen localhost:5678 ...` when you need an attachable debugger
 - Day to day: prefer tests, logs, and targeted print statements for fast iteration
 
+### Custom Zed build
+
+`scripts/build_zed.sh` builds Zed from upstream source plus the patches tracked in `zed-custom/patches/`.
+The patches add flash.nvim-style jumps and which-key labels that stock Zed lacks:
+
+| Patch  | Adds                                                                                                                                                                    |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0001` | `vim::PushFlash`: type a pattern, then press a label to jump to that match (imported from [zed-industries/zed#59188](https://github.com/zed-industries/zed/pull/59188)) |
+| `0002` | `vim::PushFlashWord` (labels on every visible word start, narrowed by typing) and `vim::PushFlashLine` (labels on every visible line start)                             |
+| `0003` | `which_key.labels` setting, keyed by keystroke sequence, for group and binding names in the which-key popup                                                             |
+
+```bash
+./scripts/build_zed.sh                  # reset to zed-custom/base-commit, apply patches, build and bundle Zed Dev.app
+./scripts/build_zed.sh install          # copy Zed Dev.app into /Applications, next to stock Zed.app
+./scripts/build_zed.sh remote agentbox  # cross-compile the Linux remote server and install it on the host
+./scripts/build_zed.sh export           # rewrite zed-custom/patches from commits on the checkout's custom branch
+./scripts/build_zed.sh update           # rebase the patches onto upstream main and pin the new base commit
+```
+
+The checkout and build output live in `zed-custom/source/`, which is gitignored; the bundle lands in `zed-custom/source/target/release/bundle/osx/Zed Dev.app`.
+Zed Dev is the dev release channel, so it installs beside stock Zed and reads the same `~/.config/zed` settings.
+The build needs rustup, Xcode, cmake, and Zed's cargo-bundle fork; rustup installs the Rust version Zed pins on the first build.
+The remote server also needs zig, cargo-zigbuild, and rustup's `llvm-tools` component for stripping debug info before upload.
+Install the Cargo tools with the pinned toolchain, because they need a newer Rust than older default toolchains:
+
+```bash
+cargo +1.98.1 install cargo-bundle --git https://github.com/zed-industries/cargo-bundle.git --branch zed-deploy
+brew install zig
+cargo +1.98.1 install --locked cargo-zigbuild
+rustup component add llvm-tools --toolchain 1.98.1
+```
+
+Dev-channel Zed never downloads a remote server; it uses `~/.zed_server/zed-remote-server-dev-build` on the host.
+Rerun `remote` after every `build`, so the server on agentbox matches the app.
+Without Xcode's optional Metal toolchain, the script builds with runtime shader compilation; `xcodebuild -downloadComponent MetalToolchain` restores build-time shaders.
+To change a patch, commit the edit on the `custom` branch in `zed-custom/source/`, then run `export`.
+The build refuses to reset a checkout with uncommitted changes.
+The bundle is signed ad hoc and uses system git instead of a bundled copy, so universal links do not open it.
+
 ### Herdr
 
 Herdr runs inside Ghostty and organizes projects as workspaces, layouts as tabs, and terminals as panes. The persistent server keeps shells and agents alive after detaching.
 
-| Keys | Action |
-|------|--------|
-| `C-a` | Prefix |
-| `C-a r` | Reload Herdr config |
-| `C-a q` | Detach while keeping panes running |
-| `C-a s` / `C-a w` | Workspace picker |
-| `C-a Shift-n` / `C-a $` / `C-a d` | Create / rename / close workspace |
-| `C-a (` / `C-a )` | Previous / next workspace |
-| `C-a c` | Create tab |
-| `C-a p` / `C-a n` | Previous / next tab |
-| `C-a 1..9` | Select tab |
-| `C-a "` / `C-a %` | Split down / right |
-| `C-a h/j/k/l` | Navigate Herdr panes |
-| `C-a o` | Cycle panes |
-| `C-a z` / `C-a x` | Zoom / close pane |
-| `C-a [` | Copy mode |
-| `C-a Shift-r` | Resize mode |
+| Keys                              | Action                             |
+| --------------------------------- | ---------------------------------- |
+| `C-a`                             | Prefix                             |
+| `C-a r`                           | Reload Herdr config                |
+| `C-a q`                           | Detach while keeping panes running |
+| `C-a s` / `C-a w`                 | Workspace picker                   |
+| `C-a Shift-n` / `C-a $` / `C-a d` | Create / rename / close workspace  |
+| `C-a (` / `C-a )`                 | Previous / next workspace          |
+| `C-a c`                           | Create tab                         |
+| `C-a p` / `C-a n`                 | Previous / next tab                |
+| `C-a 1..9`                        | Select tab                         |
+| `C-a "` / `C-a %`                 | Split down / right                 |
+| `C-a h/j/k/l`                     | Navigate Herdr panes               |
+| `C-a o`                           | Cycle panes                        |
+| `C-a z` / `C-a x`                 | Zoom / close pane                  |
+| `C-a [`                           | Copy mode                          |
+| `C-a Shift-r`                     | Resize mode                        |
 
 CLI cheat sheet:
 
-| Task | Command |
-|------|---------|
-| Start Herdr | `herdr` |
-| Show keyboard help | `C-a ?` |
-| Show CLI help | `herdr --help` |
-| List workspaces, tabs, or panes | `herdr workspace list`, `herdr tab list`, `herdr pane list` |
-| Create a workspace | `herdr workspace create --cwd /path/to/project --label project` |
-| Create a tab | `herdr tab create --workspace <workspace-id> --label logs` |
-| Split the current pane | `herdr pane split --current --direction right` |
-| Run a command in a pane | `herdr pane run <pane-id> "npm test"` |
-| Read recent pane output | `herdr pane read <pane-id> --source recent-unwrapped --lines 100` |
-| List managed agents | `herdr agent list` |
-| Reload configuration | `herdr server reload-config` |
-| Check agent integrations | `herdr integration status` |
+| Task                            | Command                                                           |
+| ------------------------------- | ----------------------------------------------------------------- |
+| Start Herdr                     | `herdr`                                                           |
+| Show keyboard help              | `C-a ?`                                                           |
+| Show CLI help                   | `herdr --help`                                                    |
+| List workspaces, tabs, or panes | `herdr workspace list`, `herdr tab list`, `herdr pane list`       |
+| Create a workspace              | `herdr workspace create --cwd /path/to/project --label project`   |
+| Create a tab                    | `herdr tab create --workspace <workspace-id> --label logs`        |
+| Split the current pane          | `herdr pane split --current --direction right`                    |
+| Run a command in a pane         | `herdr pane run <pane-id> "npm test"`                             |
+| Read recent pane output         | `herdr pane read <pane-id> --source recent-unwrapped --lines 100` |
+| List managed agents             | `herdr agent list`                                                |
+| Reload configuration            | `herdr server reload-config`                                      |
+| Check agent integrations        | `herdr integration status`                                        |
 
 Use `herdr <resource> --help`, such as `herdr pane --help`, for the complete command reference.
 
@@ -1169,7 +1219,9 @@ Generated integration files remain machine-managed. The shared `herdr` skill tea
 
 Bash stores interactive history in `~/.bash_history`. FZF provides fuzzy completion and history/file keybindings; GNU Readline uses the tracked `.inputrc`; Starship renders the prompt; zoxide handles directory jumping; and mise activates project runtime versions and environments. Generated initialization scripts for FZF, Starship, Zoxide, and mise are cached under `${XDG_CACHE_HOME:-~/.cache}/bash/init/` and regenerated after their executables change.
 
-Cursor and Zed are intentionally archived under `old/cursor/current-archive/` and `old/zed/`. They are not Stow packages and are not restored or rethemed by this migration.
+Cursor is intentionally archived under `old/cursor/current-archive/` and is not a Stow package.
+Zed returned as the GUI reader in October 2026; the current tracked config lives in `stow/zed/`, and `old/zed/` is the retired previous iteration kept for reference.
+See `docs/research/cursor-as-reader-with-pi.md` for the reader comparison behind that choice.
 
 ## File Structure
 
@@ -1179,7 +1231,12 @@ dotfiles/
 │   ├── bootstrap.sh        # Full machine bootstrap for non-Stow setup
 │   ├── backup.sh           # Backup current machine config into repo
 │   ├── stow.sh             # Apply/delete/dry-run GNU Stow packages
+│   ├── build_zed.sh        # Build Zed with the zed-custom patches
 │   └── validate-dotfiles.sh # Isolated preflight before live Stow apply
+├── zed-custom/             # Custom Zed build inputs
+│   ├── base-commit         # Pinned upstream Zed commit
+│   ├── patches/            # Patches applied in order by build_zed.sh
+│   └── source/             # Gitignored Zed checkout and build output
 ├── mcp_setup.sh            # MCP config backup/install
 ├── Brewfile                # Homebrew packages
 ├── npm-global-packages.txt # Global npm packages
@@ -1195,6 +1252,7 @@ dotfiles/
 │   ├── claude/             # .claude/: settings, statusline, hooks, request logger
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
+│   ├── zed/                # .config/zed/: settings, keymap, tasks
 │   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
 │       └── .config/nvim/
 │           ├── init.lua
@@ -1217,6 +1275,7 @@ bash test/nvim_plugin_safety.sh --base-ref HEAD
 ```
 
 What it enforces:
+
 - no explicit lockfile-changing lazy commands (`sync`/`update`/`restore`) inside the harness
 - `stow/nvim/.config/nvim/lazy-lock.json` checksum must stay unchanged unless `--allow-lockfile-change` is explicitly passed
 - isolated startup checks in a throwaway XDG profile
@@ -1247,18 +1306,19 @@ git push
 - `opencode.nvim` changed API (`provider` removed), which caused blocking startup prompts.
 - Background toggle/autocmd interactions (`OptionSet background`) created startup loop risk in some plugin combinations.
 - Markdown crashes were traced to stale parser artifacts under `~/.local/share/nvim/site/parser` named `markdown.so.disabled` and `markdown_inline.so.disabled`.
-  - Even with `.disabled` suffix, Neovim runtime parser discovery still picked them up.
-  - macOS killed Neovim with `CODESIGNING Invalid Page` while loading parser via `uv_dlopen`.
+    - Even with `.disabled` suffix, Neovim runtime parser discovery still picked them up.
+    - macOS killed Neovim with `CODESIGNING Invalid Page` while loading parser via `uv_dlopen`.
 - Recovery that restored stability:
-  - removed stale parser artifacts from runtime path
-  - rolled back recent visual plugins
-  - kept only `noice.nvim` from recent additions
-  - retained the safety harness (`test/nvim_plugin_safety.sh`) for one-by-one rollout checks
+    - removed stale parser artifacts from runtime path
+    - rolled back recent visual plugins
+    - kept only `noice.nvim` from recent additions
+    - retained the safety harness (`test/nvim_plugin_safety.sh`) for one-by-one rollout checks
 - Post-recovery history: switched theme from Nord to Catppuccin Macchiato across Neovim, Ghostty, and tmux, then later returned the active stack to Tokyo Night. Added `flash.nvim` for motion/jump support.
 
 ## Troubleshooting
 
 **Stow says `WARNING! stowing ... would cause conflicts`**
+
 - A real file already exists at the target path, for example `~/.bashrc` or `~/.config/nvim`.
 - If you trust the repo version, move the existing file aside and restow:
 
@@ -1270,6 +1330,7 @@ stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow bash
 For a full migration, prefer `./scripts/bootstrap.sh`; it backs up known target paths before stowing.
 
 **A Stow symlink points to the wrong place**
+
 - Check the symlink target:
 
 ```bash
@@ -1285,6 +1346,7 @@ stow --no-folding -R -v -t "$HOME" -d stow bash nvim
 ```
 
 **I edited `~/.config/nvim`, but Git does not show changes**
+
 - Confirm `~/.config/nvim` is a symlink into this repo:
 
 ```bash
@@ -1300,6 +1362,7 @@ stow --no-folding -R -v -t "$HOME" -d stow nvim
 ```
 
 **`stow: command not found`**
+
 - Install it with Homebrew or run the full installer:
 
 ```bash
@@ -1309,6 +1372,7 @@ cd ~/dotfiles && ./scripts/bootstrap.sh
 ```
 
 **Need to undo the Stow migration temporarily?**
+
 - Unstow packages, then restore a backup if needed:
 
 ```bash
@@ -1319,58 +1383,69 @@ stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin openc
 Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 
 **Neovim LSP not working?**
+
 - Requires Neovim >= 0.11.0 for mason-lspconfig v2
 - Run `:Mason` to check installed servers
 - Run `:LspInfo` to verify attachment
 
 **Treesitter parsers not compiling?**
+
 - Requires `tree-sitter-cli` >= 0.26.1 for nvim-treesitter `main` branch
 - Run `:checkhealth nvim-treesitter` to verify CLI is found
 - Install via: `npm install -g tree-sitter-cli`
 
 **Markdown preview with glow not working?**
+
 - Ensure `glow` is installed: `brew install glow`
 - Save the Markdown file before previewing; the keymap previews the current file path
 - Use `<leader>mp` or `,p` inside a Markdown buffer
 
 **Markdown files crash Neovim with `CODESIGNING Invalid Page`?**
+
 - Check for stale parser files in `~/.local/share/nvim/site/parser`:
-  - `markdown.so.disabled`
-  - `markdown_inline.so.disabled`
+    - `markdown.so.disabled`
+    - `markdown_inline.so.disabled`
 - Move those files out of parser runtime path (for example to `/tmp`) and retry.
 - Confirm active runtime parser paths with:
-  - `nvim --noplugin --headless "+lua for _,f in ipairs(vim.api.nvim_get_runtime_file('parser/markdown*', true)) do print(f) end" +qa`
+    - `nvim --noplugin --headless "+lua for _,f in ipairs(vim.api.nvim_get_runtime_file('parser/markdown*', true)) do print(f) end" +qa`
 
 **Seeing `module 'nvim-treesitter.configs' not found`?**
+
 - This usually means old treesitter `master`-style config is mixed with `main`-branch plugin files
 - Re-stow your dotfiles Neovim config and rerun setup: `./scripts/bootstrap.sh`
 - The setup script runs headless `Lazy! restore` to install plugin files from `lazy-lock.json`
 
 **Prompt is plain or Bash highlighting is missing after an update?**
+
 - Check `brew list --versions bash starship zoxide fzf mise` and run `brew bundle --file=~/dotfiles/Brewfile` for anything missing.
 - Reapply the Bash package with `./scripts/stow.sh apply`, then run `exec /opt/homebrew/bin/bash --login`.
 - Verify `fzf` is available and `~/.config/starship.toml` exists.
 - Private-use prompt glyphs use Ghostty's built-in `Symbols Nerd Font` fallback; see `plans/theme-font-glyph-followups.md`.
 
 **Herdr config not loading?**
+
 - Confirm `~/.config/herdr/config.toml` points into `stow/herdr/` with `readlink ~/.config/herdr/config.toml`.
 - Reapply the Stow profile with `./scripts/stow.sh apply`, then run `herdr server reload-config`.
 - Herdr keeps the previous keymap if keybindings are invalid. Check `~/.config/herdr/herdr-server.log` for startup or reload warnings.
 
 **Herdr agent state is missing or stale?**
+
 - Run `herdr integration status`.
 - Reinstall the affected integration with `herdr integration install pi`, `codex`, `opencode`, or `claude`.
 - Generated integration files are machine-managed and should not be copied into Stow.
 
 **Herdr and Neovim navigation**
+
 - Bare `C-h/j/k/l` navigate Neovim windows, including moving between Neo-tree and editor splits.
 - Use prefixed `C-a h/j/k/l` to navigate Herdr panes.
 
 **A project runtime is missing?**
+
 - `scripts/bootstrap.sh` installs Node.js from `Brewfile` and activates mise in interactive Bash sessions.
 - Add the project runtime with `mise use`, then open a new shell or run `mise install`.
 
 **Terminal debugging workflow**
+
 - Go: run `dlv debug` or `dlv test` in a Herdr pane
 - Python: run `python -m debugpy --listen localhost:5678 --wait-for-client myfile.py`
 - Prefer tests and print/log debugging first; reach for `dlv` or `debugpy` when the bug is stubborn

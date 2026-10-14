@@ -1,0 +1,203 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+//
+// Leader maps ported from the Neovim setup (Snacks pickers, VSpaceCode
+// aliases, vim-test, gitsigns, Diffview, flash). Leader is space and
+// localleader is comma, matching Neovim. Groups mirror the old which-key
+// namespaces: f File, p Project, b Buffer, s Search, g Git, t Test,
+// w Window, u Toggle, j Jump, q Quit. With which_key enabled in settings,
+// pressing space and pausing shows the pending bindings; custom group
+// labels are not supported by Zed yet, so groups show as "+N keybinds"
+// and task-based bindings show their task label.
+[
+    {
+        "context": "Workspace",
+        "bindings": {
+            "ctrl-`": ["task::Spawn", { "task_name": "open_in_ghostty" }],
+        },
+    },
+    // =========================================================================
+    // Pane splits — tmux-style (ctrl-a prefix)
+    //
+    // Mirrors tmux bindings: prefix + " = split down, prefix + % = split right.
+    //
+    // Note: ctrl-a is bound in the Editor context to MoveToBeginningOfLine.
+    // Zed will wait ~1s after ctrl-a for the second key before falling through
+    // to that action — intentional tmux-prefix behavior. In vim normal mode
+    // you'd use 0/^ anyway, so the delay is rarely felt.
+    // =========================================================================
+    {
+        "context": "Pane",
+        "bindings": {
+            // tmux: ctrl-a + "  →  horizontal split (new pane below)
+            "ctrl-a \"": "pane::SplitDown",
+            // tmux: ctrl-a + %  →  vertical split (new pane to the right)
+            "ctrl-a %": "pane::SplitRight",
+            // tmux: ctrl-a + c  →  new window  (Zed: new file tab)
+            "ctrl-a c": "workspace::NewFile",
+        },
+    },
+    // jk escapes insert mode, as in Neovim.
+    {
+        "context": "vim_mode == insert",
+        "bindings": {
+            "j k": "vim::NormalBefore",
+        },
+    },
+    // Editor-scoped convenience keys from the Neovim setup.
+    {
+        "context": "Editor",
+        "bindings": {
+            "ctrl-p": "file_finder::Toggle",
+            "ctrl-n": "project_panel::ToggleFocus",
+            "alt-j": "editor::MoveLineDown",
+            "alt-k": "editor::MoveLineUp",
+        },
+    },
+    // Visual-mode extras: S surrounds the selection (vim-surround habit).
+    {
+        "context": "vim_mode == visual",
+        "bindings": {
+            "shift-s": "vim::PushAddSurrounds",
+        },
+    },
+    // Everything below is normal/visual-mode only.
+    {
+        "context": "VimControl && !menu",
+        "bindings": {
+            // Unbind the default space motion (vim::WrappingRight). While space
+            // is itself bound, leader chords get a fixed ~1s timeout and the
+            // which-key menu vanishes when that timeout fires. Unbound, the
+            // chord is untimed and the menu persists until the next key.
+            // `l` still moves right. See zed-industries/zed#46347.
+            "space": null,
+
+            // ; opens the command palette, standing in for Neovim's : remap.
+            ";": "command_palette::Toggle",
+
+            // LSP keys from the Neovim setup (gd, gD, gy, [d, ]d are Zed
+            // defaults already). K hover is also a Zed default.
+            "g r": "editor::FindAllReferences",
+            "g i": "editor::GoToImplementation",
+            "g l": "editor::Hover",
+            "] h": "editor::GoToHunk",
+            "[ h": "editor::GoToPreviousHunk",
+
+            // Buffers with shift-h/l.
+            "shift-h": "pane::ActivatePreviousItem",
+            "shift-l": "pane::ActivateNextItem",
+
+            // Resize panes with ctrl-arrows.
+            "ctrl-up": "vim::ResizePaneUp",
+            "ctrl-down": "vim::ResizePaneDown",
+            "ctrl-left": "vim::ResizePaneLeft",
+            "ctrl-right": "vim::ResizePaneRight",
+
+            // File / project (leader f, leader p).
+            "space space": "file_finder::Toggle",
+            "space f f": "file_finder::Toggle",
+            "space p f": "file_finder::Toggle",
+            "space s f": "file_finder::Toggle",
+            "space f r": "projects::OpenRecent",
+            "space p p": "projects::OpenRecent",
+            "space s r": "projects::OpenRecent",
+            "space f s": "workspace::Save",
+            "space f S": "workspace::SaveAll",
+            "space f t": "project_panel::ToggleFocus",
+            "space p t": "project_panel::ToggleFocus",
+            "space e": "project_panel::ToggleFocus",
+            "space f T": "pane::RevealInProjectPanel",
+            "space f y": "workspace::CopyPath",
+            "space f e": "zed::OpenSettingsFile",
+
+            // Buffers (leader b).
+            "space b b": "tab_switcher::Toggle",
+            "space b f": "tab_switcher::Toggle",
+            "space ,": "tab_switcher::Toggle",
+            "space s b": "tab_switcher::Toggle",
+            "space b d": "pane::CloseActiveItem",
+            "space b c": "pane::CloseActiveItem",
+            "space b n": "pane::ActivateNextItem",
+            "space b N": "pane::ActivatePreviousItem",
+            "space b p": "pane::TogglePinTab",
+
+            // Search and symbols (leader s).
+            "space /": "pane::DeploySearch",
+            "space s g": "pane::DeploySearch",
+            "space s p": "pane::DeploySearch",
+            "space s s": "outline::Toggle",
+            "space s j": "outline::Toggle",
+            "space s S": "project_symbols::Toggle",
+            "space s d": "diagnostics::Deploy",
+            "space s D": "diagnostics::Deploy",
+            "space s c": "theme_selector::Toggle",
+            "space s k": "zed::OpenKeymap",
+            "space r n": "editor::Rename",
+            "space s e": "editor::Rename",
+            "space c a": "editor::ToggleCodeActions",
+
+            // Git (leader g).
+            "space g g": ["task::Spawn", { "task_name": "lazygit" }],
+            "space g d": "git::Diff",
+            "space g D": "git::Diff",
+            "space g s": "git_panel::ToggleFocus",
+            "space g b": "branches::OpenRecent",
+            "space g l": "git_panel::ActivateHistoryTab",
+            "space g h": "git_panel::ActivateHistoryTab",
+            "space g H": "git_panel::ActivateHistoryTab",
+            "space g p": "editor::ToggleSelectedDiffHunks",
+            "space g t": "git::Blame",
+
+            // Tests (leader t). Nearest/file dispatch by file type in tasks.
+            "space t t": ["task::Spawn", { "task_name": "test nearest" }],
+            "space t f": ["task::Spawn", { "task_name": "test file" }],
+            "space t s": "task::Spawn",
+            "space t l": "task::Rerun",
+
+            // Windows (leader w).
+            "space w h": "workspace::ActivatePaneLeft",
+            "space w j": "workspace::ActivatePaneDown",
+            "space w k": "workspace::ActivatePaneUp",
+            "space w l": "workspace::ActivatePaneRight",
+            "space w w": "workspace::ActivateNextPane",
+            "space w W": "workspace::ActivatePreviousPane",
+            "space w v": "pane::SplitRight",
+            "space w /": "pane::SplitRight",
+            "space w s": "pane::SplitDown",
+            "space w -": "pane::SplitDown",
+            "space w d": "pane::CloseActiveItem",
+            "space w =": "vim::ResetPaneSizes",
+
+            // Jump (leader j): flash.nvim-style labels (custom build, zed-custom/patches).
+            "space j j": "vim::PushFlash",
+            "space j w": "vim::PushFlashWord",
+            "space j l": "vim::PushFlashLine",
+
+            // Toggles (leader u).
+            "space u h": "editor::ToggleInlayHints",
+            "space u w": "editor::ToggleSoftWrap",
+            "space u l": "editor::ToggleLineNumbers",
+
+            // Misc singletons.
+            "space z": "workspace::ToggleZoom",
+            "space .": "workspace::NewFile",
+            "space m p": "markdown::OpenPreview",
+            "space q q": "zed::Quit",
+            "space q f": "workspace::CloseWindow",
+
+            // Localleader (comma), major-mode style.
+            ", f": "editor::Format",
+            ", r": "editor::Rename",
+            ", a": "editor::ToggleCodeActions",
+            ", d": "editor::Hover",
+            ", s": "outline::Toggle",
+            ", t": ["task::Spawn", { "task_name": "test nearest" }],
+            ", T": ["task::Spawn", { "task_name": "test file" }],
+        },
+    },
+]

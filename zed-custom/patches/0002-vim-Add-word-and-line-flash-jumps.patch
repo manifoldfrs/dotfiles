@@ -1,0 +1,590 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Faris <frs@hbb.dev>
+Date: Tue, 13 Oct 2026 16:06:57 -0700
+Subject: [PATCH 2/3] vim: Add word and line flash jumps
+
+Adds vim::PushFlashWord, which labels every visible word start and narrows
+to words that begin with the typed text, and vim::PushFlashLine, which
+labels every visible line start and takes no pattern. Both reuse the flash
+jump operator.
+---
+ crates/vim/src/flash.rs | 335 ++++++++++++++++++++++++++++++++++++----
+ crates/vim/src/helix.rs |   2 +-
+ crates/vim/src/state.rs |  12 ++
+ 3 files changed, 317 insertions(+), 32 deletions(-)
+
+diff --git a/crates/vim/src/flash.rs b/crates/vim/src/flash.rs
+index c6efadf5fd..90b7ed05cb 100644
+--- a/crates/vim/src/flash.rs
++++ b/crates/vim/src/flash.rs
+@@ -7,15 +7,18 @@ use editor::{
+     Anchor, Bias, Editor, MultiBufferOffset, NavigationOverlayKey, NavigationOverlayLabel,
+     NavigationTargetOverlay, ToOffset,
+ };
+-use gpui::{Context, Font, Hsla, KeystrokeEvent, Pixels, Window, WindowTextSystem, actions};
++use gpui::{
++    Action, Context, Font, Hsla, KeystrokeEvent, Pixels, Window, WindowTextSystem, actions,
++};
+ use multi_buffer::MultiBufferSnapshot;
+ use settings::Settings;
+ use ui::px;
+ 
+ use crate::{
+     ClearOperators, Vim, VimSettings,
++    helix::is_jump_word_char,
+     motion::Motion,
+-    state::{FlashJumpLabel, Operator},
++    state::{FlashJumpLabel, FlashMode, Operator},
+ };
+ 
+ actions!(
+@@ -24,6 +27,11 @@ actions!(
+         /// Starts a flash-style jump: type a search pattern, then press a
+         /// highlighted label character to jump to that match.
+         PushFlash,
++        /// Starts a flash-style jump with a label on every visible word start;
++        /// typing narrows the labels to words that begin with the typed text.
++        PushFlashWord,
++        /// Starts a flash-style jump with a label on every visible line start.
++        PushFlashLine,
+         /// Removes the last character from the flash jump search pattern.
+         FlashBackspace,
+     ]
+@@ -31,6 +39,12 @@ actions!(
+ 
+ pub(crate) fn register(editor: &mut Editor, cx: &mut Context<Vim>) {
+     Vim::action(editor, cx, Vim::push_flash);
++    Vim::action(editor, cx, |vim, _: &PushFlashWord, window, cx| {
++        vim.update_flash_state(FlashMode::Word, String::new(), Vec::new(), window, cx);
++    });
++    Vim::action(editor, cx, |vim, _: &PushFlashLine, window, cx| {
++        vim.update_flash_state(FlashMode::Line, String::new(), Vec::new(), window, cx);
++    });
+     Vim::action(editor, cx, Vim::flash_backspace);
+ }
+ 
+@@ -71,6 +85,7 @@ impl Vim {
+     fn push_flash(&mut self, _: &PushFlash, window: &mut Window, cx: &mut Context<Self>) {
+         self.push_operator(
+             Operator::FlashJump {
++                mode: FlashMode::Pattern,
+                 pattern: String::new(),
+                 labels: Vec::new(),
+                 target: None,
+@@ -97,15 +112,14 @@ impl Vim {
+             return;
+         }
+ 
+-        let push_flash = PushFlash;
+-        let push_flash_would_run = window
+-            .bindings_for_action(&push_flash)
+-            .iter()
+-            .any(|binding| {
++        let flash_actions: [&dyn Action; 3] = [&PushFlash, &PushFlashWord, &PushFlashLine];
++        let push_flash_would_run = flash_actions.into_iter().any(|action| {
++            window.bindings_for_action(action).iter().any(|binding| {
+                 binding
+                     .match_keystrokes(std::slice::from_ref(&keystroke_event.keystroke))
+                     .is_some_and(|pending| !pending)
+-            });
++            })
++        });
+         if !push_flash_would_run {
+             return;
+         }
+@@ -131,6 +145,7 @@ impl Vim {
+             return;
+         }
+         let Operator::FlashJump {
++            mode,
+             mut pattern,
+             labels,
+             ..
+@@ -139,7 +154,7 @@ impl Vim {
+             return;
+         };
+         pattern.pop();
+-        self.update_flash_state(pattern, labels, window, cx);
++        self.update_flash_state(mode, pattern, labels, window, cx);
+     }
+ 
+     pub(crate) fn handle_flash_jump_input(
+@@ -152,6 +167,7 @@ impl Vim {
+             return;
+         }
+         let Operator::FlashJump {
++            mode,
+             mut pattern,
+             labels,
+             target,
+@@ -177,21 +193,29 @@ impl Vim {
+             return;
+         }
+ 
++        // Line mode takes no pattern, like flash.nvim with `max_length = 0`.
++        if mode == FlashMode::Line {
++            self.abort_flash_jump(window, cx);
++            return;
++        }
++
+         pattern.push(input_char);
+-        self.update_flash_state(pattern, labels, window, cx);
++        self.update_flash_state(mode, pattern, labels, window, cx);
+     }
+ 
+     fn update_flash_state(
+         &mut self,
++        mode: FlashMode,
+         pattern: String,
+         previous_labels: Vec<FlashJumpLabel>,
+         window: &mut Window,
+         cx: &mut Context<Self>,
+     ) {
+-        if pattern.is_empty() {
++        if pattern.is_empty() && mode == FlashMode::Pattern {
+             self.clear_flash_jump_ui(cx);
+             self.push_operator(
+                 Operator::FlashJump {
++                    mode,
+                     pattern,
+                     labels: Vec::new(),
+                     target: None,
+@@ -211,6 +235,7 @@ impl Vim {
+                 match_ranges,
+             } = Self::collect_flash_jump_data(
+                 editor,
++                mode,
+                 &pattern,
+                 &previous_labels,
+                 smartcase,
+@@ -236,6 +261,7 @@ impl Vim {
+         match applied.flatten() {
+             Some((labels, target)) => self.push_operator(
+                 Operator::FlashJump {
++                    mode,
+                     pattern,
+                     labels,
+                     target,
+@@ -259,6 +285,7 @@ impl Vim {
+ 
+     fn collect_flash_jump_data(
+         editor: &mut Editor,
++        mode: FlashMode,
+         pattern: &str,
+         previous_labels: &[FlashJumpLabel],
+         smartcase: bool,
+@@ -300,6 +327,7 @@ impl Vim {
+             scan_range.start,
+             scan_range.end,
+             cursor_offset,
++            mode,
+             pattern,
+             smartcase,
+             &previous_labels,
+@@ -335,6 +363,7 @@ impl Vim {
+         start_offset: MultiBufferOffset,
+         end_offset: MultiBufferOffset,
+         cursor_offset: MultiBufferOffset,
++        mode: FlashMode,
+         pattern: &str,
+         smartcase: bool,
+         previous_labels: &HashMap<MultiBufferOffset, char>,
+@@ -347,14 +376,45 @@ impl Vim {
+             return FlashJumpUiData::default();
+         }
+ 
+-        let matches = Self::find_flash_matches(
+-            buffer,
+-            start_offset,
+-            end_offset,
+-            cursor_offset,
+-            pattern,
+-            smartcase,
+-        );
++        let matches = match mode {
++            FlashMode::Pattern => Self::find_flash_matches(
++                buffer,
++                start_offset,
++                end_offset,
++                cursor_offset,
++                pattern,
++                smartcase,
++                false,
++            ),
++            FlashMode::Word if pattern.is_empty() => Self::nearest_flash_matches(
++                Self::find_flash_boundaries(buffer, start_offset, end_offset, |previous, ch| {
++                    is_jump_word_char(ch) && !previous.is_some_and(is_jump_word_char)
++                }),
++                cursor_offset,
++            ),
++            FlashMode::Word => Self::find_flash_matches(
++                buffer,
++                start_offset,
++                end_offset,
++                cursor_offset,
++                pattern,
++                smartcase,
++                true,
++            ),
++            FlashMode::Line => {
++                // Jumping to the start of the cursor's own line is not worth a label.
++                let cursor_line_start = buffer.point_to_offset(language::Point::new(
++                    buffer.offset_to_point(cursor_offset).row,
++                    0,
++                ));
++                let mut line_starts =
++                    Self::find_flash_boundaries(buffer, start_offset, end_offset, |previous, _| {
++                        previous.is_none_or(|previous| previous == '\n')
++                    });
++                line_starts.retain(|flash_match| flash_match.range.start != cursor_line_start);
++                Self::nearest_flash_matches(line_starts, cursor_offset)
++            }
++        };
+         if matches.is_empty() {
+             return FlashJumpUiData::default();
+         }
+@@ -375,9 +435,21 @@ impl Vim {
+             .unwrap_or(0);
+         let target = match_ranges.get(target_index).cloned();
+ 
+-        let allowed_labels = Self::flash_allowed_labels(&matches, smartcase);
+-        let assignments =
+-            Self::assign_flash_labels(&matches, cursor_offset, allowed_labels, previous_labels);
++        // Line mode takes no pattern, so any label is safe. Word mode can always
++        // be extended, so like flash.nvim it skips labels that could be the next
++        // typed character, including a word's first letter before any typing.
++        let allowed_labels = if mode == FlashMode::Line {
++            Self::flash_label_alphabet()
++        } else {
++            Self::flash_allowed_labels(&matches, smartcase)
++        };
++        let assignments = Self::assign_flash_labels(
++            buffer,
++            &matches,
++            cursor_offset,
++            allowed_labels,
++            previous_labels,
++        );
+ 
+         let font_id = text_system.resolve_font(&font);
+         let is_monospace = Self::is_monospace_jump_font(text_system, font_id, font_size);
+@@ -455,6 +527,7 @@ impl Vim {
+         cursor_offset: MultiBufferOffset,
+         pattern: &str,
+         smartcase: bool,
++        word_start: bool,
+     ) -> Vec<FlashMatch> {
+         let pattern_chars = pattern.chars().collect::<Vec<_>>();
+         if pattern_chars.is_empty() {
+@@ -469,6 +542,7 @@ impl Vim {
+         // through a pattern-sized window of candidate positions.
+         let mut matches: VecDeque<FlashMatch> = VecDeque::new();
+         let mut window = VecDeque::with_capacity(pattern_chars.len() + 1);
++        let mut char_before_window = buffer.reversed_chars_at(start_offset).next();
+         let mut chunk_start = start_offset;
+         'chunks: for chunk in buffer.text_for_range(start_offset..end_offset) {
+             for (index, ch) in chunk.char_indices() {
+@@ -482,9 +556,10 @@ impl Vim {
+ 
+                 window.push_back((offset, ch));
+                 if window.len() > pattern_chars.len() {
+-                    window.pop_front();
++                    char_before_window = window.pop_front().map(|(_, ch)| ch);
+                 }
+                 if window.len() == pattern_chars.len()
++                    && (!word_start || !char_before_window.is_some_and(is_jump_word_char))
+                     && let Some((match_start, _)) = window.front().copied()
+                     && window
+                         .iter()
+@@ -524,6 +599,49 @@ impl Vim {
+         matches.into()
+     }
+ 
++    /// Finds the zero-length positions where `is_boundary(previous, current)`
++    /// holds, e.g. word starts or line starts. The label covers the character
++    /// at the boundary.
++    fn find_flash_boundaries(
++        buffer: &MultiBufferSnapshot,
++        start_offset: MultiBufferOffset,
++        end_offset: MultiBufferOffset,
++        is_boundary: impl Fn(Option<char>, char) -> bool,
++    ) -> Vec<FlashMatch> {
++        let mut matches = Vec::new();
++        let mut previous = buffer.reversed_chars_at(start_offset).next();
++        let mut chunk_start = start_offset;
++        for chunk in buffer.text_for_range(start_offset..end_offset) {
++            for (index, ch) in chunk.char_indices() {
++                if is_boundary(previous, ch) {
++                    let offset = chunk_start + index;
++                    matches.push(FlashMatch {
++                        range: offset..offset,
++                        next_char: Some(ch),
++                    });
++                }
++                previous = Some(ch);
++            }
++            chunk_start = chunk_start + chunk.len();
++        }
++        matches
++    }
++
++    /// Over the match cap, keeps the matches closest to the cursor, in buffer
++    /// order.
++    fn nearest_flash_matches(
++        mut matches: Vec<FlashMatch>,
++        cursor_offset: MultiBufferOffset,
++    ) -> Vec<FlashMatch> {
++        if matches.len() <= FLASH_JUMP_MAX_MATCHES {
++            return matches;
++        }
++        matches.sort_by_key(|flash_match| flash_match.range.start.0.abs_diff(cursor_offset.0));
++        matches.truncate(FLASH_JUMP_MAX_MATCHES);
++        matches.sort_by_key(|flash_match| flash_match.range.start);
++        matches
++    }
++
+     fn flash_pattern_char_matches(
+         pattern_char: char,
+         buffer_char: char,
+@@ -570,21 +688,25 @@ impl Vim {
+         }
+     }
+ 
+-    /// Assigns labels to matches by distance from the cursor, returning
+-    /// `(label, index into matches)` pairs.
++    /// Assigns labels to matches by distance from the cursor, in lines first
++    /// and then columns, returning `(label, index into matches)` pairs. Byte
++    /// distance would hand the nearest labels to whichever side of the cursor
++    /// has shorter lines.
+     fn assign_flash_labels(
++        buffer: &MultiBufferSnapshot,
+         matches: &[FlashMatch],
+         cursor_offset: MultiBufferOffset,
+         allowed_labels: Vec<char>,
+         previous_labels: &HashMap<MultiBufferOffset, char>,
+     ) -> Vec<(char, usize)> {
++        let cursor = buffer.offset_to_point(cursor_offset);
+         let mut ordered = (0..matches.len()).collect::<Vec<_>>();
+         ordered.sort_by_key(|match_index| {
+-            matches[*match_index]
+-                .range
+-                .start
+-                .0
+-                .abs_diff(cursor_offset.0)
++            let start = buffer.offset_to_point(matches[*match_index].range.start);
++            (
++                start.row.abs_diff(cursor.row),
++                start.column.abs_diff(cursor.column),
++            )
+         });
+ 
+         // Matches keep the label they had on the previous keystroke when
+@@ -662,7 +784,7 @@ mod test {
+ 
+     use super::{
+         FLASH_JUMP_LOWERCASE_ALPHABET, FLASH_JUMP_MAX_MATCHES, FLASH_JUMP_MAX_SEARCH_BYTES,
+-        FLASH_JUMP_OVERLAY_KEY, PushFlash,
++        FLASH_JUMP_OVERLAY_KEY, PushFlash, PushFlashLine, PushFlashWord,
+     };
+     use crate::{
+         Exchange, Vim, VimAddon,
+@@ -761,6 +883,157 @@ mod test {
+         assert_flash_cleared(&mut cx);
+     }
+ 
++    fn bind_flash_action(cx: &mut VimTestContext, action: impl gpui::Action) {
++        cx.update(|_, cx| {
++            cx.bind_keys([KeyBinding::new(
++                "s",
++                action,
++                Some("vim_mode == normal || vim_mode == visual || vim_mode == operator"),
++            )])
++        });
++    }
++
++    fn flash_label_offsets(cx: &mut VimTestContext) -> Vec<usize> {
++        let mut offsets = active_flash_labels(cx)
++            .into_iter()
++            .map(|(_, _, offset)| offset)
++            .collect::<Vec<_>>();
++        offsets.sort();
++        offsets
++    }
++
++    #[gpui::test]
++    async fn test_flash_word_labels_every_word_start(cx: &mut gpui::TestAppContext) {
++        let mut cx = VimTestContext::new(cx, true).await;
++        bind_flash_action(&mut cx, PushFlashWord);
++        cx.set_state("ˇalpha beta-gamma", Mode::Normal);
++
++        cx.simulate_keystrokes("s");
++        assert_eq!(flash_label_offsets(&mut cx), vec![0, 6, 11]);
++
++        let label = flash_label_at(&mut cx, 11);
++        cx.simulate_keystrokes(&label);
++        cx.assert_state("alpha beta-ˇgamma", Mode::Normal);
++        assert_flash_cleared(&mut cx);
++    }
++
++    #[gpui::test]
++    async fn test_flash_word_pattern_matches_only_word_starts(cx: &mut gpui::TestAppContext) {
++        let mut cx = VimTestContext::new(cx, true).await;
++        bind_flash_action(&mut cx, PushFlashWord);
++        cx.set_state("ˇfoo xfoo foobar", Mode::Normal);
++
++        cx.simulate_keystrokes("s f o");
++        assert_eq!(flash_label_offsets(&mut cx), vec![0, 9]);
++
++        let label = flash_label_at(&mut cx, 9);
++        cx.simulate_keystrokes(&label);
++        cx.assert_state("foo xfoo ˇfoobar", Mode::Normal);
++        assert_flash_cleared(&mut cx);
++    }
++
++    #[gpui::test]
++    async fn test_flash_word_operator_pending(cx: &mut gpui::TestAppContext) {
++        let mut cx = VimTestContext::new(cx, true).await;
++        bind_flash_action(&mut cx, PushFlashWord);
++        cx.set_state("ˇalpha beta gamma", Mode::Normal);
++
++        cx.simulate_keystrokes("d s");
++        let label = flash_label_at(&mut cx, 11);
++        cx.simulate_keystrokes(&label);
++        cx.assert_state("ˇamma", Mode::Normal);
++        assert_flash_cleared(&mut cx);
++    }
++
++    #[gpui::test]
++    async fn test_flash_line_labels_every_line_start(cx: &mut gpui::TestAppContext) {
++        let mut cx = VimTestContext::new(cx, true).await;
++        bind_flash_action(&mut cx, PushFlashLine);
++        cx.set_state("ˇone\ntwo\n\nfour", Mode::Normal);
++
++        cx.simulate_keystrokes("s");
++        // The cursor's own line is not labeled.
++        assert_eq!(flash_label_offsets(&mut cx), vec![4, 8, 9]);
++
++        let label = flash_label_at(&mut cx, 9);
++        cx.simulate_keystrokes(&label);
++        cx.assert_state("one\ntwo\n\nˇfour", Mode::Normal);
++        assert_flash_cleared(&mut cx);
++    }
++
++    #[gpui::test]
++    async fn test_flash_word_first_letter_narrows_instead_of_jumping(
++        cx: &mut gpui::TestAppContext,
++    ) {
++        let mut cx = VimTestContext::new(cx, true).await;
++        bind_flash_action(&mut cx, PushFlashWord);
++        cx.set_state("ˇalpha beta gamma", Mode::Normal);
++
++        cx.simulate_keystrokes("s");
++        for (label, _, _) in active_flash_labels(&mut cx) {
++            assert!(
++                !"abg".contains(label),
++                "label {label:?} is the first letter of a visible word"
++            );
++        }
++
++        cx.simulate_keystrokes("b");
++        assert!(matches!(
++            cx.active_operator(),
++            Some(Operator::FlashJump { .. })
++        ));
++        assert_eq!(flash_label_offsets(&mut cx), vec![6]);
++
++        let label = flash_label_at(&mut cx, 6);
++        cx.simulate_keystrokes(&label);
++        cx.assert_state("alpha ˇbeta gamma", Mode::Normal);
++        assert_flash_cleared(&mut cx);
++    }
++
++    #[gpui::test]
++    async fn test_flash_labels_nearest_lines_first(cx: &mut gpui::TestAppContext) {
++        let mut cx = VimTestContext::new(cx, true).await;
++        bind_flash_action(&mut cx, PushFlashLine);
++        // Long lines above the cursor, short lines below.
++        let long = "x".repeat(120);
++        cx.set_state(
++            &format!("{long}\n{long}\n{long}\nˇxx\nxx\nxx\nxx"),
++            Mode::Normal,
++        );
++        let line_start = |row: usize| (row.min(3) * 121) + row.saturating_sub(3) * 3;
++
++        cx.simulate_keystrokes("s");
++        let mut adjacent = vec![
++            flash_label_at(&mut cx, line_start(2)),
++            flash_label_at(&mut cx, line_start(4)),
++        ];
++        adjacent.sort();
++        assert_eq!(adjacent, vec!["a".to_string(), "s".to_string()]);
++
++        cx.simulate_keystrokes("escape");
++    }
++
++    #[gpui::test]
++    async fn test_flash_line_non_label_key_exits(cx: &mut gpui::TestAppContext) {
++        let mut cx = VimTestContext::new(cx, true).await;
++        bind_flash_action(&mut cx, PushFlashLine);
++        cx.set_state("ˇone\ntwo", Mode::Normal);
++
++        cx.simulate_keystrokes("s");
++        let used_labels = active_flash_labels(&mut cx)
++            .into_iter()
++            .map(|(label, _, _)| label)
++            .collect::<Vec<_>>();
++        let unused_label = FLASH_JUMP_LOWERCASE_ALPHABET
++            .iter()
++            .find(|label| !used_labels.contains(label))
++            .unwrap();
++        cx.simulate_keystrokes(&unused_label.to_string());
++
++        cx.assert_state("ˇone\ntwo", Mode::Normal);
++        assert_flash_cleared(&mut cx);
++    }
++
+     #[gpui::test]
+     async fn test_flash_jump_enter_jumps_to_next_match(cx: &mut gpui::TestAppContext) {
+         let mut cx = VimTestContext::new(cx, true).await;
+diff --git a/crates/vim/src/helix.rs b/crates/vim/src/helix.rs
+index d82eaea350..1e11ef110a 100644
+--- a/crates/vim/src/helix.rs
++++ b/crates/vim/src/helix.rs
+@@ -1771,7 +1771,7 @@ const HELIX_JUMP_MIN_LABEL_SCALE: f32 = 1.0;
+ const HELIX_JUMP_MAX_HIDDEN_CHARS: usize = 16;
+ const HELIX_JUMP_MAX_LEFT_WS_CHARS: usize = 32;
+ 
+-fn is_jump_word_char(ch: char) -> bool {
++pub(crate) fn is_jump_word_char(ch: char) -> bool {
+     ch == '_' || ch.is_alphanumeric()
+ }
+ 
+diff --git a/crates/vim/src/state.rs b/crates/vim/src/state.rs
+index a22c7a953a..fe63e92285 100644
+--- a/crates/vim/src/state.rs
++++ b/crates/vim/src/state.rs
+@@ -171,12 +171,24 @@ pub enum Operator {
+         labels: Vec<HelixJumpLabel>,
+     },
+     FlashJump {
++        mode: FlashMode,
+         pattern: String,
+         labels: Vec<FlashJumpLabel>,
+         target: Option<Range<Anchor>>,
+     },
+ }
+ 
++/// Which positions a flash jump labels.
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum FlashMode {
++    /// Matches of the typed pattern.
++    Pattern,
++    /// Word starts, narrowed to words that begin with the typed pattern.
++    Word,
++    /// Line starts; there is no pattern, so every key is a label.
++    Line,
++}
++
+ #[derive(Clone, Debug, PartialEq)]
+ pub struct HelixJumpLabel {
+     pub label: [char; 2],

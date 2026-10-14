@@ -1,0 +1,62 @@
+// Project tasks configuration. See https://zed.dev/docs/tasks for documentation.
+// Tracked source; applied to ~/.config/zed/tasks.json by scripts/stow.sh.
+// Task labels double as which-key labels: bindings that spawn a named task
+// show the task name in the which-key menu.
+[
+    {
+        "label": "open_in_ghostty",
+        "command": "open -na Ghostty --args --working-directory=\"$ZED_WORKTREE_ROOT\"",
+        "reveal": "never",
+        "hide": "always",
+        "use_new_terminal": true,
+    },
+    {
+        "label": "lazygit",
+        "command": "lazygit",
+        "cwd": "$ZED_WORKTREE_ROOT",
+        "use_new_terminal": true,
+        "allow_concurrent_runs": false,
+        "reveal": "always",
+        "reveal_target": "center",
+        "hide": "never",
+        "shell": {
+            "with_arguments": {
+                "program": "/opt/homebrew/bin/bash",
+                "args": ["--login"],
+            },
+        },
+    },
+    {
+        // Dispatches by file type: rspec by line, jest by file, go by package.
+        "label": "test nearest",
+        "command": "case \"$ZED_FILE\" in *_spec.rb) bundle exec rspec \"$ZED_FILE:$ZED_ROW\" ;; *.test.*|*.spec.*) npx jest \"$ZED_FILE\" ;; *_test.go) go test \"$ZED_DIRNAME\" ;; *) echo \"test nearest: unsupported file: $ZED_FILE\" ;; esac",
+        "cwd": "$ZED_WORKTREE_ROOT",
+        "use_new_terminal": false,
+        "allow_concurrent_runs": false,
+        "reveal": "always",
+        "hide": "never",
+        "shell": {
+            "with_arguments": {
+                "program": "/opt/homebrew/bin/bash",
+                "args": ["--login"],
+            },
+        },
+        "tags": ["ruby-test", "jest-test", "go-test"],
+    },
+    {
+        "label": "test file",
+        "command": "case \"$ZED_FILE\" in *_spec.rb) bundle exec rspec \"$ZED_FILE\" ;; *.test.*|*.spec.*) npx jest \"$ZED_FILE\" ;; *_test.go) go test \"$ZED_DIRNAME\" ;; *) echo \"test file: unsupported file: $ZED_FILE\" ;; esac",
+        "cwd": "$ZED_WORKTREE_ROOT",
+        "use_new_terminal": false,
+        "allow_concurrent_runs": false,
+        "reveal": "always",
+        "hide": "never",
+        "shell": {
+            "with_arguments": {
+                "program": "/opt/homebrew/bin/bash",
+                "args": ["--login"],
+            },
+        },
+        "tags": ["ruby-test", "jest-test", "go-test"],
+    },
+]

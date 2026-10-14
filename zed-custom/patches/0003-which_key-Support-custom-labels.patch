@@ -1,0 +1,371 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Faris <frs@hbb.dev>
+Date: Tue, 13 Oct 2026 16:06:57 -0700
+Subject: [PATCH 3/3] which_key: Support custom labels
+
+Adds which_key.labels, keyed by keystroke sequence as written in the keymap,
+to label group rows ("space g": "+Git") and binding rows in the popup.
+---
+ assets/settings/default.json                  |   2 +
+ .../settings_content/src/settings_content.rs  |   7 ++
+ crates/which_key/Cargo.toml                   |   1 +
+ crates/which_key/src/pending_bindings.rs      | 107 +++++++++++++++---
+ crates/which_key/src/which_key.rs             |  16 +++
+ crates/which_key/src/which_key_settings.rs    |  31 ++++-
+ 6 files changed, 149 insertions(+), 15 deletions(-)
+
+diff --git a/assets/settings/default.json b/assets/settings/default.json
+index 2ba29d6f92..7a1914229c 100644
+--- a/assets/settings/default.json
++++ b/assets/settings/default.json
+@@ -2873,6 +2873,8 @@
+     "enabled": false,
+     // Delay in milliseconds before showing the which-key popup.
+     "delay_ms": 1000,
++    // Custom labels keyed by keystroke sequence, e.g. "space g": "+Git".
++    "labels": {},
+   },
+   // The server to connect to. If the environment variable
+   // ZED_SERVER_URL is set, it will override this setting.
+diff --git a/crates/settings_content/src/settings_content.rs b/crates/settings_content/src/settings_content.rs
+index c97679dfae..6eab3ee2ec 100644
+--- a/crates/settings_content/src/settings_content.rs
++++ b/crates/settings_content/src/settings_content.rs
+@@ -1530,6 +1530,13 @@ pub struct WhichKeySettingsContent {
+     ///
+     /// Default: 1000
+     pub delay_ms: Option<u64>,
++    /// Custom labels shown in the which-key popup, keyed by the full keystroke
++    /// sequence as written in the keymap. A sequence that prefixes other
++    /// bindings labels the group row, for example `"space g": "+Git"`; a
++    /// complete binding labels that row, for example `"space g g": "Lazygit"`.
++    ///
++    /// Default: {}
++    pub labels: Option<HashMap<String, String>>,
+ }
+ 
+ // An ExtendingVec in the settings can only accumulate new values.
+diff --git a/crates/which_key/Cargo.toml b/crates/which_key/Cargo.toml
+index 18e2bf1c75..d796e9db2a 100644
+--- a/crates/which_key/Cargo.toml
++++ b/crates/which_key/Cargo.toml
+@@ -13,6 +13,7 @@ path = "src/which_key.rs"
+ doctest = false
+ 
+ [dependencies]
++collections.workspace = true
+ command_palette.workspace = true
+ gpui.workspace = true
+ settings.workspace = true
+diff --git a/crates/which_key/src/pending_bindings.rs b/crates/which_key/src/pending_bindings.rs
+index ceb421e40d..24b41eb5b6 100644
+--- a/crates/which_key/src/pending_bindings.rs
++++ b/crates/which_key/src/pending_bindings.rs
+@@ -1,14 +1,16 @@
+ use std::rc::Rc;
+ 
++use collections::HashMap;
+ use gpui::{
+     App, AvailableSpace, KeybindingKeystroke, Pixels, RenderOnce, ScrollHandle, Window, size,
+ };
++use settings::Settings as _;
+ use ui::{
+     Divider, DividerColor, GradientFade, KeyBinding, LabelSize, WithScrollbar, prelude::*,
+     text_for_keybinding_keystrokes,
+ };
+ 
+-use crate::PendingBinding;
++use crate::{PendingBinding, sequence_key, which_key_settings::WhichKeySettings};
+ 
+ #[derive(Clone, Debug, PartialEq, Eq)]
+ pub(crate) struct PendingBindingRow {
+@@ -21,7 +23,9 @@ pub(crate) fn prepare_pending_bindings(
+     bindings: Vec<PendingBinding>,
+     cx: &App,
+ ) -> Vec<PendingBindingRow> {
+-    let mut rows = group_bindings(bindings)
++    let no_labels = HashMap::default();
++    let labels = WhichKeySettings::try_get(cx).map_or(&no_labels, |settings| &settings.labels);
++    let mut rows = group_bindings(bindings, labels)
+         .into_iter()
+         .map(|row| {
+             let formatted_text = text_for_keybinding_keystrokes(&row.keystrokes, cx);
+@@ -41,7 +45,10 @@ pub(crate) fn prepare_pending_bindings(
+     rows.into_iter().map(|(row, _)| row).collect()
+ }
+ 
+-fn group_bindings(bindings: Vec<PendingBinding>) -> Vec<PendingBindingRow> {
++fn group_bindings(
++    bindings: Vec<PendingBinding>,
++    labels: &HashMap<String, SharedString>,
++) -> Vec<PendingBindingRow> {
+     let mut groups: Vec<Vec<PendingBinding>> = Vec::new();
+     for binding in bindings {
+         let first_keystroke = binding.remaining_keystrokes.first();
+@@ -79,34 +86,54 @@ fn group_bindings(bindings: Vec<PendingBinding>) -> Vec<PendingBindingRow> {
+             .count();
+ 
+         if longer_count > 1
+-            && let Some(first_keystroke) = bindings
+-                .first()
+-                .and_then(|binding| binding.remaining_keystrokes.first())
+-                .cloned()
++            && let Some(first) = bindings.first()
++            && let Some(first_keystroke) = first.remaining_keystrokes.first().cloned()
+         {
++            let group_label = labels
++                .get(&sequence_key(
++                    first.typed_keystrokes.iter().chain([&first_keystroke]),
++                ))
++                .cloned()
++                .unwrap_or_else(|| format!("+{longer_count} keybinds").into());
+             result.extend(
+                 bindings
+                     .into_iter()
+                     .filter(|binding| binding.remaining_keystrokes.len() <= 1)
+-                    .map(binding_row),
++                    .map(|binding| binding_row(binding, labels)),
+             );
+             result.push(PendingBindingRow {
+                 keystrokes: Rc::from([first_keystroke]),
+-                action_name: format!("+{longer_count} keybinds").into(),
++                action_name: group_label,
+                 is_group: true,
+             });
+         } else {
+-            result.extend(bindings.into_iter().map(binding_row));
++            result.extend(
++                bindings
++                    .into_iter()
++                    .map(|binding| binding_row(binding, labels)),
++            );
+         }
+     }
+ 
+     result
+ }
+ 
+-fn binding_row(binding: PendingBinding) -> PendingBindingRow {
++fn binding_row(
++    binding: PendingBinding,
++    labels: &HashMap<String, SharedString>,
++) -> PendingBindingRow {
++    let action_name = labels
++        .get(&sequence_key(
++            binding
++                .typed_keystrokes
++                .iter()
++                .chain(&binding.remaining_keystrokes),
++        ))
++        .cloned()
++        .unwrap_or(binding.action_name);
+     PendingBindingRow {
+         keystrokes: binding.remaining_keystrokes.into(),
+-        action_name: binding.action_name,
++        action_name,
+         is_group: false,
+     }
+ }
+@@ -325,6 +352,53 @@ mod tests {
+ 
+     use super::*;
+ 
++    fn group_bindings_without_labels(bindings: Vec<PendingBinding>) -> Vec<PendingBindingRow> {
++        group_bindings(bindings, &HashMap::default())
++    }
++
++    fn labeled_binding(chord: &str, action_name: &str) -> PendingBinding {
++        let keystrokes = parse_keystrokes(chord);
++        PendingBinding {
++            typed_keystrokes: keystrokes[..1].to_vec(),
++            remaining_keystrokes: keystrokes[1..].to_vec(),
++            action_name: action_name.into(),
++        }
++    }
++
++    #[test]
++    fn test_group_bindings_uses_custom_labels() {
++        let labels = HashMap::from_iter([
++            ("space g".to_string(), SharedString::from("+Git")),
++            ("space f".to_string(), SharedString::from("Find files")),
++        ]);
++        let rows = group_bindings(
++            vec![
++                labeled_binding("space g g", "task: spawn"),
++                labeled_binding("space g s", "git panel: toggle focus"),
++                labeled_binding("space f", "file finder: toggle"),
++                labeled_binding("space e", "project panel: toggle focus"),
++            ],
++            &labels,
++        );
++        let labels_by_key = rows
++            .iter()
++            .map(|row| {
++                (
++                    sequence_key(row.keystrokes.iter()),
++                    row.action_name.to_string(),
++                )
++            })
++            .collect::<Vec<_>>();
++        assert_eq!(
++            labels_by_key,
++            vec![
++                ("g".to_string(), "+Git".to_string()),
++                ("f".to_string(), "Find files".to_string()),
++                ("e".to_string(), "project panel: toggle focus".to_string()),
++            ]
++        );
++    }
++
+     fn parse_keystrokes(keystrokes: &str) -> Vec<KeybindingKeystroke> {
+         keystrokes
+             .split_whitespace()
+@@ -338,6 +412,7 @@ mod tests {
+ 
+     fn binding(keystrokes: &str, action_name: &str) -> PendingBinding {
+         PendingBinding {
++            typed_keystrokes: Vec::new(),
+             remaining_keystrokes: parse_keystrokes(keystrokes),
+             action_name: action_name.into(),
+         }
+@@ -402,6 +477,7 @@ mod tests {
+                 ["h", "j"]
+                     .into_iter()
+                     .map(|key| PendingBinding {
++                        typed_keystrokes: Vec::new(),
+                         remaining_keystrokes: vec![
+                             keystroke.clone(),
+                             KeybindingKeystroke::from_keystroke(
+@@ -413,6 +489,7 @@ mod tests {
+                     .collect()
+             } else {
+                 vec![PendingBinding {
++                    typed_keystrokes: Vec::new(),
+                     remaining_keystrokes: vec![keystroke.clone()],
+                     action_name: "Action".into(),
+                 }]
+@@ -433,7 +510,7 @@ mod tests {
+     #[test]
+     fn test_group_bindings_counts_distinct_sequences() {
+         for sequences in [["g h", "g h", "g l"], ["g h", "g l", "g h"]] {
+-            let bindings = group_bindings(
++            let bindings = group_bindings_without_labels(
+                 sequences
+                     .into_iter()
+                     .map(|sequence| binding(sequence, "zed: open settings"))
+@@ -511,6 +588,7 @@ mod tests {
+             let pending = candidates
+                 .into_iter()
+                 .map(|binding| PendingBinding {
++                    typed_keystrokes: Vec::new(),
+                     remaining_keystrokes: binding.keystrokes().iter().skip(1).cloned().collect(),
+                     action_name: command_palette::humanize_action_name(binding.action().name())
+                         .into(),
+@@ -685,7 +763,7 @@ mod tests {
+     fn test_group_bindings_keeps_first_binding_per_sequence() {
+         // A longer chord can sit between two bindings for the same keys, so duplicates aren't
+         // always adjacent.
+-        let rows = group_bindings(vec![
++        let rows = group_bindings_without_labels(vec![
+             binding("a", "zed: open keymap"),
+             binding("a b", "zed: open settings"),
+             binding("a", "theme selector: toggle"),
+@@ -747,6 +825,7 @@ mod tests {
+         let pending = candidates
+             .into_iter()
+             .map(|binding| PendingBinding {
++                typed_keystrokes: Vec::new(),
+                 remaining_keystrokes: binding.keystrokes().iter().skip(1).cloned().collect(),
+                 action_name: command_palette::humanize_action_name(binding.action().name()).into(),
+             })
+diff --git a/crates/which_key/src/which_key.rs b/crates/which_key/src/which_key.rs
+index 1160543187..95dc8d848d 100644
+--- a/crates/which_key/src/which_key.rs
++++ b/crates/which_key/src/which_key.rs
+@@ -26,10 +26,24 @@ gpui::actions!(
+ );
+ 
+ pub(crate) struct PendingBinding {
++    /// The binding's own keystrokes for the input typed so far, as written in
++    /// the keymap, used to look up custom labels.
++    pub(crate) typed_keystrokes: Vec<KeybindingKeystroke>,
+     pub(crate) remaining_keystrokes: Vec<KeybindingKeystroke>,
+     pub(crate) action_name: SharedString,
+ }
+ 
++/// Renders keystrokes the way `WhichKeySettings` canonicalizes label keys.
++pub(crate) fn sequence_key<'a>(
++    keystrokes: impl IntoIterator<Item = &'a KeybindingKeystroke>,
++) -> String {
++    keystrokes
++        .into_iter()
++        .map(|keystroke| keystroke.inner().unparse())
++        .collect::<Vec<_>>()
++        .join(" ")
++}
++
+ pub(crate) fn map_pending_keystrokes(
+     keystrokes: &[Keystroke],
+     keyboard_mapper: &dyn PlatformKeyboardMapper,
+@@ -82,8 +96,10 @@ fn collect_bindings_for_pending_input(
+                 return None;
+             }
+             let remaining_keystrokes = remaining_keystrokes.to_vec();
++            let typed_keystrokes = binding.keystrokes()[..pending_keystrokes.len()].to_vec();
+             let action_name = binding_label(binding.action());
+             Some(PendingBinding {
++                typed_keystrokes,
+                 remaining_keystrokes,
+                 action_name,
+             })
+diff --git a/crates/which_key/src/which_key_settings.rs b/crates/which_key/src/which_key_settings.rs
+index be19ab1521..36b1e2813d 100644
+--- a/crates/which_key/src/which_key_settings.rs
++++ b/crates/which_key/src/which_key_settings.rs
+@@ -1,9 +1,13 @@
++use collections::HashMap;
++use gpui::{Keystroke, SharedString};
+ use settings::{RegisterSetting, Settings, SettingsContent, WhichKeySettingsContent};
+ 
+-#[derive(Debug, Clone, Copy, RegisterSetting)]
++#[derive(Debug, Clone, RegisterSetting)]
+ pub struct WhichKeySettings {
+     pub enabled: bool,
+     pub delay_ms: u64,
++    /// Custom labels keyed by canonical keystroke sequence (see `crate::sequence_key`).
++    pub labels: HashMap<String, SharedString>,
+ }
+ 
+ impl Settings for WhichKeySettings {
+@@ -13,6 +17,31 @@ impl Settings for WhichKeySettings {
+         Self {
+             enabled: which_key.enabled.unwrap(),
+             delay_ms: which_key.delay_ms.unwrap(),
++            labels: which_key
++                .labels
++                .iter()
++                .flatten()
++                .filter_map(|(sequence, label)| {
++                    Some((canonical_sequence(sequence)?, label.clone().into()))
++                })
++                .collect(),
+         }
+     }
+ }
++
++/// Re-renders a keymap-style sequence the way `sequence_key` renders bound
++/// keystrokes, so `"space  g"` and `"space g"` find the same label. Invalid
++/// sequences are dropped, like invalid keymap entries.
++fn canonical_sequence(sequence: &str) -> Option<String> {
++    let keystrokes = sequence
++        .split_whitespace()
++        .map(|keystroke| Keystroke::parse(keystroke).ok())
++        .collect::<Option<Vec<_>>>()?;
++    Some(
++        keystrokes
++            .iter()
++            .map(Keystroke::unparse)
++            .collect::<Vec<_>>()
++            .join(" "),
++    )
++}

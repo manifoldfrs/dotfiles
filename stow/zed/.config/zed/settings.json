@@ -1,0 +1,307 @@
+// Zed settings: reader-first port of the Ghostty/Nvim/Cursor setup.
+// Tracked source; applied to ~/.config/zed/settings.json by scripts/stow.sh.
+// Fonts and theme match Ghostty (MonoLisaCode 14, Tokyo Night) and Nvim
+// (tokyonight-night); shell matches Ghostty's Homebrew bash login shell.
+{
+  "auto_update": false,
+  "format_on_save": "on",
+  "autosave": "on_focus_change",
+  "ensure_final_newline_on_save": true,
+
+  // Fonts and theme, matching Ghostty + Nvim.
+  "buffer_font_family": "MonoLisaCode",
+  "buffer_font_size": 14.0,
+  "theme": {
+    "mode": "dark",
+    "dark": "Tokyo Night",
+    "light": "One Light"
+  },
+  "icon_theme": "Catppuccin Macchiato",
+  "colorize_brackets": true,
+  "semantic_tokens": "combined",
+  "indent_guides": {
+    "background_coloring": "disabled",
+    "coloring": "indent_aware"
+  },
+
+  // base_keymap stays "Cursor" (set during onboarding); vim_mode on for
+  // editor motions, as in the previous Zed era and in Nvim.
+  "base_keymap": "Cursor",
+  "vim_mode": true,
+  "vim": {
+    "toggle_relative_line_numbers": true
+  },
+  // Show matching bindings while a leader/multi-stroke chord is pending
+  // (built-in which-key menu; alt-/ also lists pending bindings mid-chord).
+  "which_key": {
+    "enabled": true,
+    "delay_ms": 500,
+    // Group and binding names (custom build, zed-custom/patches).
+    "labels": {
+      "space f": "+File",
+      "space p": "+Project",
+      "space b": "+Buffer",
+      "space s": "+Search",
+      "space g": "+Git",
+      "space t": "+Test",
+      "space w": "+Window",
+      "space j": "+Jump",
+      "space u": "+Toggle",
+      "space q": "+Quit/Session",
+      "space m": "+Markdown",
+      "space space": "Smart Find Files",
+      "space e": "File Explorer",
+      "space ,": "Buffers",
+      "space /": "Grep",
+      "space z": "Zen Mode",
+      "space .": "New Scratch File",
+      "space f f": "Find Files",
+      "space f r": "Recent Files",
+      "space f s": "Save File",
+      "space f S": "Save All",
+      "space f t": "File Tree",
+      "space f T": "Reveal In Tree",
+      "space f y": "Copy File Path",
+      "space f e": "Edit Settings",
+      "space p f": "Project Files",
+      "space p p": "Recent Projects",
+      "space p t": "Project Tree",
+      "space b b": "Buffers",
+      "space b f": "Buffer Explorer",
+      "space b d": "Delete Buffer",
+      "space b c": "Close Buffer",
+      "space b n": "Next Buffer",
+      "space b N": "Previous Buffer",
+      "space b p": "Pin Buffer",
+      "space s g": "Grep",
+      "space s p": "Search Project",
+      "space s f": "Find Files",
+      "space s r": "Recent Files",
+      "space s b": "Buffers",
+      "space s s": "LSP Symbols",
+      "space s j": "Document Symbols",
+      "space s S": "LSP Workspace Symbols",
+      "space s d": "Diagnostics",
+      "space s D": "Buffer Diagnostics",
+      "space s c": "Colorschemes",
+      "space s k": "Keymaps",
+      "space s e": "Rename Symbol",
+      "space r n": "Rename Symbol",
+      "space c a": "Code Action",
+      "space g g": "Lazygit",
+      "space g d": "Git Diff",
+      "space g D": "Diffview Open",
+      "space g s": "Git Status",
+      "space g b": "Git Branches",
+      "space g l": "Git Log",
+      "space g h": "File History (Current)",
+      "space g H": "File History (Repo)",
+      "space g p": "Preview Hunk",
+      "space g t": "Toggle Git Blame",
+      "space t t": "Test Nearest",
+      "space t f": "Test File",
+      "space t s": "Test Suite (Task Picker)",
+      "space t l": "Test Last",
+      "space w h": "Window Left",
+      "space w j": "Window Down",
+      "space w k": "Window Up",
+      "space w l": "Window Right",
+      "space w w": "Next Window",
+      "space w W": "Previous Window",
+      "space w v": "Split Right",
+      "space w /": "Split Right",
+      "space w s": "Split Below",
+      "space w -": "Split Below",
+      "space w d": "Close Window",
+      "space w =": "Balance Windows",
+      "space j j": "Jump to character",
+      "space j w": "Jump to word",
+      "space j l": "Jump to line",
+      "space u h": "Toggle Inlay Hints",
+      "space u w": "Toggle Wrap",
+      "space u l": "Toggle Line Numbers",
+      "space m p": "Preview Markdown",
+      "space q q": "Quit All",
+      "space q f": "Close Window",
+      ", f": "Format Buffer",
+      ", r": "Rename Symbol",
+      ", a": "Code Action",
+      ", d": "Line Diagnostics",
+      ", s": "Document Symbols",
+      ", t": "Test Nearest",
+      ", T": "Test File"
+    }
+  },
+  // Absolute numbers: agents and PRs refer to absolute lines.
+  // Set to "enabled" to restore the relative numbers used in Nvim/Cursor.
+  "relative_line_numbers": "disabled",
+  "gutter": {
+    "line_numbers": true
+  },
+  "preview_tabs": {
+    "enabled": true,
+    "enable_preview_from_project_panel": true,
+    "enable_preview_from_file_finder": true
+  },
+  "tab_bar": {
+    "show": true
+  },
+  "toolbar": {
+    "code_actions": false
+  },
+  "soft_wrap": "none",
+  "hard_tabs": false,
+  "tab_size": 4,
+  "diagnostics": {
+    "inline": {
+      "enabled": true,
+      "max_severity": null
+    }
+  },
+  "inlay_hints": {
+    "enabled": true,
+    // Inline variable values while debugging.
+    "show_value_hints": true
+  },
+
+  // Panels.
+  "project_panel": {
+    "dock": "left",
+    "diagnostic_badges": true,
+    "git_status_indicator": true
+  },
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left"
+  },
+  "git": {
+    "inline_blame": {
+      "enabled": true,
+      "show_commit_summary": true
+    }
+  },
+
+  // All Zed AI surfaces off: no agent panel, threads sidebar, edit
+  // predictions, or inline assistant. Pi in Ghostty + Herdr is the agent.
+  // Note: this also disables external agents in Zed, so pi-acp/opencode
+  // would need this flipped back to false to run inside Zed.
+  "disable_ai": true,
+
+  // Terminal panel: same shell and font as Ghostty. Real agent work still
+  // lives in Ghostty + Herdr; ctrl-` (tasks.json) opens a Ghostty window.
+  "terminal": {
+    "shell": {
+      "with_arguments": {
+        "program": "/opt/homebrew/bin/bash",
+        "args": ["--login"]
+      }
+    },
+    "font_size": 14.0,
+    "font_family": "MonoLisaCode"
+  },
+
+  // Languages. Ruby mirrors the Nvim setup: ruby-lsp primary, rubocop on,
+  // solargraph off, Herb + ruby-lsp for ERB (per zed.dev/docs/languages/ruby).
+  "languages": {
+    "Ruby": {
+      "tab_size": 2,
+      "language_servers": ["ruby-lsp", "rubocop", "!solargraph", "!kanayago", "..."]
+    },
+    "HTML+ERB": {
+      "tab_size": 2,
+      "language_servers": ["herb", "ruby-lsp", "..."]
+    },
+    "JS+ERB": {
+      "language_servers": ["ruby-lsp", "..."]
+    },
+    "YAML+ERB": {
+      "language_servers": ["ruby-lsp", "..."]
+    },
+    "TypeScript": {
+      "tab_size": 2
+    },
+    "TSX": {
+      "tab_size": 2
+    },
+    "JavaScript": {
+      "tab_size": 2
+    },
+    "JSON": {
+      "tab_size": 2
+    },
+    "JSONC": {
+      "tab_size": 2
+    },
+    "Python": {
+      "tab_size": 4
+    }
+  },
+  "prettier": {
+    "allowed": true
+  },
+
+  // Keep the file watcher and search out of generated trees
+  // (the old Cursor watcherExclude lesson).
+  "file_scan_exclusions": [
+    "**/.git/objects/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/__pycache__/**",
+    "**/.pytest_cache/**"
+  ],
+
+  // Read Pi's live working trees on the droplet. Uses the agentbox alias
+  // from ~/.ssh/config; Zed installs its headless server on first connect.
+  "ssh_connections": [
+    {
+      "host": "agentbox",
+      "nickname": "agentbox",
+      "projects": [
+        { "paths": ["~/code/optoai/opto2"] },
+        { "paths": ["~/code/personal/dotfiles"] }
+      ]
+    }
+  ],
+
+  // Extensions: previous Zed set, plus ruby (language servers + rdbg
+  // debugger adapter) and tokyo-night (theme).
+  "auto_install_extensions": {
+    "basher": true,
+    "biome": true,
+    "catppuccin-icons": true,
+    "csv": true,
+    "dockerfile": true,
+    "ghostty": true,
+    "golangci-lint": true,
+    "html": true,
+    "lua": true,
+    "make": true,
+    "one-dark-pro-enhanced": true,
+    "opencode": true,
+    "powershell": true,
+    "proto": true,
+    "ruby": true,
+    "sql": true,
+    "tokyo-night": true,
+    "toml": true,
+    "xml": true
+  },
+
+  "session": {
+    "trust_all_worktrees": true
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "on_last_window_closed": "platform_default",
+  "when_closing_with_no_tabs": "close_window"
+}
