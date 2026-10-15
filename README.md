@@ -838,7 +838,8 @@ Captured requests are machine-local state under `~/.pi/agent/logs/requests/`.
 
 `extensions/xai-search/` is a guarded local variant of `@zhenhuang/pi-xai-search` that adds the `xai_search` X search tool and a `/xai-search` status command.
 It only uses Pi's built-in `xai` provider with a stored SuperGrok or X Premium OAuth sign-in, sends requests only to `https://api.x.ai/v1/responses`, and rejects API keys, environment credentials, and endpoint overrides.
-Search is off until `"enabled": true` is set in the untracked `~/.pi/agent/pi-xai-search.json`, because subscription billing for X search is unverified.
+The untracked `~/.pi/agent/pi-xai-search.json` can set `model`, which defaults to `grok-4.5`.
+`extensions/xai-search/run-xai-search.ts` runs one bounded search without a Pi session, for scheduled digests.
 Do not also install the upstream package; see `extensions/xai-search/README.md` for the date contract and usage reporting.
 
 `extensions/jev-guardrails/` uses Pi's native `typesafe/jev-latest` classifier for automatic web screening and edit-scope audits.

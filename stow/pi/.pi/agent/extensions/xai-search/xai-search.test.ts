@@ -13,7 +13,7 @@ import { postXaiSearch, type FetchLike } from "./xai-client.ts";
 import { loadXaiSearchConfig, parseXaiSearchConfig, type XaiSearchConfig } from "./xai-config.ts";
 import { formatXaiSearchResponse, readXSearchUsage } from "./xai-format.ts";
 import { buildXaiSearchRequest } from "./xai-request.ts";
-import { runXaiSearch, XAI_SEARCH_DISABLED_MESSAGE } from "./xai-search.ts";
+import { runXaiSearch } from "./xai-search.ts";
 
 const FAKE_TOKEN = "fake-oauth-access-token";
 
@@ -69,7 +69,7 @@ function okResponse(body: unknown): Response {
   return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
 }
 
-const enabledConfig: XaiSearchConfig = { enabled: true, model: "grok-4.5", warnings: [] };
+const config: XaiSearchConfig = { model: "grok-4.5", warnings: [] };
 
 test("OAuth subscription sign-in resolves to the fixed first-party endpoint", async () => {
   const { registry } = fakeRegistry();
@@ -315,22 +315,11 @@ test("responses format text, search calls, citations, and usage", () => {
   assert.match(formatted.text, /X search usage: x_posts_fetched=4/);
 });
 
-test("disabled search never resolves credentials or fetches", async () => {
-  const { registry, calls } = fakeRegistry();
-  const { fetch, requests } = recordingFetch();
-  await assert.rejects(
-    runXaiSearch({ registry, config: { ...enabledConfig, enabled: false }, params: { query: "pi" }, fetch }),
-    (error: Error) => error.message === XAI_SEARCH_DISABLED_MESSAGE,
-  );
-  assert.equal(calls.getProviderAuth, 0);
-  assert.equal(requests.length, 0);
-});
-
 test("no fetch happens when validation or auth guards fail", async () => {
   const valid = fakeRegistry();
   const invalidParams = recordingFetch();
   await assert.rejects(
-    runXaiSearch({ registry: valid.registry, config: enabledConfig, params: { query: "q", to_date: "bad" }, fetch: invalidParams.fetch }),
+    runXaiSearch({ registry: valid.registry, config, params: { query: "q", to_date: "bad" }, fetch: invalidParams.fetch }),
     /YYYY-MM-DD/,
   );
   assert.equal(invalidParams.requests.length, 0);
@@ -339,20 +328,20 @@ test("no fetch happens when validation or auth guards fail", async () => {
   const apiKey = fakeRegistry({ resolution: { auth: { apiKey: "xai-key" }, source: "XAI_API_KEY" } });
   const guarded = recordingFetch();
   await assert.rejects(
-    runXaiSearch({ registry: apiKey.registry, config: enabledConfig, params: { query: "q" }, fetch: guarded.fetch }),
+    runXaiSearch({ registry: apiKey.registry, config, params: { query: "q" }, fetch: guarded.fetch }),
     /not subscription OAuth/,
   );
   assert.equal(guarded.requests.length, 0);
 });
 
-test("enabled search with OAuth sends the exact request body", async () => {
-  const { registry } = fakeRegistry();
+test("search with OAuth sends the exact request body by default", async () => {
+  const { registry, calls } = fakeRegistry();
   const { fetch, requests } = recordingFetch(() =>
     okResponse({ output: [], usage: { server_side_tool_usage_details: { x_search_calls: 1 } } }),
   );
   const result = await runXaiSearch({
     registry,
-    config: enabledConfig,
+    config,
     params: { query: " launch ", from_date: "2026-10-14", to_date: "2026-10-15", allowed_x_handles: ["@SpaceX"] },
     fetch,
   });
@@ -364,22 +353,42 @@ test("enabled search with OAuth sends the exact request body", async () => {
     store: false,
   });
   assert.deepEqual(result.details.xSearchUsage, { x_search_calls: 1 });
+  assert.equal(calls.getProviderAuth, 1);
+  assert.equal(requests.length, 1);
 });
 
-test("config enables search only for a literal true", async () => {
-  assert.equal(parseXaiSearchConfig(undefined).enabled, false);
-  assert.equal(parseXaiSearchConfig({ enabled: true }).enabled, true);
+test("turn and output limits are sent only when provided and must be positive integers", async () => {
+  const { registry } = fakeRegistry();
+  const { fetch, requests } = recordingFetch();
+  await runXaiSearch({ registry, config, params: { query: "q", max_turns: 2, max_output_tokens: 1200 }, fetch });
 
-  const stringy = parseXaiSearchConfig({ enabled: "true" });
-  assert.equal(stringy.enabled, false);
-  assert.equal(stringy.warnings.length, 1);
+  const body = JSON.parse(String(requests[0]?.init.body));
+  assert.equal(body.max_turns, 2);
+  assert.equal(body.max_output_tokens, 1200);
+
+  for (const params of [{ max_turns: 0 }, { max_turns: 1.5 }, { max_output_tokens: -1 }]) {
+    assert.throws(() => buildXaiSearchRequest({ query: "q", ...params }, "m"), /must be a positive integer/);
+  }
+  const unbounded = buildXaiSearchRequest({ query: "q" }, "m");
+  assert.equal("maxTurns" in unbounded, false);
+  assert.equal("maxOutputTokens" in unbounded, false);
+});
+
+test("config only selects the model and ignores legacy keys", async () => {
+  assert.deepEqual(parseXaiSearchConfig(undefined), { model: "grok-4.5", warnings: [] });
+  assert.deepEqual(parseXaiSearchConfig({ enabled: true }), { model: "grok-4.5", warnings: [] });
+  assert.deepEqual(parseXaiSearchConfig({ enabled: false, model: " grok-4.7 " }), { model: "grok-4.7", warnings: [] });
+
+  const blankModel = parseXaiSearchConfig({ model: "" });
+  assert.equal(blankModel.model, "grok-4.5");
+  assert.equal(blankModel.warnings.length, 1);
 
   const dir = mkdtempSync(join(tmpdir(), "xai-search-config-"));
-  assert.equal((await loadXaiSearchConfig(join(dir, "missing.json"))).enabled, false);
+  assert.deepEqual(await loadXaiSearchConfig(join(dir, "missing.json")), { model: "grok-4.5", warnings: [] });
 
   const broken = join(dir, "broken.json");
   writeFileSync(broken, "{ not json");
   const loaded = await loadXaiSearchConfig(broken);
-  assert.equal(loaded.enabled, false);
-  assert.match(loaded.warnings[0] ?? "", /search stays disabled/);
+  assert.equal(loaded.model, "grok-4.5");
+  assert.match(loaded.warnings[0] ?? "", /Could not parse/);
 });

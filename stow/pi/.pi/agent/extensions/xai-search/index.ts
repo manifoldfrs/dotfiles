@@ -4,7 +4,7 @@ import { Type } from "typebox";
 import { assertFirstPartyXaiSubscriptionProvider } from "./xai-auth.ts";
 import { loadXaiSearchConfig, XAI_SEARCH_CONFIG_FILENAME } from "./xai-config.ts";
 import type { XaiSearchDetails } from "./xai-format.ts";
-import { runXaiSearch, XAI_SEARCH_DISABLED_MESSAGE } from "./xai-search.ts";
+import { runXaiSearch } from "./xai-search.ts";
 
 const handleList = (description: string) =>
   Type.Optional(
@@ -31,6 +31,12 @@ const xaiSearchSchema = Type.Object(
     excluded_x_handles: handleList("Exclude posts from these X handles (maximum 20)"),
     enable_image_understanding: Type.Optional(Type.Boolean({ description: "Allow xAI to analyze images in X posts" })),
     enable_video_understanding: Type.Optional(Type.Boolean({ description: "Allow xAI to analyze videos in X posts" })),
+    max_turns: Type.Optional(
+      Type.Integer({ description: "Maximum xAI assistant/tool-call turns for this search", minimum: 1 }),
+    ),
+    max_output_tokens: Type.Optional(
+      Type.Integer({ description: "Maximum output tokens for the final answer", minimum: 1 }),
+    ),
   },
   { additionalProperties: false },
 );
@@ -51,8 +57,7 @@ export default function registerXaiSearch(pi: ExtensionAPI): void {
         auth = error instanceof Error ? error.message : String(error);
       }
 
-      const search = config.enabled ? "enabled" : "disabled (billing not verified)";
-      ctx.ui.notify(`xai_search: ${search}\nModel: ${config.model}\nAuth: ${auth}\nConfig: ${configPath}`, "info");
+      ctx.ui.notify(`xai_search\nModel: ${config.model}\nAuth: ${auth}\nConfig: ${configPath}`, "info");
     },
   });
 
@@ -60,12 +65,10 @@ export default function registerXaiSearch(pi: ExtensionAPI): void {
     name: "xai_search",
     label: "xAI X Search",
     description:
-      "Search live X (Twitter) posts with xAI's x_search over Pi's SuperGrok/X Premium sign-in. Supports date ranges (to_date is exclusive), handle filters, and image/video understanding. " +
-      "Disabled until billing is verified.",
+      "Search live X (Twitter) posts with xAI's x_search over Pi's SuperGrok/X Premium sign-in. Supports date ranges (to_date is exclusive), handle filters, image/video understanding, and turn/output limits.",
     promptSnippet: "Search live X posts through xAI",
     promptGuidelines: [
       "Use xai_search when the user needs current posts, discussions, reactions, profiles, or threads from X (Twitter).",
-      `If xai_search reports that it is disabled, tell the user instead of retrying: ${XAI_SEARCH_DISABLED_MESSAGE}`,
     ],
     parameters: xaiSearchSchema,
     async execute(_toolCallId, params, signal, _onUpdate, ctx) {

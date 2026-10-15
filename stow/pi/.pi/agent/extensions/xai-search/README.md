@@ -4,23 +4,58 @@ Guarded local variant of [`@zhenhuang/pi-xai-search`](https://github.com/ZhenHua
 It registers the `xai_search` tool and a `/xai-search` status command.
 Do not also install the upstream package, because it would register a second, unguarded `xai_search` tool.
 
-## Billing switch
+## Configuration
 
-Search is off by default.
-Whether X search over the SuperGrok or X Premium sign-in draws on the included subscription allowance or on paid API usage is unverified.
-While search is off, the tool never resolves, refreshes, or sends a credential.
-After verifying billing, enable it in the untracked `~/.pi/agent/pi-xai-search.json`:
+Search works as soon as Pi has the subscription sign-in.
+The optional, untracked `~/.pi/agent/pi-xai-search.json` selects the model:
 
 ```json
 {
-  "enabled": true,
   "model": "grok-4.5"
 }
 ```
 
-Only a literal `true` enables search.
+`model` defaults to `grok-4.5`, and other keys are ignored.
 The file is read on every call, so no reload is needed.
-`model` is optional and defaults to `grok-4.5`.
+
+Each call can also set `max_turns` to cap xAI's server-side tool turns and `max_output_tokens` to cap the final answer.
+Both are sent only when provided.
+
+## Noninteractive runner
+
+`run-xai-search.ts` runs one search without a Pi session or a main model, for scheduled digests.
+Each run loads `index.ts` fresh through the jiti and Pi package bundled with the installed `pi`, then calls the registered `xai_search` execute.
+It always sends `max_turns: 4`, `max_output_tokens: 3000`, and image and video understanding off, and rejects a params file that asks for anything looser.
+
+```bash
+node run-xai-search.ts --schema
+node run-xai-search.ts --check
+node run-xai-search.ts --dry-run --params digest.json
+node run-xai-search.ts --params digest.json --out result.json
+```
+
+The runner finds `pi` by searching `PATH` without starting a shell, and needs Node with native TypeScript support.
+On this Mac, run it with an explicit minimal environment so scheduled runs do not depend on shell startup:
+
+```bash
+env -i HOME="$HOME" PATH="$HOME/.bun/bin:/opt/homebrew/bin:/usr/bin:/bin" \
+  /opt/homebrew/bin/node run-xai-search.ts --params digest.json --out result.json
+```
+
+- `--schema` prints the loaded tool's parameter names and fails if the limit parameters are missing.
+- `--check` reports whether Pi's stored xAI sign-in passes the provider and OAuth checks, without resolving the token or using the network.
+- `--dry-run` runs the registered execute with placeholder auth and a capturing `fetch`, printing the exact request body without a live request.
+- Without a mode flag, the runner resolves the stored OAuth sign-in through Pi and makes one live request, printing the answer and usage counters as JSON.
+
+The params file holds the tool parameters, for example:
+
+```json
+{
+  "query": "Most important AI developer-tool releases and engineering posts",
+  "from_date": "2026-10-14",
+  "to_date": "2026-10-16"
+}
+```
 
 ## Authentication guards
 
@@ -58,4 +93,4 @@ node --test ./*.test.ts
 ```
 
 The tests use mocked registries and `fetch` and make no network calls.
-`index.test.ts` loads the entry through the jiti and typebox bundled with the installed `pi`, with Pi's own API stubbed, so it needs `pi` on `PATH`.
+`index.test.ts` and `xai-runner.test.ts` load the entry through the jiti and typebox bundled with the installed `pi`, with Pi's own API stubbed, so they need `pi` on `PATH`.

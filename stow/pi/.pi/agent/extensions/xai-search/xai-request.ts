@@ -11,12 +11,25 @@ export interface XaiSearchParams {
   excluded_x_handles?: string[];
   enable_image_understanding?: boolean;
   enable_video_understanding?: boolean;
+  max_turns?: number;
+  max_output_tokens?: number;
 }
 
 export interface XaiSearchRequest {
   model: string;
   query: string;
   xSearchTool: Record<string, unknown>;
+  maxTurns?: number;
+  maxOutputTokens?: number;
+}
+
+function normalizePositiveInteger(
+  value: number | undefined,
+  field: "max_turns" | "max_output_tokens",
+): number | undefined {
+  if (value === undefined) return undefined;
+  if (!Number.isInteger(value) || value < 1) throw new Error(`${field} must be a positive integer`);
+  return value;
 }
 
 function normalizeDate(value: string | undefined, field: "from_date" | "to_date"): string | undefined {
@@ -89,5 +102,14 @@ export function buildXaiSearchRequest(params: XaiSearchParams, defaultModel: str
     xSearchTool.enable_video_understanding = params.enable_video_understanding;
   }
 
-  return { model, query, xSearchTool };
+  const maxTurns = normalizePositiveInteger(params.max_turns, "max_turns");
+  const maxOutputTokens = normalizePositiveInteger(params.max_output_tokens, "max_output_tokens");
+
+  return {
+    model,
+    query,
+    xSearchTool,
+    ...(maxTurns !== undefined ? { maxTurns } : {}),
+    ...(maxOutputTokens !== undefined ? { maxOutputTokens } : {}),
+  };
 }

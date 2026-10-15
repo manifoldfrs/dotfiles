@@ -16,6 +16,19 @@ export class XaiApiError extends Error {
   }
 }
 
+export const XAI_RESPONSES_URL = `${XAI_API_BASE_URL}/responses`;
+
+export function buildXaiResponsesBody(request: XaiSearchRequest): Record<string, unknown> {
+  return {
+    model: request.model,
+    input: [{ role: "user", content: request.query }],
+    tools: [request.xSearchTool],
+    store: false,
+    ...(request.maxTurns !== undefined ? { max_turns: request.maxTurns } : {}),
+    ...(request.maxOutputTokens !== undefined ? { max_output_tokens: request.maxOutputTokens } : {}),
+  };
+}
+
 export interface PostXaiSearchOptions {
   fetch: FetchLike;
   signal?: AbortSignal;
@@ -38,18 +51,13 @@ export async function postXaiSearch(
   let response: Response;
   try {
     // Redirects are errors so the bearer token can never follow a Location header elsewhere.
-    response = await options.fetch(`${XAI_API_BASE_URL}/responses`, {
+    response = await options.fetch(XAI_RESPONSES_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${runtime.bearer.reveal()}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: request.model,
-        input: [{ role: "user", content: request.query }],
-        tools: [request.xSearchTool],
-        store: false,
-      }),
+      body: JSON.stringify(buildXaiResponsesBody(request)),
       redirect: "error",
       signal,
     });

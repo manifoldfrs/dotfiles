@@ -4,35 +4,24 @@ export const XAI_SEARCH_CONFIG_FILENAME = "pi-xai-search.json";
 export const DEFAULT_XAI_SEARCH_MODEL = "grok-4.5";
 
 export interface XaiSearchConfig {
-  enabled: boolean;
   model: string;
   warnings: string[];
 }
 
-function disabled(warnings: string[]): XaiSearchConfig {
-  return { enabled: false, model: DEFAULT_XAI_SEARCH_MODEL, warnings };
+function defaults(warnings: string[]): XaiSearchConfig {
+  return { model: DEFAULT_XAI_SEARCH_MODEL, warnings };
 }
 
-// Anything other than a literal `"enabled": true` keeps credentialed requests off.
 export function parseXaiSearchConfig(value: unknown): XaiSearchConfig {
-  if (value === undefined) return disabled([]);
+  if (value === undefined) return defaults([]);
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return disabled(["xai_search config must be a JSON object; search stays disabled"]);
+    return defaults([`xai_search config must be a JSON object; using ${DEFAULT_XAI_SEARCH_MODEL}`]);
   }
 
-  const record = value as Record<string, unknown>;
-  const warnings: string[] = [];
-  if (record.enabled !== undefined && typeof record.enabled !== "boolean") {
-    warnings.push('xai_search config "enabled" must be true or false; search stays disabled');
-  }
-
-  let model = DEFAULT_XAI_SEARCH_MODEL;
-  if (record.model !== undefined) {
-    if (typeof record.model === "string" && record.model.trim()) model = record.model.trim();
-    else warnings.push(`xai_search config "model" must be a non-empty string; using ${DEFAULT_XAI_SEARCH_MODEL}`);
-  }
-
-  return { enabled: record.enabled === true, model, warnings };
+  const model = (value as Record<string, unknown>).model;
+  if (model === undefined) return defaults([]);
+  if (typeof model === "string" && model.trim()) return { model: model.trim(), warnings: [] };
+  return defaults([`xai_search config "model" must be a non-empty string; using ${DEFAULT_XAI_SEARCH_MODEL}`]);
 }
 
 export async function loadXaiSearchConfig(path: string): Promise<XaiSearchConfig> {
@@ -41,12 +30,12 @@ export async function loadXaiSearchConfig(path: string): Promise<XaiSearchConfig
     content = await readFile(path, "utf8");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return parseXaiSearchConfig(undefined);
-    return disabled([`Could not read ${path}; search stays disabled`]);
+    return defaults([`Could not read ${path}; using ${DEFAULT_XAI_SEARCH_MODEL}`]);
   }
 
   try {
     return parseXaiSearchConfig(JSON.parse(content));
   } catch {
-    return disabled([`Could not parse ${path}; search stays disabled`]);
+    return defaults([`Could not parse ${path}; using ${DEFAULT_XAI_SEARCH_MODEL}`]);
   }
 }
