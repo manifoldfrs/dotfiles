@@ -836,6 +836,11 @@ It does nothing after a manual `/compact`.
 Run `pi-log` to enable it for one process.
 Captured requests are machine-local state under `~/.pi/agent/logs/requests/`.
 
+`extensions/xai-search/` is a guarded local variant of `@zhenhuang/pi-xai-search` that adds the `xai_search` X search tool and a `/xai-search` status command.
+It only uses Pi's built-in `xai` provider with a stored SuperGrok or X Premium OAuth sign-in, sends requests only to `https://api.x.ai/v1/responses`, and rejects API keys, environment credentials, and endpoint overrides.
+Search is off until `"enabled": true` is set in the untracked `~/.pi/agent/pi-xai-search.json`, because subscription billing for X search is unverified.
+Do not also install the upstream package; see `extensions/xai-search/README.md` for the date contract and usage reporting.
+
 `extensions/jev-guardrails/` uses Pi's native `typesafe/jev-latest` classifier for automatic web screening and edit-scope audits.
 It requires `TYPESAFE_API_KEY` and makes paid external calls with fetched text and edited code.
 Ref and Exa text results, including nested Codemode calls, are screened in 20,000-character chunks before delivery.
