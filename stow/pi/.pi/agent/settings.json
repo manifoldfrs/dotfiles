@@ -24,7 +24,7 @@
       "source": "npm:@plannotator/pi-extension",
       "skills": []
     },
-    "npm:pi-claude-bridge@0.9.1"
+    "npm:pi-claude-bridge@0.9.3"
   ],
   "subagents": {
     "agentOverridesByProvider": {
