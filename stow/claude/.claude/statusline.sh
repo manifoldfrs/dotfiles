@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Claude Code statusline: working directory, git branch, model, context-window usage, and cost per model.
+# Claude Code statusline: working directory, git branch, model, effort, context-window usage, and cost per model.
 # Reads the statusline JSON payload on stdin. Never fails hard; a broken
 # statusline would replace the line with an error on every render.
 
@@ -19,13 +19,14 @@ fi
 
 # Split on unit separator, not tab: bash collapses runs of IFS whitespace, which
 # would shift every field when current_dir is absent.
-IFS=$'\x1f' read -r model dir used size pct session < <(printf '%s' "$input" | jq -r '
+IFS=$'\x1f' read -r model effort dir used size pct session < <(printf '%s' "$input" | jq -r '
   def human: if . >= 1000000 then (. / 1000000 * 10 | round / 10 | tostring) + "M"
              elif . >= 1000 then (. / 1000 | round | tostring) + "k"
              else tostring end;
 
   [
     (.model.display_name // "?"),
+    (.effort.level // ""),
     (.workspace.current_dir // ""),
     (.context_window.total_input_tokens // 0 | human),
     (.context_window.context_window_size // 0 | human),
@@ -75,8 +76,11 @@ if [ -n "${session:-}" ] && [ -r "$cost_file" ]; then
   [ -n "$costs" ] && costs="${DIM}${costs}${RESET}"
 fi
 
+effort_label=""
+[ -n "${effort:-}" ] && effort_label=" · ${effort}"
+
 printf '%s%s · %s%s/%s (%s%%)%s%s' \
   "$location" \
-  "${DIM}${model}${RESET}" \
+  "${DIM}${model}${effort_label}${RESET}" \
   "$color" "$used" "$size" "$pct" "$RESET" \
   "$costs"
