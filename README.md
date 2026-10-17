@@ -305,6 +305,8 @@ Mods live in `stow/claude/.claude/mods/` and are not stowed.
   A `review` or `block` verdict, or a failed screen, adds a warning the model reads after the result, and `block` also shows a toast.
 - `model-cost` writes the session's cost per model to `$TMPDIR/claude-model-cost-<session id>.json`, and `statusline.sh` shows it after the context usage.
   The engine reports only a session total, so each response is charged the total's growth since the previous response.
+- `xai-search` registers `mcp__xai-search__xai_search`, which runs Pi's `extensions/xai-search/run-xai-search.ts` with `/opt/homebrew/bin/node`.
+  Pi keeps the auth guards, so the tool needs Pi's `/login xai` sign-in, and each search is capped at 4 xAI turns and 3,000 output tokens.
 
 Add a new mod folder to `CLAUDE_CODE_PLUGIN_DIRS` to load it.
 Check a mod with `claude plugin validate <folder>` and `claude plugin test <folder>`.
@@ -783,6 +785,7 @@ The shared doctrine, which applies the Rails Doctrine to every language, lives i
 `code-review` reviews Standards and Intent, then gets a second review from a different model family.
 In Pi, the `reviewer` subagent model is pinned per parent provider in `stow/pi/.pi/agent/settings.json`.
 Its prompt lives in `stow/pi/.pi/agent/agents/reviewer.md`, which replaces the `pi-subagents` builtin and requires every finding to name a trigger and survive a refutation attempt.
+Claude Code has a read-only port in `stow/claude/.claude/agents/reviewer.md`, which inherits the parent model and needs the diff passed in its prompt.
 Elsewhere, the second review runs through the other family's command line: `claude -p` for changes a GPT model wrote, and `codex exec` for changes a Claude model wrote.
 The `testing` skill replaces `tdd`, and fstack's build route replaces `implement`; both upstream skills are `excluded`.
 The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.bare` repository root for parallel agent work.

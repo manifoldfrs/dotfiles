@@ -27,7 +27,7 @@ describe('register', () => {
     const ran = await $.tool.call({ tool: TOOL, channel_id: 'C123', message: 'hi', thread_ts: '1.0' })
 
     expect(ran.isError).toBeUndefined()
-    expect(JSON.stringify(ran.result)).toContain('Posted as @OptoJr in C123 at 1.2')
+    expect(ran.result).toBe('Posted as @OptoJr in C123 at 1.2')
     expect(requests).toEqual([
       {
         url: 'https://relay.example/internal/slack/post-message',

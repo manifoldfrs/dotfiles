@@ -100,7 +100,6 @@ export const register: Register = on => {
     const sent = parseOptoJrRelaySendResult(body)
     if (!sent) return failed(RELAY_FAILED)
 
-    const text = `Posted as @OptoJr in ${sent.channelId} at ${sent.messageTs}`
-    return { result: { ...sent, text } }
+    return { result: `Posted as @OptoJr in ${sent.channelId} at ${sent.messageTs}` }
   })
 }
