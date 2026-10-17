@@ -36,7 +36,7 @@ function requireOpenAIFastProvider(): Provider {
 	return registered;
 }
 
-test("current OpenAI provider exposes Sol Fast and preserves authentication and classifiers", () => {
+test("current OpenAI provider exposes speed variants and preserves authentication and classifiers", () => {
 	const provider = requireOpenAIFastProvider();
 	const builtIn = openaiProvider();
 	const fastModel = provider.getModels().find((model) => model.id === "gpt-6.1-sol-fast");
@@ -49,6 +49,10 @@ test("current OpenAI provider exposes Sol Fast and preserves authentication and 
 		"gpt-6-luna-fast",
 		"gpt-6-sol-fast",
 		"gpt-6.1-sol-fast",
+	]);
+	assert.deepEqual(provider.getModels().filter((model) => model.id.endsWith("-ultrafast")).map((model) => model.id).sort(), [
+		"gpt-6-astra-ultrafast",
+		"gpt-6.1-sol-ultrafast",
 	]);
 	assert.ok(!provider.getModels().some((model) => model.id === "gpt-6.1-astra-fast" || model.id === "gpt-6.1-luna-fast"));
 	assert.ok(!provider.getAllModels?.().some((model) => model.type === "classifier" && model.id.endsWith("-fast")));
@@ -65,18 +69,20 @@ test("current OpenAI provider exposes Sol Fast and preserves authentication and 
 	const oauth: OAuthCredential = { type: "oauth", access: "opaque-test-token", refresh: "test-refresh", expires: 0 };
 	const available = provider.filterAllModels?.(provider.getAllModels(), oauth);
 	assert.ok(available?.some((model) => model.id === "gpt-6.1-sol-fast"));
+	assert.ok(available?.some((model) => model.id === "gpt-6.1-sol-ultrafast"));
+	assert.ok(available?.some((model) => model.id === "gpt-6-astra-ultrafast"));
 	assert.ok(available?.every((model) => model.type !== "classifier"));
 	for (const model of builtIn.getAllModels()) {
 		assert.deepEqual(provider.getAllModels().find((candidate) => candidate.id === model.id && candidate.type === model.type), model);
 	}
 });
 
-test("OpenAI Fast streams use the real Responses API with priority and preserve caller hooks", async () => {
+test("OpenAI speed variants use the real Responses API with the selected tier and preserve caller hooks", async () => {
 	const provider = requireOpenAIFastProvider();
 	const fastModel = provider.getModels().find((model) => model.id === "gpt-6.1-sol-fast");
 	const standardModel = provider.getModels().find((model) => model.id === "gpt-6.1-sol");
 	assert.ok(fastModel && standardModel);
-	const models = provider.getModels().filter((model) => /^gpt-6(?:\.1)?-(?:sol|astra|luna)(?:-fast)?$/.test(model.id));
+	const models = provider.getModels().filter((model) => /^gpt-6(?:\.1)?-(?:sol|astra|luna)(?:-(?:fast|ultrafast))?$/.test(model.id));
 	const cases = models.flatMap((model) =>
 		["simple", "raw", "compaction"].map((mode) => ({ model, mode })),
 	);
@@ -98,9 +104,9 @@ test("OpenAI Fast streams use the real Responses API with priority and preserve 
 				assert.equal(typeof init?.body, "string");
 				const payload: unknown = JSON.parse(String(init?.body));
 				assert.ok(typeof payload === "object" && payload !== null && "model" in payload && "metadata" in payload);
-				assert.equal(payload.model, model.id.replace(/-fast$/, ""));
+				assert.equal(payload.model, model.id.replace(/-(?:fast|ultrafast)$/, ""));
 				assert.deepEqual(payload.metadata, { caller: "preserved" });
-				assert.equal("service_tier" in payload ? payload.service_tier : undefined, model.id.endsWith("-fast") ? "priority" : undefined);
+				assert.equal("service_tier" in payload ? payload.service_tier : undefined, model.id.endsWith("-ultrafast") ? "ultrafast" : model.id.endsWith("-fast") ? "priority" : undefined);
 				return completedResponse();
 			},
 		};
@@ -129,7 +135,7 @@ function completedResponse(): Response {
 	});
 }
 
-test("bundled Pi loads GPT-6 and GPT-6.1 Fast models without a local node_modules directory", () => {
+test("bundled Pi loads Fast and Ultrafast models without a local node_modules directory", () => {
 	const directory = mkdtempSync(join(tmpdir(), "pi-fast-loader-test-"));
 	try {
 		for (const name of readdirSync(import.meta.dirname)) {
@@ -148,12 +154,14 @@ test("bundled Pi loads GPT-6 and GPT-6.1 Fast models without a local node_module
 		assert.match(output, /openai\s+gpt-6-astra-fast\s/);
 		assert.match(output, /openai\s+gpt-6-luna-fast\s/);
 		assert.match(output, /openai\s+gpt-6\.1-sol-fast\s/);
+		assert.match(output, /openai\s+gpt-6\.1-sol-ultrafast\s/);
+		assert.match(output, /openai\s+gpt-6-astra-ultrafast\s/);
 	} finally {
 		rmSync(directory, { recursive: true, force: true });
 	}
 });
 
-for (const fastModelId of ["gpt-6-sol-fast", "gpt-6-astra-fast", "gpt-6-luna-fast", "gpt-6.1-sol-fast"]) {
+for (const fastModelId of ["gpt-6-sol-fast", "gpt-6-astra-fast", "gpt-6-luna-fast", "gpt-6.1-sol-fast", "gpt-6.1-sol-ultrafast", "gpt-6-astra-ultrafast"]) {
 	test(`${fastModelId} preserves model endpoint, headers, output cap and sampling overrides`, async () => {
 		const provider = requireOpenAIFastProvider();
 		const fastModel = provider.getModels().find((model) => model.id === fastModelId);
@@ -179,15 +187,15 @@ for (const fastModelId of ["gpt-6-sol-fast", "gpt-6-astra-fast", "gpt-6-luna-fas
 			const payload = observed.payload;
 			assert.ok(typeof payload === "object" && payload !== null);
 			assert.ok("model" in payload && "max_output_tokens" in payload && "top_p" in payload && "service_tier" in payload);
-			assert.equal(payload.model, fastModelId.replace(/-fast$/, ""));
+			assert.equal(payload.model, fastModelId.replace(/-(?:fast|ultrafast)$/, ""));
 			assert.equal(payload.max_output_tokens, 64);
 			assert.equal(payload.top_p, 0.5);
-			assert.equal(payload.service_tier, "priority");
+			assert.equal(payload.service_tier, fastModelId.endsWith("-ultrafast") ? "ultrafast" : "priority");
 			assert.equal(response.model, fastModelId);
 		}
 	});
 
-	test(`resuming after a ${fastModelId} response keeps Fast selected`, async () => {
+	test(`resuming after a ${fastModelId} response keeps the speed variant selected`, async () => {
 		const directory = mkdtempSync(join(tmpdir(), "pi-fast-resume-test-"));
 		try {
 			const provider = requireOpenAIFastProvider();

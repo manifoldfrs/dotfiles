@@ -1,12 +1,14 @@
 # OpenAI and Codex Fast Variants
 
-Adds selectable `-fast` variants to Pi's current `openai` provider and its legacy `openai-codex` provider.
+Adds selectable `-fast` and `-ultrafast` variants to Pi's current `openai` provider, and `-fast` variants to its legacy `openai-codex` provider.
 Requires Pi 1.0 or newer.
 
 ## Current OpenAI provider
 
 For a ChatGPT subscription, run `/login openai` and choose **Sign in with ChatGPT**.
-Select `gpt-6.1-sol-fast` under `openai` through `/model`.
+Select `gpt-6.1-sol-ultrafast` or `gpt-6-astra-ultrafast` under `openai` through `/model`.
+Ultrafast subscription access requires Pro $500 or an eligible Enterprise or Edu plan.
+Standard and `-fast` variants remain available.
 Press `Ctrl+S` in the picker to save it as the default.
 OpenAI API-key authentication remains available too.
 
@@ -19,8 +21,11 @@ These are opt-in priority requests, not account-specific guarantees of priority 
 OpenAI may reject unsupported models or tiers; usage and pricing follow OpenAI's rules.
 
 Each Fast variant sends the real upstream model ID and `service_tier: "priority"` to the OpenAI Responses API.
+Ultrafast variants are limited to GPT-6.1 Sol and GPT-6 Astra and send `service_tier: "ultrafast"` instead.
+See [OpenAI’s Ultrafast request configuration](https://developers.openai.com/api/docs/guides/ultrafast-mode).
+Use ChatGPT sign-in for subscription usage; API-key requests are billed separately.
 The wrapper covers ordinary turns, direct streaming, compaction, and branch summaries while preserving caller request hooks and model overrides.
-Replies retain the selected `-fast` ID so resumed sessions keep Fast selected.
+Replies retain the selected speed variant ID so resumed sessions keep the same speed selected.
 It does not send the Codex-specific routing header to the OpenAI API.
 
 ## Legacy Codex provider

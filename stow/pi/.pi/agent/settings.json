@@ -1,8 +1,8 @@
 {
   "lastChangelogVersion": "1.3.0",
   "theme": "tokyonight-frsh",
-  "defaultProvider": "meta",
-  "defaultModel": "muse-wonder-full-1.0",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6.1-sol-ultrafast",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": true,
   "enableSkillCommands": true,

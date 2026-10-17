@@ -119,27 +119,34 @@ function createOpenAIFastProvider(): Provider {
 		new Set(baseModels.filter((model) => /^gpt-6(?:\.1)?-(?:sol|astra|luna)$/.test(model.id)).map((model) => model.id)),
 	);
 
+	const ultrafastVariants = createCodexFastVariantModels(
+		baseModels,
+		new Set(["gpt-6.1-sol", "gpt-6-astra"]),
+		"ultrafast",
+	);
+
 	function requestOptions(model: Model<Api>, options?: StreamOptions): StreamOptions | undefined {
-		if (!resolveCodexFastUpstreamModelId(model.id, baseModels)) return options;
+		const mode = model.id.endsWith("-ultrafast") ? "ultrafast" : "fast";
+		if (!resolveCodexFastUpstreamModelId(model.id, baseModels, mode)) return options;
 		return {
 			...options,
 			onPayload: async (payload, requestModel) => {
 				const callerPayload = await options?.onPayload?.(payload, requestModel) ?? payload;
-				return rewriteCodexFastRequestPayload(callerPayload, model.id, baseModels);
+				return rewriteCodexFastRequestPayload(callerPayload, model.id, baseModels, mode);
 			},
 		};
 	}
 
 	return {
 		...provider,
-		getModels: () => [...provider.getModels(), ...fastVariants],
-		getAllModels: () => [...getAllModels(), ...fastVariants],
+		getModels: () => [...provider.getModels(), ...fastVariants, ...ultrafastVariants],
+		getAllModels: () => [...getAllModels(), ...fastVariants, ...ultrafastVariants],
 		stream: (model, context, options) => provider.stream<Api>(model, context, { ...options, ...requestOptions(model, options) }),
 		streamSimple: (model, context, options) => provider.streamSimple(model, context, requestOptions(model, options)),
 	};
 }
 
-/** Register current OpenAI priority variants and legacy Codex catalog discovery. */
+/** Register current OpenAI speed variants and legacy Codex catalog discovery. */
 export default function codexFastVariantsExtension(
 	pi: Parameters<ExtensionFactory>[0],
 ): void {

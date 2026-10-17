@@ -1,5 +1,5 @@
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 model_verbosity = "low"
 tool_output_token_limit = 25000
 personality = "pragmatic"
@@ -121,7 +121,7 @@ screen_reader_detection_done = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
-"gpt-6.1-sol" = 1
+"gpt-6.1-sol" = 2
 
 [mcp_servers.Ref]
 type = "http"

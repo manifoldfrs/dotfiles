@@ -3,18 +3,19 @@ import type { Api, Model, ProviderHeaders } from "@earendil-works/pi-ai";
 import { resolveCodexFastUpstreamModelId } from "./codex-fast-variants.ts";
 import { isJsonRecord } from "./json-record.ts";
 
-/** Rewrite a selected Codex Fast Mode variant to the real model and priority service tier. */
+/** Rewrite a selected speed variant to the real model and requested service tier. */
 export function rewriteCodexFastRequestPayload(
 	payload: unknown,
 	visibleModelId: string,
 	baseModels: readonly Model<Api>[],
+	mode: "fast" | "ultrafast" = "fast",
 ): unknown {
-	const upstreamModelId = resolveCodexFastUpstreamModelId(visibleModelId, baseModels);
+	const upstreamModelId = resolveCodexFastUpstreamModelId(visibleModelId, baseModels, mode);
 	if (!upstreamModelId) return payload;
 	if (!isJsonRecord(payload)) {
 		throw new Error("Codex Fast request payload must be a JSON object");
 	}
-	return { ...payload, model: upstreamModelId, service_tier: "priority" };
+	return { ...payload, model: upstreamModelId, service_tier: mode === "ultrafast" ? "ultrafast" : "priority" };
 }
 
 /** Add the priority routing hint used by the official Codex Fast Mode client. */

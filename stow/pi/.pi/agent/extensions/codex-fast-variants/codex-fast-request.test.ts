@@ -40,6 +40,24 @@ test("createCodexFastVariantModels clones only advertised built-in models", () =
 	assert.equal(resolveCodexFastUpstreamModelId("unknown-model-fast", models), undefined);
 });
 
+test("Ultrafast variants use exact catalog models, preserve metadata, and skip duplicates", () => {
+	const model = createTestCodexModel("gpt-6.1-sol");
+	const variants = createCodexFastVariantModels([model], new Set(["gpt-6.1-sol", "missing"]), "ultrafast");
+	assert.deepEqual(variants, [{ ...model, id: "gpt-6.1-sol-ultrafast", name: "Test Codex Model (Ultrafast)" }]);
+	assert.deepEqual(createCodexFastVariantModels([], new Set([model.id]), "ultrafast"), []);
+	assert.deepEqual(createCodexFastVariantModels([model, { ...model, id: "gpt-6.1-sol-ultrafast" }], new Set([model.id]), "ultrafast"), []);
+	assert.equal(resolveCodexFastUpstreamModelId("gpt-6.1-sol-ultrafast", [model], "ultrafast"), model.id);
+	assert.equal(resolveCodexFastUpstreamModelId("missing-ultrafast", [model], "ultrafast"), undefined);
+	assert.equal(resolveCodexFastUpstreamModelId("gpt-6.1-sol-ultrafast", [model]), undefined);
+	assert.equal(resolveCodexFastUpstreamModelId(model.id, [model], "ultrafast"), undefined);
+	const payload = { model: model.id, input: "hello", service_tier: "priority" };
+	assert.deepEqual(rewriteCodexFastRequestPayload(payload, "gpt-6.1-sol-ultrafast", [model], "ultrafast"), {
+		model: "gpt-6.1-sol", input: "hello", service_tier: "ultrafast",
+	});
+	assert.equal(rewriteCodexFastRequestPayload(payload, model.id, [model], "ultrafast"), payload);
+	assert.throws(() => rewriteCodexFastRequestPayload(null, "gpt-6.1-sol-ultrafast", [model], "ultrafast"), /payload must be a JSON object/);
+});
+
 test("restoreCodexFastVariantModels refreshes cached variants from current base metadata", () => {
 	const current = createTestCodexModel("model-a");
 	const stale = { ...current, id: "model-a-fast", name: "Stale Name" };

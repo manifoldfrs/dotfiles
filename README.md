@@ -819,6 +819,10 @@ Apply stops if a regular file already sits at `~/.local/bin/bash`.
 `/update` asks for confirmation, waits for idle, and runs native `pi update`; unattended startup updating and custom package-manager detection are removed.
 For a ChatGPT subscription on Pi 1.0 and newer, use `/login openai` and choose **Sign in with ChatGPT**.
 The tracked `codex-fast-variants` extension adds selectable `openai` priority variants for GPT-6 and GPT-6.1 Sol, Astra, and Luna chat models, such as `gpt-6.1-sol-fast`, while preserving normal models and authentication.
+It also adds `openai/gpt-6.1-sol-ultrafast` and `openai/gpt-6-astra-ultrafast`, which request `service_tier: "ultrafast"`.
+New Pi sessions default to `openai/gpt-6.1-sol-ultrafast` with medium thinking.
+Select either with `/model`; use ChatGPT sign-in to draw on an eligible Pro $500 subscription rather than separately billed API usage.
+Press `Ctrl+S` in the model picker to save the selected model as the startup default.
 Only models present in Pi's built-in catalog get Fast variants; the separate Luna classifier is unchanged.
 Fast variants request `service_tier: "priority"`; their availability and usage remain subject to OpenAI's rules.
 The legacy `openai-codex` provider retains its account-specific Fast capability discovery.
