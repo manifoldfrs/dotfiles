@@ -1,12 +1,13 @@
 ---
 name: coding-standards-swift
-description: Swift coding standards in the fstack style, following the Swift API Design Guidelines and Swift 6 concurrency. Use when writing or reviewing .swift code, iOS or macOS apps, Swift packages, or Hotwire Native shells, or when another skill needs the user's Swift standards.
+description: Swift coding standards following the Swift API Design Guidelines and structured concurrency. Use when writing or reviewing Swift code, Swift packages, or Swift-specific Xcode configuration.
 ---
 
 # Swift Coding Standards
 
 Write idiomatic Swift that follows the Swift API Design Guidelines and reads like the surrounding code.
-Apply the [fstack doctrine](../fstack/references/doctrine.md); this pack states only where Swift differs from the Ruby default.
+Use the [shared engineering guidance](../fstack/references/doctrine.md) without starting a fstack workflow.
+This pack follows Swift's own conventions and the project's architecture.
 
 ## Decision priority
 
@@ -18,13 +19,13 @@ When rules pull in different directions:
 4. Contain incompatible older patterns at the nearest existing edge instead of spreading them.
 5. Keep unrelated behavior unchanged.
 
-## Where the grain differs from Ruby
+## Swift principles
 
 - **Clarity at the point of use.** Name methods and argument labels so the call site reads as a phrase, use mutating and nonmutating pairs such as `sort()` and `sorted()`, and judge a name by a real call, not the declaration.
 - **The compiler is the first reviewer.** Prefer `struct` and `enum` to `class`, model closed states as enums with associated values, and `switch` over them exhaustively without `default` on a domain enum.
 - **Optionals mean absence.** Unwrap with `guard let` or `if let`; force-unwrap only an invariant the code just proved.
 - **Concurrency is checked.** Build in the Swift 6 language mode when the project allows it, isolate UI work on `@MainActor`, protect shared mutable state with an actor, prefer structured concurrency such as `async let` and task groups to detached tasks, and make values that cross isolation `Sendable`.
-- **Value integrated systems.** For an app backed by a Rails server, choose between a Hotwire Native screen and a fully native screen before building it; 37signals recommends Hotwire Native first.
+- **Follow the application's UI architecture.** Use its existing SwiftUI, UIKit, or web-backed screen conventions; changing that architecture requires an explicit design decision.
 - **Fight every dependency.** Use the standard library, Foundation, and the platform frameworks the project already imports before adding a package.
 
 ## 1. Establish the local rules
@@ -66,4 +67,3 @@ Run the changed screen in a simulator, including a narrow device, Dynamic Type, 
 
 - Swift API Design Guidelines: https://www.swift.org/documentation/api-design-guidelines/
 - Swift language modes: https://github.com/swiftlang/swift/blob/main/userdocs/diagnostics/error-in-future-swift-version.md
-- 37signals, "A vanilla Rails stack is plenty", on Hotwire Native: https://dev.37signals.com/a-vanilla-rails-stack-is-plenty/

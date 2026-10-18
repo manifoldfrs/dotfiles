@@ -206,6 +206,23 @@ install_opencode_plugin_dependencies() {
     done
 }
 
+install_global_anti_slop() {
+    local runtime="$DOTFILES_DIR/stow/bin/.local/share/anti-slop"
+
+    if ! command -v npm &> /dev/null; then
+        warn "npm not found, skipping global anti-slop dependencies"
+        return
+    fi
+
+    if [ ! -f "$runtime/package.json" ]; then
+        warn "Global anti-slop files not found; apply the bin Stow package first"
+        return
+    fi
+
+    info "Installing global anti-slop dependencies..."
+    npm install --prefix "$runtime" --omit=dev --ignore-scripts --no-package-lock --no-audit --no-fund || warn "Global anti-slop dependency installation failed"
+}
+
 install_opencode() {
     local version
 
@@ -242,6 +259,7 @@ main() {
     configure_bash_login_shell
     sync_neovim_plugins
     install_npm_globals
+    install_global_anti_slop
     install_opencode_plugin_dependencies
     install_plannotator
 

@@ -1,8 +1,9 @@
 ---
 name: code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Intent (does the code do what the user asked, including the edge cases?) — then get a second review from a different model family. Reports each separately. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+description: Review requested changes for standards and intent, with a second-model review when delegation is authorized. Use only when the user explicitly requests a branch, PR, working-tree, or fixed-point code review; not automatically after an edit or test run.
 ---
 
+Run this workflow only for an explicit review request, not automatically after implementation, testing, or verification.
 Two-axis review of the requested committed or working-tree changes:
 
 - **Standards** — does the code conform to this repo's documented coding standards?
@@ -88,7 +89,8 @@ End with a one-line summary: total findings per axis, and the worst issue _withi
 
 ### 6. Second-model review
 
-Ask a reviewer from a different model family than the one that wrote the code to review the same scope with both briefs.
+When delegation is authorized for this review, ask a reviewer from a different model family than the one that wrote the code to review the same scope with both briefs.
+Otherwise report that the second-model review was not run and ask before delegating.
 
 - In Pi, run the `reviewer` subagent; its model is pinned per parent provider in the Pi settings.
 - Elsewhere, write the diff to a temporary file and use the other family's command line:

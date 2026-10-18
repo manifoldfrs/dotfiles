@@ -1,15 +1,17 @@
 ---
 name: fstack
-description: Route a coding task through fstack's investigate, fix, build, or reshape route, with deep work before builds and proof before review.
+description: An optional, language-neutral workflow for investigating, fixing, building, or reshaping code.
 disable-model-invocation: true
 argument-hint: "task in plain words"
 ---
 
 # fstack
 
-Pick the shortest route that controls the main risk, then run the skills that route names.
-Read [the doctrine](references/doctrine.md) before the first route in a session.
-It holds the posture, the Rails Doctrine applied to any language, and the user's standing rules.
+Use this workflow only when the user selects fstack.
+Pick the shortest route that controls the main risk, then follow the steps below.
+Read the [shared engineering guidance](references/doctrine.md) once.
+Language packs supply ecosystem-specific guidance; no language is the baseline for another.
+Selecting fstack authorizes the route's investigation and verification, not deployment, publication, or otherwise unauthorized delegation.
 
 ## Pick the route
 
@@ -38,7 +40,9 @@ When the user says "new task", pick the route again.
 3. Run `testing` on its bug branch.
 4. Make the smallest fix inside the change that owns the feature.
    Write no plan and open no extra pull request.
-5. Run `prove`, then `code-review`.
+5. Rerun the reproduction and the relevant tests; inspect the diff for unintended changes.
+   Report the evidence and any unchecked cases without requiring a separate ground brief or full proof inventory.
+6. Run `code-review` only when the user requested independent review.
 
 **Reply:** what broke, the root cause, every instance fixed, and the failing-then-passing output.
 
@@ -46,11 +50,13 @@ When the user says "new task", pick the route again.
 
 1. Run `dig` and show the ground brief.
    Put only its open questions to the user.
-2. When the brief shows a contested shape, run `sketch`.
+2. When the brief shows a contested shape, explain the decision and offer `sketch`.
+   Run it when the user asks for alternatives; otherwise follow their decision.
 3. Load the matching language pack and `testing`, then build in small slices.
    Each slice adds its own tests and ends with a passing check before the next one starts.
 4. Run `prove` against the brief's edge-case inventory.
-5. Run `code-review`.
+5. Inspect the diff for unintended changes.
+   Run `code-review` only when the user requested independent review.
 
 **Reply:** what was built, what the brief changed, what was proven, and what is still open.
 
@@ -60,7 +66,8 @@ When the user says "new task", pick the route again.
 2. Subtract first: delete dead code and one-caller wrappers.
 3. Move in small steps that keep the pin green.
    Migrate every caller and delete the old path in the same change.
-4. Run `prove` for equivalence on the real artifact, then `code-review`.
+4. Run `prove` for equivalence on the real artifact and inspect the diff.
+   Run `code-review` only when the user requested independent review.
 5. Keep the reshape only when it lowers reader load somewhere; otherwise revert it.
 
 **Reply:** the structure that changed, the pin, the equivalence proof, and where reader load went down.

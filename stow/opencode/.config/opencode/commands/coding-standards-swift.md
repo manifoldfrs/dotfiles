@@ -1,5 +1,5 @@
 ---
-description: Swift coding standards in the fstack style, following the Swift API Design Guidelines and Swift 6 concurrency. Use when writing or reviewing .swift code, iOS or macOS apps, Swift packages, or Hotwire Native shells, or when another skill needs the user's Swift standards.
+description: Swift coding standards following the Swift API Design Guidelines and structured concurrency. Use when writing or reviewing Swift code, Swift packages, or Swift-specific Xcode configuration.
 ---
 
 Load and follow the `coding-standards-swift` skill.

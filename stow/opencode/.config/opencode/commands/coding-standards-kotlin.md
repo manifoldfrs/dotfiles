@@ -1,5 +1,5 @@
 ---
-description: Kotlin coding standards in the fstack style, following the Kotlin coding conventions and structured concurrency. Use when writing or reviewing .kt or .kts code, Android apps, Gradle builds, or Hotwire Native Android shells, or when another skill needs the user's Kotlin standards.
+description: Kotlin coding standards following Kotlin conventions and structured concurrency. Use when writing or reviewing .kt or .kts code, or Kotlin-specific Android and Gradle configuration.
 ---
 
 Load and follow the `coding-standards-kotlin` skill.

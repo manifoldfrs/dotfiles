@@ -1,12 +1,13 @@
 ---
 name: prove
-description: Verify a change on the real artifact before calling it done. Runs the feature, reads the stored value, and checks every case in the edge-case inventory. Use after building, fixing, or reshaping, before code review or a pull request, or when asked "are we sure it works".
+description: Perform a thorough runtime verification with an explicit edge-case inventory and evidence verdicts. Use when the user requests a proof or verification audit, or an explicitly selected fstack route calls for one; ordinary edits still need relevant checks without this full workflow.
 ---
 
 # Prove
 
-A green test suite is a proxy.
-Prove the change on the thing the user touches, and report a verdict for every claim.
+For a requested verification audit, check the thing the user touches and report a verdict for every claim.
+For ordinary edits, run the relevant tests and runtime checks without creating this full inventory.
+Reuse evidence already gathered for the same code and inputs.
 Apply the [fstack doctrine](../fstack/references/doctrine.md).
 
 ## 1. Pick the real artifact
@@ -34,15 +35,7 @@ Before a staging rehearsal, list the production states staging lacks and seed th
 
 **Complete when:** every inventory item has a result or is named as unchecked.
 
-## 3. Attack your own diff
-
-Read the diff as a hostile reviewer would.
-Look for the input that breaks it, the caller it missed, and what happens on a retry, a second tenant, a stale page, or a slow network.
-Fix what you find before review.
-
-**Complete when:** each problem found is fixed or listed as open in the verdict.
-
-## 4. Verdict
+## 3. Verdict
 
 Give each claim one verdict: VERIFIED, NOT VERIFIED, or INCONCLUSIVE.
 Inconclusive is not a pass.

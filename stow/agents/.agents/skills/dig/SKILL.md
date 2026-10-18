@@ -1,17 +1,19 @@
 ---
 name: dig
-description: Deep work before code. Writes a ground brief of facts about how and why the affected code works, then judgment on framework recall, blast radius, and an edge-case inventory. Use before building or reshaping, for "how does X work", "why is it like this", or "what could this break", or when another skill needs a ground brief.
+description: Write an evidence-backed ground brief covering behavior, history, risks, and edge cases. Use when the user requests a deep investigation or ground brief, or an explicitly selected fstack route calls for one; not for routine code questions or every edit.
 ---
 
 # Dig
 
-Write one **ground brief** before code.
+For a requested investigation, write one **ground brief** before code.
+An ordinary question or small edit needs focused inspection, not this full workflow.
 Facts come first and judgment second, in separate sections, so a wrong fact gets corrected before it becomes a design assumption.
 Apply the [fstack doctrine](../fstack/references/doctrine.md).
 
 Scale the dig to the risk.
 A change inside one module needs one pass.
-A change across subsystems fans out to read-only subagents, one per area, and the main session keeps their summaries rather than their raw reads.
+When delegation is authorized, a change across subsystems can fan out to read-only subagents, one per area, with summaries kept in the main session.
+Otherwise perform the investigation directly.
 
 ## 1. Facts
 

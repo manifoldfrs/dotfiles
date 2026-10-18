@@ -1,6 +1,6 @@
 ---
 name: coding-standards-javascript
-description: Plain JavaScript standards in the 37signals style, with no build step, import maps, Stimulus, Turbo, native browser features, and no TypeScript. Use when writing or reviewing .js files in a Rails app or another plain JavaScript project. For TypeScript, use coding-standards-ts.
+description: Plain browser JavaScript guidance for Rails/Hotwire and import-map applications using Stimulus, Turbo, and native browser features. Use when editing JavaScript in that stack, not as universal guidance for Node or other JavaScript architectures. For TypeScript, use coding-standards-ts.
 ---
 
 # Plain JavaScript Coding Standards

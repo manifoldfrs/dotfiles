@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+PACKAGE="$HOME/.local/share/anti-slop/package.json"
+if [[ ! -f "$PACKAGE" ]]; then
+    printf 'anti-slop: shared configuration missing; apply the bin Stow package first\n' >&2
+    exit 1
+fi
+
+# Stow links individual files; dependencies live beside the canonical plugin source.
+RUNTIME="$(node -p 'require("node:path").dirname(require("node:fs").realpathSync(process.argv[1]))' "$PACKAGE")"
+CONFIG="$RUNTIME/oxlint.json"
+
+if [[ ${1:-} == --effect ]]; then
+    CONFIG="$RUNTIME/oxlint-effect.json"
+    shift
+fi
+
+if [[ ! -x "$RUNTIME/node_modules/.bin/oxlint" ]]; then
+    printf 'anti-slop: runtime missing; run npm install --prefix "%s" --ignore-scripts --no-package-lock --no-audit --no-fund\n' "$RUNTIME" >&2
+    exit 1
+fi
+
+# Config-file ignores are relative to the global config, not the target project.
+IGNORE_FLAGS=()
+for directory in .agent .agents .claude .codex .continue .cursor .gemini .opencode .pi .roo .windsurf node_modules; do
+    IGNORE_FLAGS+=(--ignore-pattern "**/$directory/**")
+done
+
+exec "$RUNTIME/node_modules/.bin/oxlint" --config "$CONFIG" "${IGNORE_FLAGS[@]}" "$@"

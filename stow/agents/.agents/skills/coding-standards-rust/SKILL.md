@@ -1,12 +1,13 @@
 ---
 name: coding-standards-rust
-description: Rust coding standards in the fstack style, following the Rust API Guidelines and letting the compiler carry the weight. Use when writing or reviewing .rs code or Cargo manifests, or when another skill needs the user's Rust standards.
+description: Rust coding standards following the Rust API Guidelines. Use when writing or reviewing .rs code or Cargo manifests, or when a task needs Rust-specific guidance.
 ---
 
 # Rust Coding Standards
 
 Write idiomatic Rust that follows the Rust API Guidelines and reads like the surrounding code.
-Apply the [fstack doctrine](../fstack/references/doctrine.md); this pack states only where Rust differs from the Ruby default.
+Use the [shared engineering guidance](../fstack/references/doctrine.md) without starting a fstack workflow.
+This pack follows Rust's own conventions and the project's architecture.
 
 ## Decision priority
 
@@ -18,7 +19,7 @@ When rules pull in different directions:
 4. Contain incompatible older patterns at the nearest existing edge instead of spreading them.
 5. Keep unrelated behavior unchanged.
 
-## Where the grain differs from Ruby
+## Rust principles
 
 - **The compiler is the first reviewer.** Encode invariants in types instead of tests: newtypes for values that must not mix (C-NEWTYPE), enums for closed sets of states, and exhaustive `match` with no catch-all arm over a domain enum.
 - **Errors are values.** Return `Result` with a meaningful error type (C-GOOD-ERR) and propagate with `?`; use `unwrap` and `expect` only in tests or for an invariant the code just proved, with an `expect` message that states it.

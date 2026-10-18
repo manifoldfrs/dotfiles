@@ -777,12 +777,20 @@ Local language standards include `coding-standards-ts`, `coding-standards-go`, [
 New language packs start from [the language pack template](stow/agents/.agents/skills/fstack/references/language-pack-template.md).
 The Rails standards are a short router that loads per-concern references, such as persistence, jobs, and lint policy, only when a change touches that concern.
 
-[fstack](stow/agents/.agents/skills/fstack/SKILL.md) is a local skill stack that does deep work before most builds and proves changes before review.
-Run `/fstack <task>` to route a task through investigate, fix, build, or reshape.
-The routes call model-invoked skills that also work on their own: `dig` writes a ground brief of facts, framework recall, blast radius, and edge cases; `sketch` offers two or three options for a contested design; `testing` writes a failing test first for bugs and designs first for features; `prove` verifies the change on the real app; and `pr` opens a pull request with screenshots, GIFs, and cleanup of old evidence.
+[fstack](stow/agents/.agents/skills/fstack/SKILL.md) is an optional, language-neutral workflow.
+Run `/fstack <task>` to select investigate, fix, build, or reshape; ordinary coding tasks do not automatically start it.
+Its build and reshape routes use `dig` for a ground brief and `prove` for a thorough runtime check.
+Its fix route uses a focused reproduction and relevant tests without requiring a full brief or proof inventory.
+`sketch` runs when you request alternatives, and `code-review` runs when you request independent review.
+Outside fstack, `dig`, `prove`, and `learn-visually` require a deliberate investigation, verification-audit, or full-lesson request rather than a routine question or edit.
+These skills retain natural-language discovery and explicit workflow composition; they are not slash-command-only.
+`testing` and the matching language standards remain available for ordinary work without pulling in the full workflow.
+`pr` still opens pull requests only when requested.
 `/correct` turns a mistake agents keep repeating into a lint rule, type, or test.
-The shared doctrine, which applies the Rails Doctrine to every language, lives in [fstack/references/doctrine.md](stow/agents/.agents/skills/fstack/references/doctrine.md).
-`code-review` reviews Standards and Intent, then gets a second review from a different model family.
+The [shared engineering guidance](stow/agents/.agents/skills/fstack/references/doctrine.md) follows each project's language and architecture, with no Rails baseline.
+TypeScript, Effect, Go, Rust, Swift, Kotlin, and Rails guidance loads only for relevant code; application-specific architecture belongs in the project's own documentation.
+Loading a language guide does not start a fstack route.
+`code-review` reviews Standards and Intent, then gets a second review from a different model family when delegation is authorized.
 In Pi, the `reviewer` subagent model is pinned per parent provider in `stow/pi/.pi/agent/settings.json`.
 Its prompt lives in `stow/pi/.pi/agent/agents/reviewer.md`, which replaces the `pi-subagents` builtin and requires every finding to name a trigger and survive a refutation attempt.
 Claude Code has a read-only port in `stow/claude/.claude/agents/reviewer.md`, which inherits the parent model and needs the diff passed in its prompt.
@@ -793,9 +801,40 @@ The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.
 In Pi, `/skills` opens a scrolling menu of every loaded skill with a one-line summary; type to filter by name.
 Pick one, or run `/skills <name>`, to open a tldr-style page that shows how to invoke it in each harness, whether agents load it automatically, what it covers, and where its full instructions live.
 `/skills <words>`, such as `/skills rails`, searches names and descriptions.
-[anti-slop-rails](stow/agents/.agents/skills/anti-slop-rails/SKILL.md) provides an evidence-based Rails review and cleanup workflow.
-Ask it to review a diff for findings only, or ask it to clean up a diff to authorize edits.
-[anti-slop-ts](stow/agents/.agents/skills/anti-slop-ts/SKILL.md) manages the vendored Oxlint anti-slop plugin and its update workflow.
+[anti-slop](stow/agents/.agents/skills/anti-slop/SKILL.md) runs the global command below, selects the generic or Effect rules, and reports findings without changing files unless fixes are requested.
+Ask the agent to check anti-slop violations in a project or selected files; no per-project installation is needed.
+The retired `anti-slop-ts` installer and `anti-slop-rails` review skill are excluded from the shared catalog so synchronization cannot restore them.
+
+##### Global anti-slop
+
+The `bin` Stow package provides `anti-slop`, backed by one shared Oxlint installation and an unmodified copy of [Dillon Mulroy's rules](https://github.com/dmmulroy/anti-slop).
+[UPSTREAM.md](stow/bin/.local/share/anti-slop/UPSTREAM.md) records the exact source revision.
+Bootstrap installs the runtime dependencies beside the tracked plugin source after applying the dotfiles.
+Dependencies remain ignored by Git; this keeps Node module resolution correct through Stow symlinks.
+For an existing machine, after reviewing and approving the live configuration change:
+
+```bash
+stow --no-folding --restow --dir=stow --target="$HOME" bin
+npm install --prefix "$PWD/stow/bin/.local/share/anti-slop" --omit=dev --ignore-scripts --no-package-lock --no-audit --no-fund
+```
+
+Run it from any project; that project needs no npm dependencies or configuration for this check:
+
+```bash
+anti-slop .                 # generic JavaScript/TypeScript rules
+anti-slop --effect .        # generic rules plus the Effect rules
+anti-slop src/example.ts    # selected files
+anti-slop --fix .           # opt-in upstream autofixes; modifies files
+```
+
+The shared check deliberately selects its global config instead of project-local or nested Oxlint configs.
+It complements rather than replaces the project's own lint commands, typechecking, and CI.
+It does not make remote CI or editor integrations use this machine-local installation automatically.
+Agent tooling directories and `node_modules` are ignored relative to the target project.
+Effect rules are explicit because not every JavaScript or TypeScript project uses Effect.
+
+Validate changes with `bash test/global_anti_slop_test.sh`; this installs a temporary runtime, checks two temporary projects, and leaves live configuration alone.
+
 [learn-visually](stow/agents/.agents/skills/learn-visually/SKILL.md) teaches a technical concept from one tested running example, rendered as an interactive HTML lesson, an illustrated PDF manual, or a Psychopomp animation.
 Run `/skill:learn-visually <topic> mode=interactive,manual,animation`; lessons are written to `~/code/personal/learn-visually/<slug>/` unless `LEARN_VISUALLY_OUT` or `out=` says otherwise.
 Animation mode needs the pinned Psychopomp renderer; `scripts/psychopomp.sh status` in the skill reports what is missing, and `setup` installs it after approval.

@@ -24,11 +24,13 @@ Use the terms in `CONTEXT.md` when it exists, and load the language pack for the
 
 ## Feature branch
 
-1. Settle the design first, through `dig` and, when contested, `sketch`.
+1. Understand the intended behavior and settle the design at the depth the change requires.
+   Reuse a ground brief when one exists; testing alone does not require `dig` or `sketch`.
+   Ask about unresolved product or design choices instead of starting a separate workflow.
 2. Write tests at the layer where the behavior lives, one slice at a time alongside the code.
    The language pack names the layers; for Rails, read the [testing reference](../coding-standards-rails/references/testing.md).
 3. Assert what a user or caller observes, against a known literal.
-4. Cover each changed failure branch and each edge in the ground brief that a test can reach.
+4. Cover the relevant changed failure branches and edge cases, including the ground brief's inventory when one exists.
 
 **Complete when:** every changed behavior and failure branch has a test through its public interface, and the relevant tests pass.
 

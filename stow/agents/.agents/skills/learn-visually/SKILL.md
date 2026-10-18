@@ -1,6 +1,6 @@
 ---
 name: learn-visually
-description: Teach a technical concept from one verified running example, rendered as an interactive HTML lesson, an illustrated PDF manual, or a rendered animation. Use when the user wants to learn or see how a concept, algorithm, protocol, paper, or codebase mechanism works.
+description: Create a full technical lesson with a verified running example and interactive HTML, illustrated PDF, or animation. Use when the user explicitly requests a lesson artifact or course-style walkthrough; answer casual explanations and quick diagrams without this workflow.
 ---
 
 # Learn visually

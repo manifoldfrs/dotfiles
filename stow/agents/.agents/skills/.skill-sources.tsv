@@ -1,6 +1,7 @@
 # skill	source
-anti-slop-rails	local
-anti-slop-ts	local
+anti-slop	local
+anti-slop-rails	excluded
+anti-slop-ts	excluded
 ask-matt	excluded
 bro	local
 cloudflare-composition-root	excluded

@@ -1,12 +1,13 @@
 ---
 name: coding-standards-kotlin
-description: Kotlin coding standards in the fstack style, following the Kotlin coding conventions and structured concurrency. Use when writing or reviewing .kt or .kts code, Android apps, Gradle builds, or Hotwire Native Android shells, or when another skill needs the user's Kotlin standards.
+description: Kotlin coding standards following Kotlin conventions and structured concurrency. Use when writing or reviewing .kt or .kts code, or Kotlin-specific Android and Gradle configuration.
 ---
 
 # Kotlin Coding Standards
 
 Write idiomatic Kotlin that follows the Kotlin coding conventions and reads like the surrounding code.
-Apply the [fstack doctrine](../fstack/references/doctrine.md); this pack states only where Kotlin differs from the Ruby default.
+Use the [shared engineering guidance](../fstack/references/doctrine.md) without starting a fstack workflow.
+This pack follows Kotlin's own conventions and the project's architecture.
 
 ## Decision priority
 
@@ -18,14 +19,14 @@ When rules pull in different directions:
 4. Contain incompatible older patterns at the nearest existing edge instead of spreading them.
 5. Keep unrelated behavior unchanged.
 
-## Where the grain differs from Ruby
+## Kotlin principles
 
 - **The compiler is the first reviewer.** Model closed states as `sealed interface` or `sealed class` hierarchies and use `when` as an expression over them with no `else` branch, so a new state fails to compile until it is handled.
 - **Null safety is the type system's job.** Use `?.`, `?:`, and early returns; use `!!` only for an invariant the code just proved.
 - **Immutable by default.** Declare `val` over `var`, use read-only collection types such as `List` and `Map` in signatures, and prefer `data class` for values.
 - **Idioms over ceremony.** Prefer default parameters to overloads, expression forms of `if`, `when`, and `try`, extension functions for behavior on a type, and named arguments for booleans and same-typed parameters.
 - **Concurrency is structured.** Launch coroutines in an owned scope, such as `viewModelScope` or `lifecycleScope` on Android, never `GlobalScope`; expose streams as `Flow`.
-- **Value integrated systems.** For an Android app backed by a Rails server, choose between a Hotwire Native screen and a fully native screen before building it; 37signals recommends Hotwire Native first.
+- **Follow the application's UI architecture.** Use its existing Compose, View, or web-backed screen conventions; changing that architecture requires an explicit design decision.
 - **Fight every dependency.** Use the Kotlin standard library, kotlinx libraries already in the build, and AndroidX before adding a library.
 
 ## 1. Establish the local rules
@@ -67,4 +68,3 @@ Run a changed screen on an emulator, including a narrow device, large font, and 
 - Kotlin coding conventions: https://kotlinlang.org/docs/coding-conventions.html
 - Sealed classes with `when`: https://kotlinlang.org/docs/sealed-classes.html
 - Kotlin coroutines guide: https://kotlinlang.org/docs/coroutines-guide.html
-- 37signals, "A vanilla Rails stack is plenty", on Hotwire Native: https://dev.37signals.com/a-vanilla-rails-stack-is-plenty/

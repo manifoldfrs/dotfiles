@@ -4,8 +4,8 @@ Copy this file to `stow/agents/.agents/skills/coding-standards-<language>/SKILL.
 Replace every `<placeholder>`, delete every line that starts with `>`, and keep the pack under about 100 lines.
 Move detail that only some changes need into `references/<concern>.md` and list it in step 2.
 
-A pack is a delta on the official guide and on the Ruby default.
-It states the authority to follow, the checks to run, and only the places where the language's grain differs from Ruby.
+A pack is independent guidance for one language and its ecosystem.
+It states the authority to follow, the checks to run, and the language-specific practices that matter to this user's work.
 It caches only what the environment and the official docs do not say.
 
 After copying, also:
@@ -21,13 +21,14 @@ After copying, also:
 ```markdown
 ---
 name: coding-standards-<language>
-description: <Language> coding standards in the fstack style, following <official guide> and the language's own grain. Use when writing or reviewing <file extensions> code, or when another skill needs the user's <language> standards.
+description: <Language> coding standards following <official guide>. Use when writing or reviewing <file extensions> code or its language-specific build configuration.
 ---
 
 # <Language> Coding Standards
 
 Write idiomatic <language> that follows <official guide> and reads like the surrounding code.
-Apply the [fstack doctrine](../fstack/references/doctrine.md); this pack states only where <language> differs from the Ruby default.
+Use the [shared engineering guidance](../fstack/references/doctrine.md) without starting a fstack workflow.
+This pack follows <language>'s own conventions and the project's architecture.
 
 ## Decision priority
 
@@ -39,12 +40,12 @@ When rules pull in different directions:
 4. Contain incompatible older patterns at the nearest existing edge instead of spreading them.
 5. Keep unrelated behavior unchanged.
 
-## Where the grain differs from Ruby
+## <Language> principles
 
-> Three to six bullets. Each names one thing the language does differently and what the agent does about it.
-> Lead with what the compiler or runtime proves, because that replaces checks a Ruby agent would write as tests.
+> Three to six bullets covering useful language-specific guidance.
+> Distinguish properties the compiler proves from behavior that needs runtime tests.
 
-- <difference>: <what to do>
+- <principle>: <what to do>
 
 ## 1. Establish the local rules
 
@@ -113,11 +114,11 @@ Use them to fill the template; confirm each one against the current official sou
 - Authority: the Swift API Design Guidelines, https://www.swift.org/documentation/api-design-guidelines/
 - Checks: the project's `swift-format` or SwiftLint, Swift 6 strict concurrency, and `swift test` or `xcodebuild test`.
 - Grain: clarity at the point of use; value types first; actor isolation for shared mutable state; a documentation summary on every declaration.
-- For an app backed by Rails, choose between a Hotwire Native shell and a fully native screen before writing screens; 37signals recommends Hotwire Native first.
+- Preserve the project's existing SwiftUI, UIKit, or web-backed UI architecture unless a change is explicitly requested.
 
 ### Kotlin
 
 - Authority: the Kotlin coding conventions and library authors' guidelines, https://kotlinlang.org/docs/coding-conventions.html
 - Checks: the project's ktlint or detekt, and Gradle `check`.
 - Grain: `val` over `var`; immutable collection interfaces; sealed hierarchies with exhaustive `when`; default parameters over overloads; expression forms of `if`, `when`, and `try`.
-- The same Hotwire Native choice applies on Android.
+- Preserve the project's existing Compose, View, or web-backed UI architecture unless a change is explicitly requested.

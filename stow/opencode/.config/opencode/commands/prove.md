@@ -1,5 +1,5 @@
 ---
-description: Verify a change on the real artifact before calling it done. Runs the feature, reads the stored value, and checks every case in the edge-case inventory. Use after building, fixing, or reshaping, before code review or a pull request, or when asked "are we sure it works".
+description: Perform a thorough runtime verification with an explicit edge-case inventory and evidence verdicts. Use when the user requests a proof or verification audit, or an explicitly selected fstack route calls for one; ordinary edits still need relevant checks without this full workflow.
 ---
 
 Load and follow the `prove` skill.

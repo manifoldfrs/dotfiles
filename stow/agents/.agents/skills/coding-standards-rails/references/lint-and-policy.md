@@ -18,7 +18,7 @@ Use this reference when changing RuboCop configuration, writing a custom cop, ad
 | A syntactic pattern, such as `rescue nil` or `Card.find` in controllers | A custom RuboCop cop with clear limits on what its AST match can prove |
 | A security class, such as SQL injection or unsafe redirects | Brakeman, reviewed rather than silenced |
 | A data invariant, such as uniqueness | A database constraint, not a cop |
-| An architectural boundary, such as no model calls from views | Review and the anti-slop-rails skill, unless a cop can match it precisely |
+| An architectural boundary, such as no model calls from views | Review against the project's Rails standards, unless a cop can match it precisely |
 | A dangerous agent action, such as editing `db/schema.rb` | The shared agent guardrails, not instructions |
 
 ## Verify custom cops

@@ -1,5 +1,5 @@
 ---
-description: Rust coding standards in the fstack style, following the Rust API Guidelines and letting the compiler carry the weight. Use when writing or reviewing .rs code or Cargo manifests, or when another skill needs the user's Rust standards.
+description: Rust coding standards following the Rust API Guidelines. Use when writing or reviewing .rs code or Cargo manifests, or when a task needs Rust-specific guidance.
 ---
 
 Load and follow the `coding-standards-rust` skill.
