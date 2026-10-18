@@ -860,6 +860,8 @@ For a ChatGPT subscription on Pi 1.0 and newer, use `/login openai` and choose *
 The tracked `codex-fast-variants` extension adds selectable `openai` priority variants for GPT-6 and GPT-6.1 Sol, Astra, and Luna chat models, such as `gpt-6.1-sol-fast`, while preserving normal models and authentication.
 It also adds `openai/gpt-6.1-sol-ultrafast` and `openai/gpt-6-astra-ultrafast`, which request `service_tier: "ultrafast"`.
 New Pi sessions default to `openai/gpt-6.1-sol-ultrafast` with medium thinking.
+The tracked `models.json` sets GPT-6.1 Sol to 500K context and GPT-6 Astra to 272K across their standard, Fast, and Ultrafast variants on `openai`.
+The legacy `openai-codex` Astra and Astra Fast overrides also use 272K; other models keep their existing limits.
 Select either with `/model`; use ChatGPT sign-in to draw on an eligible Pro $500 subscription rather than separately billed API usage.
 Press `Ctrl+S` in the model picker to save the selected model as the startup default.
 Only models present in Pi's built-in catalog get Fast variants; the separate Luna classifier is unchanged.

@@ -1,12 +1,34 @@
 {
   "providers": {
+    "openai": {
+      "modelOverrides": {
+        "gpt-6.1-sol": {
+          "contextWindow": 500000
+        },
+        "gpt-6.1-sol-fast": {
+          "contextWindow": 500000
+        },
+        "gpt-6.1-sol-ultrafast": {
+          "contextWindow": 500000
+        },
+        "gpt-6-astra": {
+          "contextWindow": 272000
+        },
+        "gpt-6-astra-fast": {
+          "contextWindow": 272000
+        },
+        "gpt-6-astra-ultrafast": {
+          "contextWindow": 272000
+        }
+      }
+    },
     "openai-codex": {
       "modelOverrides": {
         "gpt-6-astra": {
-          "contextWindow": 1050000
+          "contextWindow": 272000
         },
         "gpt-6-astra-fast": {
-          "contextWindow": 1050000
+          "contextWindow": 272000
         }
       }
     },
