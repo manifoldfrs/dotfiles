@@ -862,6 +862,7 @@ It also adds `openai/gpt-6.1-sol-ultrafast` and `openai/gpt-6-astra-ultrafast`, 
 New Pi sessions default to `openai/gpt-6.1-sol-ultrafast` with medium thinking.
 The tracked `models.json` sets GPT-6.1 Sol to 500K context and GPT-6 Astra to 272K across their standard, Fast, and Ultrafast variants on `openai`.
 The legacy `openai-codex` Astra and Astra Fast overrides also use 272K; other models keep their existing limits.
+Automatic compaction is enabled globally, using Pi's default 16,384-token response reserve and roughly 20K tokens of retained recent conversation.
 Select either with `/model`; use ChatGPT sign-in to draw on an eligible Pro $500 subscription rather than separately billed API usage.
 Press `Ctrl+S` in the model picker to save the selected model as the startup default.
 Only models present in Pi's built-in catalog get Fast variants; the separate Luna classifier is unchanged.
