@@ -705,6 +705,8 @@ Use `./scripts/update_agent_skills.sh --check` to check for drift.
 Use `--review` to open a Plannotator review and `--sync` to update the tracked snapshot.
 An update stays uncommitted for normal Git review.
 Explicit `local` ownership protects personalized skills against both upstream catalogs.
+[frontend-design](stow/agents/.agents/skills/frontend-design/SKILL.md) is vendored unchanged with its license from [Anthropic's skills](https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design) at commit `dbd4588f9e1033efb41dad4bef2f7947c8993d44` and uses `local` ownership to preserve this snapshot.
+It guides visual direction, typography, layout, and interface copy; OpenCode also exposes it as `/frontend-design`.
 To remove an upstream skill for good, delete its folder and set its manifest owner to `excluded`; synchronization then never copies it back.
 The `plannotator-review`, `plannotator-annotate`, and `plannotator-last` skills are `excluded` because Plannotator's own installer writes them into every harness; `scripts/bootstrap.sh` runs that installer when `plannotator` is missing, and rerunning it updates the CLI and the skills together.
 Research and review default to direct execution for small tasks; independent reviewers and investigators remain available when scope warrants authorized delegation.

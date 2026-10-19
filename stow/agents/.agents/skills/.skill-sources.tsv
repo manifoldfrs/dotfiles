@@ -20,6 +20,7 @@ diagnosing-bugs	local
 dig	local
 domain-modeling	matt
 fstack	local
+frontend-design	local
 grill-me	excluded
 grill-with-docs	excluded
 grilling	excluded
