@@ -29,7 +29,7 @@ jobs:
       - name: Verify Bash Stow layout
         run: |
           tmp_home="$(mktemp -d)"
-          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin opencode claude codex pi agents
+          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin opencode codex pi agents
           test -L "$tmp_home/.bashrc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"

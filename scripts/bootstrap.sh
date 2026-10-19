@@ -24,7 +24,6 @@ STOW_TARGETS=(
     "$HOME/.config/opencode/plugins/optojr-slack"
     "$HOME/.config/opencode/plugins/tui-conveniences"
     "$HOME/.config/opencode/plugins/request-logger"
-    "$HOME/.claude/settings.local.json"
     "$HOME/.config/herdr/config.toml"
     "$HOME/.config/herdr/plugins.txt"
     "$HOME/.config/plannotator-tui/config.toml"
@@ -107,7 +106,7 @@ backup_stow_target() {
 }
 
 backup_existing_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.config/opencode" "$HOME/.local/bin"
 
     for target in "${STOW_TARGETS[@]}"; do
         backup_stow_target "$target"

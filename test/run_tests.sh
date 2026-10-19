@@ -20,8 +20,6 @@ for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh \
     stow/bash/.config/bash/functions.bash \
     stow/bin/.local/share/agent-guardrails/block-dangerous-bash.sh \
     stow/bin/.local/share/agent-guardrails/block-generated-edits.sh \
-    stow/claude/.claude/hooks/block-dangerous-bash.sh \
-    stow/claude/.claude/hooks/block-generated-edits.sh \
     stow/codex/.codex/hooks/block-dangerous-bash.sh \
     stow/codex/.codex/hooks/block-generated-edits.sh mcp_setup.sh; do
     bash -n "$script"
@@ -44,11 +42,10 @@ pass "No active SSH rewrite in .gitconfig"
 echo "[TEST 3] Testing default Bash Stow profile..."
 STOW_TEST_HOME="$(mktemp -d)"
 STOW_TEST_BIN="$(mktemp -d)"
-mkdir -p "$STOW_TEST_HOME/.agents/skills/show-me" "$STOW_TEST_HOME/.claude/skills/show-me" "$STOW_TEST_HOME/.local/bin"
+mkdir -p "$STOW_TEST_HOME/.agents/skills/show-me" "$STOW_TEST_HOME/.local/bin"
 touch "$STOW_TEST_HOME/.agents/skills/show-me/SKILL.md"
 printf '%s\n' '# existing Bash config' >"$STOW_TEST_HOME/.bashrc"
 mkdir -p "$STOW_TEST_HOME/.pi/agent"
-printf '%s\n' '{"startupNoticeShown": "2026-01-01"}' >"$STOW_TEST_HOME/.pi/agent/claude-bridge.json"
 ln -s "$(command -v stow)" "$STOW_TEST_BIN/stow"
 if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >/tmp/stow-default.log 2>&1 \
     && HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >>/tmp/stow-default.log 2>&1 \
@@ -56,7 +53,6 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.bashrc" ] \
     && [ -L "$STOW_TEST_HOME/.inputrc" ] \
     && find "$STOW_TEST_HOME" -maxdepth 1 -name '.bashrc.backup.*' | grep -q . \
-    && find "$STOW_TEST_HOME/.pi/agent" -maxdepth 1 -name 'claude-bridge.json.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.config/bash/environment.bash" ] \
     && [ -L "$STOW_TEST_HOME/.config/starship.toml" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
@@ -66,9 +62,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ ! -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && [ -f "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
-    && [ -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
-    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.config/opencode/AGENTS.md" \
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/package.json" ] \
@@ -80,9 +74,9 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/node_modules" ] \
     && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/request-logger/node_modules" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
-    && [ -L "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
-    && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
+    && [ ! -e "$STOW_TEST_HOME/.claude" ] \
+    && [ ! -e "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Bash Stow profile is idempotent"
 else
@@ -101,7 +95,8 @@ grep -q 'name = "tokyo-night"' stow/herdr/.config/herdr/config.toml
 grep -q '^default_shell = "bash"$' stow/herdr/.config/herdr/config.toml
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
-jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agent/claude-bridge.json >/dev/null
+jq -e '[.packages[] | if type == "string" then . else .source end | select(test("claude|anthropic"; "i"))] | length == 0' stow/pi/.pi/agent/settings.json >/dev/null
+jq -e '.mcpServers | has("claude-in-chrome") | not' stow/pi/.pi/agent/mcp.json >/dev/null
 grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '"session.copy": "alt+y"' stow/opencode/.config/opencode/cli.json
 grep -q 'name: "typesafe_evaluate"' stow/opencode/.config/opencode/plugins/typesafe-ai/src/index.ts

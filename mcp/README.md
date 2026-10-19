@@ -32,19 +32,6 @@ cd ~/dotfiles
 
 `mcp/codex_config.toml.example` remains as a standalone template, but the active tracked config is `stow/codex/.codex/config.toml`.
 
-### Claude Code
-
-Claude Code stores user-scoped MCP servers in the untracked `~/.claude.json`.
-Register Jev once per machine:
-
-```bash
-claude mcp add -s user jev -- npx -y @jkudish/jev-mcp
-claude mcp list
-```
-
-The server reads `TYPESAFE_API_KEY` from the shell environment.
-`stow/claude/.claude/settings.json` allows `mcp__jev__*`, and the vendored `jev` skill in `stow/agents/.agents/skills/jev` tells agents when to call each tool.
-
 ### Pi
 
 Pi is Stow-managed by the default dotfiles profile:
@@ -103,7 +90,6 @@ To backup your current MCP configs (with API keys):
 **Note:** Untracked template outputs containing literal API keys are gitignored. Stow-managed configs use environment interpolation and contain no secrets.
 Codex MCP HTTP servers should use `env_http_headers` with `REF_API_KEY` and `EXA_API_KEY`, not API keys embedded in URLs.
 Codex stdio servers should forward keys such as `TYPESAFE_API_KEY` and `SONAR_API_KEY` with `env_vars`, not literal `env` values.
-Claude Code's user-scope servers in `~/.claude.json` should use `${EXA_API_KEY}`-style expansion in headers and `env`.
 Export every key from machine-local `~/.config/bash/local.bash`; do not keep keys in loose files in the repository.
 Pi MCP HTTP servers should use built-in header interpolation with `${REF_API_KEY}` and `${EXA_API_KEY}`, not embedded API keys.
 OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` interpolation, not embedded API keys.
@@ -112,8 +98,8 @@ OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` inte
 
 - **Ref** - Documentation search
 - **Exa** - Web search
-- **Jev** - Typed judgments from TypeSafe's Jev model (Claude Code, OpenCode, and Pi)
+- **Jev** - Typed judgments from TypeSafe's Jev model (OpenCode and Pi)
 - **Chrome DevTools** - Browser testing, screenshots, console, and network inspection (OpenCode and Pi)
 - **codex-chrome** - Existing-profile Chrome control (OpenCode and Pi)
-- **Sonar** - App Store optimization data (Claude Code, Codex, and Pi)
+- **Sonar** - App Store optimization data (Codex and Pi)
 - **Context7** - Library documentation

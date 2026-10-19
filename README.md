@@ -1,6 +1,6 @@
 # dotfiles
 
-Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
+Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, OpenCode, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
 
 ## Theme and font status
 
@@ -258,59 +258,6 @@ For example, an OpenCode model override uses this shape:
 }
 ```
 
-## Claude provider request logger
-
-Run `claude-log` from your regular shell instead of `claude` to start Claude Code through an opt-in local Anthropic request logger:
-
-```bash
-claude-log
-```
-
-The command starts a local proxy on a temporary loopback port, launches Claude Code against it, and stops the proxy when Claude exits.
-Each `/v1/messages` request is written under `~/.claude/logs/requests/` as readable Markdown plus the raw JSON payload.
-The Markdown includes request sizes, ranked tool schemas, redacted request headers, the full payload, and the streamed provider response.
-This logger is inspired by [Matt Pocock's agent proxy](https://gist.github.com/mattpocock/5b3d76ea21f5f698aefded47a9cea3b1).
-It does not capture direct MCP network traffic.
-
-The directory and files use owner-only permissions.
-The logs can contain sensitive source code, prompts, and connected-service data.
-Review them before sharing, and remove them when finished:
-
-```bash
-rm -rf ~/.claude/logs/requests
-```
-
-Set `CLAUDE_REQUEST_LOG_DIR` to store logs somewhere else.
-Normal `claude` sessions do not write request logs.
-
-## Claude Code theme and mods
-
-Claude Code uses the Tokyo Night `night` theme from `stow/claude/.claude/themes/tokyonight-night.json`, taken from folke's [tokyonight.nvim Claude Code extras](https://github.com/folke/tokyonight.nvim/commit/bb2ebf3af93da023c93bbc8dcee79690d9755bce).
-Claude Code watches `~/.claude/themes/`, so theme edits apply to running sessions.
-
-Mods live in `stow/claude/.claude/mods/` and are not stowed.
-`CLAUDE_CODE_PLUGIN_DIRS` in `settings.json` loads them from the repository, and interactive sessions reload a mod when its files are saved.
-
-- `optojr-slack` registers `optojr_slack_send`, which posts as `@OptoJr` through the relay credentials in the macOS Keychain.
-- `skill-toast` shows a toast when a skill loads.
-- `session-relaunch` adds `/update`, which runs `claude update` and resumes the session on the new version, and `/restart`, which resumes the session on whatever version is installed.
-  The relaunch comes from the `claude` function in `stow/bash/.config/bash/functions.bash`.
-  Sessions started any other way print the `claude --resume` command instead of exiting.
-- `jev-pipeline` registers `mcp__jev-pipeline__run`, which fetches a list from one MCP tool, optionally enriches each item with a second MCP call, and classifies or reranks every item with Jev.
-  The items never enter the model's context: the reply holds counts and the top items, and the full results go to `$TMPDIR/jev-pipeline-<session id>-<timestamp>.json`.
-- `jev-coding` adds a `jev_decide` reminder to the first `Edit` or `Write` of each turn, and records every edit the turn makes.
-  When the agent tries to finish, Jev classifies each edit against the recent prompts as requested, scope creep, speculative, or leftover.
-  A confidently flagged edit blocks the stop once with the list, so the agent reverts or justifies it; a Jev failure shows a toast and lets the turn finish.
-- `jev-screen` runs `jev_screen` on every Exa and Ref fetch result, in 20,000-character chunks.
-  A `review` or `block` verdict, or a failed screen, adds a warning the model reads after the result, and `block` also shows a toast.
-- `model-cost` writes the session's cost per model to `$TMPDIR/claude-model-cost-<session id>.json`, and `statusline.sh` shows it after the context usage.
-  The engine reports only a session total, so each response is charged the total's growth since the previous response.
-- `xai-search` registers `mcp__xai-search__xai_search`, which runs Pi's `extensions/xai-search/run-xai-search.ts` with `/opt/homebrew/bin/node`.
-  Pi keeps the auth guards, so the tool needs Pi's `/login xai` sign-in, and each search is capped at 4 xAI turns and 3,000 output tokens.
-
-Add a new mod folder to `CLAUDE_CODE_PLUGIN_DIRS` to load it.
-Check a mod with `claude plugin validate <folder>` and `claude plugin test <folder>`.
-
 ## Pi provider request logger
 
 Run `pi-log` from your regular shell instead of `pi` when you need to inspect the exact payload Pi sends to its model provider:
@@ -385,7 +332,7 @@ Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Ho
 
 What this already handles for you:
 
-- stows Bash, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, Pi settings, and local bin config
+- stows Bash, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Codex, Pi settings, and local bin config
 - configures Herdr with Tokyo Night, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
@@ -398,7 +345,6 @@ What `./scripts/bootstrap.sh` additionally handles for you:
 What is still separate:
 
 - `./mcp_setup.sh install` for the optional Claude Desktop MCP config
-- Claude Code's user-scoped MCP config in `~/.claude.json`, which stays local because it contains credentials and account-specific state
 - OpenCode install if you use it on that machine
 
 ## Herdr and Neovim integrations
@@ -443,7 +389,6 @@ plannotator-tui docs/           # Browse a folder
 plannotator-tui herdr open .    # Review this folder in a Herdr overlay
 plannotator-tui herdr last      # Annotate the agent's last reply in Herdr
 plannotator-tui last --host pi      # Review the latest Pi reply outside Herdr
-plannotator-tui last --host claude  # Review the latest Claude reply outside Herdr
 ```
 
 The `plannotator-tui` commands open the terminal interface.
@@ -493,7 +438,6 @@ Planning and review can use ordinary chat, Plannotator TUI, or Plannotator's bro
 Plans are maintained as project Markdown, revised from feedback, and implemented only after explicit approval.
 
 Pi provides `/plannotator-plan-mode`, `/plannotator-review`, `/plannotator-annotate`, and `/plannotator-last` through `@plannotator/pi-extension`; `Ctrl+Alt+P` toggles its plan mode.
-Claude Code uses the `plannotator@plannotator` plugin to intercept plan approval and exposes the Plannotator commands after restart.
 Codex uses its managed `Stop` hook for browser review.
 
 ## Stow How-To
@@ -518,7 +462,7 @@ The equivalent unguarded direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi
+stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode codex pi
 ```
 
 ### Run Stow Without Scripts
@@ -529,11 +473,11 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi
-stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi
+stow --no-folding -n -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode codex pi
+stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode codex pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude codex pi
+stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode codex pi
 
 ```
 
@@ -552,8 +496,6 @@ stow --no-folding -R -v -t "$HOME" -d stow bash
 # OpenCode only
 stow --no-folding -R -v -t "$HOME" -d stow opencode
 
-# Claude Code settings only
-stow --no-folding -R -v -t "$HOME" -d stow claude
 
 # Pi settings only
 stow --no-folding -R -v -t "$HOME" -d stow pi
@@ -680,7 +622,7 @@ cd ~/dotfiles
 ./mcp_setup.sh backup
 ```
 
-`scripts/backup.sh` follows symlinks with `cp -L`, so it captures the configured shell/editor files into `stow/*`. It intentionally does not copy live OpenCode or Claude account/runtime state because those files can contain API keys, session data, or local machine history.
+`scripts/backup.sh` follows symlinks with `cp -L`, so it captures the configured shell/editor files into `stow/*`. It intentionally does not copy live OpenCode account/runtime state because those files can contain API keys, session data, or local machine history.
 
 ## Command Cheatsheet
 
@@ -694,8 +636,6 @@ cd ~/dotfiles
 | Remove all Stow symlinks                | `./scripts/stow.sh delete`                                                                                                               |
 | Restow Bash config                      | `stow --no-folding -R -v -t "$HOME" -d stow bash`                                                                                        |
 | Restow OpenCode                         | `stow --no-folding -R -v -t "$HOME" -d stow opencode`                                                                                    |
-| Restow Claude Code settings             | `stow --no-folding -R -v -t "$HOME" -d stow claude`                                                                                      |
-| Run Claude with request logging         | `claude-log`                                                                                                                             |
 | Restow Codex settings/skills/hooks      | `./scripts/stow.sh apply`                                                                                                                |
 | Restow Pi settings                      | `stow --no-folding -R -v -t "$HOME" -d stow pi`                                                                                          |
 | Run Pi with request logging             | `pi-log`                                                                                                                                 |
@@ -719,7 +659,7 @@ cd ~/dotfiles
 - **Starship** prompt with bounded project/runtime detection
 - **FZF** completion and history/file keybindings through its native Bash integration
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/bash`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/claude`, `stow/codex`, and `stow/pi` into `$HOME`
+- **Configs stowed**: `stow/bash`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/codex`, and `stow/pi` into `$HOME`
 - **Herdr**: Stow-managed Tokyo Night config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
@@ -727,7 +667,6 @@ cd ~/dotfiles
 
 ### npm Global Packages (`npm-global-packages.txt`)
 
-- `@anthropic-ai/claude-code` - Claude Code CLI
 - `@openai/codex` - OpenAI Codex CLI
 - `vercel` - Vercel CLI
 - `tree-sitter-cli` - Parser generator for nvim-treesitter
@@ -737,7 +676,6 @@ cd ~/dotfiles
 MCP (Model Context Protocol) configs for AI coding assistants:
 
 - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Claude Code**: user-scoped `~/.claude.json`, kept local and configured through `claude mcp`
 - **Codex**: `~/.codex/config.toml`
 - **Pi**: `~/.pi/agent/mcp.json`
 - **OpenCode**: `~/.config/opencode/opencode.jsonc`
@@ -754,13 +692,12 @@ Preferred tool usage after setup:
 #### Shared rules and skills
 
 Global agent rules are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md).
-The `claude`, `opencode`, and `codex` Stow packages link to this file, so Pi, Claude Code, OpenCode, and Codex share one copy.
+The `opencode` and `codex` Stow packages link to this file, so Pi, OpenCode, and Codex share one copy.
 Reload existing sessions after you change the rules.
 
 The shared skill catalog is tracked once under `stow/agents/.agents/skills/`.
-`scripts/stow.sh` links each complete skill directory into `~/.agents/skills/` and `~/.claude/skills/`.
+`scripts/stow.sh` links each complete skill directory into `~/.agents/skills/`.
 Pi and OpenCode use `~/.agents/skills/`.
-Claude Code uses `~/.claude/skills/`.
 
 The catalog combines the baseline catalog, the personalization layer, and local skills.
 Skill ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
@@ -791,10 +728,8 @@ The [shared engineering guidance](stow/agents/.agents/skills/fstack/references/d
 TypeScript, Effect, Go, Rust, Swift, Kotlin, and Rails guidance loads only for relevant code; application-specific architecture belongs in the project's own documentation.
 Loading a language guide does not start a fstack route.
 `code-review` reviews Standards and Intent, then gets a second review from a different model family when delegation is authorized.
-In Pi, the `reviewer` subagent model is pinned per parent provider in `stow/pi/.pi/agent/settings.json`.
+Select an available non-Anthropic model explicitly when requesting a second-model review.
 Its prompt lives in `stow/pi/.pi/agent/agents/reviewer.md`, which replaces the `pi-subagents` builtin and requires every finding to name a trigger and survive a refutation attempt.
-Claude Code has a read-only port in `stow/claude/.claude/agents/reviewer.md`, which inherits the parent model and needs the diff passed in its prompt.
-Elsewhere, the second review runs through the other family's command line: `claude -p` for changes a GPT model wrote, and `codex exec` for changes a Claude model wrote.
 The `testing` skill replaces `tdd`, and fstack's build route replaces `implement`; both upstream skills are `excluded`.
 The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.bare` repository root for parallel agent work.
 
@@ -869,15 +804,6 @@ Only models present in Pi's built-in catalog get Fast variants; the separate Lun
 Fast variants request `service_tier: "priority"`; their availability and usage remain subject to OpenAI's rules.
 The legacy `openai-codex` provider retains its account-specific Fast capability discovery.
 
-`pi-claude-bridge@0.9.1` provides Claude models through Claude Code's Agent SDK.
-Its tracked `stow/pi/.pi/agent/claude-bridge.json` sets `provider.plan` to `max` for Opus's 1M context and keeps the `AskClaude` tool off.
-Because both settings are explicit, the extension never writes its `startupNoticeShown` marker into the tracked file.
-Use `/model` and select a `claude-bridge` model after restarting Pi.
-Sign in to Claude Code with your Claude subscription first.
-Configure the subscription tier in machine-local `~/.pi/agent/claude-bridge.json`.
-For Max without opting into extra-usage long context or delegation, set `provider.plan: "max"`, `provider.longContextExtraUsage: false`, and `askClaude.enabled: false`.
-New Pi sessions default to `claude-bridge/claude-opus-5-5` with medium thinking.
-
 `stow/pi/.pi/agent/extensions/continue-after-compaction.ts` resumes the task after automatic compaction by having the agent recover its context from the session log.
 It does nothing after a manual `/compact`.
 
@@ -929,25 +855,6 @@ OpenCode discovers the shared catalog under `~/.agents/skills/` as native skills
 OpenCode 2 does not derive slash entries from skills, so each skill also has a thin wrapper command under `stow/opencode/.config/opencode/commands/<skill-id>.md` that loads it through `/skill-id`, and the TUI conveniences plugin confirms native skill activation with a success toast.
 The separate `stow/opencode/.config/opencode/commands/` directory is reserved for prompt macros such as `/lg`.
 
-#### Claude Code
-
-The `claude` Stow package owns `settings.json`, `settings.local.json`, `statusline.sh`, hooks, and the opt-in request logger under `stow/claude/.claude/`.
-Claude Code reads project `AGENTS.md` files directly.
-It does not need a tracked `CLAUDE.md` pointer.
-
-The status line shows the working directory, Git branch, active model, and context-window usage.
-It turns yellow at 75 percent and red at 90 percent.
-It uses `jq` and shows a short notice if `jq` is not available.
-`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is `95`, so this status line provides the earlier warning.
-
-Claude Code uses the native installer's latest release channel with automatic updates.
-Commit and pull request attribution are disabled.
-Run `claude-log` to enable the tracked request logger for one process.
-Captured requests are machine-local state under `~/.claude/logs/requests/`.
-
-Claude Code MCP servers are user-scoped in `~/.claude.json`.
-This file is machine-local state and is not managed by Stow.
-
 #### Codex
 
 The `codex` Stow package owns personal defaults, MCP server definitions, hooks, and the Tokyo Night theme under `stow/codex/.codex/`.
@@ -958,7 +865,7 @@ On Linux, `scripts/stow.sh` leaves `~/.codex/config.toml` out of Stow and backup
 
 #### Guardrails and secrets
 
-Claude Code, Codex, and Pi use the shared guardrail scripts under `stow/bin/.local/share/agent-guardrails/`.
+Codex and Pi use the shared guardrail scripts under `stow/bin/.local/share/agent-guardrails/`.
 These scripts block dangerous shell commands and edits to generated files.
 Pi runs them from `stow/pi/.pi/agent/extensions/agent-guardrails.ts`, including calls made from Codemode scripts, and warns once if the `bin` Stow package is missing.
 
@@ -966,7 +873,7 @@ The Rails rules block hand edits to `db/schema.rb`, `db/structure.sql`, `Gemfile
 They also block editing a migration whose version the schema already records; roll it back first if it exists only on your branch.
 Destructive database tasks such as `db:drop`, `db:reset`, and `db:schema:load` are allowed only with `RAILS_ENV=test`.
 Rails commands against production, `DISABLE_DATABASE_ENVIRONMENT_CHECK=1`, and `credentials:edit` are blocked for agents.
-Pi and Claude Code set `GIT_EDITOR=true` for agent git commands so a rebase or merge never waits on an interactive editor.
+Pi and Codex set `GIT_EDITOR=true` for agent git commands so a rebase or merge never waits on an interactive editor.
 Run `bash test/agent_guardrails_test.sh "$PWD"` to test the rules.
 
 Keep credentials in machine-local state.
@@ -1264,11 +1171,10 @@ Install agent integrations once per machine:
 herdr integration install pi
 herdr integration install codex
 herdr integration install opencode
-herdr integration install claude
 herdr integration status
 ```
 
-Generated integration files remain machine-managed. The shared `herdr` skill teaches Pi, Claude, Codex, and OpenCode to coordinate workspaces, tabs, panes, and sibling agents through the Herdr CLI.
+Generated integration files remain machine-managed. The shared `herdr` skill teaches Pi, Codex, and OpenCode to coordinate workspaces, tabs, panes, and sibling agents through the Herdr CLI.
 
 ## Shell Configuration
 
@@ -1303,8 +1209,7 @@ dotfiles/
 │   ├── herdr/              # .config/herdr/config.toml
 │   ├── bin/                # .local/bin tools and shared agent guardrail scripts
 │   ├── opencode/           # .config/opencode/: V2 config, CLI settings, commands, rules, plugins
-│   ├── agents/             # Shared Agent Skills catalog used by Pi, OpenCode, and Claude Code
-│   ├── claude/             # .claude/: settings, statusline, hooks, request logger
+│   ├── agents/             # Shared Agent Skills catalog used by Pi, OpenCode, and Codex
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
 │   ├── zed/                # .config/zed/: settings, keymap, tasks
@@ -1432,7 +1337,7 @@ cd ~/dotfiles && ./scripts/bootstrap.sh
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode claude pi
+stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode pi
 ```
 
 Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
@@ -1486,7 +1391,7 @@ Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 **Herdr agent state is missing or stale?**
 
 - Run `herdr integration status`.
-- Reinstall the affected integration with `herdr integration install pi`, `codex`, `opencode`, or `claude`.
+- Reinstall the affected integration with `herdr integration install pi`, `codex`, or `opencode`.
 - Generated integration files are machine-managed and should not be copied into Stow.
 
 **Herdr and Neovim navigation**

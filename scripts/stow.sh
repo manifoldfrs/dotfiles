@@ -9,13 +9,13 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr nvim bin opencode claude codex pi agents zed)
+STOW_PACKAGES=(bash git ghostty herdr nvim bin opencode codex pi agents zed)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
 CODEX_CONFIG_TARGET="$HOME/.codex/config.toml"
 AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
-SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
+SKILL_TARGET_DIRS=("$HOME/.agents/skills")
 SHARED_BACKUP_TARGETS=(
     "$HOME/.config/herdr/plugins.txt"
     "$HOME/.config/plannotator-tui/config.toml"
@@ -39,7 +39,6 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/themes/$CODEX_THEME_FILE"
 )
 PI_BACKUP_TARGETS=(
-    "$HOME/.pi/agent/claude-bridge.json"
     "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
 )
