@@ -344,7 +344,6 @@ What `./scripts/bootstrap.sh` additionally handles for you:
 
 What is still separate:
 
-- `./mcp_setup.sh install` for the optional Claude Desktop MCP config
 - OpenCode install if you use it on that machine
 
 ## Herdr and Neovim integrations
@@ -671,15 +670,16 @@ cd ~/dotfiles
 - `vercel` - Vercel CLI
 - `tree-sitter-cli` - Parser generator for nvim-treesitter
 
-### MCP Setup (`mcp_setup.sh install`)
+### MCP Configuration
 
 MCP (Model Context Protocol) configs for AI coding assistants:
 
-- **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Codex**: `~/.codex/config.toml`
 - **Pi**: `~/.pi/agent/mcp.json`
 - **OpenCode**: `~/.config/opencode/opencode.jsonc`
 
+These configurations are Stow-managed.
+`mcp_setup.sh` supports standalone Codex config installation and capture.
 See `mcp/README.md` for setup instructions and API key configuration.
 
 Preferred tool usage after setup:

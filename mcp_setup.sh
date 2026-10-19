@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # MCP Configuration Setup Script
-# Handles: Claude Desktop, Codex MCP configs
+# Handles: Codex MCP config
 # Usage: ./mcp_setup.sh [backup|install]
 
 set -e
@@ -19,20 +19,11 @@ warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 
 # MCP config file locations
-CLAUDE_DESKTOP_CONFIG="$HOME/Library/Application Support/Claude/claude_desktop_config.json"
 CODEX_CONFIG="$HOME/.codex/config.toml"
 
 backup() {
     info "Backing up MCP configurations..."
     mkdir -p "$MCP_DIR"
-
-    # Claude Desktop
-    if [ -f "$CLAUDE_DESKTOP_CONFIG" ]; then
-        info "Backing up Claude Desktop MCP config..."
-        cp "$CLAUDE_DESKTOP_CONFIG" "$MCP_DIR/claude_desktop_config.json"
-    else
-        warn "Claude Desktop config not found"
-    fi
 
     # Codex
     if [ -f "$CODEX_CONFIG" ]; then
@@ -59,14 +50,6 @@ install() {
     warn "This will overwrite existing MCP configs. Press Ctrl+C to cancel, or Enter to continue..."
     read -r
 
-    # Claude Desktop
-    if [ -f "$MCP_DIR/claude_desktop_config.json" ]; then
-        info "Installing Claude Desktop MCP config..."
-        mkdir -p "$(dirname "$CLAUDE_DESKTOP_CONFIG")"
-        cp "$MCP_DIR/claude_desktop_config.json" "$CLAUDE_DESKTOP_CONFIG"
-        info "Installed: $CLAUDE_DESKTOP_CONFIG"
-    fi
-
     # Codex
     if [ -f "$MCP_DIR/codex_config.toml" ]; then
         if [ -L "$CODEX_CONFIG" ]; then
@@ -87,7 +70,6 @@ install() {
     echo "=========================================="
     echo ""
     echo "Edit the following files and replace placeholders with your actual API keys:"
-    echo "  - Claude Desktop: $CLAUDE_DESKTOP_CONFIG"
     if [ -L "$CODEX_CONFIG" ]; then
         echo "  - Codex: $CODEX_CONFIG is Stow-managed; update stow/codex/.codex/config.toml and run scripts/stow.sh apply"
     else
@@ -105,7 +87,6 @@ usage() {
     echo "  install  Copy MCP configs from dotfiles/mcp/ to system locations"
     echo ""
     echo "Config locations:"
-    echo "  Claude Desktop: ~/Library/Application Support/Claude/claude_desktop_config.json"
     echo "  Codex:          ~/.codex/config.toml"
     exit 1
 }

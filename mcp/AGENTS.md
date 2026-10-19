@@ -1,12 +1,11 @@
 # AGENTS.md - MCP Configurations
 
 ## Package Identity
-MCP server configs for Claude Desktop plus tracked MCP guidance for Codex, Pi, and OpenCode.
+MCP configuration templates for Codex plus tracked MCP guidance for Codex, Pi, and OpenCode.
 Templates stored as `.example` files with placeholders.
 
 ## Setup & Run
 ```bash
-cp claude_desktop_config.json.example claude_desktop_config.json
 cp codex_config.toml.example codex_config.toml
 ../mcp_setup.sh install
 ../mcp_setup.sh backup
@@ -18,12 +17,10 @@ cp codex_config.toml.example codex_config.toml
 ```
 mcp/
 ├── README.md
-├── claude_desktop_config.json.example
 └── codex_config.toml.example
 ```
 
 ### Examples
-- ✅ DO: Add servers under `mcpServers` in `mcp/claude_desktop_config.json.example`
 - ✅ DO: Use `[[mcpServers]]` blocks in `mcp/codex_config.toml.example`
 - ✅ DO: Keep placeholders like `YOUR_REF_API_KEY` in `.example` templates
 - ✅ DO: Document server changes in `mcp/README.md`
@@ -32,18 +29,17 @@ mcp/
 ## Touch Points / Key Files
 - Setup docs: `mcp/README.md`
 - Install script: `mcp_setup.sh`
-- Claude template: `mcp/claude_desktop_config.json.example`
 - Codex template: `mcp/codex_config.toml.example`
 
 ## JIT Index Hints
 ```bash
-rg 'mcpServers' mcp/*.json.example
+rg 'mcpServers' mcp/*.toml.example
 rg 'YOUR_' mcp/*.example
 rg 'command' mcp/*.example
 ```
 
 ## Common Gotchas
-- Restart Claude Desktop/Codex after `./mcp_setup.sh install`
+- Restart Codex after `./mcp_setup.sh install`
 - Run `/reload` or restart Pi after Stowing `stow/pi/.pi/agent/mcp.json`
 - TOML syntax is strict; keep `command` arrays
 - Templates must keep `.example` suffix to avoid commits

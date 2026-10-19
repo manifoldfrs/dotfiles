@@ -6,20 +6,11 @@ Model Context Protocol (MCP) server configurations for AI coding assistants.
 
 | Tool | Config File |
 |------|-------------|
-| **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | **Codex** | `~/.codex/config.toml` → `stow/codex/.codex/config.toml` |
 | **Pi** | `~/.pi/agent/mcp.json` → `stow/pi/.pi/agent/mcp.json` |
 | **OpenCode** | `~/.config/opencode/opencode.jsonc` → `stow/opencode/.config/opencode/opencode.jsonc` |
 
 ## Setup
-
-### Claude Desktop
-
-```bash
-cd ~/dotfiles/mcp
-cp claude_desktop_config.json.example claude_desktop_config.json
-../mcp_setup.sh install
-```
 
 ### Codex
 
@@ -75,13 +66,13 @@ Edit each file and replace placeholders:
 - `REF_API_KEY` → environment variable containing your Ref API key
 - `EXA_API_KEY` → environment variable containing your Exa API key
 
-Restart Claude Desktop and Codex to apply changes.
+Restart Codex to apply changes.
 Run `/reload` or restart Pi after changing `~/.pi/agent/mcp.json`.
 Reload OpenCode after changing `~/.config/opencode/opencode.jsonc`.
 
 ## Backup
 
-To backup your current MCP configs (with API keys):
+To capture your current Codex config (including any literal API keys):
 
 ```bash
 ./mcp_setup.sh backup
