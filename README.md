@@ -800,6 +800,9 @@ Web screening covers Exa and Ref search/read results, withholding content when s
 A failed edit-scope audit blocks completion once with instructions to perform the final review and completion gate.
 The X-search mod exposes Pi's image/video and turn/output options through the shared runner's explicit interactive mode.
 The default scheduled runner retains its four-turn, 3,000-token, text-only limits.
+The codex-reviewer mod replaces the same-model `reviewer` agent with a `reviewer` tool that runs `agents/reviewer.md` on GPT through a read-only `codex exec`, matching Pi's cross-provider reviewer.
+It needs a signed-in `codex` on `PATH`, and one review may run for at most ten minutes.
+The inline-skills mod loads skills mentioned as `/name` anywhere in a prompt, as Pi's inline-skills extension does, reading `~/.claude/skills/` before the project's `.claude/skills/`.
 
 Pi loads `pi-claude-bridge@0.9.3` to expose Claude models through Claude Code's Agent SDK.
 The tracked `claude-bridge.json` uses the Max plan, disables extra-usage long context, and leaves `AskClaude` disabled.

@@ -93,6 +93,7 @@ When delegation is authorized for this review, ask a reviewer from a different m
 Otherwise report that the second-model review was not run and ask before delegating.
 
 - In Pi, run the `reviewer` subagent; its model is pinned per parent provider in the Pi settings.
+- In Claude Code, call the `reviewer` tool; it runs the same review prompt on GPT through a read-only Codex session.
 - Elsewhere, write the diff to a temporary file and use the other family's command line:
   for a change a GPT model wrote, `claude -p --permission-mode plan "<both briefs and the diff file path>"`;
   for a change a Claude model wrote, `codex exec -s read-only -C <repo> -o <file> "<both briefs and the diff file path>"`, then read the file.

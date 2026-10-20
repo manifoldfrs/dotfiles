@@ -1,0 +1,1 @@
+{ "name": "codex-reviewer", "version": "0.1.0", "description": "reviewer tool: run the reviewer agent's prompt on GPT through a read-only Codex session, as Pi pins it per provider" }

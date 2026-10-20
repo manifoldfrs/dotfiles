@@ -1,0 +1,1 @@
+{ "name": "inline-skills", "version": "0.1.0", "description": "Load skills mentioned as /name anywhere in a prompt, not only as the leading command" }
