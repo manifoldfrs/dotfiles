@@ -1,0 +1,49 @@
+// User tasks behind the Cursor leader maps (g g, t t, t f, comma t/T).
+// Tracked source; ports the Zed tasks, which port Neovim's lazygit and vim-test maps.
+{
+  "version": "2.0.0",
+  "options": {
+    "cwd": "${workspaceFolder}",
+    "shell": {
+      "executable": "/opt/homebrew/bin/bash",
+      "args": ["--login", "-c"],
+    },
+  },
+  "tasks": [
+    {
+      "label": "lazygit",
+      "type": "shell",
+      "command": "lazygit",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "close": true,
+      },
+    },
+    {
+      // Dispatches by file type: rspec by line, jest by file, go by package.
+      "label": "test nearest",
+      "type": "shell",
+      "command": "case \"${file}\" in *_spec.rb) bundle exec rspec \"${file}:${lineNumber}\" ;; *.test.*|*.spec.*) npx jest \"${file}\" ;; *_test.go) go test \"${fileDirname}\" ;; *) echo \"test nearest: unsupported file: ${file}\" ;; esac",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+      },
+    },
+    {
+      "label": "test file",
+      "type": "shell",
+      "command": "case \"${file}\" in *_spec.rb) bundle exec rspec \"${file}\" ;; *.test.*|*.spec.*) npx jest \"${file}\" ;; *_test.go) go test \"${fileDirname}\" ;; *) echo \"test file: unsupported file: ${file}\" ;; esac",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+      },
+    },
+  ],
+}

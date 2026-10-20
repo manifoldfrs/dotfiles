@@ -12,7 +12,7 @@ Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Night**
 - Starship uses the intended Nerd Font glyphs through Ghostty's built-in `Symbols Nerd Font` fallback. See `plans/theme-font-glyph-followups.md`.
 - Starship and FZF inherit the Tokyo Night terminal palette from Ghostty.
 - Zed is the GUI code reader and debugger, Tokyo Night with `MonoLisaCode` at 14 pt to match Ghostty and Neovim; its settings, keymap, and tasks are the `zed` Stow package.
-- Cursor remains archived under `old/` and is not restored or rethemed.
+- Cursor is a second GUI reader and debugger, also Tokyo Night with `MonoLisaCode` at 14 pt; its settings, keybindings, and tasks are the `cursor` Stow package, and the older Cursor config stays archived under `old/cursor/`.
 
 ## Requirements
 
@@ -1156,6 +1156,33 @@ Use a terminal-first debugging flow instead of an in-editor DAP stack.
 - Go: use `dlv debug`, `dlv test`, or `dlv attach` directly in a Herdr pane
 - Python: use `python -m debugpy --listen localhost:5678 ...` when you need an attachable debugger
 - Day to day: prefer tests, logs, and targeted print statements for fast iteration
+- GUI debugging: use Cursor's built-in debugger, with the TypeScript debugger built in, `dlv` through `golang.go`, Ruby through `Shopify.ruby-lsp`, and C/C++ through CodeLLDB
+
+### Cursor
+
+Cursor is for reading and debugging code; agents still run in the terminal.
+The `cursor` Stow package ports the Neovim setup onto VSCodeVim and VSpaceCode, the same way the `zed` package does for Zed.
+Space opens the VSpaceCode which-key menu and comma opens the major-mode menu, matching Neovim's leader and localleader.
+VSpaceCode's defaults already match most Neovim aliases, so `vspacecode.bindingOverrides` only adds Neovim-only keys and replaces the groups Neovim uses differently: `e` explorer, `t` tests, `u` toggles, `z` zen, `.` scratch, and `m` as the comma major mode.
+`SPC g g` and the test keys run the user tasks in `tasks.json`, which dispatch tests by file type like the Zed tasks.
+Jumps (`SPC j j/w/l`) use VSCodeVim easymotion instead of flash.nvim.
+JS and TS lint through oxlint via the Oxc extension, and JS, TS, JSON, CSS, HTML, and Markdown files do not format on save because agents own formatting.
+
+Install the extensions, then apply the package:
+
+```bash
+CURSOR_BIN="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
+while IFS= read -r ext; do "$CURSOR_BIN" --install-extension "$ext"; done < cursor/extensions.txt
+./scripts/stow.sh apply
+```
+
+`cursor/extensions.txt` is the complete installed set; Cursor reinstalls `anysphere.remote-ssh` and `anysphere.remote-containers` on its own, so both stay listed.
+Once applied, `settings.json`, `keybindings.json`, and `tasks.json` are symlinks into this repo, so changes made in Cursor's settings UI show up in `git diff`.
+
+Two startup choices live in Cursor's own storage rather than `settings.json`:
+
+- Turn off Cursor Tab from its status bar item or Cursor Settings.
+- To open the IDE instead of the Agents window, set Cursor Settings → General → Window Restoration to **Last Used Windows**, then quit with only the editor window open.
 
 ### Custom Zed build
 
@@ -1272,6 +1299,7 @@ dotfiles/
 │   ├── base-commit         # Pinned upstream Zed commit
 │   ├── patches/            # Patches applied in order by build_zed.sh
 │   └── source/             # Gitignored Zed checkout and build output
+├── cursor/extensions.txt    # Cursor extensions for the cursor Stow package
 ├── mcp_setup.sh            # MCP config backup/install
 ├── Brewfile                # Homebrew packages
 ├── npm-global-packages.txt # Global npm packages
@@ -1287,6 +1315,7 @@ dotfiles/
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
 │   ├── zed/                # .config/zed/: settings, keymap, tasks
+│   ├── cursor/             # Library/Application Support/Cursor/User: settings, keybindings, tasks
 │   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
 │       └── .config/nvim/
 │           ├── init.lua

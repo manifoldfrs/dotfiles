@@ -95,6 +95,7 @@ backup_shared_config() {
     copy_file "$HOME/.config/herdr/plugins.txt" "$STOW_DIR/herdr/.config/herdr/plugins.txt" "Herdr plugins"
     copy_file "$HOME/.config/plannotator-tui/config.toml" "$STOW_DIR/herdr/.config/plannotator-tui/config.toml" "Plannotator TUI config"
     backup_stow_package zed
+    backup_stow_package cursor
     backup_warp_themes
     export_npm_globals
 }

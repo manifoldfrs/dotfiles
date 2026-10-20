@@ -1,0 +1,756 @@
+// Cursor settings: reader-and-debugger port of the Neovim setup.
+// Tracked source; applied to ~/Library/Application Support/Cursor/User by scripts/stow.sh.
+// Theme and font match Ghostty, Neovim, and Zed (Tokyo Night, MonoLisaCode 14).
+// Leader maps live in vspacecode.bindingOverrides below; editor keys in vim.*.
+{
+  // Look.
+  "workbench.colorTheme": "Tokyo Night Storm",
+  "workbench.iconTheme": "catppuccin-macchiato",
+  "editor.fontFamily": "MonoLisaCode",
+  "editor.fontLigatures": "'cv05', 'cv09'",
+  "editor.fontSize": 14,
+  "terminal.integrated.fontFamily": "MonoLisaCode",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.minimumContrastRatio": 1,
+  "window.titleBarStyle": "custom",
+  "window.autoDetectColorScheme": false,
+  "workbench.startupEditor": "none",
+  "workbench.activityBar.orientation": "vertical",
+  "workbench.sideBar.location": "left",
+  "editor.minimap.enabled": false,
+  "editor.accessibilitySupport": "off",
+  "editor.lightbulb.enabled": "off",
+  "editor.semanticHighlighting.enabled": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+
+  // vim-options.lua equivalents.
+  "editor.lineNumbers": "relative",
+  "editor.renderLineHighlight": "line",
+  "editor.cursorSurroundingLines": 8,
+  "editor.renderWhitespace": "trailing",
+  "editor.wordWrap": "off",
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.tabSize": 4,
+  // treesitter-context with max_lines = 1.
+  "editor.stickyScroll.enabled": true,
+  "editor.stickyScroll.maxLineCount": 1,
+  // Inlay hints are off in Neovim until toggled; hold ctrl+alt to peek.
+  "editor.inlayHints.enabled": "offUnlessPressed",
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+
+  // Buffers as tabs (bufferline), no preview tabs.
+  "workbench.editor.showTabs": "multiple",
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "window.openFoldersInNewWindow": "on",
+
+  // Diagnostics: Neovim hides virtual text and floats the current line's
+  // diagnostics on CursorHold, so Error Lens only annotates the active line.
+  "errorLens.followCursor": "activeLine",
+
+  // Terminal matches Ghostty's Homebrew bash login shell.
+  "terminal.integrated.defaultProfile.osx": "bash",
+  "terminal.integrated.profiles.osx": {
+    "bash": {
+      "path": "/opt/homebrew/bin/bash",
+      "args": ["--login"],
+    },
+  },
+
+  // Vim.
+  "vim.useSystemClipboard": true,
+  "vim.useCtrlKeys": true,
+  "vim.hlsearch": true,
+  "vim.incsearch": true,
+  "vim.ignorecase": true,
+  "vim.smartcase": true,
+  "vim.surround": true,
+  "vim.sneak": false,
+  // VSpaceCode's j j / j w / j l drive easymotion through VSCodeVim's own
+  // leader, so vim.leader must stay at its default.
+  "vim.easymotion": true,
+  "vim.easymotionKeys": "asdfghjkl;yuiopnm,qwertzxcvb",
+  "vim.timeout": 300,
+  "vim.insertModeKeyBindings": [
+    {
+      "before": ["j", "k"],
+      "after": ["<Esc>"],
+    },
+  ],
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": [";"],
+      "after": [":"],
+    },
+    {
+      "before": ["<space>"],
+      "commands": ["vspacecode.space"],
+    },
+    {
+      "before": [","],
+      "commands": [
+        "vspacecode.space",
+        {
+          "command": "whichkey.triggerKey",
+          "args": "m",
+        },
+      ],
+    },
+    {
+      "before": ["<C-p>"],
+      "commands": ["workbench.action.quickOpen"],
+    },
+    {
+      "before": ["<C-n>"],
+      "commands": [
+        "vspacecode.space",
+        {
+          "command": "whichkey.triggerKey",
+          "args": "f",
+        },
+        {
+          "command": "whichkey.triggerKey",
+          "args": "t",
+        },
+      ],
+    },
+    {
+      "before": ["<S-h>"],
+      "commands": ["workbench.action.previousEditor"],
+    },
+    {
+      "before": ["<S-l>"],
+      "commands": ["workbench.action.nextEditor"],
+    },
+    {
+      "before": ["<S-tab>"],
+      "commands": ["workbench.action.previousEditor"],
+    },
+    {
+      "before": ["<tab>"],
+      "commands": ["workbench.action.nextEditor"],
+    },
+    {
+      "before": ["<C-j>"],
+      "commands": ["workbench.action.terminal.focus"],
+    },
+    {
+      "before": ["<C-t>"],
+      "commands": ["workbench.action.terminal.toggleTerminal"],
+    },
+    // LSP keys from lsp-config.lua and snacks.lua.
+    {
+      "before": ["K"],
+      "commands": ["editor.action.showHover"],
+    },
+    {
+      "before": ["g", "l"],
+      "commands": ["editor.action.showHover"],
+    },
+    {
+      "before": ["g", "D"],
+      "commands": ["editor.action.revealDeclaration"],
+    },
+    {
+      "before": ["g", "r"],
+      "commands": ["editor.action.goToReferences"],
+    },
+    {
+      "before": ["g", "i"],
+      "commands": ["editor.action.goToImplementation"],
+    },
+    {
+      "before": ["g", "I"],
+      "commands": ["editor.action.goToImplementation"],
+    },
+    {
+      "before": ["g", "y"],
+      "commands": ["editor.action.goToTypeDefinition"],
+    },
+    {
+      "before": ["]", "d"],
+      "commands": ["editor.action.marker.next"],
+    },
+    {
+      "before": ["[", "d"],
+      "commands": ["editor.action.marker.prev"],
+    },
+    // gitsigns hunks and snacks.words references.
+    {
+      "before": ["]", "h"],
+      "commands": ["workbench.action.editor.nextChange"],
+    },
+    {
+      "before": ["[", "h"],
+      "commands": ["workbench.action.editor.previousChange"],
+    },
+    {
+      "before": ["]", "]"],
+      "commands": ["editor.action.wordHighlight.next"],
+    },
+    {
+      "before": ["[", "["],
+      "commands": ["editor.action.wordHighlight.prev"],
+    },
+  ],
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": ["<"],
+      "after": ["<", "g", "v"],
+    },
+    {
+      "before": [">"],
+      "after": [">", "g", "v"],
+    },
+    // Paste without yanking the replaced text.
+    {
+      "before": ["p"],
+      "after": ["\"", "_", "d", "P"],
+    },
+    {
+      "before": ["<space>"],
+      "commands": ["vspacecode.space"],
+    },
+    {
+      "before": [","],
+      "commands": [
+        "vspacecode.space",
+        {
+          "command": "whichkey.triggerKey",
+          "args": "m",
+        },
+      ],
+    },
+  ],
+
+  // Leader menu. VSpaceCode defaults already match most Neovim aliases
+  // (vspacecode-aliases.lua was modeled on them); these overrides add the
+  // Neovim-only keys and replace groups Neovim uses differently:
+  // e, t, u, z, and . follow Neovim; m becomes the comma major mode.
+  "vspacecode.bindingOverrides": [
+    {
+      "keys": " ",
+      "name": "Smart Find Files",
+      "type": "command",
+      "command": "workbench.action.quickOpen",
+    },
+    {
+      "keys": [","],
+      "name": "Buffers",
+      "type": "command",
+      "command": "workbench.action.showAllEditorsByMostRecentlyUsed",
+    },
+    {
+      "keys": "/",
+      "name": "Grep",
+      "type": "command",
+      "command": "periscope.search",
+    },
+    {
+      "keys": "e",
+      "name": "File Explorer",
+      "type": "command",
+      "command": "workbench.view.explorer",
+    },
+    {
+      "keys": ["."],
+      "name": "Scratch Buffer",
+      "type": "command",
+      "command": "workbench.action.files.newUntitledFile",
+    },
+    {
+      "keys": "z",
+      "name": "Zen Mode",
+      "type": "command",
+      "command": "workbench.action.toggleZenMode",
+    },
+    {
+      "keys": "n",
+      "name": "Notification History",
+      "type": "command",
+      "command": "notifications.showList",
+    },
+
+    // File.
+    {
+      "keys": "f.f",
+      "name": "Find Files",
+      "type": "command",
+      "command": "workbench.action.quickOpen",
+    },
+    {
+      "keys": "f.y",
+      "name": "Copy File Path",
+      "type": "command",
+      "command": "copyFilePath",
+    },
+    {
+      "keys": "f.e",
+      "name": "Edit Settings",
+      "type": "command",
+      "command": "workbench.action.openSettingsJson",
+    },
+
+    // Buffer.
+    {
+      "keys": "b.c",
+      "name": "Close Buffer",
+      "type": "command",
+      "command": "workbench.action.closeActiveEditor",
+    },
+    {
+      "keys": "b.p",
+      "name": "Pin Buffer",
+      "type": "command",
+      "command": "workbench.action.pinEditor",
+    },
+    {
+      "keys": "b.N",
+      "name": "Previous Buffer",
+      "type": "command",
+      "command": "workbench.action.previousEditor",
+    },
+    {
+      "keys": "b.u",
+      "name": "Alternate Buffer",
+      "type": "commands",
+      "commands": [
+        "workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup",
+        "list.select",
+      ],
+    },
+    {
+      "keys": "b.f",
+      "name": "Buffer Explorer",
+      "type": "command",
+      "command": "workbench.action.showAllEditors",
+    },
+
+    // Search.
+    {
+      "keys": "s.f",
+      "name": "Find Files",
+      "type": "command",
+      "command": "workbench.action.quickOpen",
+    },
+    {
+      "keys": "s.g",
+      "name": "Grep",
+      "type": "command",
+      "command": "periscope.search",
+    },
+    {
+      "keys": "s.b",
+      "name": "Buffers",
+      "type": "command",
+      "command": "workbench.action.showAllEditorsByMostRecentlyUsed",
+    },
+    {
+      "keys": "s.r",
+      "name": "Recent Files",
+      "type": "command",
+      "command": "workbench.action.openRecent",
+    },
+    {
+      "keys": "s.c",
+      "name": "Colorschemes",
+      "type": "command",
+      "command": "workbench.action.selectTheme",
+    },
+    {
+      "keys": "s.k",
+      "name": "Keymaps",
+      "type": "command",
+      "command": "workbench.action.openGlobalKeybindings",
+    },
+    {
+      "keys": "s.n",
+      "name": "Notification History",
+      "type": "command",
+      "command": "notifications.showList",
+    },
+    {
+      "keys": "s.s",
+      "name": "LSP Symbols",
+      "type": "command",
+      "command": "workbench.action.gotoSymbol",
+    },
+    {
+      "keys": "s.S",
+      "name": "LSP Workspace Symbols",
+      "type": "command",
+      "command": "workbench.action.showAllSymbols",
+    },
+    {
+      "keys": "s.d",
+      "name": "Diagnostics",
+      "type": "command",
+      "command": "workbench.actions.view.problems",
+    },
+    {
+      "keys": "s.R",
+      "name": "Replace in Project",
+      "type": "command",
+      "command": "workbench.action.replaceInFiles",
+    },
+    {
+      "keys": "s.w",
+      "name": "Search Current Word",
+      "type": "commands",
+      "commands": [
+        "editor.action.addSelectionToNextFindMatch",
+        "workbench.action.findInFiles",
+      ],
+    },
+    {
+      "keys": "s.W",
+      "name": "Search Current File",
+      "type": "command",
+      "command": "periscope.searchCurrentFile",
+    },
+
+    // Code.
+    {
+      "keys": "r.n",
+      "name": "Rename Symbol",
+      "type": "command",
+      "command": "editor.action.rename",
+    },
+    {
+      "keys": "c.a",
+      "name": "Code Action",
+      "type": "command",
+      "command": "editor.action.quickFix",
+    },
+    {
+      "keys": "c.R",
+      "name": "Rename File",
+      "type": "commands",
+      "commands": ["revealInExplorer", "renameFile"],
+    },
+    {
+      "keys": "h",
+      "name": "Clear Search Highlight",
+      "type": "command",
+      "command": "vim.remap",
+      "args": {
+        "commands": [{ "command": ":noh" }],
+      },
+    },
+
+    // Git. g s stays Magit status.
+    {
+      "keys": "g.g",
+      "name": "Lazygit",
+      "type": "command",
+      "command": "workbench.action.tasks.runTask",
+      "args": "lazygit",
+    },
+    {
+      "keys": "g.b",
+      "name": "Git Branches",
+      "type": "command",
+      "command": "git.checkout",
+    },
+    {
+      "keys": "g.l",
+      "name": "Git Log",
+      "type": "command",
+      "command": "gitlens.showQuickRepoHistory",
+    },
+    {
+      "keys": "g.d",
+      "name": "Git Diff",
+      "type": "command",
+      "command": "git.openAllChanges",
+    },
+    {
+      "keys": "g.D",
+      "name": "Diffview Open",
+      "type": "command",
+      "command": "workbench.view.scm",
+    },
+    {
+      "keys": "g.h",
+      "name": "File History (Current)",
+      "type": "command",
+      "command": "gitlens.showQuickFileHistory",
+    },
+    {
+      "keys": "g.H",
+      "name": "File History (Repo)",
+      "type": "command",
+      "command": "gitlens.showQuickRepoHistory",
+    },
+    {
+      "keys": "g.p",
+      "name": "Preview Hunk",
+      "type": "command",
+      "command": "editor.action.dirtydiff.next",
+    },
+    {
+      "keys": "g.t",
+      "name": "Toggle Git Blame",
+      "type": "command",
+      "command": "gitlens.toggleFileBlame",
+    },
+    {
+      "keys": "g.B",
+      "name": "Git Browse",
+      "type": "command",
+      "command": "gitlens.openFileOnRemote",
+    },
+
+    // Test, as vim-test. Tasks live in tasks.json.
+    {
+      "keys": "t",
+      "name": "+Test",
+      "type": "bindings",
+      "bindings": [
+        {
+          "key": "t",
+          "name": "Test Nearest",
+          "type": "command",
+          "command": "workbench.action.tasks.runTask",
+          "args": "test nearest",
+        },
+        {
+          "key": "f",
+          "name": "Test File",
+          "type": "command",
+          "command": "workbench.action.tasks.runTask",
+          "args": "test file",
+        },
+        {
+          "key": "s",
+          "name": "Test Suite (Task Picker)",
+          "type": "command",
+          "command": "workbench.action.tasks.runTask",
+        },
+        {
+          "key": "l",
+          "name": "Test Last",
+          "type": "command",
+          "command": "workbench.action.tasks.reRunTask",
+        },
+      ],
+    },
+
+    // Toggle, as the Snacks toggles.
+    {
+      "keys": "u",
+      "name": "+Toggle",
+      "type": "bindings",
+      "bindings": [
+        {
+          "key": "w",
+          "name": "Wrap",
+          "type": "command",
+          "command": "editor.action.toggleWordWrap",
+        },
+        {
+          "key": "d",
+          "name": "Diagnostics",
+          "type": "command",
+          "command": "errorLens.toggle",
+        },
+        {
+          "key": "n",
+          "name": "Dismiss All Notifications",
+          "type": "command",
+          "command": "notifications.clearAll",
+        },
+        {
+          "key": "s",
+          "name": "Sticky Context",
+          "type": "command",
+          "command": "editor.action.toggleStickyScroll",
+        },
+      ],
+    },
+
+    // Comma major mode, as Neovim's localleader. Replaces VSpaceCode's
+    // per-language major modes.
+    {
+      "keys": "m",
+      "name": "+Major Mode",
+      "type": "bindings",
+      "bindings": [
+        {
+          "key": "f",
+          "name": "Format Buffer",
+          "type": "command",
+          "command": "editor.action.formatDocument",
+        },
+        {
+          "key": "t",
+          "name": "Test Nearest",
+          "type": "command",
+          "command": "workbench.action.tasks.runTask",
+          "args": "test nearest",
+        },
+        {
+          "key": "T",
+          "name": "Test File",
+          "type": "command",
+          "command": "workbench.action.tasks.runTask",
+          "args": "test file",
+        },
+        {
+          "key": "r",
+          "name": "Rename Symbol",
+          "type": "command",
+          "command": "editor.action.rename",
+        },
+        {
+          "key": "a",
+          "name": "Code Action",
+          "type": "command",
+          "command": "editor.action.quickFix",
+        },
+        {
+          "key": "d",
+          "name": "Line Diagnostics",
+          "type": "command",
+          "command": "editor.action.showHover",
+        },
+        {
+          "key": "s",
+          "name": "Document Symbols",
+          "type": "command",
+          "command": "workbench.action.gotoSymbol",
+        },
+      ],
+    },
+  ],
+  "vspacecode.magitRefBindings": [
+    {
+      "args": {
+        "after": ["y", "y"],
+      },
+      "command": "vim.remap",
+      "key": "y",
+      "name": "Yank a line",
+      "type": "command",
+    },
+    {
+      "command": "magit.copy-buffer-revision",
+      "key": "b",
+      "name": "Copy buffer revision",
+      "type": "command",
+    },
+    {
+      "command": "magit.copy-section-value",
+      "key": "s",
+      "name": "Copy section value",
+      "type": "command",
+    },
+    {
+      "command": "magit.show-refs",
+      "key": "r",
+      "name": "Show Ref",
+      "type": "command",
+    },
+  ],
+
+  // Languages, matching conform.lua, nvim-lint.lua, and lsp-config.lua.
+  // Web files: oxlint diagnostics only (opto2 has no formatter). Agents own
+  // formatting, so saving here never rewrites a file with the wrong tool.
+  "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][css][html]": {
+    "editor.formatOnSave": false,
+    "editor.tabSize": 2,
+  },
+  "[markdown]": {
+    "editor.formatOnSave": false,
+  },
+  "oxc.enable.oxlint": true,
+  "oxc.enable.oxfmt": false,
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.tabSize": 4,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.ruff": "explicit",
+    },
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+    },
+  },
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp",
+    "editor.tabSize": 2,
+  },
+  // Neovim formats ERB with bundle exec erb-format, which has no Cursor
+  // extension; Herb lints only, since its formatter is experimental.
+  "[erb]": {
+    "editor.formatOnSave": false,
+    "editor.tabSize": 2,
+  },
+  "[lua]": {
+    "editor.defaultFormatter": "JohnnyMorganz.stylua",
+    "editor.tabSize": 2,
+  },
+  // ty is the only Python language server, as in Neovim; Cursor's bundled
+  // pyright and cursorpyright (pulled in by debugpy) would otherwise run beside it.
+  "pyright.disableLanguageServices": true,
+  "cursorpyright.disableLanguageServices": true,
+  "python.createEnvironment.trigger": "off",
+  "rubyLsp.formatter": "rubocop",
+  "go.lintTool": "golangci-lint-v2",
+  "go.toolsManagement.autoUpdate": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+
+  // Git.
+  "gitlens.launchpad.indicator.enabled": false,
+  "diffEditor.ignoreTrimWhitespace": true,
+  "diffEditor.maxComputationTime": 0,
+
+  // Cursor. Tab, Agents-window-on-startup, and other AI toggles live in
+  // Cursor Settings, not settings.json.
+  "cursor.cpp.disabledLanguages": ["scminput"],
+  "cursor.cpp.enablePartialAccepts": true,
+  "cursor.general.enableShadowWorkspace": true,
+  "cursor.processExplorer.enabled": false,
+
+  // Quiet.
+  "security.workspace.trust.enabled": false,
+  "security.workspace.trust.banner": "never",
+  "security.workspace.trust.emptyWindow": true,
+  "security.workspace.trust.startupPrompt": "never",
+  "extensions.ignoreRecommendations": true,
+  "json.schemaDownload.enable": false,
+  // Cloned repos' folderOpen tasks would run unprompted with trust disabled.
+  "task.allowAutomaticTasks": "off",
+  "debug.javascript.automaticallyTunnelRemoteServer": false,
+  "remote.SSH.connectTimeout": 30,
+  "accessibility.signals.lineHasError": { "sound": "off" },
+  "accessibility.signals.lineHasFoldedArea": { "sound": "off" },
+  "accessibility.signals.lineHasBreakpoint": { "sound": "off" },
+  "accessibility.signals.lineHasInlineSuggestion": { "sound": "off" },
+  "accessibility.signals.terminalQuickFix": { "sound": "off" },
+  "accessibility.signals.onDebugBreak": { "sound": "off" },
+  "accessibility.signals.noInlayHints": { "sound": "off" },
+  "accessibility.signals.taskCompleted": { "sound": "off" },
+  "accessibility.signals.taskFailed": { "sound": "off" },
+  "accessibility.signals.terminalCommandFailed": { "sound": "off" },
+  "accessibility.signals.notebookCellCompleted": { "sound": "off" },
+  "accessibility.signals.notebookCellFailed": { "sound": "off" },
+  "accessibility.signals.diffLineInserted": { "sound": "off" },
+  "accessibility.signals.diffLineDeleted": { "sound": "off" },
+  "accessibility.signals.diffLineModified": { "sound": "off" },
+  "accessibility.signals.progress": {
+    "sound": "off"
+  },
+  "redhat.telemetry.enabled": true,
+}

@@ -30,6 +30,7 @@ Agent behavior:
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
 - `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files
+- `stow/cursor/` - Cursor user settings, keybindings, and tasks; extension list in `cursor/extensions.txt`
 - `old/` - archived Fish, Zsh, Cursor, Zed, and other legacy areas (avoid unless explicitly requested)
 
 Subdirectory guides:
