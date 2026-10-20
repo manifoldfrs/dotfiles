@@ -57,7 +57,7 @@ test("builds a page with summary, invocation mode, sections, and per-harness usa
     assert.match(page, /> Agents load it automatically/);
     assert.match(page, /> Covers: Seams\./);
     assert.match(page, /- Run it in Pi:\n\n`\/skill:tdd <request>`/);
-    assert.match(page, /- Run it in OpenCode:\n\n`\/tdd <request>`/);
+    assert.match(page, /- Run it in Claude Code or OpenCode:\n\n`\/tdd <request>`/);
     assert.match(page, /`glow ~\/\.agents\/skills\/tdd\/SKILL\.md`/);
 
     const quiz = readSkillPage(skill("quiz-me", "name: quiz-me\ndescription: Quiz me.\ndisable-model-invocation: true\nargument-hint: topic"));
@@ -65,7 +65,7 @@ test("builds a page with summary, invocation mode, sections, and per-harness usa
     const quizPage = buildSkillPage(quiz, home);
     assert.match(quizPage, /> Runs only when you type it\./);
     assert.match(quizPage, /`\/skill:quiz-me <topic>`/);
-    assert.doesNotMatch(buildSkillPage({ ...quiz, group: "Pi packages" }, home), /Run it in OpenCode/);
+    assert.doesNotMatch(buildSkillPage({ ...quiz, group: "Pi packages" }, home), /Claude Code/);
   });
 });
 

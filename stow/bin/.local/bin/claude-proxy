@@ -1,0 +1,149 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+
+CONFIG_DIR="$HOME/.config/claude-proxy"
+CONFIG="$CONFIG_DIR/config.yaml"
+BASE_URL="http://127.0.0.1:8317"
+
+die() { printf 'claude-proxy: %s\n' "$*" >&2; exit 1; }
+require_command() { command -v "$1" >/dev/null 2>&1 || die "Missing command: $1"; }
+
+require_config() {
+    [ -f "$CONFIG" ] || die "Run claude-proxy init first"
+    [ ! -L "$CONFIG" ] || die "Refusing a symlinked proxy config"
+    jq -e '.server.host == "127.0.0.1" and .server.port == 8317 and (.access["api-keys"][0] | type == "string" and test("^[a-f0-9]{64}$"))' "$CONFIG" >/dev/null \
+        || die "Config must use 127.0.0.1:8317 with a local API token"
+}
+
+require_profile() {
+    case "${1:-}" in
+        codex|muse) ;;
+        *) die "Profile must be codex or muse" ;;
+    esac
+}
+
+list_models() {
+    require_config
+    require_command curl
+    local token
+    token=$(jq -r '.access["api-keys"][0]' "$CONFIG")
+    printf 'header = "Authorization: Bearer %s"\n' "$token" \
+        | curl --fail --silent --show-error --max-time 15 --config - "$BASE_URL/v1/models"
+}
+
+require_model() {
+    local profile=$1
+    local model=$2
+    local owner
+    case "$profile" in
+        codex) owner=openai ;;
+        muse) owner=meta ;;
+    esac
+    list_models | jq -e --arg model "$model" --arg owner "$owner" '.data | any(.id == $model and .owned_by == $owner)' >/dev/null \
+        || die "Model is unavailable for $profile; check the proxy login and model list: $model"
+}
+
+init_proxy() {
+    require_command openssl
+    [ ! -L "$CONFIG_DIR" ] || die "Refusing a symlinked config directory"
+    [ ! -L "$CONFIG_DIR/auth" ] || die "Refusing a symlinked credential directory"
+    mkdir -p "$CONFIG_DIR/auth"
+    chmod 700 "$CONFIG_DIR" "$CONFIG_DIR/auth"
+    if [ -e "$CONFIG" ] || [ -L "$CONFIG" ]; then
+        require_config
+        printf 'claude-proxy: keeping existing config\n'
+        return
+    fi
+    local token
+    token=$(openssl rand -hex 32)
+    umask 077
+    jq -n --arg token "$token" --arg auth "$CONFIG_DIR/auth" '{
+        "config-version": 8,
+        server: {host: "127.0.0.1", port: 8317},
+        access: {"api-keys": [$token]},
+        oauth: {"auth-dir": $auth},
+        management: {"allow-remote": false, "secret-key": "", "disable-control-panel": true},
+        observability: {logs: {debug: false, "logging-to-file": false, "request-log": false}, usage: {"usage-statistics-enabled": false}}
+    }' > "$CONFIG"
+    printf 'claude-proxy: created private localhost config at %s\n' "$CONFIG"
+}
+
+select_model() {
+    local profile=${1:-}
+    local model=${2:-}
+    require_profile "$profile"
+    [ -n "$model" ] || die "Usage: claude-proxy select $profile MODEL_ID"
+    require_model "$profile" "$model"
+    [ ! -L "$CONFIG_DIR/$profile-model" ] || die "Refusing a symlinked model selection"
+    umask 077
+    printf '%s\n' "$model" > "$CONFIG_DIR/$profile-model"
+    printf 'claude-proxy: %s uses %s\n' "$profile" "$model"
+}
+
+run_profile() {
+    local profile=${1:-}
+    require_profile "$profile"
+    shift
+    require_config
+    require_command claude
+    [ -f "$CONFIG_DIR/$profile-model" ] || die "Choose an advertised model with claude-proxy select $profile MODEL_ID"
+    local model token
+    model=$(<"$CONFIG_DIR/$profile-model")
+    [ -n "$model" ] || die "Selected model is empty"
+    require_model "$profile" "$model"
+    token=$(jq -r '.access["api-keys"][0]' "$CONFIG")
+    [ -r "$HOME/.config/bash/functions.bash" ] || die "Apply the Bash dotfiles before launching"
+
+    unset CLAUDE_CODE_USE_BEDROCK CLAUDE_CODE_USE_VERTEX CLAUDE_CODE_USE_FOUNDRY ANTHROPIC_CUSTOM_HEADERS
+    export ANTHROPIC_MODEL="$model"
+    export ANTHROPIC_BASE_URL="$BASE_URL"
+    export ANTHROPIC_AUTH_TOKEN="$token"
+    export ANTHROPIC_API_KEY=""
+    export ANTHROPIC_DEFAULT_FABLE_MODEL="$model"
+    export ANTHROPIC_DEFAULT_OPUS_MODEL="$model"
+    export ANTHROPIC_DEFAULT_SONNET_MODEL="$model"
+    export ANTHROPIC_DEFAULT_HAIKU_MODEL="$model"
+    export CLAUDE_CODE_SUBAGENT_MODEL="$model"
+    export ENABLE_TOOL_SEARCH=false
+    export CLAUDE_PROXY_SETTINGS='{"env":{"ENABLE_TOOL_SEARCH":"false"}}'
+    exec /bin/bash --noprofile --norc -c 'source "$HOME/.config/bash/functions.bash"; claude "$@"' bash --model "$model" "$@"
+}
+
+require_command jq
+case "${1:-}" in
+    init)
+        [ "$#" -eq 1 ] || die "Usage: claude-proxy init"
+        init_proxy
+        ;;
+    serve)
+        [ "$#" -eq 1 ] || die "Usage: claude-proxy serve"
+        require_config
+        require_command cliproxyapi
+        cd "$CONFIG_DIR"
+        exec cliproxyapi -config "$CONFIG"
+        ;;
+    login)
+        [ "$#" -eq 2 ] || die "Usage: claude-proxy login codex|muse"
+        require_config
+        require_command cliproxyapi
+        case "${2:-}" in
+            codex) exec cliproxyapi -config "$CONFIG" -codex-login ;;
+            muse) exec cliproxyapi -config "$CONFIG" -meta-login ;;
+            *) die "Usage: claude-proxy login codex|muse" ;;
+        esac
+        ;;
+    models)
+        [ "$#" -eq 1 ] || die "Usage: claude-proxy models"
+        list_models | jq -r '.data[] | [.id, (.owned_by // "")] | @tsv'
+        ;;
+    select)
+        [ "$#" -eq 3 ] || die "Usage: claude-proxy select codex|muse MODEL_ID"
+        select_model "$2" "$3"
+        ;;
+    run)
+        shift
+        run_profile "$@"
+        ;;
+    *) die "Usage: claude-proxy init|serve|login codex|muse|models|select codex|muse MODEL_ID|run codex|muse [CLAUDE_ARGS...]" ;;
+esac

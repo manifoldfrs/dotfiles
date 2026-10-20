@@ -45,6 +45,10 @@ env -i HOME="$HOME" PATH="$HOME/.bun/bin:/opt/homebrew/bin:/usr/bin:/bin" \
 - `--schema` prints the loaded tool's parameter names and fails if the limit parameters are missing.
 - `--check` reports whether Pi's stored xAI sign-in passes the provider and OAuth checks, without resolving the token or using the network.
 - `--dry-run` runs the registered execute with placeholder auth and a capturing `fetch`, printing the exact request body without a live request.
+- `--interactive` accepts the native Pi tool parameters, including image/video understanding and caller-selected limits, instead of imposing the scheduled-run defaults.
+  Claude Code's X-search adapter uses this mode.
+  All authentication, endpoint, and parameter-validation guards still apply.
+  It can be combined with `--dry-run`; scheduled calls should omit it.
 - Without a mode flag, the runner resolves the stored OAuth sign-in through Pi and makes one live request, printing the answer and usage counters as JSON.
 
 The params file holds the tool parameters, for example:

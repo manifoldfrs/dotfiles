@@ -1,0 +1,1 @@
+{ "name": "jev-coding", "version": "0.1.0", "description": "Remind the agent to run jev_decide at decision points and classify its edits with Jev before it stops" }

@@ -24,6 +24,7 @@ STOW_TARGETS=(
     "$HOME/.config/opencode/plugins/optojr-slack"
     "$HOME/.config/opencode/plugins/tui-conveniences"
     "$HOME/.config/opencode/plugins/request-logger"
+    "$HOME/.claude/settings.local.json"
     "$HOME/.config/herdr/config.toml"
     "$HOME/.config/herdr/plugins.txt"
     "$HOME/.config/plannotator-tui/config.toml"
@@ -106,7 +107,7 @@ backup_stow_target() {
 }
 
 backup_existing_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.config/opencode" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
 
     for target in "${STOW_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -237,6 +238,16 @@ install_opencode() {
     curl -fsSL https://opencode.ai/v2/install | bash || warn "OpenCode 2 installation failed"
 }
 
+install_claude_code() {
+    if command -v claude &> /dev/null; then
+        info "Claude Code already installed"
+        return
+    fi
+
+    info "Installing Claude Code..."
+    (set -o pipefail; curl -fsSL https://claude.ai/install.sh | bash) || warn "Claude Code installation failed"
+}
+
 # Plannotator's installer owns its CLI and its plannotator-* skills in every agent harness.
 install_plannotator() {
     if command -v plannotator &> /dev/null; then
@@ -253,6 +264,7 @@ main() {
     install_homebrew
     install_brewfile
     install_opencode
+    install_claude_code
     apply_dotfiles
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
     configure_bash_login_shell

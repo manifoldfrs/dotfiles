@@ -1,6 +1,8 @@
 # dotfiles
 
-Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Codex, and Pi. GNU Stow manages symlinks from `stow/*` into `$HOME`. Ghostty, Herdr, Neovim, Pi, OpenCode, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
+Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi.
+GNU Stow manages symlinks from `stow/*` into `$HOME`.
+Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
 
 ## Theme and font status
 
@@ -730,7 +732,7 @@ The [shared engineering guidance](stow/agents/.agents/skills/fstack/references/d
 TypeScript, Effect, Go, Rust, Swift, Kotlin, and Rails guidance loads only for relevant code; application-specific architecture belongs in the project's own documentation.
 Loading a language guide does not start a fstack route.
 `code-review` reviews Standards and Intent, then gets a second review from a different model family when delegation is authorized.
-Select an available non-Anthropic model explicitly when requesting a second-model review.
+Pi routes the `reviewer` between OpenAI and Claude through the provider overrides in `stow/pi/.pi/agent/settings.json`.
 Its prompt lives in `stow/pi/.pi/agent/agents/reviewer.md`, which replaces the `pi-subagents` builtin and requires every finding to name a trigger and survive a refutation attempt.
 The `testing` skill replaces `tdd`, and fstack's build route replaces `implement`; both upstream skills are `excluded`.
 The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.bare` repository root for parallel agent work.
@@ -775,6 +777,73 @@ Validate changes with `bash test/global_anti_slop_test.sh`; this installs a temp
 [learn-visually](stow/agents/.agents/skills/learn-visually/SKILL.md) teaches a technical concept from one tested running example, rendered as an interactive HTML lesson, an illustrated PDF manual, or a Psychopomp animation.
 Run `/skill:learn-visually <topic> mode=interactive,manual,animation`; lessons are written to `~/code/personal/learn-visually/<slug>/` unless `LEARN_VISUALLY_OUT` or `out=` says otherwise.
 Animation mode needs the pinned Psychopomp renderer; `scripts/psychopomp.sh status` in the skill reports what is missing, and `setup` installs it after approval.
+
+#### Claude Code
+
+The `claude` Stow package owns Claude Code settings, hooks, Tokyo Night theme, status line, and local mods.
+Shared skills are linked into `~/.claude/skills/`, and Claude Code shares the global agent rules with Pi, OpenCode, and Codex.
+Bootstrap installs Claude Code with its native installer; the deprecated npm installer is not used.
+To install it separately after approving the live change:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+Run `claude` to sign in with your Claude account.
+The existing settings use `auto` permission mode, with the shared dangerous-command and generated-file hooks enabled.
+Review those settings before applying them.
+
+After approving the live change, run `./mcp_setup.sh install-claude` to import Pi's seven MCP server definitions into Claude's machine-local `~/.claude.json`.
+This preserves environment-variable credentials and leaves account connectors alone.
+The Jev mods require the imported `jev` server.
+Web screening covers Exa and Ref search/read results, withholding content when screening flags it or fails.
+A failed edit-scope audit blocks completion once with instructions to perform the final review and completion gate.
+The X-search mod exposes Pi's image/video and turn/output options through the shared runner's explicit interactive mode.
+The default scheduled runner retains its four-turn, 3,000-token, text-only limits.
+
+Pi loads `pi-claude-bridge@0.9.3` to expose Claude models through Claude Code's Agent SDK.
+The tracked `claude-bridge.json` uses the Max plan, disables extra-usage long context, and leaves `AskClaude` disabled.
+After approving the live change, install the bridge with `pi install npm:pi-claude-bridge@0.9.3` and restart Pi.
+Select a `claude-bridge` model with `/model`; Pi's existing OpenAI startup default is unchanged.
+Provider overrides route OpenAI reviews to Claude and Claude reviews to OpenAI.
+
+##### Subscription-backed GPT and Muse sessions
+
+Normal `claude` keeps its existing Claude Max login and configuration.
+The `claudex` and `claude-muse` Bash functions launch the same harness through a local CLIProxyAPI instance, using separately selected Codex and Muse models.
+Shortcuts: `cc` runs normal Claude Code, `ccx` runs `claudex`, and `ccm` runs `claude-muse`.
+Their provider environment is scoped to the child process; it is not exported into the parent shell or the Pi bridge.
+All model roles, including subagents, use the selected model, and gateway sessions disable deferred tool search for compatibility.
+
+After approving installation and live configuration changes:
+
+```bash
+brew install cliproxyapi
+# Apply the bin and Bash sources using your reviewed Stow workflow.
+claude-proxy init
+claude-proxy serve
+```
+
+Keep `claude-proxy serve` running in a dedicated terminal.
+Do not use the default Homebrew service configuration: this setup supplies its own loopback-only config and local authentication token.
+In another terminal, complete the native OAuth flows:
+
+```bash
+claude-proxy login codex
+claude-proxy login muse
+claude-proxy models
+claude-proxy select codex MODEL_ID_FROM_THE_LIST
+claude-proxy select muse MODEL_ID_FROM_THE_LIST
+claudex
+claude-muse
+```
+
+Choose each model from the running proxy's advertised list after signing in; no model or paid API fallback is invented when it is absent.
+The proxy config, token, model choices, and OAuth credentials live under `~/.config/claude-proxy/` and are not tracked.
+The proxy listens only on `127.0.0.1:8317`, disables its management interface and control panel, and disables request logging.
+`init` preserves existing configuration; `run` fails before launching Claude if the selected model or proxy is unavailable.
+CLIProxyAPI is a third-party compatibility layer that receives prompts and holds OAuth credentials; only authorize accounts you intend to use with it.
+Account entitlement and provider policy determine available models and usage limits.
 
 #### Pi
 

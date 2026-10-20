@@ -7,9 +7,9 @@ export const RUNNER_MAX_OUTPUT_TOKENS = 3000;
 const DRY_RUN_TOKEN = "dry-run-placeholder";
 
 const RUNNER_USAGE =
-  "Usage: run-xai-search.ts --schema | --check | --dry-run --params <file.json> | --params <file.json> [--out <file.json>]";
+  "Usage: run-xai-search.ts --schema | --check | [--interactive] [--dry-run] --params <file.json> [--out <file.json>]";
 
-// Runner calls always carry these values, so a scheduled digest cannot run unbounded.
+// Scheduled calls retain fixed bounds; interactive calls use the native tool's parameter contract.
 const FORCED_PARAMS = {
   max_turns: RUNNER_MAX_TURNS,
   max_output_tokens: RUNNER_MAX_OUTPUT_TOKENS,
@@ -23,6 +23,7 @@ export interface RunnerArgs {
   mode: RunnerMode;
   paramsPath?: string;
   outPath?: string;
+  interactive?: true;
 }
 
 export interface RunnerDeps {
@@ -43,7 +44,7 @@ export function parseRunnerArgs(argv: string[]): RunnerArgs {
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]!;
-    if (arg === "--schema" || arg === "--check" || arg === "--dry-run") flags.add(arg);
+    if (arg === "--schema" || arg === "--check" || arg === "--dry-run" || arg === "--interactive") flags.add(arg);
     else if (arg === "--params" || arg === "--out") {
       const value = argv[index + 1];
       if (!value || value.startsWith("--")) throw new Error(`${arg} needs a file path\n${RUNNER_USAGE}`);
@@ -61,17 +62,19 @@ export function parseRunnerArgs(argv: string[]): RunnerArgs {
   if (!paramsPath) throw new Error(`--params is required\n${RUNNER_USAGE}`);
   return {
     mode: flags.has("--dry-run") ? "dry-run" : "run",
+    ...(flags.has("--interactive") ? { interactive: true } : {}),
     paramsPath,
     ...(outPath ? { outPath } : {}),
   };
 }
 
-export function boundRunnerParams(value: unknown): Record<string, unknown> {
+export function boundRunnerParams(value: unknown, interactive = false): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error("Params file must contain a JSON object");
   }
   const params = value as Record<string, unknown>;
   if (typeof params.query !== "string") throw new Error("Params file needs a string query");
+  if (interactive) return { ...params };
 
   for (const [key, forced] of Object.entries(FORCED_PARAMS)) {
     if (params[key] !== undefined && params[key] !== forced) {
@@ -113,14 +116,14 @@ function dryRunRegistry(): XaiAuthRegistry {
   } as unknown as XaiAuthRegistry;
 }
 
-async function readParams(path: string, deps: RunnerDeps): Promise<Record<string, unknown>> {
+async function readParams(path: string, deps: RunnerDeps, interactive?: true): Promise<Record<string, unknown>> {
   let parsed: unknown;
   try {
     parsed = JSON.parse(await deps.readFile(path));
   } catch {
     throw new Error(`Could not read JSON params from ${path}`);
   }
-  return boundRunnerParams(parsed);
+  return boundRunnerParams(parsed, interactive);
 }
 
 async function executeTool(
@@ -159,7 +162,7 @@ async function execute(args: RunnerArgs, deps: RunnerDeps): Promise<Record<strin
   const properties = assertBoundedSchema(tool);
   if (args.mode === "schema") return { tool: tool.name, parameters: properties };
 
-  const params = await readParams(args.paramsPath!, deps);
+  const params = await readParams(args.paramsPath!, deps, args.interactive);
   if (args.mode === "dry-run") return dryRun(tool, params, deps);
 
   const result = await executeTool(tool, params, await deps.createRegistry(), deps.fetch, deps);

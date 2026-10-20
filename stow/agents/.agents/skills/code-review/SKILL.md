@@ -92,9 +92,10 @@ End with a one-line summary: total findings per axis, and the worst issue _withi
 When delegation is authorized for this review, ask a reviewer from a different model family than the one that wrote the code to review the same scope with both briefs.
 Otherwise report that the second-model review was not run and ask before delegating.
 
-- In Pi, run the `reviewer` subagent with an explicitly selected available non-Anthropic model.
-- Elsewhere, use an available non-Anthropic review CLI in read-only mode with both briefs and the diff file path.
-- If no different non-Anthropic model family is available, report that limitation and ask how to proceed.
+- In Pi, run the `reviewer` subagent; its model is pinned per parent provider in the Pi settings.
+- Elsewhere, write the diff to a temporary file and use the other family's command line:
+  for a change a GPT model wrote, `claude -p --permission-mode plan "<both briefs and the diff file path>"`;
+  for a change a Claude model wrote, `codex exec -s read-only -C <repo> -o <file> "<both briefs and the diff file path>"`, then read the file.
 
 Present its findings under `## Second model`, and mark each one that matches a finding from step 5.
 Agreement between the two families is high signal.

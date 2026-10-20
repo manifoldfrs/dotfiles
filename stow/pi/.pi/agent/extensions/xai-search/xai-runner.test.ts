@@ -132,6 +132,28 @@ test("run sends the same bounded body once through the registered execute", asyn
   assert.equal(state.output.includes(FAKE_TOKEN), false);
 });
 
+test("interactive mode preserves Pi tool parameters without a live request", async () => {
+  const params = { ...digestParams, max_turns: 6, max_output_tokens: 4000, enable_image_understanding: false, enable_video_understanding: true };
+  const { deps, state, calls } = harness(params);
+  assert.equal(await runRunner(["--interactive", "--dry-run", "--params", "interactive.json"], deps), 0);
+  assert.deepEqual(JSON.parse(state.output).body, {
+    ...expectedBody,
+    tools: [{ ...expectedBody.tools[0], enable_video_understanding: true }],
+    max_turns: 6,
+    max_output_tokens: 4000,
+  });
+  assert.equal(calls.getProviderAuth, 0);
+  assert.equal(state.networkFetches.length, 0);
+});
+
+test("interactive mode retains the subscription auth guard", async () => {
+  const { deps, state, calls } = harness(digestParams, "api_key");
+  assert.equal(await runRunner(["--interactive", "--params", "interactive.json"], deps), 1);
+  assert.match(state.errors[0] ?? "", /not an OAuth sign-in/);
+  assert.equal(calls.getProviderAuth, 0);
+  assert.equal(state.networkFetches.length, 0);
+});
+
 test("check uses provider metadata only", async () => {
   const oauth = harness(undefined);
   assert.equal(await runRunner(["--check"], oauth.deps), 0);

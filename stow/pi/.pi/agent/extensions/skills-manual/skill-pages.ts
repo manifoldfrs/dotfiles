@@ -87,7 +87,7 @@ export function buildSkillPage(skill: SkillPage, home = homedir()): string {
     ...(skill.sections.length ? [`Covers: ${skill.sections.slice(0, 8).join(", ")}.`] : []),
   ];
   const examples: [string, string][] = [["Run it in Pi:", `/skill:${skill.name} ${argument}`]];
-  if (skill.group === "User") examples.push(["Run it in OpenCode:", `/${skill.name} ${argument}`]);
+  if (skill.group === "User") examples.push(["Run it in Claude Code or OpenCode:", `/${skill.name} ${argument}`]);
   examples.push(["Read the full skill:", `glow ${tildePath(skill.path, home)}`]);
   return [
     `# ${skill.name}`,

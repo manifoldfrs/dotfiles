@@ -1,0 +1,1 @@
+{ "name": "jev-screen", "version": "0.1.0", "description": "Screen fetched web content with Jev and warn the model about prompt injection" }

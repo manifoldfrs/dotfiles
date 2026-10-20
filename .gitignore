@@ -18,5 +18,9 @@ mcp/cursor_mcp.json
 mcp/codex_config.toml
 mcp/factory_mcp.json
 
+# Claude Code writes mod type declarations and a tsconfig beside each mod
+stow/claude/.claude/mods/*/.claude-plugin/types/
+stow/claude/.claude/mods/*/tsconfig.json
+
 # Custom Zed build: checkout and build output (patches and scripts are tracked)
 zed-custom/source/

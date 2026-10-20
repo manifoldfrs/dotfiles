@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # MCP Configuration Setup Script
-# Handles: Codex MCP config
-# Usage: ./mcp_setup.sh [backup|install]
+# Handles: Codex config and Claude Code MCP registrations from Pi.
+# Usage: ./mcp_setup.sh [backup|install|install-claude]
 
 set -e
 
@@ -79,12 +79,41 @@ install() {
     echo "Then restart each application to apply changes."
 }
 
+install_claude() {
+    command -v claude >/dev/null 2>&1 || error "Claude Code is required"
+    command -v jq >/dev/null 2>&1 || error "jq is required"
+
+    local entries
+    local entry
+    local name
+    local config
+    local existing
+    entries="$(jq -ce '.mcpServers | to_entries[]' "$DOTFILES_DIR/stow/pi/.pi/agent/mcp.json")"
+    while IFS= read -r entry; do
+        name="$(printf '%s' "$entry" | jq -r '.key')"
+        config="$(printf '%s' "$entry" | jq -c '.value | del(.exposure, .timeout) | if has("command") then .type = "stdio" else . end')"
+        if [ -f "$HOME/.claude.json" ]; then
+            existing="$(jq -c --arg name "$name" '.mcpServers[$name]' "$HOME/.claude.json")"
+            if [ "$existing" != "null" ]; then
+                if printf '%s' "$existing" | jq -e --argjson expected "$config" '. == $expected' >/dev/null; then
+                    info "Claude MCP server already matches: $name"
+                    continue
+                fi
+                error "Claude MCP server $name differs; review it before replacing it"
+            fi
+        fi
+        claude mcp add-json --scope user "$name" "$config"
+    done <<< "$entries"
+    info "Registered Pi's MCP servers in Claude Code; restart Claude to load them"
+}
+
 usage() {
-    echo "Usage: $0 [backup|install]"
+    echo "Usage: $0 [backup|install|install-claude]"
     echo ""
     echo "Commands:"
     echo "  backup   Copy MCP configs from system to dotfiles/mcp/"
     echo "  install  Copy MCP configs from dotfiles/mcp/ to system locations"
+    echo "  install-claude  Register Pi's MCP servers in Claude Code's user config"
     echo ""
     echo "Config locations:"
     echo "  Codex:          ~/.codex/config.toml"
@@ -97,6 +126,9 @@ case "${1:-}" in
         ;;
     install)
         install
+        ;;
+    install-claude)
+        install_claude
         ;;
     *)
         usage

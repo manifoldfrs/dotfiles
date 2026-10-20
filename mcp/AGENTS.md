@@ -1,7 +1,7 @@
 # AGENTS.md - MCP Configurations
 
 ## Package Identity
-MCP configuration templates for Codex plus tracked MCP guidance for Codex, Pi, and OpenCode.
+MCP configuration templates for Codex plus tracked MCP guidance for Claude Code, Codex, Pi, and OpenCode.
 Templates stored as `.example` files with placeholders.
 
 ## Setup & Run
@@ -9,6 +9,7 @@ Templates stored as `.example` files with placeholders.
 cp codex_config.toml.example codex_config.toml
 ../mcp_setup.sh install
 ../mcp_setup.sh backup
+../mcp_setup.sh install-claude
 ```
 
 ## Patterns & Conventions
@@ -40,6 +41,8 @@ rg 'command' mcp/*.example
 
 ## Common Gotchas
 - Restart Codex after `./mcp_setup.sh install`
+- `install-claude` imports Pi's definitions into user-scoped Claude registrations, skips identical entries, and refuses conflicting entries.
+- Restart Claude Code after importing MCP definitions.
 - Run `/reload` or restart Pi after Stowing `stow/pi/.pi/agent/mcp.json`
 - TOML syntax is strict; keep `command` arrays
 - Templates must keep `.example` suffix to avoid commits
