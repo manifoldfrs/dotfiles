@@ -783,6 +783,9 @@ Animation mode needs the pinned Psychopomp renderer; `scripts/psychopomp.sh stat
 The `claude` Stow package owns Claude Code settings, hooks, Tokyo Night theme, status line, and local mods.
 Shared skills are linked into `~/.claude/skills/`, and Claude Code shares the global agent rules with Pi, OpenCode, and Codex.
 Bootstrap installs Claude Code with its native installer; the deprecated npm installer is not used.
+Claude Code registers its browser extension's native host for Chrome but not Helium, so bootstrap copies that manifest into Helium's `NativeMessagingHosts` folder.
+Run `claude --chrome` once first so the Chrome manifest exists, then restart Helium after bootstrap.
+The Helium copy is a snapshot, so rerun bootstrap or copy the manifest again if Claude Code rewrites its Chrome manifest and the extension stops connecting in Helium.
 To install it separately after approving the live change:
 
 ```bash

@@ -248,6 +248,27 @@ install_claude_code() {
     (set -o pipefail; curl -fsSL https://claude.ai/install.sh | bash) || warn "Claude Code installation failed"
 }
 
+# Claude Code registers its Chrome native host for Chrome-family browsers but not Helium.
+install_claude_chrome_host_for_helium() {
+    local manifest="com.anthropic.claude_code_browser_extension.json"
+    local src="$HOME/Library/Application Support/Google/Chrome/NativeMessagingHosts/$manifest"
+    local helium_dir="$HOME/Library/Application Support/net.imput.helium"
+
+    if [ ! -d "$helium_dir" ]; then
+        info "Helium profile not found, skipping Claude Chrome host setup"
+        return
+    fi
+
+    if [ ! -f "$src" ]; then
+        warn "Claude Chrome host not registered yet; run 'claude --chrome' once, then rerun bootstrap"
+        return
+    fi
+
+    mkdir -p "$helium_dir/NativeMessagingHosts"
+    cp "$src" "$helium_dir/NativeMessagingHosts/$manifest"
+    info "Registered Claude Chrome host for Helium"
+}
+
 # Plannotator's installer owns its CLI and its plannotator-* skills in every agent harness.
 install_plannotator() {
     if command -v plannotator &> /dev/null; then
@@ -265,6 +286,7 @@ main() {
     install_brewfile
     install_opencode
     install_claude_code
+    install_claude_chrome_host_for_helium
     apply_dotfiles
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
     configure_bash_login_shell
