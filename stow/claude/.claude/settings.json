@@ -27,7 +27,7 @@
       "WebFetch",
       "WebSearch"
     ],
-    "defaultMode": "auto"
+    "defaultMode": "bypassPermissions"
   },
   "model": "opus[1m]",
   "hooks": {
@@ -110,6 +110,11 @@
       "options": {
         "instructionFiles": "claude-md-or-agents-md"
       }
+    },
+    "cc-plugin-agents-md@builtin": {
+      "options": {
+        "instructionFiles": "claude-md-or-agents-md"
+      }
     }
   },
   "autoUpdatesChannel": "latest",
@@ -120,6 +125,7 @@
   "editorMode": "normal",
   "verbose": false,
   "preferredNotifChannel": "ghostty",
+  "idleCompaction": false,
   "switchModelsOnFlag": false,
   "inputNeededNotifEnabled": false,
   "useAutoModeDuringPlan": true,
