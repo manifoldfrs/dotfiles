@@ -178,14 +178,6 @@ args = [
 ]
 env_vars = ["TYPESAFE_API_KEY"]
 
-[mcp_servers.sonar]
-command = "npx"
-args = [
-    "-y",
-    "@sonarapp/mcp",
-]
-env_vars = ["SONAR_API_KEY"]
-
 [hooks.state]
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:0:0"]

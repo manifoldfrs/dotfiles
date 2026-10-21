@@ -32,14 +32,6 @@
       "args": ["--stdio"],
       "exposure": "codemode"
     },
-    "sonar": {
-      "command": "npx",
-      "args": ["-y", "@sonarapp/mcp"],
-      "env": {
-        "SONAR_API_KEY": "${SONAR_API_KEY}"
-      },
-      "exposure": "codemode"
-    },
     "hey": {
       "command": "hey",
       "args": ["mcp"],

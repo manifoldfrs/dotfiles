@@ -54,10 +54,10 @@ pi
 ```
 
 `stow/pi/.pi/agent/settings.json` leaves Pi's built-in MCP support enabled.
-`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, codex-chrome, Sonar, and HEY.
+`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, codex-chrome, and HEY.
 Ref and exa remain directly exposed; the other servers use Codemode exposure.
 The settings explicitly enable Codemode alongside the ordinary coding tools.
-Jev reads `TYPESAFE_API_KEY` from the environment; Sonar passes `${SONAR_API_KEY}` through `env`.
+Jev reads `TYPESAFE_API_KEY` from the environment.
 HEY runs `hey mcp` and needs no key in the config; it uses the keychain credentials from `hey auth login`.
 Chrome DevTools launches isolated Chrome with usage statistics disabled.
 The codex-chrome bridge uses the existing Chrome profile and requires the binary and native-host setup described in the root README.
@@ -97,7 +97,7 @@ To capture your current Codex config (including any literal API keys):
 
 **Note:** Untracked template outputs containing literal API keys are gitignored. Stow-managed configs use environment interpolation and contain no secrets.
 Codex MCP HTTP servers should use `env_http_headers` with `REF_API_KEY` and `EXA_API_KEY`, not API keys embedded in URLs.
-Codex stdio servers should forward keys such as `TYPESAFE_API_KEY` and `SONAR_API_KEY` with `env_vars`, not literal `env` values.
+Codex stdio servers should forward keys such as `TYPESAFE_API_KEY` with `env_vars`, not literal `env` values.
 Export every key from machine-local `~/.config/bash/local.bash`; do not keep keys in loose files in the repository.
 Pi MCP HTTP servers should use built-in header interpolation with `${REF_API_KEY}` and `${EXA_API_KEY}`, not embedded API keys.
 OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` interpolation, not embedded API keys.
@@ -109,5 +109,4 @@ OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` inte
 - **Jev** - Typed judgments from TypeSafe's Jev model (OpenCode and Pi)
 - **Chrome DevTools** - Browser testing, screenshots, console, and network inspection (OpenCode and Pi)
 - **codex-chrome** - Existing-profile Chrome control (OpenCode and Pi)
-- **Sonar** - App Store optimization data (Codex and Pi)
 - **Context7** - Library documentation

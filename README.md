@@ -854,10 +854,10 @@ Account entitlement and provider policy determine available models and usage lim
 #### Pi
 
 The `pi` Stow package owns settings, MCP configuration, prompts, themes, and extensions under `stow/pi/.pi/agent/`.
-Pi uses its built-in MCP support for Ref, exa, Jev, Chrome DevTools, codex-chrome, Sonar, and HEY.
-The MCP config reads `REF_API_KEY`, `EXA_API_KEY`, `TYPESAFE_API_KEY`, and `SONAR_API_KEY` from the environment.
+Pi uses its built-in MCP support for Ref, exa, Jev, Chrome DevTools, codex-chrome, and HEY.
+The MCP config reads `REF_API_KEY`, `EXA_API_KEY`, and `TYPESAFE_API_KEY` from the environment.
 Codemode is explicitly enabled alongside the ordinary coding tools.
-Ref and exa remain directly exposed; Jev, Sonar, HEY, and browser tools are discovered through Codemode.
+Ref and exa remain directly exposed; Jev, HEY, and browser tools are discovered through Codemode.
 The HEY server runs `hey mcp` from the `basecamp/tap/hey` cask in `Brewfile` and uses the account from `hey auth login`, stored in the macOS keychain.
 It has read and write access to mail, calendars, todos, and contacts; change its args to `["mcp", "--read-only"]` to limit it to reads.
 The `hey` skill is machine-local: run `hey skill install` once, and the CLI owns `~/.agents/skills/hey` and refreshes it on each release.
@@ -936,7 +936,7 @@ The separate `stow/opencode/.config/opencode/commands/` directory is reserved fo
 
 The `codex` Stow package owns personal defaults, MCP server definitions, hooks, and the Tokyo Night theme under `stow/codex/.codex/`.
 The MCP configuration reads `REF_API_KEY` and `EXA_API_KEY` through `env_http_headers`.
-Stdio servers forward `TYPESAFE_API_KEY` (Jev) and `SONAR_API_KEY` (Sonar) with `env_vars`; never put literal keys in `env`.
+Stdio servers forward `TYPESAFE_API_KEY` (Jev) with `env_vars`; never put literal keys in `env`.
 Authentication, sessions, logs, plugin caches, and other runtime data are machine-local state under `~/.codex/`.
 On Linux, `scripts/stow.sh` leaves `~/.codex/config.toml` out of Stow and backups, because the tracked file is mostly state written by the macOS ChatGPT app; Codex creates its own config there.
 
