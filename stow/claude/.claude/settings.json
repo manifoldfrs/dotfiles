@@ -13,7 +13,7 @@
     "GIT_EDITOR": "true",
     "GIT_SEQUENCE_EDITOR": "true",
     "GIT_MERGE_AUTOEDIT": "no",
-    "CLAUDE_CODE_PLUGIN_DIRS": "~/code/personal/dotfiles/stow/claude/.claude/mods/optojr-slack:~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-pipeline:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-screen:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-coding:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/codex-reviewer:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
+    "CLAUDE_CODE_PLUGIN_DIRS": "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-pipeline:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-screen:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-coding:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/codex-reviewer:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
   },
   "attribution": {
     "commit": "",

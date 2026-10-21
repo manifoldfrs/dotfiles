@@ -21,7 +21,6 @@ STOW_TARGETS=(
     "$HOME/.config/opencode/cli.json"
     "$HOME/.config/opencode/opencode.jsonc"
     "$HOME/.config/opencode/plugins/typesafe-ai"
-    "$HOME/.config/opencode/plugins/optojr-slack"
     "$HOME/.config/opencode/plugins/tui-conveniences"
     "$HOME/.config/opencode/plugins/request-logger"
     "$HOME/.claude/settings.local.json"
@@ -194,7 +193,7 @@ install_opencode_plugin_dependencies() {
         return
     fi
 
-    for plugin_name in typesafe-ai optojr-slack tui-conveniences request-logger; do
+    for plugin_name in typesafe-ai tui-conveniences request-logger; do
         plugin_dir="$HOME/.config/opencode/plugins/$plugin_name"
         if [ ! -f "$plugin_dir/package.json" ]; then
             warn "OpenCode $plugin_name plugin not found, skipping its dependencies"

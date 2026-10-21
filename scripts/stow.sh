@@ -27,7 +27,6 @@ OPENCODE_BACKUP_TARGETS=(
     "$HOME/.config/opencode/cli.json"
     "$HOME/.config/opencode/opencode.jsonc"
     "$HOME/.config/opencode/plugins/typesafe-ai"
-    "$HOME/.config/opencode/plugins/optojr-slack"
     "$HOME/.config/opencode/plugins/tui-conveniences"
     "$HOME/.config/opencode/plugins/request-logger"
 )

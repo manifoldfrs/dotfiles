@@ -13,7 +13,6 @@ fail() { echo "[FAIL] $1"; exit 1; }
 # Test 1: syntax
 echo "[TEST 1] Checking Bash syntax..."
 for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh \
-    scripts/setup-optojr-slack-bot.sh \
     stow/bash/.bash_profile stow/bash/.bashrc \
     stow/bash/.config/bash/aliases.bash \
     stow/bash/.config/bash/environment.bash \
@@ -74,11 +73,9 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.config/opencode/AGENTS.md" \
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/package.json" ] \
-    && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/optojr-slack/package.json" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/package.json" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/request-logger/package.json" ] \
     && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/node_modules" ] \
-    && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/optojr-slack/node_modules" ] \
     && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/node_modules" ] \
     && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/request-logger/node_modules" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
@@ -107,7 +104,6 @@ jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agen
 grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '"session.copy": "alt+y"' stow/opencode/.config/opencode/cli.json
 grep -q 'name: "typesafe_evaluate"' stow/opencode/.config/opencode/plugins/typesafe-ai/src/index.ts
-grep -q 'name: "optojr_slack_send"' stow/opencode/.config/opencode/plugins/optojr-slack/src/index.ts
 [ ! -e stow/opencode/.config/opencode/plugins/cb-guards.ts ]
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
@@ -130,10 +126,5 @@ if command -v nvim >/dev/null 2>&1; then
 else
     pass "Neovim not installed; plugin safety skipped"
 fi
-
-# Test 6: OptoJr Slack setup
-echo "[TEST 6] Testing OptoJr hosted relay setup..."
-bash test/optojr_slack_setup_test.sh
-pass "OptoJr Slack setup delegates only to the hosted relay"
 
 echo "=== ALL TESTS PASSED ==="

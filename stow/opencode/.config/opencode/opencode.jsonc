@@ -11,7 +11,6 @@
   ],
   "plugins": [
     "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/typesafe-ai",
-    "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/optojr-slack",
     "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/tui-conveniences",
     {
       "package": "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/request-logger",
