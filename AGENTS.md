@@ -24,11 +24,14 @@ Agent behavior:
 - `scripts/bootstrap.sh` - full machine bootstrap for non-Stow setup
 - `scripts/backup.sh` - backup current machine config into tracked sources
 - `scripts/stow.sh` - apply/delete/dry-run GNU Stow dotfile symlinks
+- `scripts/rex_server_setup.sh` - root-only Rex login server setup on Linux hosts (agentbox)
 - `mcp_setup.sh` - MCP config install + backup script
 - `stow/` - GNU Stow packages that mirror `$HOME`
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
+- `stow/rex/` - Rex config (`init.lua` and the Lua files it requires); Rex is the default terminal and Ghostty the fallback
+- `server/rex/` - files the Rex login server setup installs under `/etc` (not stowed)
 - `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files
 - `stow/cursor/` - Cursor user settings, keybindings, and tasks; extension list in `cursor/extensions.txt`
 - `old/` - archived Fish, Zsh, Cursor, Zed, and other legacy areas (avoid unless explicitly requested)
@@ -46,6 +49,7 @@ bash -n scripts/bootstrap.sh
 bash -n scripts/backup.sh
 bash -n scripts/stow.sh
 bash -n scripts/validate-dotfiles.sh
+bash -n scripts/rex_server_setup.sh
 bash -n mcp_setup.sh
 bash -n test/run_tests.sh test/bash_path_test.sh test/stow_preflight_test.sh
 bash -n stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash
@@ -71,6 +75,7 @@ bash -n scripts/bootstrap.sh
 bash -n scripts/backup.sh
 bash -n scripts/stow.sh
 bash -n scripts/validate-dotfiles.sh
+bash -n scripts/rex_server_setup.sh
 bash test/bash_path_test.sh "$PWD"
 bash test/stow_preflight_test.sh "$PWD"
 

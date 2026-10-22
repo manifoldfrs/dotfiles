@@ -146,14 +146,23 @@ run_startup_smoke() {
     XDG_CACHE_HOME="$home_dir/.cache" \
     nvim --headless -c "qa"
 
+  # Interactive Neovim needs a terminal to answer its startup queries, which
+  # run_tests.sh doesn't provide because it logs this script's output.
+  if [[ ! -t 1 ]]; then
+    echo "[SMOKE] $label :: interactive startup skipped (stdout is not a terminal)"
+    return
+  fi
+
   echo "[SMOKE] $label :: interactive startup"
+  # Plugin installs on a fresh profile fill the screen; nomore keeps the
+  # pager from waiting for a keypress nobody will send.
   env \
     HOME="$home_dir" \
     XDG_CONFIG_HOME="$home_dir/.config" \
     XDG_DATA_HOME="$home_dir/.local/share" \
     XDG_STATE_HOME="$home_dir/.local/state" \
     XDG_CACHE_HOME="$home_dir/.cache" \
-    nvim -c "sleep 1 | qa"
+    nvim --cmd "set nomore" -c "sleep 1 | qa"
 }
 
 echo "[CHECK 4] Startup checks on baseline profile..."

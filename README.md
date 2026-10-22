@@ -1,18 +1,109 @@
 # dotfiles
 
-Configuration files for Bash, Starship, Homebrew, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi.
+Configuration files for Bash, Starship, Homebrew, Rex, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi.
 GNU Stow manages symlinks from `stow/*` into `$HOME`.
-Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
+Rex, Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
 
 ## Theme and font status
 
-- Ghostty, Herdr, Neovim, Pi, OpenCode, and Codex use Tokyo Night.
+- Rex, Ghostty, Herdr, Neovim, Pi, OpenCode, and Codex use Tokyo Night.
+- Rex imports Ghostty's `TokyoNight Night` theme and uses `MonoLisaCode` at 14 pt; both are app settings (see [Rex](#rex)).
 - Neovim uses the Tokyo Night `night` style with transparent editor, sidebar, float, statusline, and tab-fill surfaces.
 - Ghostty uses `MonoLisaCode` at 14 pt with explicit regular, italic, bold, and bold-italic styles.
 - Starship uses the intended Nerd Font glyphs through Ghostty's built-in `Symbols Nerd Font` fallback. See `plans/theme-font-glyph-followups.md`.
 - Starship and FZF inherit the Tokyo Night terminal palette from Ghostty.
 - Zed is the GUI code reader and debugger, Tokyo Night with `MonoLisaCode` at 14 pt to match Ghostty and Neovim; its settings, keymap, and tasks are the `zed` Stow package.
 - Cursor is a second GUI reader and debugger, also Tokyo Night with `MonoLisaCode` at 14 pt; its settings, keybindings, and tasks are the `cursor` Stow package, and the older Cursor config stays archived under `old/cursor/`.
+
+## Rex
+
+[Rex](https://www.superlogical.com/rex/docs/installation) (beta) is the default terminal and multiplexer.
+Ghostty stays installed as the fallback terminal, and Herdr stays on `agentbox` for phone access over Termius.
+
+### Setup
+
+1. Install Rex Beta from the DMG; it updates itself.
+2. Run `./scripts/stow.sh apply`, which links `stow/rex/.config/rex/` and the `rex-annotate` helper.
+3. Open Neovim once so lazy.nvim installs `vim-rex-navigator`; `navigator.lua` loads its Rex half from there.
+   In Neovim, `after/plugin/herdr-navigation.lua` hands `Ctrl-h/j/k/l` at a split's edge to Herdr or Rex, whichever it runs in.
+4. Run `rex config reload`, then `rex keymap` to confirm the bindings loaded without warnings.
+5. Run `rex skill setup` (bootstrap does this too).
+   Its `SessionStart` hooks are already tracked in `stow/claude/.claude/settings.json` and `stow/codex/.codex/hooks.json`; approve the Codex hook with `/hooks`.
+
+Rex puts its CLI in `$REX_BIN_DIR` without adding it to `PATH`, so `environment.bash` adds it.
+Bindings and actions in the Mac's `init.lua` also apply to sessions on remote hosts.
+
+### Key bindings
+
+`Ctrl-a` is a key sequence prefix, as in Herdr; press `Ctrl-a Ctrl-a` to send `Ctrl-a` to the terminal.
+
+| Keys | Action |
+| --- | --- |
+| `Ctrl-a s`, `Ctrl-a w` | Session picker |
+| `Ctrl-a N`, `Ctrl-a $` | New session, rename session |
+| `Ctrl-a (`, `Ctrl-a )` | Previous, next session |
+| `Ctrl-a c`, `Ctrl-a n`, `Ctrl-a p`, `Ctrl-a 1..9` | New, next, previous, numbered tab |
+| `Ctrl-a ,`, `Ctrl-a &` | Rename, close tab |
+| `Ctrl-a %`, `Ctrl-a "` | Split right, split down |
+| `Ctrl-a h/j/k/l` | Focus pane by direction |
+| `Ctrl-a z` | Zoom pane |
+| `Ctrl-a R` | Resize mode: `h/j/k/l` or arrows (Shift for bigger steps), `=` balance, `Enter` or `Esc` to leave |
+| `Ctrl-a b`, `Ctrl-a r`, `Ctrl-a ?` | Toggle sidebar, reload config, command palette |
+| `Ctrl-h/j/k/l` | Move between Neovim splits and Rex panes |
+| `Ctrl-a a` | Annotate the selected (copied) text |
+| `Ctrl-a A` | Copy annotations as agent context |
+| `Ctrl-a m` | Manage annotations |
+| Neovim visual `<leader>a` | Annotate the selection |
+
+"Copy annotations as context and archive" has no key; run it from the command palette.
+The annotation actions reuse Herdr's `herdr-annotate` binary through `rex-annotate`, so keep the Herdr plugin installed with `./scripts/sync_herdr_plugins.sh`.
+
+### App settings
+
+Rex keeps theme, font, notification, and other GUI settings in the app (`com.superlogical.rex.plist`), not in `init.lua`, so set these once per machine:
+
+- [ ] Themes: import `/Applications/Ghostty.app/Contents/Resources/ghostty/themes/TokyoNight Night` and use it for both light and dark appearance.
+- [ ] Font: `MonoLisaCode` 14 pt, and check that the `cv05` and `cv09` features apply.
+- [ ] Shell: `/opt/homebrew/bin/bash --login`.
+- [ ] Terminal: copy on select, Option as Alt, blinking block cursor, padding color matching the background, fade for inactive panes.
+- [ ] Notifications: macOS notifications for blocked and finished programs, sounds off.
+- [ ] Rex Server: Remote Control on, which `rex do` and agents need to drive the app.
+- [ ] Integrations: choose whether agent sessions name themselves.
+- [ ] Put Rex in the Dock and login items in place of Ghostty.
+
+### Rex server on agentbox
+
+`agentbox` runs the Rex login server, so its sessions survive Rex upgrades and keep running while the Mac is closed.
+It listens on the tailnet address `http://agentbox.tail52943f.ts.net:7297`, which needs no Tailscale HTTPS certificates, and only `tailscale:manifoldfrs@github` may connect, as `frshbb`.
+`init.lua` declares the host, so it appears in the app and in `rex hosts list`.
+
+```bash
+# On agentbox, after installing the rex package with the command from the Rex docs (needs your package token)
+sudo ~/code/personal/dotfiles/scripts/rex_server_setup.sh
+rex skill setup
+
+# From the Mac
+rex -S agentbox ls
+```
+
+`scripts/rex_server_setup.sh` installs `server/rex/accounts.jsonc` and the systemd drop-in from `server/rex/`, and refuses to run if the packaged `ExecStart` no longer matches the tracked one.
+Use `sudo apt-mark hold rex` to postpone an upgrade; after one, `rex version` and `rex server status` differ until your account server's sessions end.
+
+### What Rex doesn't have yet
+
+Compared with the Ghostty and Herdr setup, Rex is missing:
+
+- Detach: closing the last tab of a session destroys it, including remote sessions, so `Ctrl-a q` and `Ctrl-a d` are unbound.
+- Close confirmation before closing a pane or tab with a running program (Herdr's `confirm_close`).
+- Last pane (`Ctrl-a ;`) and a keyboard copy mode (`Ctrl-a [`).
+- Selection API: annotations read the clipboard, so select (copy on select) before `Ctrl-a a`.
+- Herdr's `Ctrl-a O` and `Ctrl-a L` document and last-reply reviews were not ported; run `plannotator-tui` directly if needed.
+- Remote image paste, which Herdr sends to the remote machine, and dragging a macOS screenshot thumbnail into Claude Code.
+- A file or diff viewer for reviewing agent changes; use Cursor, Zed, or `hunk`.
+- A public iOS client and `rex attach` (removed in preview.18), so the phone still uses Termius with Herdr on `agentbox`.
+- Background opacity and blur, and Ghostty's `font-variation`.
+- File-based appearance settings: theme, font, and notifications live in the app.
+- A copy action to bind keys to, so Ghostty's `Ctrl-Shift-c` copy and `Cmd-c` remap (tmux-era workarounds) were dropped; `Cmd-c` copies natively.
 
 ## Requirements
 
@@ -21,6 +112,7 @@ Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Night**
 | **Neovim**          | >= 0.11.0       | Required for mason-lspconfig v2 and vim.lsp.config()                          |
 | **Git**             | >= 2.19.0       | Required for lazy.nvim partial clones                                         |
 | **GNU Stow**        | >= 2.4.0        | Symlink manager for tracked dotfiles                                          |
+| **Rex Beta**        | Latest          | Default terminal and multiplexer; installed from the DMG                     |
 | **Ghostty**         | Latest          | Uses `macos-option-as-alt` syntax                                             |
 | **Herdr**           | Latest          | Agent-aware terminal workspace manager                                        |
 | **Node.js**         | LTS             | For LSP servers via Mason                                                     |
@@ -334,7 +426,7 @@ Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Ho
 
 What this already handles for you:
 
-- stows Bash, Starship, Git, Ghostty, Herdr, Neovim, OpenCode, Codex, Pi settings, and local bin config
+- stows Bash, Starship, Git, Rex, Ghostty, Herdr, Neovim, OpenCode, Codex, Pi settings, and local bin config
 - configures Herdr with Tokyo Night, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
@@ -378,7 +470,7 @@ Pane-history persistence remains disabled.
 | `Ctrl-a m`                | Manage annotations                                            |
 | `Ctrl-a Shift-o`          | Review documents in the current folder                        |
 | `Ctrl-a Shift-l`          | Review the agent's last reply                                 |
-| Neovim visual `<leader>a` | Send the selection to Herdr Annotate                          |
+| Neovim visual `<leader>a` | Send the selection to Herdr Annotate (or Rex, inside Rex)     |
 
 Press `Ctrl-a`, release it, then press the shortcut's second key.
 
@@ -403,6 +495,7 @@ The annotation handoff uses a private temporary file that the plugin consumes an
 ### Clickable links in terminal chat
 
 In Ghostty on macOS, hold **Shift + Cmd** and click a link to open it, including inside Herdr.
+This gesture has not been verified in Rex yet.
 This bypasses application mouse capture and lets Ghostty handle the link.
 This gesture was verified in this setup, while Herdr's documented Ctrl-click gesture did not work.
 Keep mouse capture enabled to preserve Herdr's mouse UI.
@@ -463,7 +556,7 @@ The equivalent unguarded direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode codex pi
+stow --no-folding -R -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode codex pi
 ```
 
 ### Run Stow Without Scripts
@@ -474,11 +567,11 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode codex pi
-stow --no-folding -R -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode codex pi
+stow --no-folding -n -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode codex pi
+stow --no-folding -R -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode codex pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode codex pi
+stow --no-folding -D -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode codex pi
 
 ```
 
@@ -515,11 +608,11 @@ brew bundle --file=Brewfile
 exec /opt/homebrew/bin/bash --login
 ```
 
-Ghostty and Herdr launch `/opt/homebrew/bin/bash` explicitly. Bootstrap attempts to select Homebrew Bash as the macOS login shell. Machine-local secrets and overrides belong in `~/.config/bash/local.bash`.
+Rex (its Shell setting), Ghostty, and Herdr launch `/opt/homebrew/bin/bash` explicitly. Bootstrap attempts to select Homebrew Bash as the macOS login shell. Machine-local secrets and overrides belong in `~/.config/bash/local.bash`.
 
 #### Prompt and runtime behavior
 
-Starship keeps non-truncated directories, 18-character Git branches, project-marker-only Node detection, and the existing Nerd Font glyphs. FZF supplies fuzzy completion and history/file keybindings, with `Ctrl-F` opening fuzzy history search. GNU Readline supplies history navigation and editable keybindings. Bash caches the generated FZF, Starship, Zoxide, and mise initialization scripts until their executables change. mise manages project runtime versions and environments.
+Starship keeps non-truncated directories, 18-character Git branches, project-marker-only Node detection, and the existing Nerd Font glyphs. FZF supplies fuzzy completion and history/file keybindings, with `Ctrl-F` opening fuzzy history search. GNU Readline supplies history navigation and editable keybindings. Bash caches the generated FZF, Starship, and Zoxide initialization scripts until their executables change; mise is activated fresh in each shell because its script embeds the current `PATH`. mise manages project runtime versions and environments.
 
 #### Rollback
 
@@ -660,8 +753,9 @@ cd ~/dotfiles
 - **Starship** prompt with bounded project/runtime detection
 - **FZF** completion and history/file keybindings through its native Bash integration
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/bash`, `stow/git`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/codex`, and `stow/pi` into `$HOME`
+- **Configs stowed**: `stow/bash`, `stow/git`, `stow/rex`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/codex`, and `stow/pi` into `$HOME`
 - **Herdr**: Stow-managed Tokyo Night config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
+- **Rex agent skill and hooks** via `rex skill setup` when Rex is installed
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
 - **fzf shell integration** when Homebrew fzf is available
 - **Global npm packages** from `npm-global-packages.txt`
@@ -973,7 +1067,8 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 | ------------ | -------------------------------------- |
 | **Neovim**   | Primary editor (lazy.nvim)             |
 | **OpenCode** | AI-assisted coding CLI                 |
-| **Ghostty**  | Terminal emulator                      |
+| **Rex**      | Terminal and multiplexer (default)     |
+| **Ghostty**  | Terminal emulator (fallback)           |
 | **Herdr**    | Agent-aware terminal workspace manager |
 
 ### Neovim Plugins
@@ -1282,7 +1377,7 @@ Generated integration files remain machine-managed. The shared `herdr` skill tea
 
 ## Shell Configuration
 
-Bash stores interactive history in `~/.bash_history`. FZF provides fuzzy completion and history/file keybindings; GNU Readline uses the tracked `.inputrc`; Starship renders the prompt; zoxide handles directory jumping; and mise activates project runtime versions and environments. Generated initialization scripts for FZF, Starship, Zoxide, and mise are cached under `${XDG_CACHE_HOME:-~/.cache}/bash/init/` and regenerated after their executables change.
+Bash stores interactive history in `~/.bash_history`. FZF provides fuzzy completion and history/file keybindings; GNU Readline uses the tracked `.inputrc`; Starship renders the prompt; zoxide handles directory jumping; and mise activates project runtime versions and environments. Generated initialization scripts for FZF, Starship, and Zoxide are cached under `${XDG_CACHE_HOME:-~/.cache}/bash/init/` and regenerated after their executables change; mise is activated fresh in each shell because its script embeds the current `PATH`.
 
 Cursor is intentionally archived under `old/cursor/current-archive/` and is not a Stow package.
 Zed returned as the GUI reader in October 2026; the current tracked config lives in `stow/zed/`, and `old/zed/` is the retired previous iteration kept for reference.
@@ -1443,7 +1538,7 @@ cd ~/dotfiles && ./scripts/bootstrap.sh
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -D -v -t "$HOME" -d stow bash git ghostty herdr nvim bin opencode pi
+stow --no-folding -D -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode pi
 ```
 
 Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.

@@ -50,6 +50,8 @@ path_prepend "$HOME/.local/opt/go/bin"
 path_prepend "$HOME/go/bin"
 path_prepend "/Applications/Postgres.app/Contents/Versions/latest/bin"
 path_prepend "/Applications/Ghostty.app/Contents/MacOS"
+# Rex exports its CLI directory to its terminals but leaves PATH to the shell.
+[[ -n ${REX_BIN_DIR:-} ]] && path_prepend "$REX_BIN_DIR"
 
 if [[ -n ${HOMEBREW_PREFIX:-} && -x "$HOMEBREW_PREFIX/opt/ruby/bin/ruby" ]]; then
     path_prepend "$HOMEBREW_PREFIX/opt/ruby/bin"

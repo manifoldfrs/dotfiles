@@ -12,11 +12,12 @@ fail() { echo "[FAIL] $1"; exit 1; }
 
 # Test 1: syntax
 echo "[TEST 1] Checking Bash syntax..."
-for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh \
+for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh scripts/rex_server_setup.sh \
     stow/bash/.bash_profile stow/bash/.bashrc \
     stow/bash/.config/bash/aliases.bash \
     stow/bash/.config/bash/environment.bash \
     stow/bash/.config/bash/functions.bash \
+    stow/bin/.local/bin/rex-annotate \
     stow/bin/.local/share/agent-guardrails/block-dangerous-bash.sh \
     stow/bin/.local/share/agent-guardrails/block-generated-edits.sh \
     stow/claude/.claude/hooks/block-dangerous-bash.sh \
@@ -63,6 +64,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
+    && [ -L "$STOW_TEST_HOME/.config/rex/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/opencode/commands/lg.md" ] \
     && [ ! -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && [ -f "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
@@ -98,6 +100,11 @@ grep -q '^font-family = MonoLisaCode$' stow/ghostty/.config/ghostty/config
 grep -q '^font-size = 14$' stow/ghostty/.config/ghostty/config
 grep -q 'name = "tokyo-night"' stow/herdr/.config/herdr/config.toml
 grep -q '^default_shell = "bash"$' stow/herdr/.config/herdr/config.toml
+grep -Fq 'local prefix = "ctrl+a>"' stow/rex/.config/rex/keys.lua
+grep -Fq 'endpoint = "http://agentbox.tail52943f.ts.net:7297"' stow/rex/.config/rex/init.lua
+grep -Fq '"pankrashin/vim-rex-navigator"' stow/nvim/.config/nvim/lua/plugins/vim-rex-navigator.lua
+grep -Fq '"frshbb": { "principals": ["tailscale:manifoldfrs@github"] }' server/rex/accounts.jsonc
+grep -Eq '^ExecStart=/usr/bin/rex login-server .* --extra-listen tailnet://:7297$' server/rex/rex-login-server.service.d/override.conf
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
 jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agent/claude-bridge.json >/dev/null
@@ -107,7 +114,10 @@ grep -q 'name: "typesafe_evaluate"' stow/opencode/.config/opencode/plugins/types
 [ ! -e stow/opencode/.config/opencode/plugins/cb-guards.ts ]
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
-grep -q '^source_cached_init mise-activate mise activate bash$' stow/bash/.bashrc
+grep -Fq 'eval "$(mise activate bash)"' stow/bash/.bashrc
+if grep -q 'source_cached_init mise-activate' stow/bash/.bashrc; then
+    fail "mise activation is cached and would restore a stale PATH"
+fi
 grep -q '^source_cached_init zoxide-init zoxide init bash$' stow/bash/.bashrc
 grep -q '^source_cached_init starship-full-init starship init bash --print-full-init$' stow/bash/.bashrc
 grep -q 'detect_extensions = \[\]' stow/bash/.config/starship.toml

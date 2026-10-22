@@ -36,7 +36,11 @@ source_cached_init() {
 }
 
 source_cached_init fzf-bash fzf --bash
-source_cached_init mise-activate mise activate bash
+# mise's activation script embeds the PATH it was generated with, so caching it
+# would drop any PATH entry added later, such as Rex's REX_BIN_DIR.
+if command -v mise &> /dev/null; then
+    eval "$(mise activate bash)"
+fi
 source_cached_init zoxide-init zoxide init bash
 source_cached_init starship-full-init starship init bash --print-full-init
 unset -f source_cached_init

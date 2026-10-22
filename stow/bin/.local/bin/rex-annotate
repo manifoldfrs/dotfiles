@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+# herdr-annotate is only distributed inside the Herdr annotate plugin, so reuse
+# that install and give it the plugin environment Herdr would normally set.
+BIN=""
+for candidate in "$HOME"/.config/herdr/plugins/github/annotate-*/bin/herdr-annotate.exe; do
+    if [[ -x $candidate ]]; then
+        BIN="$candidate"
+    fi
+done
+
+if [[ -z $BIN ]]; then
+    printf 'rex-annotate: herdr-annotate is missing; run scripts/sync_herdr_plugins.sh\n' >&2
+    exit 1
+fi
+
+export HERDR_PLUGIN_ROOT="${BIN%/bin/*}"
+export HERDR_PLUGIN_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/herdr/plugins/annotate"
+mkdir -p "$HERDR_PLUGIN_STATE_DIR"
+
+exec "$BIN" "$@"

@@ -332,6 +332,12 @@ Verified 2026-10-09: a Mac session's messages reached the agentbox Pi by UUID an
 - Ubuntu's unattended upgrades install security patches but do not reboot by default; reboot deliberately when no agents are running.
 - To stop paying, snapshot the Droplet if you want to keep it ($0.06/GB/month), then destroy it.
 
+## Rex
+
+On 2026-10-21, Rex replaced Herdr as the Mac's terminal and multiplexer; see `docs/plans/rex-migration.md` and the README's Rex section.
+`agentbox` adds a Rex login server on tailnet port 7297, installed by `scripts/rex_server_setup.sh` from `server/rex/`.
+Herdr, Mosh, and the Termius host stay on `agentbox` for phone access, because Rex has no public iOS client.
+
 ## Sources
 
 - Herdr connecting machines: https://herdr.dev/docs/connecting-machines/

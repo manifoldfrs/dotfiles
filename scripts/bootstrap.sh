@@ -279,6 +279,25 @@ install_plannotator() {
     curl -fsSL https://plannotator.ai/install.sh | bash || warn "Plannotator installation failed"
 }
 
+# Rex installs from a DMG on macOS and a package on Linux; its CLI ships inside the app bundle.
+setup_rex_agents() {
+    local rex_bin
+    local app_rex="/Applications/Rex Beta.app/Contents/Helpers/Rex Server.rex/Contents/MacOS/rex"
+
+    rex_bin="$(command -v rex || true)"
+    if [ -z "$rex_bin" ] && [ -x "$app_rex" ]; then
+        rex_bin="$app_rex"
+    fi
+
+    if [ -z "$rex_bin" ]; then
+        info "Rex not installed, skipping its agent skill and hooks"
+        return
+    fi
+
+    info "Installing Rex's agent skill and hooks..."
+    "$rex_bin" skill setup || warn "Rex agent setup failed; rerun: rex skill setup"
+}
+
 main() {
     info "Bootstrapping development environment..."
     install_homebrew
@@ -294,9 +313,10 @@ main() {
     install_global_anti_slop
     install_opencode_plugin_dependencies
     install_plannotator
+    setup_rex_agents
 
     echo ""
-    info "Bootstrap complete! Restart Ghostty or run: exec \"$(brew --prefix bash)/bin/bash\" --login"
+    info "Bootstrap complete! Restart Rex or run: exec \"$(brew --prefix bash)/bin/bash\" --login"
 }
 
 main

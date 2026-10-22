@@ -54,7 +54,7 @@ pi
 ```
 
 `stow/pi/.pi/agent/settings.json` leaves Pi's built-in MCP support enabled.
-`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, codex-chrome, and HEY.
+`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, codex-chrome, HEY, and Superlogical.
 Ref and exa remain directly exposed; the other servers use Codemode exposure.
 The settings explicitly enable Codemode alongside the ordinary coding tools.
 Jev reads `TYPESAFE_API_KEY` from the environment.
@@ -109,4 +109,5 @@ OpenCode MCP servers should use `{env:REF_API_KEY}` and `{env:EXA_API_KEY}` inte
 - **Jev** - Typed judgments from TypeSafe's Jev model (OpenCode and Pi)
 - **Chrome DevTools** - Browser testing, screenshots, console, and network inspection (OpenCode and Pi)
 - **codex-chrome** - Existing-profile Chrome control (OpenCode and Pi)
+- **Superlogical** - Rex Beta docs, changelog, and community feedback; OAuth via `/mcp` after registering (Claude Code and Pi)
 - **Context7** - Library documentation

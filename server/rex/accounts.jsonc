@@ -1,0 +1,9 @@
+// Installed to /etc/rex/accounts.jsonc on agentbox by scripts/rex_server_setup.sh.
+// Only the owner's Tailscale login may connect, and only as frshbb.
+{
+  "version": 1,
+  "accounts": {
+    "frshbb": { "principals": ["tailscale:manifoldfrs@github"] },
+  },
+  "defaults": { "tailscale:manifoldfrs@github": "frshbb" },
+}
