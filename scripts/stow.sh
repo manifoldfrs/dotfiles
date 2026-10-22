@@ -9,7 +9,7 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr rex nvim bin opencode claude codex pi agents zed cursor)
+STOW_PACKAGES=(bash git ghostty herdr rex nvim bin opencode claude codex pi agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
@@ -41,17 +41,6 @@ PI_BACKUP_TARGETS=(
     "$HOME/.pi/agent/claude-bridge.json"
     "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
-)
-ZED_BACKUP_TARGETS=(
-    "$HOME/.config/zed/settings.json"
-    "$HOME/.config/zed/keymap.json"
-    "$HOME/.config/zed/tasks.json"
-)
-CURSOR_USER_DIR="$HOME/Library/Application Support/Cursor/User"
-CURSOR_BACKUP_TARGETS=(
-    "$CURSOR_USER_DIR/settings.json"
-    "$CURSOR_USER_DIR/keybindings.json"
-    "$CURSOR_USER_DIR/tasks.json"
 )
 
 # The tracked Codex config is mostly state written by the macOS ChatGPT app, so other systems keep their own.
@@ -194,34 +183,6 @@ backup_bash_stow_targets() {
         relative="${source#"$STOW_DIR/bash/"}"
         backup_stow_target "$HOME/$relative"
     done < <(find "$STOW_DIR/bash" -type f | sort)
-}
-
-backup_zed_stow_targets() {
-    local target
-
-    if ! has_stow_package zed; then
-        return
-    fi
-
-    mkdir -p "$HOME/.config/zed"
-
-    for target in "${ZED_BACKUP_TARGETS[@]}"; do
-        backup_stow_target "$target"
-    done
-}
-
-backup_cursor_stow_targets() {
-    local target
-
-    if ! has_stow_package cursor; then
-        return
-    fi
-
-    mkdir -p "$CURSOR_USER_DIR"
-
-    for target in "${CURSOR_BACKUP_TARGETS[@]}"; do
-        backup_stow_target "$target"
-    done
 }
 
 backup_codex_stow_targets() {
@@ -454,8 +415,6 @@ apply_dotfiles() {
     backup_pi_stow_targets
     backup_shared_skill_targets
 
-    backup_zed_stow_targets
-    backup_cursor_stow_targets
     backup_codex_stow_targets
     remove_codex_config_link_off_macos
 

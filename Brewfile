@@ -74,7 +74,6 @@ brew "withgraphite/tap/graphite"
 cask "font-jetbrains-mono-nerd-font"
 cask "font-meslo-lg-nerd-font"
 cask "ghostty"
-cask "zed"
 cask "basecamp/tap/hey"
 cask "notunes"
 

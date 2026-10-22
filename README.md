@@ -12,8 +12,7 @@ Rex, Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Ni
 - Ghostty uses `MonoLisaCode` at 14 pt with explicit regular, italic, bold, and bold-italic styles.
 - Starship uses the intended Nerd Font glyphs through Ghostty's built-in `Symbols Nerd Font` fallback. See `plans/theme-font-glyph-followups.md`.
 - Starship and FZF inherit the Tokyo Night terminal palette from Ghostty.
-- Zed is the GUI code reader and debugger, Tokyo Night with `MonoLisaCode` at 14 pt to match Ghostty and Neovim; its settings, keymap, and tasks are the `zed` Stow package.
-- Cursor is a second GUI reader and debugger, also Tokyo Night with `MonoLisaCode` at 14 pt; its settings, keybindings, and tasks are the `cursor` Stow package, and the older Cursor config stays archived under `old/cursor/`.
+- Neovim is the code reader; Zed and Cursor were retired in October 2026, and their last configs are archived in `old/zed/` and `old/cursor/`.
 
 ## Rex
 
@@ -99,7 +98,7 @@ Compared with the Ghostty and Herdr setup, Rex is missing:
 - Selection API: annotations read the clipboard, so select (copy on select) before `Ctrl-a a`.
 - Herdr's `Ctrl-a O` and `Ctrl-a L` document and last-reply reviews were not ported; run `plannotator-tui` directly if needed.
 - Remote image paste, which Herdr sends to the remote machine, and dragging a macOS screenshot thumbnail into Claude Code.
-- A file or diff viewer for reviewing agent changes; use Cursor, Zed, or `hunk`.
+- A file or diff viewer for reviewing agent changes; use Neovim's diffview (`<leader>gD`) or `hunk`.
 - A public iOS client and `rex attach` (removed in preview.18), so the phone still uses Termius with Herdr on `agentbox`.
 - Background opacity and blur, and Ghostty's `font-variation`.
 - File-based appearance settings: theme, font, and notifications live in the app.
@@ -1273,72 +1272,6 @@ Use a terminal-first debugging flow instead of an in-editor DAP stack.
 - Go: use `dlv debug`, `dlv test`, or `dlv attach` directly in a Herdr pane
 - Python: use `python -m debugpy --listen localhost:5678 ...` when you need an attachable debugger
 - Day to day: prefer tests, logs, and targeted print statements for fast iteration
-- GUI debugging: use Cursor's built-in debugger, with the TypeScript debugger built in, `dlv` through `golang.go`, Ruby through `Shopify.ruby-lsp`, and C/C++ through CodeLLDB
-
-### Cursor
-
-Cursor is for reading and debugging code; agents still run in the terminal.
-The `cursor` Stow package ports the Neovim setup onto VSCodeVim and VSpaceCode, the same way the `zed` package does for Zed.
-Space opens the VSpaceCode which-key menu and comma opens the major-mode menu, matching Neovim's leader and localleader.
-VSpaceCode's defaults already match most Neovim aliases, so `vspacecode.bindingOverrides` only adds Neovim-only keys and replaces the groups Neovim uses differently: `e` explorer, `t` tests, `u` toggles, `z` zen, `.` scratch, and `m` as the comma major mode.
-`SPC g g` and the test keys run the user tasks in `tasks.json`, which dispatch tests by file type like the Zed tasks.
-Jumps (`SPC j j/w/l`) use VSCodeVim easymotion instead of flash.nvim.
-JS and TS lint through oxlint via the Oxc extension, and JS, TS, JSON, CSS, HTML, and Markdown files do not format on save because agents own formatting.
-
-Install the extensions, then apply the package:
-
-```bash
-CURSOR_BIN="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
-while IFS= read -r ext; do "$CURSOR_BIN" --install-extension "$ext"; done < cursor/extensions.txt
-./scripts/stow.sh apply
-```
-
-`cursor/extensions.txt` is the complete installed set; Cursor reinstalls `anysphere.remote-ssh` and `anysphere.remote-containers` on its own, so both stay listed.
-Once applied, `settings.json`, `keybindings.json`, and `tasks.json` are symlinks into this repo, so changes made in Cursor's settings UI show up in `git diff`.
-
-Two startup choices live in Cursor's own storage rather than `settings.json`:
-
-- Turn off Cursor Tab from its status bar item or Cursor Settings.
-- To open the IDE instead of the Agents window, set Cursor Settings → General → Window Restoration to **Last Used Windows**, then quit with only the editor window open.
-
-### Custom Zed build
-
-`scripts/build_zed.sh` builds Zed from upstream source plus the patches tracked in `zed-custom/patches/`.
-The patches add flash.nvim-style jumps and which-key labels that stock Zed lacks:
-
-| Patch  | Adds                                                                                                                                                                    |
-| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `0001` | `vim::PushFlash`: type a pattern, then press a label to jump to that match (imported from [zed-industries/zed#59188](https://github.com/zed-industries/zed/pull/59188)) |
-| `0002` | `vim::PushFlashWord` (labels on every visible word start, narrowed by typing) and `vim::PushFlashLine` (labels on every visible line start)                             |
-| `0003` | `which_key.labels` setting, keyed by keystroke sequence, for group and binding names in the which-key popup                                                             |
-
-```bash
-./scripts/build_zed.sh                  # reset to zed-custom/base-commit, apply patches, build and bundle Zed Dev.app
-./scripts/build_zed.sh install          # copy Zed Dev.app into /Applications, next to stock Zed.app
-./scripts/build_zed.sh remote agentbox  # cross-compile the Linux remote server and install it on the host
-./scripts/build_zed.sh export           # rewrite zed-custom/patches from commits on the checkout's custom branch
-./scripts/build_zed.sh update           # rebase the patches onto upstream main and pin the new base commit
-```
-
-The checkout and build output live in `zed-custom/source/`, which is gitignored; the bundle lands in `zed-custom/source/target/release/bundle/osx/Zed Dev.app`.
-Zed Dev is the dev release channel, so it installs beside stock Zed and reads the same `~/.config/zed` settings.
-The build needs rustup, Xcode, cmake, and Zed's cargo-bundle fork; rustup installs the Rust version Zed pins on the first build.
-The remote server also needs zig, cargo-zigbuild, and rustup's `llvm-tools` component for stripping debug info before upload.
-Install the Cargo tools with the pinned toolchain, because they need a newer Rust than older default toolchains:
-
-```bash
-cargo +1.98.1 install cargo-bundle --git https://github.com/zed-industries/cargo-bundle.git --branch zed-deploy
-brew install zig
-cargo +1.98.1 install --locked cargo-zigbuild
-rustup component add llvm-tools --toolchain 1.98.1
-```
-
-Dev-channel Zed never downloads a remote server; it uses `~/.zed_server/zed-remote-server-dev-build` on the host.
-Rerun `remote` after every `build`, so the server on agentbox matches the app.
-Without Xcode's optional Metal toolchain, the script builds with runtime shader compilation; `xcodebuild -downloadComponent MetalToolchain` restores build-time shaders.
-To change a patch, commit the edit on the `custom` branch in `zed-custom/source/`, then run `export`.
-The build refuses to reset a checkout with uncommitted changes.
-The bundle is signed ad hoc and uses system git instead of a bundled copy, so universal links do not open it.
 
 ### Herdr
 
@@ -1398,9 +1331,10 @@ Generated integration files remain machine-managed. The shared `herdr` skill tea
 
 Bash stores interactive history in `~/.bash_history`. FZF provides fuzzy completion and history/file keybindings; GNU Readline uses the tracked `.inputrc`; Starship renders the prompt; zoxide handles directory jumping; and mise activates project runtime versions and environments. Generated initialization scripts for FZF, Starship, and Zoxide are cached under `${XDG_CACHE_HOME:-~/.cache}/bash/init/` and regenerated after their executables change; mise is activated fresh in each shell because its script embeds the current `PATH`.
 
-Cursor is intentionally archived under `old/cursor/current-archive/` and is not a Stow package.
-Zed returned as the GUI reader in October 2026; the current tracked config lives in `stow/zed/`, and `old/zed/` is the retired previous iteration kept for reference.
-See `docs/research/cursor-as-reader-with-pi.md` for the reader comparison behind that choice.
+Zed and Cursor are retired; Neovim in Rex is the code reader.
+Their last tracked configs are archived in `old/zed/stow/` and `old/cursor/stow/`, next to older iterations.
+The custom Zed build (`old/zed/build_zed.sh` and `old/zed/custom/`) is archived as-is; its paths assume the old layout.
+See `docs/research/nvim-cursor-like-ui.md` for the Neovim changes that replaced them.
 
 ## File Structure
 
@@ -1410,13 +1344,7 @@ dotfiles/
 │   ├── bootstrap.sh        # Full machine bootstrap for non-Stow setup
 │   ├── backup.sh           # Backup current machine config into repo
 │   ├── stow.sh             # Apply/delete/dry-run GNU Stow packages
-│   ├── build_zed.sh        # Build Zed with the zed-custom patches
 │   └── validate-dotfiles.sh # Isolated preflight before live Stow apply
-├── zed-custom/             # Custom Zed build inputs
-│   ├── base-commit         # Pinned upstream Zed commit
-│   ├── patches/            # Patches applied in order by build_zed.sh
-│   └── source/             # Gitignored Zed checkout and build output
-├── cursor/extensions.txt    # Cursor extensions for the cursor Stow package
 ├── mcp_setup.sh            # MCP config backup/install
 ├── Brewfile                # Homebrew packages
 ├── npm-global-packages.txt # Global npm packages
@@ -1431,8 +1359,6 @@ dotfiles/
 │   ├── agents/             # Shared Agent Skills catalog used by Pi, OpenCode, and Codex
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
-│   ├── zed/                # .config/zed/: settings, keymap, tasks
-│   ├── cursor/             # Library/Application Support/Cursor/User: settings, keybindings, tasks
 │   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
 │       └── .config/nvim/
 │           ├── init.lua

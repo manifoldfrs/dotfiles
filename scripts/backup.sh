@@ -43,7 +43,8 @@ export_brewfile() {
     fi
 
     info "Exporting Homebrew packages to Brewfile..."
-    brew bundle dump --file="$DOTFILES_DIR/Brewfile" --force
+    # Editor extensions belonged to the retired Cursor and Zed setups; keep them out.
+    brew bundle dump --file="$DOTFILES_DIR/Brewfile" --force --no-vscode
 }
 
 export_npm_globals() {
@@ -95,8 +96,6 @@ backup_shared_config() {
     copy_file "$HOME/.config/herdr/plugins.txt" "$STOW_DIR/herdr/.config/herdr/plugins.txt" "Herdr plugins"
     copy_file "$HOME/.config/plannotator-tui/config.toml" "$STOW_DIR/herdr/.config/plannotator-tui/config.toml" "Plannotator TUI config"
     backup_stow_package rex
-    backup_stow_package zed
-    backup_stow_package cursor
     backup_warp_themes
     export_npm_globals
 }

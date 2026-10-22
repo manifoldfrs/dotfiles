@@ -1,13 +1,6 @@
 neovim/karabiner/automatic_backups
 nvim/karabiner/automatic_backups
 
-# Cursor workspace storage files (random 4-char names)
-cursor/[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9].json
-cursor/entries.json
-cursor/syncLocalSettings.json
-cursor/mcp.json
-cursor/argv.json
-
 # Editor and OS artifacts
 *.swp
 .DS_Store
@@ -22,5 +15,5 @@ mcp/factory_mcp.json
 stow/claude/.claude/mods/*/.claude-plugin/types/
 stow/claude/.claude/mods/*/tsconfig.json
 
-# Custom Zed build: checkout and build output (patches and scripts are tracked)
-zed-custom/source/
+# Archived custom Zed build: checkout and build output (patches and scripts are tracked)
+old/zed/custom/source/
