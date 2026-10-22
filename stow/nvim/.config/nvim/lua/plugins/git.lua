@@ -4,6 +4,7 @@ return {
                 event = { "BufReadPre", "BufNewFile" },
                 config = function()
                         require("gitsigns").setup({
+                                current_line_blame = true,
                                 signs = {
                                         add = { text = "│" },
                                         change = { text = "│" },

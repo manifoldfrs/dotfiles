@@ -88,3 +88,8 @@ vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv")
 
 -- Paste without yanking replaced text
 vim.keymap.set("v", "p", '"_dP')
+
+-- Cursor-style Cmd shortcuts (Rex passes Cmd keys through as <D-…>)
+vim.keymap.set({ "n", "i", "x" }, "<D-s>", "<cmd>write<cr>", { desc = "Save File" })
+vim.keymap.set("n", "<D-/>", "gcc", { remap = true, desc = "Toggle Comment" })
+vim.keymap.set("x", "<D-/>", "gc", { remap = true, desc = "Toggle Comment" })

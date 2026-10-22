@@ -1076,14 +1076,17 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 | Plugin             | Purpose                                                                                       |
 | ------------------ | --------------------------------------------------------------------------------------------- |
 | snacks.nvim        | Modern QoL plugins (replaces telescope, alpha, indent-blankline, nvim-surround, Comment.nvim) |
-| neo-tree           | File explorer                                                                                 |
+| fff                | Cursor-style `Cmd-P` file finder and `Cmd-Shift-F` search (Rust index, frecency, typo-tolerant) |
+| dropbar.nvim       | Breadcrumbs bar at the top of each window                                                     |
+| render-markdown    | Renders Markdown headings, tables, and code blocks while reading                              |
+| mini.icons         | File and UI icons; stands in for nvim-web-devicons                                            |
 | blink.cmp          | High-performance autocompletion (Rust-based fuzzy matching)                                   |
 | flash.nvim         | Motion/jump plugin (character, word, line jumps)                                              |
 | mason + lspconfig  | LSP support                                                                                   |
 | treesitter         | Syntax highlighting + parser management                                                       |
 | treesitter-context | Sticky one-line code context                                                                  |
 | noice.nvim         | Command-line, message, and LSP UI                                                             |
-| gitsigns           | Git integration                                                                               |
+| gitsigns           | Git signs, hunks, and inline blame on the current line                                        |
 | diffview.nvim      | Git diff review and file history UI                                                           |
 | nvim-spectre       | Project-wide search and replace panel                                                         |
 | lualine            | Status line                                                                                   |
@@ -1092,7 +1095,7 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 
 **Key plugins explained:**
 
-- **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
+- **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `explorer` (the file sidebar), `scroll` (smooth scrolling), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
 - **blink.cmp**: Rust-based completion engine with 0.5-4ms response time, typo-resistant fuzzy matching, and native LuaSnip support
 - **flash.nvim**: Fast motion plugin under the `<leader>j` group for jumping to characters (`<leader>jj`), words (`<leader>jw`), and lines (`<leader>jl`)
 
@@ -1164,7 +1167,23 @@ VSpaceCode-style aliases are also available: `<leader>f` File, `<leader>b` Buffe
 | `Space`                                    | Leader key                                                      |
 | `jk` (insert)                              | Escape to Normal                                                |
 | `%%` (command)                             | Insert current file directory                                   |
-| `<C-n>`                                    | Toggle neo-tree                                                 |
+| `<C-n>`                                    | Toggle the file explorer                                        |
+| **Cursor-style (Cmd keys, in Rex)**        |                                                                 |
+| `Cmd-P` / `Cmd-Shift-F`                    | Find files / search in files (fff)                              |
+| `Cmd-B`                                    | Toggle the file explorer                                        |
+| `Cmd-Shift-P`                              | Commands (Rex's palette outside Neovim)                         |
+| `Cmd-Shift-O`                              | Go to symbol                                                    |
+| `Cmd-S` / `Cmd-/`                          | Save / toggle comment                                           |
+| `<leader>;`                                | Pick from the breadcrumbs bar                                   |
+| **File explorer (cursor in the file list)** |                                                                 |
+| `Ctrl-h` / `Ctrl-l`                        | Move into the explorer / back to the file                       |
+| `/` then `Esc`                             | Filter the tree / return to the list                            |
+| `a` / `r` / `d`                            | Add / rename / delete a file (end a name with `/` for a folder) |
+| `c` / `m`                                  | Copy / move (select several with `Tab` first)                   |
+| `y` / `p`                                  | Yank paths / paste files here                                   |
+| `H` / `I`                                  | Show or hide hidden / gitignored files                          |
+| `]g` / `[g`                                | Next / previous file with git changes                           |
+| `o` / `P`                                  | Open with the macOS app / toggle preview                        |
 | `<leader>h`                                | Clear search highlight                                          |
 | **VSpaceCode-style File/Project**          |                                                                 |
 | `<leader>ff` / `<leader>pf`                | Find files / project files                                      |
@@ -1597,7 +1616,7 @@ Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 
 **Herdr and Neovim navigation**
 
-- Bare `C-h/j/k/l` navigate Neovim windows, including moving between Neo-tree and editor splits.
+- Bare `C-h/j/k/l` navigate Neovim windows, including moving between the file explorer and editor splits.
 - Use prefixed `C-a h/j/k/l` to navigate Herdr panes.
 
 **A project runtime is missing?**

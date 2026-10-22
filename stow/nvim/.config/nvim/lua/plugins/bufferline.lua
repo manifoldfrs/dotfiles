@@ -1,7 +1,6 @@
 return {
   "akinsho/bufferline.nvim",
   version = "*",
-  dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
     require("bufferline").setup({
       options = {
@@ -13,7 +12,7 @@ return {
         color_icons = true,
         offsets = {
           {
-            filetype = "neo-tree",
+            filetype = "snacks_layout_box",
             text = "File Explorer",
             highlight = "Directory",
             separator = true,

@@ -20,14 +20,11 @@ navigator.setup({
   close = false,
 })
 
-local TERMINAL = "com.superlogical.terminal"
-local EDITORS = { vim = true, nvim = true }
+local in_editor = require("editor")
 
 local function focus(direction)
   return function(ctx)
-    local process = rex.block.call(TERMINAL, "process", { block_id = ctx.block_id })
-    local foreground = process and process.foreground
-    if foreground and EDITORS[foreground.name] then
+    if in_editor(ctx) then
       return false
     end
     rex.session.focus_direction({ direction = direction })

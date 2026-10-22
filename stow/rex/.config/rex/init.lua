@@ -1,6 +1,7 @@
 require("keys")
 require("annotate")
 require("navigator")
+require("cmd-keys")
 
 rex.host({
   label = "agentbox",

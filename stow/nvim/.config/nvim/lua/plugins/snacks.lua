@@ -11,6 +11,9 @@ return {
         explorer = {
           hidden = true,
           ignored = true,
+          -- Hide the filter box until `/` focuses it, so Ctrl-h from the top
+          -- of a file lands in the file list instead of the filter.
+          layout = { preset = "sidebar", preview = false, auto_hide = { "input" } },
         },
         files = {
           hidden = true,
@@ -39,6 +42,7 @@ return {
     words = { enabled = true },
     git = { enabled = true },
     zen = { enabled = true },
+    scroll = { enabled = true },
     toggle = { enabled = true },
   },
   keys = {
@@ -94,6 +98,12 @@ return {
     
     -- Explorer
     { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
+    { "<C-n>", function() Snacks.explorer() end, desc = "File Explorer" },
+
+    -- Cursor-style Cmd shortcuts (Rex passes Cmd keys through as <D-…>)
+    { "<D-b>", function() Snacks.explorer() end, desc = "Toggle Explorer" },
+    { "<D-S-p>", function() Snacks.picker.commands() end, desc = "Commands" },
+    { "<D-S-o>", function() Snacks.picker.lsp_symbols() end, desc = "Go to Symbol" },
     
     -- Notifications
     { "<leader>un", function() Snacks.notifier.hide() end, desc = "Dismiss All Notifications" },
