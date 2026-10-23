@@ -17,12 +17,6 @@ STOW_TARGETS=(
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"
-    "$HOME/.config/opencode/AGENTS.md"
-    "$HOME/.config/opencode/cli.json"
-    "$HOME/.config/opencode/opencode.jsonc"
-    "$HOME/.config/opencode/plugins/typesafe-ai"
-    "$HOME/.config/opencode/plugins/tui-conveniences"
-    "$HOME/.config/opencode/plugins/request-logger"
     "$HOME/.claude/settings.local.json"
     "$HOME/.config/herdr/config.toml"
     "$HOME/.config/herdr/plugins.txt"
@@ -106,7 +100,7 @@ backup_stow_target() {
 }
 
 backup_existing_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.claude" "$HOME/.local/bin"
 
     for target in "${STOW_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -184,27 +178,6 @@ install_npm_globals() {
     done < "$DOTFILES_DIR/npm-global-packages.txt"
 }
 
-install_opencode_plugin_dependencies() {
-    local plugin_dir
-    local plugin_name
-
-    if ! command -v npm &> /dev/null; then
-        warn "npm not found, skipping OpenCode plugin dependencies"
-        return
-    fi
-
-    for plugin_name in typesafe-ai tui-conveniences request-logger; do
-        plugin_dir="$HOME/.config/opencode/plugins/$plugin_name"
-        if [ ! -f "$plugin_dir/package.json" ]; then
-            warn "OpenCode $plugin_name plugin not found, skipping its dependencies"
-            continue
-        fi
-
-        info "Installing OpenCode $plugin_name dependencies..."
-        (cd "$plugin_dir" && npm install --omit=dev --no-package-lock) || warn "OpenCode $plugin_name dependency installation failed"
-    done
-}
-
 install_global_anti_slop() {
     local runtime="$DOTFILES_DIR/stow/bin/.local/share/anti-slop"
 
@@ -220,21 +193,6 @@ install_global_anti_slop() {
 
     info "Installing global anti-slop dependencies..."
     npm install --prefix "$runtime" --omit=dev --ignore-scripts --no-package-lock --no-audit --no-fund || warn "Global anti-slop dependency installation failed"
-}
-
-install_opencode() {
-    local version
-
-    if command -v opencode &> /dev/null; then
-        version="$(opencode --version 2>/dev/null || true)"
-        if [[ "$version" == "opencode v2."* ]]; then
-            info "OpenCode 2 already installed: $version"
-            return
-        fi
-    fi
-
-    info "Installing OpenCode 2..."
-    curl -fsSL https://opencode.ai/v2/install | bash || warn "OpenCode 2 installation failed"
 }
 
 install_claude_code() {
@@ -302,7 +260,6 @@ main() {
     info "Bootstrapping development environment..."
     install_homebrew
     install_brewfile
-    install_opencode
     install_claude_code
     install_claude_chrome_host_for_helium
     apply_dotfiles
@@ -311,7 +268,6 @@ main() {
     sync_neovim_plugins
     install_npm_globals
     install_global_anti_slop
-    install_opencode_plugin_dependencies
     install_plannotator
     setup_rex_agents
 

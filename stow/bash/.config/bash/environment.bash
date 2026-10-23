@@ -40,8 +40,6 @@ path_prepend() {
 [[ -n ${HOMEBREW_PREFIX:-} ]] && path_prepend "$HOMEBREW_PREFIX/sbin"
 [[ -n ${HOMEBREW_PREFIX:-} ]] && path_prepend "$HOMEBREW_PREFIX/bin"
 path_prepend "$HOME/.local/bin"
-path_prepend "$HOME/.opencode/bin"
-path_prepend "$HOME/.config/opencode/scripts"
 path_prepend "$HOME/.cargo/bin"
 path_prepend "$HOME/.deno/bin"
 path_prepend "$HOME/.bun/bin"

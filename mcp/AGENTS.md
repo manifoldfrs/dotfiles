@@ -1,7 +1,7 @@
 # AGENTS.md - MCP Configurations
 
 ## Package Identity
-MCP configuration templates for Codex plus tracked MCP guidance for Claude Code, Codex, Pi, and OpenCode.
+MCP configuration templates for Codex plus tracked MCP guidance for Claude Code, Codex, and Pi.
 Templates stored as `.example` files with placeholders.
 
 ## Setup & Run

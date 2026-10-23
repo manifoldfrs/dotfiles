@@ -3,6 +3,5 @@
 # Run: xargs npm install -g < npm-global-packages.txt
 
 @openai/codex
-opencode-ai
 vercel
 tree-sitter-cli

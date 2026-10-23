@@ -1,12 +1,12 @@
 # dotfiles
 
-Configuration files for Bash, Starship, Homebrew, Rex, Ghostty, Herdr, Neovim, OpenCode, Claude Code, Codex, and Pi.
+Configuration files for Bash, Starship, Homebrew, Rex, Ghostty, Herdr, Neovim, Claude Code, Codex, and Pi.
 GNU Stow manages symlinks from `stow/*` into `$HOME`.
-Rex, Ghostty, Herdr, Neovim, Pi, OpenCode, Claude Code, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
+Rex, Ghostty, Herdr, Neovim, Pi, Claude Code, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
 
 ## Theme and font status
 
-- Rex, Ghostty, Herdr, Neovim, Pi, OpenCode, and Codex use Tokyo Night.
+- Rex, Ghostty, Herdr, Neovim, Pi, and Codex use Tokyo Night.
 - Rex imports Ghostty's `TokyoNight Night` theme and uses `MonoLisaCode` at 14 pt; both are app settings (see [Rex](#rex)).
 - Neovim uses the Tokyo Night `night` style with transparent editor, sidebar, float, statusline, and tab-fill surfaces.
 - Ghostty uses `MonoLisaCode` at 14 pt with explicit regular, italic, bold, and bold-italic styles.
@@ -166,8 +166,7 @@ spotify-visualizer
 The TypeSafe skill defines when and how to request a Jev judgment.
 
 Pi 1.0 uses native Codemode classifiers; it no longer installs a custom TypeSafe SDK adapter.
-OpenCode retains its `typesafe_evaluate` adapter under `stow/opencode/.config/opencode/plugins/typesafe-ai/`.
-Both send the supplied state and questions to TypeSafe and return typed judgments.
+It sends the supplied state and questions to TypeSafe and returns typed judgments.
 
 In Pi Codemode:
 
@@ -193,112 +192,18 @@ Native questions use `choice`, `score`, or `bool`; a `bool` answer supplies a `p
 Specialized Jev MCP tools remain available for screening, verification, and gates.
 Do not include credentials, secrets, or unrelated private data.
 
-OpenCode pins the TypeSafe tool in its Code Mode catalog and adds tool invocation guidance to outgoing contexts where the catalog lists it.
-Shared global rules and the Jev skill own judgment policy; the adapter explains only the Code Mode calling convention and result shape.
-Use exact search, parsing, arithmetic, and tests for deterministic facts.
-Inside `execute`, the tool returns a validated object with `answers`, `model`, and `usage`; no `JSON.parse` is needed.
-For example, when the catalog lists `tools.typesafe_evaluate`:
-
-```js
-const result = await tools.typesafe_evaluate({
-    state: "A customer asks to cancel today",
-    noul_questions: [
-        { id: "urgent", instructions: "Does this need a reply today?" },
-    ],
-});
-return result.answers.urgent;
-```
-
-The Noul answer is `{ type: "noul", noul: probability }`, not a boolean.
-Choice and Score answers include confidence and probability distributions.
-Missing or malformed provider answers fail explicitly rather than returning an empty success.
-Tool results retain readable text and model/token metadata for other consumers.
-Judgments advise; they do not replace permission checks or prove correctness.
-
 Keep `TYPESAFE_API_KEY` as machine-local state in `~/.config/bash/local.bash`:
 
 ```bash
 export TYPESAFE_API_KEY="YOUR_API_KEY"
 ```
 
-`scripts/bootstrap.sh` installs the OpenCode adapters' pinned runtime dependencies.
 Pi's native classifier needs no separate SDK installation.
 Apply and reload live configuration only after reviewing and approving the tracked changes.
 
-## OpenCode Configuration
+## Codex Chrome Extension Bridge
 
-The `opencode` Stow package owns the tracked sources under `stow/opencode/.config/opencode/`.
-
-| Tracked source              | Purpose                                                                                 |
-| --------------------------- | --------------------------------------------------------------------------------------- |
-| `opencode.jsonc`            | Model defaults, permissions, MCP servers, providers, skills, and global instructions    |
-| `cli.json`                  | Tokyo Night, TUI layout, permission handling, and keybindings                           |
-| `commands/`                 | Slash commands such as `/lg`                                                            |
-| `plugins/typesafe-ai/`      | TypeSafe Jev tool                                                                       |
-| `plugins/tui-conveniences/` | `/copy-all`, `/restart`, `/update`, skill-load confirmations, and the Git status footer |
-| `plugins/request-logger/`   | Opt-in private HTTP request capture                                                     |
-
-New sessions use `openai/gpt-6.1-sol-fast` with medium reasoning effort and low response verbosity.
-Its pinned limits match the running ChatGPT catalog checked on 2026-10-04: 400,000 context, 272,000 input, and 128,000 output tokens.
-This catalog alias sends `gpt-6.1-sol` with the priority service tier.
-The limits preserve the current compaction budget rather than assuming the public API's larger window applies to this connection.
-The TUI hides the session sidebar and persistent tab strip.
-The TUI also provides Pi-style navigation shortcuts.
-
-OpenCode can use the current user's filesystem, processes, and network without a permission prompt.
-Review the tracked configuration before you apply it.
-
-`REF_API_KEY`, `EXA_API_KEY`, and `TYPESAFE_API_KEY` are machine-local state.
-Do not put real credentials in tracked sources.
-
-Apply only the OpenCode Stow package with:
-
-```bash
-cd ~/dotfiles
-./scripts/stow.sh apply opencode
-```
-
-Bootstrap installs plugin dependencies automatically.
-Restart OpenCode after an apply.
-
-### OpenCode HTTP request logger
-
-The last local plugin is `request-logger`, disabled by default with `options.enabled: false`.
-After reviewing the tracked changes and approving live activation, enable it through the plugin's options in `opencode.jsonc`:
-
-```jsonc
-{
-    "package": "../../code/personal/dotfiles/stow/opencode/.config/opencode/plugins/request-logger",
-    "options": {
-        "enabled": true,
-        "maxFiles": 100,
-    },
-}
-```
-
-This is an entry in the existing `plugins` array, not a replacement configuration.
-Bootstrap installs its dependencies along with the other local plugins.
-The logger runs in the background service, so a flag on a new CLI process is not used to enable it.
-It writes to `~/.local/state/opencode/requests`, or an absolute `options.directory`, with directory mode `0700` and file mode `0600`.
-It refuses a symlink at the log directory and retains the newest 100 logger-owned files by default; `maxFiles` must be a positive integer.
-Retention limits file count, not total bytes, and leaves unrelated files alone.
-
-Each JSON file records the timestamp, session, agent, catalog model, request kind, raw body string, and byte counts for instructions, input, and tools when those fields exist.
-The body shows the actual wire model and provider options; the catalog model can be an alias.
-Byte counts are not token counts, and the instruction count excludes system messages embedded in the input array.
-For non-UTF-8 bodies, `bodyBase64` preserves the original bytes.
-The original request remains unchanged and readable; logging failures emit a generic server warning without error details and do not block dispatch.
-
-**Logs contain full prompts, tool schemas, and file contents, including any secrets already present in the body.**
-The logger deliberately omits URLs and request headers, but does not redact bodies because that would hide what was sent.
-Keep logs outside version control, review them before sharing, and disable logging when the investigation ends.
-Capture covers HTTP requests for primary turns, compaction, titles, transient generation, and retries, not responses or WebSocket frames.
-Keep the logger after request-mutating plugins; hooks registered later can still change the request after capture.
-Automatic updates, MCP package updates, and automatic compaction remain unchanged.
-
-### Codex Chrome Extension Bridge
-
-OpenCode's `codex-chrome` MCP server uses [codex-control-chrome-mcp](https://github.com/iola1999/codex-control-chrome-mcp) to control the existing Chrome profile through the Codex Chrome extension.
+Pi's `codex-chrome` MCP server uses [codex-control-chrome-mcp](https://github.com/iola1999/codex-control-chrome-mcp) to control the existing Chrome profile through the Codex Chrome extension.
 Unlike the isolated `chrome-devtools` server, it can use existing signed-in tabs and capture screenshots of localhost apps.
 It grants access to page contents and browser actions; the community bridge does not enforce per-site permissions.
 
@@ -312,18 +217,18 @@ codex-control-chrome-mcp status --browser chrome
 
 The tracked MCP entry starts `codex-control-chrome-mcp` from `PATH`; on Linux the binary is absent, so only that server fails to start.
 The installer backs up Chrome's existing native-host manifest and records its original host for proxy mode.
-Reload the Codex Chrome extension after installation, then reconnect `codex-chrome` through OpenCode's `/mcps` menu or restart OpenCode.
+Reload the Codex Chrome extension after installation, then reconnect `codex-chrome` through Pi's `/mcp` menu or restart Pi.
 Automatic registration repair remains enabled: after a Codex update restores its own host registration, starting the bridge re-registers it, and the extension may need another reload.
 
-To restore the previous Chrome native-host registration, disconnect `codex-chrome` in OpenCode and run:
+To restore the previous Chrome native-host registration, disconnect `codex-chrome` in Pi and run:
 
 ```bash
 codex-control-chrome-mcp uninstall-native-host --browser chrome
 ```
 
-Also remove the `codex-chrome` MCP entry if you no longer want OpenCode to start the bridge.
+Also remove the `codex-chrome` MCP entry if you no longer want Pi to start the bridge.
 
-### GPT Response Verbosity
+## GPT Response Verbosity
 
 OpenAI GPT-5 models and the verified GPT-6 Astra, GPT-6 Sol, and GPT-6.1 Sol models support `low`, `medium`, and `high` output verbosity through the Responses API.
 The tracked configs currently use `low`.
@@ -332,24 +237,6 @@ The tracked configs currently use `low`.
   Change the `verbosity: "low"` value, then run `/reload` in Pi.
 - Codex sets verbosity with `model_verbosity` in `stow/codex/.codex/config.toml`.
   Change the value, then restart Codex.
-- OpenCode sets `textVerbosity` per provider and model in `stow/opencode/.config/opencode/opencode.jsonc`.
-  Update each GPT-5 model entry you use under `provider.openai.models` or `provider.opencode.models`, then restart OpenCode.
-
-For example, an OpenCode model override uses this shape:
-
-```jsonc
-"providers": {
-  "openai": {
-    "models": {
-      "gpt-5.6-sol-fast": {
-        "settings": {
-          "textVerbosity": "low",
-        },
-      },
-    },
-  },
-}
-```
 
 ## Pi provider request logger
 
@@ -389,8 +276,6 @@ cd ~/dotfiles
 # 4. Verify Node.js works
 node --version
 
-# 5. Verify OpenCode 2 (installed by bootstrap)
-opencode --version
 ```
 
 ## Update an Existing Mac / Work Laptop
@@ -425,7 +310,7 @@ Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Ho
 
 What this already handles for you:
 
-- stows Bash, Starship, Git, Rex, Ghostty, Herdr, Neovim, OpenCode, Codex, Pi settings, and local bin config
+- stows Bash, Starship, Git, Rex, Ghostty, Herdr, Neovim, Codex, Pi settings, and local bin config
 - configures Herdr with Tokyo Night, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
 - avoids rerunning full-machine bootstrap tasks during normal dotfile updates
 
@@ -434,10 +319,6 @@ What `./scripts/bootstrap.sh` additionally handles for you:
 - installs Homebrew packages from `Brewfile`
 - runs Neovim headless plugin sync automatically
 - installs Bun and Plannotator TUI, then syncs the declared Herdr plugins
-
-What is still separate:
-
-- OpenCode install if you use it on that machine
 
 ## Herdr and Neovim integrations
 
@@ -555,7 +436,7 @@ The equivalent unguarded direct Stow command is:
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode codex pi
+stow --no-folding -R -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin codex pi
 ```
 
 ### Run Stow Without Scripts
@@ -566,11 +447,11 @@ Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow
 cd ~/dotfiles
 
 # Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode codex pi
-stow --no-folding -R -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode codex pi
+stow --no-folding -n -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin codex pi
+stow --no-folding -R -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin codex pi
 
 # Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode codex pi
+stow --no-folding -D -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin codex pi
 
 ```
 
@@ -585,9 +466,6 @@ stow --no-folding -R -v -t "$HOME" -d stow herdr
 
 # Bash and Starship only
 stow --no-folding -R -v -t "$HOME" -d stow bash
-
-# OpenCode only
-stow --no-folding -R -v -t "$HOME" -d stow opencode
 
 
 # Pi settings only
@@ -715,7 +593,7 @@ cd ~/dotfiles
 ./mcp_setup.sh backup
 ```
 
-`scripts/backup.sh` follows symlinks with `cp -L`, so it captures the configured shell/editor files into `stow/*`. It intentionally does not copy live OpenCode account/runtime state because those files can contain API keys, session data, or local machine history.
+`scripts/backup.sh` follows symlinks with `cp -L`, so it captures the configured shell/editor files into `stow/*`. It intentionally does not copy live agent account/runtime state because those files can contain API keys, session data, or local machine history.
 
 ## Command Cheatsheet
 
@@ -728,7 +606,6 @@ cd ~/dotfiles
 | Preview all Stow changes                | `./scripts/stow.sh dry-run`                                                                                                              |
 | Remove all Stow symlinks                | `./scripts/stow.sh delete`                                                                                                               |
 | Restow Bash config                      | `stow --no-folding -R -v -t "$HOME" -d stow bash`                                                                                        |
-| Restow OpenCode                         | `stow --no-folding -R -v -t "$HOME" -d stow opencode`                                                                                    |
 | Restow Codex settings/skills/hooks      | `./scripts/stow.sh apply`                                                                                                                |
 | Restow Pi settings                      | `stow --no-folding -R -v -t "$HOME" -d stow pi`                                                                                          |
 | Run Pi with request logging             | `pi-log`                                                                                                                                 |
@@ -752,7 +629,7 @@ cd ~/dotfiles
 - **Starship** prompt with bounded project/runtime detection
 - **FZF** completion and history/file keybindings through its native Bash integration
 - **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/bash`, `stow/git`, `stow/rex`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/opencode`, `stow/codex`, and `stow/pi` into `$HOME`
+- **Configs stowed**: `stow/bash`, `stow/git`, `stow/rex`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/codex`, and `stow/pi` into `$HOME`
 - **Herdr**: Stow-managed Tokyo Night config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
 - **Rex agent skill and hooks** via `rex skill setup` when Rex is installed
 - **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
@@ -771,7 +648,6 @@ MCP (Model Context Protocol) configs for AI coding assistants:
 
 - **Codex**: `~/.codex/config.toml`
 - **Pi**: `~/.pi/agent/mcp.json`
-- **OpenCode**: `~/.config/opencode/opencode.jsonc`
 
 These configurations are Stow-managed.
 `mcp_setup.sh` supports standalone Codex config installation and capture.
@@ -787,12 +663,12 @@ Preferred tool usage after setup:
 #### Shared rules and skills
 
 Global agent rules are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md).
-The `opencode` and `codex` Stow packages link to this file, so Pi, OpenCode, and Codex share one copy.
+The `claude` and `codex` Stow packages link to this file, so Pi, Claude Code, and Codex share one copy.
 Reload existing sessions after you change the rules.
 
 The shared skill catalog is tracked once under `stow/agents/.agents/skills/`.
 `scripts/stow.sh` links each complete skill directory into `~/.agents/skills/`.
-Pi and OpenCode use `~/.agents/skills/`.
+Pi uses `~/.agents/skills/`.
 
 The catalog combines the baseline catalog, the personalization layer, and local skills.
 Skill ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
@@ -801,7 +677,7 @@ Use `--review` to open a Plannotator review and `--sync` to update the tracked s
 An update stays uncommitted for normal Git review.
 Explicit `local` ownership protects personalized skills against both upstream catalogs.
 [frontend-design](stow/agents/.agents/skills/frontend-design/SKILL.md) is vendored unchanged with its license from [Anthropic's skills](https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design) at commit `dbd4588f9e1033efb41dad4bef2f7947c8993d44` and uses `local` ownership to preserve this snapshot.
-It guides visual direction, typography, layout, and interface copy; OpenCode also exposes it as `/frontend-design`.
+It guides visual direction, typography, layout, and interface copy.
 To remove an upstream skill for good, delete its folder and set its manifest owner to `excluded`; synchronization then never copies it back.
 The `plannotator-review`, `plannotator-annotate`, and `plannotator-last` skills are `excluded` because Plannotator's own installer writes them into every harness; `scripts/bootstrap.sh` runs that installer when `plannotator` is missing, and rerunning it updates the CLI and the skills together.
 Research and review default to direct execution for small tasks; independent reviewers and investigators remain available when scope warrants authorized delegation.
@@ -874,7 +750,7 @@ Animation mode needs the pinned Psychopomp renderer; `scripts/psychopomp.sh stat
 #### Claude Code
 
 The `claude` Stow package owns Claude Code settings, hooks, Tokyo Night theme, status line, and local mods.
-Shared skills are linked into `~/.claude/skills/`, and Claude Code shares the global agent rules with Pi, OpenCode, and Codex.
+Shared skills are linked into `~/.claude/skills/`, and Claude Code shares the global agent rules with Pi and Codex.
 Bootstrap installs Claude Code with its native installer; the deprecated npm installer is not used.
 Claude Code registers its browser extension's native host for Chrome but not Helium, so bootstrap copies that manifest into Helium's `NativeMessagingHosts` folder.
 Run `claude --chrome` once first so the Chrome manifest exists, then restart Helium after bootstrap.
@@ -916,7 +792,7 @@ Ref and exa remain directly exposed; Jev, HEY, and browser tools are discovered 
 The HEY server runs `hey mcp` from the `basecamp/tap/hey` cask in `Brewfile` and uses the account from `hey auth login`, stored in the macOS keychain.
 It has read and write access to mail, calendars, todos, and contacts; change its args to `["mcp", "--read-only"]` to limit it to reads.
 The `hey` skill is machine-local: run `hey skill install` once, and the CLI owns `~/.agents/skills/hey` and refreshes it on each release.
-Chrome DevTools uses an isolated browser; codex-chrome controls the existing profile using the same machine-local bridge setup as OpenCode.
+Chrome DevTools uses an isolated browser; codex-chrome controls the existing profile through the machine-local bridge described in [Codex Chrome Extension Bridge](#codex-chrome-extension-bridge).
 Run `pi mcp list` to check connections after applying the configuration.
 Pi's native `shellPath` selects `~/.local/bin/bash` for both model commands and user `!`/`!!` commands; the Zsh override is removed.
 `scripts/stow.sh apply` links that path to the machine's Bash 4+ (Homebrew Bash on macOS, `/bin/bash` on Linux), because Pi needs an existing path and does not search `PATH`.
@@ -966,27 +842,6 @@ With the declared development dependencies installed, run `npm --prefix test tes
 Run `bash test/agent_skills_sync_test.sh "$PWD"` for the offline skill-ownership regression test.
 The test uses fake upstream fixtures and does not fetch repositories or mutate live configuration.
 
-#### OpenCode
-
-`scripts/bootstrap.sh` installs OpenCode 2.
-The `opencode` Stow package owns server configuration, CLI settings, commands, global instructions, and plugins under `stow/opencode/.config/opencode/`.
-
-OpenCode plugins are separate harness adapters with separate owners:
-
-- `plugins/typesafe-ai/` exposes TypeSafe Jev.
-- `plugins/tui-conveniences/` adds `/copy-all`, confirms successful skill loads, and shows the Git status footer.
-
-The TUI conveniences plugin also adds `/restart` and `/update` (alias `/upgrade`).
-Both exit the terminal cleanly, restart the shared background server, and reopen the current session through the Bash `opencode` wrapper.
-`/update` runs `opencode upgrade` before restarting; if the upgrade fails, it resumes without restarting the server.
-Restarting the shared server affects other connected clients and can interrupt their running work.
-These commands require launching from the managed Bash configuration and do not support `--server`, `--standalone`, or Mini launches.
-Resume preserves the launch directory and flags, replaces the session selector, and does not replay an initial `--prompt`.
-
-OpenCode discovers the shared catalog under `~/.agents/skills/` as native skills.
-OpenCode 2 does not derive slash entries from skills, so each skill also has a thin wrapper command under `stow/opencode/.config/opencode/commands/<skill-id>.md` that loads it through `/skill-id`, and the TUI conveniences plugin confirms native skill activation with a success toast.
-The separate `stow/opencode/.config/opencode/commands/` directory is reserved for prompt macros such as `/lg`.
-
 #### Codex
 
 The `codex` Stow package owns personal defaults, MCP server definitions, hooks, and the Tokyo Night theme under `stow/codex/.codex/`.
@@ -1027,7 +882,6 @@ Existing configs have been moved to `old/karabiner/` for historical reference.
 | Tool         | Purpose                                |
 | ------------ | -------------------------------------- |
 | **Neovim**   | Primary editor (lazy.nvim)             |
-| **OpenCode** | AI-assisted coding CLI                 |
 | **Rex**      | Terminal and multiplexer (default)     |
 | **Ghostty**  | Terminal emulator (fallback)           |
 | **Herdr**    | Agent-aware terminal workspace manager |
@@ -1283,11 +1137,10 @@ Install agent integrations once per machine:
 ```bash
 herdr integration install pi
 herdr integration install codex
-herdr integration install opencode
 herdr integration status
 ```
 
-Generated integration files remain machine-managed. The shared `herdr` skill teaches Pi, Codex, and OpenCode to coordinate workspaces, tabs, panes, and sibling agents through the Herdr CLI.
+Generated integration files remain machine-managed. The shared `herdr` skill teaches Pi and Codex to coordinate workspaces, tabs, panes, and sibling agents through the Herdr CLI.
 
 ## Shell Configuration
 
@@ -1317,8 +1170,7 @@ dotfiles/
 │   ├── ghostty/            # .config/ghostty/config
 │   ├── herdr/              # .config/herdr/config.toml
 │   ├── bin/                # .local/bin tools and shared agent guardrail scripts
-│   ├── opencode/           # .config/opencode/: V2 config, CLI settings, commands, rules, plugins
-│   ├── agents/             # Shared Agent Skills catalog used by Pi, OpenCode, and Codex
+│   ├── agents/             # Shared Agent Skills catalog used by Pi, Claude Code, and Codex
 │   ├── codex/              # .codex/: config, hooks, themes
 │   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
 │   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
@@ -1445,7 +1297,7 @@ cd ~/dotfiles && ./scripts/bootstrap.sh
 
 ```bash
 cd ~/dotfiles
-stow --no-folding -D -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin opencode pi
+stow --no-folding -D -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin pi
 ```
 
 Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
@@ -1499,7 +1351,7 @@ Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
 **Herdr agent state is missing or stale?**
 
 - Run `herdr integration status`.
-- Reinstall the affected integration with `herdr integration install pi`, `codex`, or `opencode`.
+- Reinstall the affected integration with `herdr integration install pi` or `codex`.
 - Generated integration files are machine-managed and should not be copied into Stow.
 
 **Herdr and Neovim navigation**

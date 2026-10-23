@@ -12,9 +12,8 @@ After copying, also:
 
 1. Add `coding-standards-<language>	local` to `.skill-sources.tsv`.
 2. Add `agents/openai.yaml` with a display name and a short description.
-3. Add `stow/opencode/.config/opencode/commands/coding-standards-<language>.md`, matching the other wrappers.
-4. Add the pack to the "Language packs" list in `doctrine.md` and to the README.
-5. Use the pack on one real task and run its checks before calling it done.
+3. Add the pack to the "Language packs" list in `doctrine.md` and to the README.
+4. Use the pack on one real task and run its checks before calling it done.
 
 ---
 

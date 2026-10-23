@@ -6,9 +6,8 @@ test_home=$(mktemp -d)
 trap 'rm -rf "$test_home"' EXIT
 
 mkdir -p \
+    "$test_home/.config" \
     "$test_home/.local/bin" \
-    "$test_home/.opencode/bin" \
-    "$test_home/.config/opencode/scripts" \
     "$test_home/.cargo/bin" \
     "$test_home/.deno/bin" \
     "$test_home/.bun/bin" \
@@ -60,7 +59,6 @@ for startup_file in .config/bash/environment.bash .bashrc .bash_profile; do
                 /sbin \
                 "$HOME/path-last" \
                 "$HOME/.local/bin" \
-                "$HOME/.opencode/bin" \
                 "$HOME/.cargo/bin" \
                 "$HOME/.deno/bin" \
                 "$HOME/.bun/bin" \

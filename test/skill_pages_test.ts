@@ -57,7 +57,7 @@ test("builds a page with summary, invocation mode, sections, and per-harness usa
     assert.match(page, /> Agents load it automatically/);
     assert.match(page, /> Covers: Seams\./);
     assert.match(page, /- Run it in Pi:\n\n`\/skill:tdd <request>`/);
-    assert.match(page, /- Run it in Claude Code or OpenCode:\n\n`\/tdd <request>`/);
+    assert.match(page, /- Run it in Claude Code:\n\n`\/tdd <request>`/);
     assert.match(page, /`glow ~\/\.agents\/skills\/tdd\/SKILL\.md`/);
 
     const quiz = readSkillPage(skill("quiz-me", "name: quiz-me\ndescription: Quiz me.\ndisable-model-invocation: true\nargument-hint: topic"));

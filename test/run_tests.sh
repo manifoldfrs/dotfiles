@@ -30,7 +30,6 @@ pass "Shell syntax is valid"
 
 bash test/bash_path_test.sh "$DOTFILES_DIR"
 bash test/stow_preflight_test.sh "$DOTFILES_DIR"
-bash test/opencode_relaunch_test.sh "$DOTFILES_DIR"
 bash test/agent_skills_sync_test.sh "$DOTFILES_DIR"
 bash test/agent_guardrails_test.sh "$DOTFILES_DIR"
 bash test/claude_mcp_setup_test.sh
@@ -64,21 +63,12 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.config/rex/init.lua" ] \
-    && [ -L "$STOW_TEST_HOME/.config/opencode/commands/lg.md" ] \
     && [ ! -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && [ -f "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
-    && [ -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
-    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.config/opencode/AGENTS.md" \
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
-    && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/package.json" ] \
-    && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/package.json" ] \
-    && [ -L "$STOW_TEST_HOME/.config/opencode/plugins/request-logger/package.json" ] \
-    && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/typesafe-ai/node_modules" ] \
-    && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/tui-conveniences/node_modules" ] \
-    && [ ! -e "$STOW_TEST_HOME/.config/opencode/plugins/request-logger/node_modules" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
@@ -108,9 +98,6 @@ grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/c
 grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
 jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agent/claude-bridge.json >/dev/null
 grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
-grep -q '"session.copy": "alt+y"' stow/opencode/.config/opencode/cli.json
-grep -q 'name: "typesafe_evaluate"' stow/opencode/.config/opencode/plugins/typesafe-ai/src/index.ts
-[ ! -e stow/opencode/.config/opencode/plugins/cb-guards.ts ]
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
 grep -Fq 'eval "$(mise activate bash)"' stow/bash/.bashrc

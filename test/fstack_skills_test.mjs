@@ -50,13 +50,6 @@ test("language guidance remains available without a Ruby baseline", () => {
   assert.match(description(skill("coding-standards-javascript")), /not as universal guidance for Node/);
 });
 
-test("OpenCode command descriptions match their owning skills", () => {
-  for (const name of ["fstack", "dig", "prove", "sketch", "code-review", ...["rust", "swift", "kotlin", "javascript"].map((language) => `coding-standards-${language}`)]) {
-    const command = read(resolve(root, "stow/opencode/.config/opencode/commands", `${name}.md`));
-    assert.equal(description(command), description(skill(name)), name);
-  }
-});
-
 test("changed skill documents retain valid local reference links", () => {
   const paths = ["fstack/SKILL.md", "fstack/references/doctrine.md", ...workflows.map((name) => `${name}/SKILL.md`), "testing/SKILL.md", ...["rust", "swift", "kotlin", "javascript"].map((name) => `coding-standards-${name}/SKILL.md`)];
   for (const path of paths) {

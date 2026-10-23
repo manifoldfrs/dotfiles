@@ -9,7 +9,7 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr rex nvim bin opencode claude codex pi agents)
+STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude codex pi agents)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
@@ -21,14 +21,6 @@ SHARED_BACKUP_TARGETS=(
     "$HOME/.config/plannotator-tui/config.toml"
     "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
     "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
-)
-OPENCODE_BACKUP_TARGETS=(
-    "$HOME/.config/opencode/AGENTS.md"
-    "$HOME/.config/opencode/cli.json"
-    "$HOME/.config/opencode/opencode.jsonc"
-    "$HOME/.config/opencode/plugins/typesafe-ai"
-    "$HOME/.config/opencode/plugins/tui-conveniences"
-    "$HOME/.config/opencode/plugins/request-logger"
 )
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/AGENTS.md"
@@ -139,20 +131,6 @@ is_stow_managed_tree() {
     done
 
     [ "$saw_entry" -eq 1 ]
-}
-
-backup_opencode_stow_targets() {
-    local target
-
-    if ! has_stow_package opencode; then
-        return
-    fi
-
-    mkdir -p "$HOME/.config/opencode/plugins"
-
-    for target in "${OPENCODE_BACKUP_TARGETS[@]}"; do
-        backup_stow_target "$target"
-    done
 }
 
 backup_pi_stow_targets() {
@@ -411,7 +389,6 @@ apply_dotfiles() {
 
     backup_bash_stow_targets
     backup_shared_stow_targets
-    backup_opencode_stow_targets
     backup_pi_stow_targets
     backup_shared_skill_targets
 
