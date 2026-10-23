@@ -1,40 +1,138 @@
 # dotfiles
 
-Configuration files for Bash, Starship, Homebrew, Rex, Ghostty, Herdr, Neovim, Claude Code, Codex, and Pi.
-GNU Stow manages symlinks from `stow/*` into `$HOME`.
-Rex, Ghostty, Herdr, Neovim, Pi, Claude Code, and Codex use **Tokyo Night** with MonoLisaCode 14 pt.
+My macOS development setup, managed with [GNU Stow](https://www.gnu.org/software/stow/).
+Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.config/nvim/init.lua` becomes `~/.config/nvim/init.lua`.
 
-## Theme and font status
+[![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
 
-- Rex, Ghostty, Herdr, Neovim, Pi, and Codex use Tokyo Night.
-- Rex imports Ghostty's `TokyoNight Night` theme and uses `MonoLisaCode` at 14 pt; both are app settings (see [Rex](#rex)).
-- Neovim uses the Tokyo Night `night` style with transparent editor, sidebar, float, statusline, and tab-fill surfaces.
-- Ghostty uses `MonoLisaCode` at 14 pt with explicit regular, italic, bold, and bold-italic styles.
-- Starship uses the intended Nerd Font glyphs through Ghostty's built-in `Symbols Nerd Font` fallback. See `plans/theme-font-glyph-followups.md`.
-- Starship and FZF inherit the Tokyo Night terminal palette from Ghostty.
-- Neovim is the code reader; Zed and Cursor were retired in October 2026, and their last configs are archived in `old/zed/` and `old/cursor/`.
+## The stack
+
+| Layer | Choice | Notes |
+| --- | --- | --- |
+| Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default. Ghostty is the fallback terminal; Herdr still runs on `agentbox` for phone access over Termius. |
+| Editor / IDE | Neovim | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Zed and Cursor are retired and archived under `old/`. |
+| Shell | Homebrew Bash 5 + Starship | FZF, zoxide, and mise on top. Fish/Zsh configs under `old/` are rollback-only. |
+| Primary agent harness | Claude Code | Settings, hooks, status line, and local mods in `stow/claude/.claude/`. |
+| Every other model | Pi | OpenAI, xAI, and the rest run through Pi (`stow/pi/.pi/agent/`). It can also reach Claude models via `pi-claude-bridge`. |
+| Reviewer / second opinion | Codex | Mostly used as the cross-provider reviewer for Claude Code and Pi, not as a daily harness. |
+
+Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
+Rex is the exception: its theme and font are app settings, not files (see [Rex app settings](#rex-app-settings-one-time-per-machine)).
+
+Vocabulary like *tracked source*, *live configuration*, and *apply* is defined in [CONTEXT.md](CONTEXT.md).
+Agents working in this repo should start with [AGENTS.md](AGENTS.md).
+
+## Install on a new Mac
+
+Clone to `~/code/personal/dotfiles`; some Claude Code mod paths assume that location.
+
+```bash
+git clone git@github.com:manifoldfrs/dotfiles.git ~/code/personal/dotfiles
+cd ~/code/personal/dotfiles
+./scripts/bootstrap.sh
+```
+
+Bootstrap installs Homebrew and the `Brewfile`, installs Claude Code with its native installer, backs up conflicting live files (`.backup.YYYYMMDDhhmmss`), applies all Stow packages, syncs Herdr plugins, selects Homebrew Bash as the login shell, restores Neovim plugins from `lazy-lock.json`, installs the global npm packages, sets up the global `anti-slop` runtime and Plannotator, and runs `rex skill setup` when Rex is present.
+
+Rex itself installs from its DMG and updates itself, so install it separately.
+Then quit and reopen your terminal (or `exec /opt/homebrew/bin/bash --login`) and sign in to each harness (`claude`, `pi` with `/login`, `codex`).
+
+Machine-local secrets go in `~/.config/bash/local.bash`, which is never tracked:
+
+```bash
+export REF_API_KEY="..."
+export EXA_API_KEY="..."
+export TYPESAFE_API_KEY="..."
+```
+
+## Update an existing machine
+
+Day to day, this is all you need:
+
+```bash
+cd ~/code/personal/dotfiles
+git pull
+./scripts/stow.sh dry-run   # preview; this is also the default with no argument
+./scripts/stow.sh apply     # validates in isolation first, then restows into $HOME
+```
+
+`apply` runs `scripts/validate-dotfiles.sh` against a temporary home before touching the live one.
+If validation fails, nothing changes.
+Use `./scripts/stow.sh delete` to remove all managed symlinks, and `./scripts/bootstrap.sh` only when you also want packages, plugins, and tooling refreshed.
+
+The default profile is the `STOW_PACKAGES` list in `scripts/stow.sh`: `bash git ghostty herdr rex nvim bin claude codex pi agents`.
+To restow a single package by hand:
+
+```bash
+stow --no-folding -R -v -t "$HOME" -d stow nvim
+```
+
+Edit either the `$HOME` path or the repo path; symlinks make them the same file.
+To capture live config back into the repo, run `./scripts/backup.sh` and review the diff before committing.
+It deliberately skips agent account and runtime state.
+
+### Migrating a machine with existing config files
+
+Stow will not overwrite real files.
+Check whether a target is already a Stow symlink with `readlink ~/.config/nvim` (and friends).
+If it prints nothing, move the real file aside with a `.backup.$(date +%Y%m%d%H%M%S)` suffix, then apply.
+Bootstrap already does this for known targets.
+
+## Repository layout
+
+```text
+stow/                  Stow packages, each mirroring $HOME
+  bash/                Bash, Readline (.inputrc), Starship, functions and aliases
+  git/                 .gitconfig and global gitignore
+  rex/                 Rex init.lua and the Lua modules it requires
+  ghostty/             Fallback terminal config
+  herdr/               Herdr config, plugin list, Plannotator TUI config
+  nvim/                Neovim config (see stow/nvim/AGENTS.md)
+  bin/                 ~/.local/bin tools and shared agent guardrail scripts
+  claude/              Claude Code settings, hooks, theme, status line, mods/
+  codex/               Codex config, hooks, theme
+  pi/                  Pi settings, MCP config, models, themes, extensions/
+  agents/              Shared skill catalog under ~/.agents/skills/
+scripts/
+  bootstrap.sh         Full machine setup
+  stow.sh              apply / dry-run / delete, with isolated preflight
+  validate-dotfiles.sh Validation without live changes
+  backup.sh            Capture live config into tracked sources
+  sync_herdr_plugins.sh Install/update declared Herdr plugins
+  update_agent_skills.sh Check or sync the shared skill catalog
+  rex_server_setup.sh  Root-only Rex login server setup for agentbox
+server/rex/            Files installed under /etc on agentbox (not stowed)
+mcp/                   MCP templates and notes (see mcp/README.md)
+test/                  Shell and TypeScript tests, Docker harness
+docs/                  Research notes and plans; decisions land here, not in this README
+old/                   Archived Fish, Zsh, tmux, Karabiner, Zed, and Cursor config
+Brewfile               Homebrew packages and casks
+npm-global-packages.txt Global npm packages (@openai/codex, vercel, tree-sitter-cli)
+```
+
+`stow/opencode/` exists but is not in the default profile and is not maintained.
 
 ## Rex
 
-[Rex](https://www.superlogical.com/rex/docs/installation) (beta) is the default terminal and multiplexer.
-Ghostty stays installed as the fallback terminal, and Herdr stays on `agentbox` for phone access over Termius.
+Rex (beta) is the default terminal and multiplexer.
+Its tracked config is `stow/rex/.config/rex/init.lua` plus the Lua modules beside it (keys, editor/Cmd-key handling, annotations, Neovim navigation).
+Bindings in that file also apply to sessions on remote hosts.
+Rex does not add its CLI directory to `PATH`, so `environment.bash` adds `$REX_BIN_DIR`.
 
-### Setup
+After applying, verify with:
 
-1. Install Rex Beta from the DMG; it updates itself.
-2. Run `./scripts/stow.sh apply`, which links `stow/rex/.config/rex/` and the `rex-annotate` helper.
-3. Open Neovim once so lazy.nvim installs `vim-rex-navigator`; `navigator.lua` loads its Rex half from there.
-   In Neovim, `after/plugin/herdr-navigation.lua` hands `Ctrl-h/j/k/l` at a split's edge to Herdr or Rex, whichever it runs in.
-4. Run `rex config reload`, then `rex keymap` to confirm the bindings loaded without warnings.
-5. Run `rex skill setup` (bootstrap does this too).
-   Its `SessionStart` hooks are already tracked in `stow/claude/.claude/settings.json` and `stow/codex/.codex/hooks.json`; approve the Codex hook with `/hooks`.
+```bash
+rex config reload
+rex keymap   # should load without warnings
+```
 
-Rex puts its CLI in `$REX_BIN_DIR` without adding it to `PATH`, so `environment.bash` adds it.
-Bindings and actions in the Mac's `init.lua` also apply to sessions on remote hosts.
+Open Neovim once so lazy.nvim installs `vim-rex-navigator`.
+With it, `Ctrl-h/j/k/l` moves between Neovim splits and hands off to the adjacent Rex (or Herdr) pane at a split's edge.
 
-### Key bindings
+### Rex keys
 
-`Ctrl-a` is a key sequence prefix, as in Herdr; press `Ctrl-a Ctrl-a` to send `Ctrl-a` to the terminal.
+`Ctrl-a` is the prefix, as in tmux/Herdr.
+Press `Ctrl-a Ctrl-a` to send a literal `Ctrl-a`.
 
 | Keys | Action |
 | --- | --- |
@@ -46,38 +144,34 @@ Bindings and actions in the Mac's `init.lua` also apply to sessions on remote ho
 | `Ctrl-a %`, `Ctrl-a "` | Split right, split down |
 | `Ctrl-a h/j/k/l` | Focus pane by direction |
 | `Ctrl-a z` | Zoom pane |
-| `Ctrl-a R` | Resize mode: `h/j/k/l` or arrows (Shift for bigger steps), `=` balance, `Enter` or `Esc` to leave |
+| `Ctrl-a R` | Resize mode: `h/j/k/l` or arrows (Shift for bigger steps), `=` balance, `Enter`/`Esc` to leave |
 | `Ctrl-a b`, `Ctrl-a r`, `Ctrl-a ?` | Toggle sidebar, reload config, command palette |
+| `Ctrl-a a`, `Ctrl-a A`, `Ctrl-a m` | Annotate copied selection, copy annotations as agent context, manage annotations |
 | `Ctrl-h/j/k/l` | Move between Neovim splits and Rex panes |
-| `Ctrl-a a` | Annotate the selected (copied) text |
-| `Ctrl-a A` | Copy annotations as agent context |
-| `Ctrl-a m` | Manage annotations |
-| Neovim visual `<leader>a` | Annotate the selection |
 
-"Copy annotations as context and archive" has no key; run it from the command palette.
-The annotation actions reuse Herdr's `herdr-annotate` binary through `rex-annotate`, so keep the Herdr plugin installed with `./scripts/sync_herdr_plugins.sh`.
+Annotations reuse Herdr's `herdr-annotate` binary through the `rex-annotate` helper, so keep the Herdr plugin installed with `./scripts/sync_herdr_plugins.sh`.
+Rex has no selection API yet, so annotations read the clipboard: select text first (copy on select), then press `Ctrl-a a`.
 
-### App settings
+### Rex app settings (one time per machine)
 
-Rex keeps theme, font, notification, and other GUI settings in the app (`com.superlogical.rex.plist`), not in `init.lua`, so set these once per machine:
+Theme, font, and GUI settings live in the app (`com.superlogical.rex.plist`), not in `init.lua`.
+Set these once:
 
-- [ ] Themes: import `/Applications/Ghostty.app/Contents/Resources/ghostty/themes/TokyoNight Night` and use it for both light and dark appearance.
-- [ ] Font: `MonoLisaCode` 14 pt, and check that the `cv05` and `cv09` features apply.
+- [ ] Themes: import `/Applications/Ghostty.app/Contents/Resources/ghostty/themes/TokyoNight Night` and use it for both appearances.
+- [ ] Font: `MonoLisaCode` 14 pt; check the `cv05` and `cv09` features apply.
 - [ ] Shell: `/opt/homebrew/bin/bash --login`.
-- [ ] Terminal: copy on select, Option as Alt, blinking block cursor, padding color matching the background, fade for inactive panes.
+- [ ] Terminal: copy on select, Option as Alt, blinking block cursor, padding color matching the background, fade inactive panes.
 - [ ] Notifications: macOS notifications for blocked and finished programs, sounds off.
-- [ ] Rex Server: Remote Control on, which `rex do` and agents need to drive the app.
-- [ ] Integrations: choose whether agent sessions name themselves.
+- [ ] Rex Server: Remote Control on (`rex do` and agents need it).
 - [ ] Put Rex in the Dock and login items in place of Ghostty.
 
 ### Rex server on agentbox
 
-`agentbox` runs the Rex login server, so its sessions survive Rex upgrades and keep running while the Mac is closed.
-It listens on the tailnet address `http://agentbox.tail52943f.ts.net:7297`, which needs no Tailscale HTTPS certificates, and only `tailscale:manifoldfrs@github` may connect, as `frshbb`.
-`init.lua` declares the host, so it appears in the app and in `rex hosts list`.
+`agentbox` (Linux, on the tailnet) runs the Rex login server, so sessions keep running while the Mac is closed and survive Rex upgrades.
+`init.lua` declares the host, so it shows up in the app and in `rex hosts list`.
 
 ```bash
-# On agentbox, after installing the rex package with the command from the Rex docs (needs your package token)
+# On agentbox, after installing the rex package from the Rex docs
 sudo ~/code/personal/dotfiles/scripts/rex_server_setup.sh
 rex skill setup
 
@@ -85,1291 +179,195 @@ rex skill setup
 rex -S agentbox ls
 ```
 
-`scripts/rex_server_setup.sh` installs `server/rex/accounts.jsonc` and the systemd drop-in from `server/rex/`, and refuses to run if the packaged `ExecStart` no longer matches the tracked one.
-Use `sudo apt-mark hold rex` to postpone an upgrade; after one, `rex version` and `rex server status` differ until your account server's sessions end.
+The setup script installs `server/rex/accounts.jsonc` and the systemd drop-in, and refuses to run if the packaged `ExecStart` no longer matches the tracked one.
+Pin upgrades with `sudo apt-mark hold rex` when you want to postpone one.
+Herdr also runs on `agentbox` because Rex has no public iOS client yet; the phone reaches it through Termius.
 
-### What Rex doesn't have yet
+### Known Rex beta gaps
 
-Compared with the Ghostty and Herdr setup, Rex is missing:
+Things the old Ghostty + Herdr setup had that Rex does not yet:
 
-- Detach: closing the last tab of a session destroys it, including remote sessions, so `Ctrl-a q` and `Ctrl-a d` are unbound.
-- Close confirmation before closing a pane or tab with a running program (Herdr's `confirm_close`).
-- Last pane (`Ctrl-a ;`) and a keyboard copy mode (`Ctrl-a [`).
-- Selection API: annotations read the clipboard, so select (copy on select) before `Ctrl-a a`.
-- Herdr's `Ctrl-a O` and `Ctrl-a L` document and last-reply reviews were not ported; run `plannotator-tui` directly if needed.
-- Remote image paste, which Herdr sends to the remote machine, and dragging a macOS screenshot thumbnail into Claude Code.
-- A file or diff viewer for reviewing agent changes; use Neovim's diffview (`<leader>gD`) or `hunk`.
-- A public iOS client and `rex attach` (removed in preview.18), so the phone still uses Termius with Herdr on `agentbox`.
-- Background opacity and blur, and Ghostty's `font-variation`.
-- File-based appearance settings: theme, font, and notifications live in the app.
-- A copy action to bind keys to, so Ghostty's `Ctrl-Shift-c` copy and `Cmd-c` remap (tmux-era workarounds) were dropped; `Cmd-c` copies natively.
+- No detach: closing a session's last tab destroys the session, so `Ctrl-a q`/`Ctrl-a d` are unbound.
+- No close confirmation for panes or tabs with running programs.
+- No last-pane (`Ctrl-a ;`) and no keyboard copy mode (`Ctrl-a [`).
+- No selection API (annotations read the clipboard), no remote image paste, and no dragging screenshot thumbnails into agents.
+- No built-in diff/file viewer: use Neovim diffview (`<leader>gD`) or `hunk`.
+- No background opacity/blur, no `font-variation`, and appearance settings are not file-based.
 
-## Requirements
+## Neovim
 
-| Tool                | Minimum Version | Notes                                                                         |
-| ------------------- | --------------- | ----------------------------------------------------------------------------- |
-| **Neovim**          | >= 0.11.0       | Required for mason-lspconfig v2 and vim.lsp.config()                          |
-| **Git**             | >= 2.19.0       | Required for lazy.nvim partial clones                                         |
-| **GNU Stow**        | >= 2.4.0        | Symlink manager for tracked dotfiles                                          |
-| **Rex Beta**        | Latest          | Default terminal and multiplexer; installed from the DMG                     |
-| **Ghostty**         | Latest          | Uses `macos-option-as-alt` syntax                                             |
-| **Herdr**           | Latest          | Agent-aware terminal workspace manager                                        |
-| **Node.js**         | LTS             | For LSP servers via Mason                                                     |
-| **tree-sitter-cli** | >= 0.26.1       | Required for nvim-treesitter `main` branch parser compilation                 |
-| **lazygit**         | >= 0.40         | Required for snacks.lazygit keymap (`<leader>gg`)                             |
-| **ripgrep**         | >= 13.0         | Required for nvim-spectre search backend                                      |
-| **gnu-sed**         | Latest          | Recommended on macOS for nvim-spectre replace engine (`brew install gnu-sed`) |
-| **imagemagick**     | >= 7.0          | Required for snacks.image preview support                                     |
+Neovim (>= 0.11) is the IDE.
+Plugins are one spec per file under `stow/nvim/.config/nvim/lua/plugins/`, pinned in `lazy-lock.json`.
+The load-bearing ones are snacks.nvim (picker, explorer, dashboard, lazygit), fff (Cmd-P file finder), blink.cmp (completion), mason + lspconfig, treesitter, flash.nvim (jumps), gitsigns, diffview, and nvim-spectre (project search/replace).
+Per-language indentation lives in `ftplugin/*.lua`.
+Detailed rules for editing this config are in `stow/nvim/AGENTS.md`.
 
-## Spotify Terminal Visualizer
+Leader is `Space`.
+Which-key documents everything in-editor (press `Space` and wait), so this is only the short list:
 
-`spotify-visualizer` is a standalone TypeScript command managed by the `bin` Stow package. It renders a procedural terminal dot matrix based on the website music visualizer colors, then uses Spotify only for the current track, artist, play state, and track-specific animation seed.
+| Keys | Action |
+| --- | --- |
+| `<C-p>`, `<leader>sf` | Find files (includes hidden and gitignored files) |
+| `<leader>sg` | Grep |
+| `<C-n>`, `<leader>e` | File explorer |
+| `<C-h/j/k/l>` | Move between splits, then Rex/Herdr panes at the edge |
+| `gd`, `gr`, `gI`, `gy` | Definition, references, implementation, type definition |
+| `K`, `<leader>rn`, `<leader>ca` | Hover, rename, code action |
+| `gl`, `[d`, `]d` | Diagnostics float, previous, next |
+| `<leader>gg` | Lazygit |
+| `<leader>gD` | Diffview |
+| `]h`, `[h` | Next, previous git hunk |
+| `<leader>tt`, `<leader>tf`, `<leader>ts` | Test nearest, file, suite |
+| `<leader>a` (visual) | Annotate selection (Rex/Herdr) |
+| `<leader>uC` | Toggle secret masking for `.env`-style files (display only) |
 
-Setup:
+In Rex, Neovim also gets Cursor-style `Cmd` keys: `Cmd-P` find files, `Cmd-Shift-F` search in files, `Cmd-B` explorer, `Cmd-Shift-O` symbols, `Cmd-S` save, `Cmd-/` comment.
 
-```bash
-# 1. Create or reuse a Spotify developer app.
-# 2. Add this redirect URI to that app:
-#    http://127.0.0.1:8974/callback
-# 3. Export the client id before launching the visualizer:
-export SPOTIFY_CLIENT_ID=your_spotify_client_id
+Mason installs `lua_ls`, `ts_ls`, `gopls`, `clangd`, and `ty` (Python).
+Ruby LSP runs outside Mason so it uses the project's Ruby; install it once with `gem install ruby-lsp --bindir "$HOME/.local/bin" --no-document`.
+TypeScript extras: `:TSC` typechecks into quickfix, `ts-error-translator` makes diagnostics readable, and `:TwoslashQueriesEnable` shows inline types.
 
-spotify-visualizer
-```
+There is no in-editor debugger.
+Use tests and logs first, then `dlv` for Go or `debugpy` for Python in a terminal pane.
 
-The command stores OAuth tokens under `~/.cache/dotfiles/spotify-visualizer/`. Run it in any Herdr pane or tab when you want a dedicated visualizer screen.
-
-Controls:
-
-| Key            | Action                                       |
-| -------------- | -------------------------------------------- |
-| `Space`        | Toggle Spotify play or pause                 |
-| `n`            | Skip to the next track                       |
-| `p`            | Skip to the previous track                   |
-| `s`            | Toggle shuffle                               |
-| `r`            | Cycle repeat off, context, and current track |
-| `q` / `Ctrl-C` | Quit and restore the terminal                |
-
-The visualizer shows this key legend in the header. Short notices, such as pressing a playback key before Spotify has an active track, replace the legend for about 3 seconds.
-
-Shuffle and repeat state use compact status tokens in the header. Shuffle uses `[S:-]` when inactive and yellow `[S:*]` when active. Repeat uses gray `[R:-]` when inactive, red `[R:all]` for repeat context, and red `[R:1]` for repeat current track.
-
-If Spotify returns `401` after scopes change, remove the cached token and authorize again:
+Before changing plugins, run the safety harness; it checks startup in an isolated profile without touching live config or the lockfile:
 
 ```bash
-rm ~/.cache/dotfiles/spotify-visualizer/tokens.json
-spotify-visualizer
-```
-
-## TypeSafe Jev
-
-The TypeSafe skill defines when and how to request a Jev judgment.
-
-Pi 1.0 uses native Codemode classifiers; it no longer installs a custom TypeSafe SDK adapter.
-It sends the supplied state and questions to TypeSafe and returns typed judgments.
-
-In Pi Codemode:
-
-```js
-const jev = await models.getModelOfType("classifier", "typesafe", "jev-latest");
-if (!jev) throw new Error("Jev classifier is unavailable");
-const result = await models.classify(jev, {
-    state: { message: "A customer asks to cancel today" },
-    questions: {
-        urgent: {
-            type: "bool",
-            instructions: "Does this need a reply today?",
-            criteria: { true: "Needs a reply today", false: "Can wait" },
-        },
-    },
-});
-if (result.stopReason !== "stop")
-    throw new Error(result.errorMessage || "Jev classification failed");
-return result.answers.urgent;
-```
-
-Native questions use `choice`, `score`, or `bool`; a `bool` answer supplies a `probability`, not a boolean decision.
-Specialized Jev MCP tools remain available for screening, verification, and gates.
-Do not include credentials, secrets, or unrelated private data.
-
-Keep `TYPESAFE_API_KEY` as machine-local state in `~/.config/bash/local.bash`:
-
-```bash
-export TYPESAFE_API_KEY="YOUR_API_KEY"
-```
-
-Pi's native classifier needs no separate SDK installation.
-Apply and reload live configuration only after reviewing and approving the tracked changes.
-
-## Codex Chrome Extension Bridge
-
-Pi's `codex-chrome` MCP server uses [codex-control-chrome-mcp](https://github.com/iola1999/codex-control-chrome-mcp) to control the existing Chrome profile through the Codex Chrome extension.
-Unlike the isolated `chrome-devtools` server, it can use existing signed-in tabs and capture screenshots of localhost apps.
-It grants access to page contents and browser actions; the community bridge does not enforce per-site permissions.
-
-After approving live configuration changes, install the bridge and register it for Google Chrome only:
-
-```bash
-npm install -g codex-control-chrome-mcp@1.4.1
-codex-control-chrome-mcp install-native-host --browser chrome
-codex-control-chrome-mcp status --browser chrome
-```
-
-The tracked MCP entry starts `codex-control-chrome-mcp` from `PATH`; on Linux the binary is absent, so only that server fails to start.
-The installer backs up Chrome's existing native-host manifest and records its original host for proxy mode.
-Reload the Codex Chrome extension after installation, then reconnect `codex-chrome` through Pi's `/mcp` menu or restart Pi.
-Automatic registration repair remains enabled: after a Codex update restores its own host registration, starting the bridge re-registers it, and the extension may need another reload.
-
-To restore the previous Chrome native-host registration, disconnect `codex-chrome` in Pi and run:
-
-```bash
-codex-control-chrome-mcp uninstall-native-host --browser chrome
-```
-
-Also remove the `codex-chrome` MCP entry if you no longer want Pi to start the bridge.
-
-## GPT Response Verbosity
-
-OpenAI GPT-5 models and the verified GPT-6 Astra, GPT-6 Sol, and GPT-6.1 Sol models support `low`, `medium`, and `high` output verbosity through the Responses API.
-The tracked configs currently use `low`.
-
-- Pi sets verbosity for every GPT-5 model and the verified `gpt-6-astra`, `gpt-6-sol`, and `gpt-6.1-sol` IDs using `openai-responses` or `openai-codex-responses` in `stow/pi/.pi/agent/extensions/gpt-verbosity.ts`.
-  Change the `verbosity: "low"` value, then run `/reload` in Pi.
-- Codex sets verbosity with `model_verbosity` in `stow/codex/.codex/config.toml`.
-  Change the value, then restart Codex.
-
-## Pi provider request logger
-
-Run `pi-log` from your regular shell instead of `pi` when you need to inspect the exact payload Pi sends to its model provider:
-
-```bash
-pi-log
-```
-
-The command enables the tracked `request-logger.ts` extension for that Pi process only.
-Each request is written as a readable Markdown file under `~/.pi/agent/logs/requests/`, including a size audit, ranked tool schemas, the complete provider payload, the normalized assistant response, and response status metadata when the active provider exposes it.
-The directory and files use owner-only permissions.
-These logs can contain source code, prompts, tool results, Gmail, Slack, or Drive data, so do not commit or share them without reviewing the contents.
-Remove captured requests when finished:
-
-```bash
-rm -rf ~/.pi/agent/logs/requests
-```
-
-You can also run `pi --request-log` directly, or set `PI_REQUEST_LOG_DIR` to store logs somewhere else.
-Normal `pi` sessions do not write request logs.
-
-[![Test Dotfiles](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/manifoldfrs/dotfiles/actions/workflows/test.yml)
-
-## Quick Start (New Mac)
-
-```bash
-# 1. Clone the repo
-git clone https://github.com/manifoldfrs/dotfiles.git ~/dotfiles
-
-# 2. Run the installer
-cd ~/dotfiles
-./scripts/bootstrap.sh
-
-# 3. Fully quit and reopen your terminal
-
-# 4. Verify Node.js works
-node --version
-
-```
-
-## Update an Existing Mac / Work Laptop
-
-Use the daily Stow wrapper when the repo is already on the machine and you just want the latest dotfiles applied.
-
-```bash
-# 1. Get the latest committed dotfiles
-cd ~/dotfiles
-git pull
-
-# 2. Validate, then reapply all tracked shell/editor/terminal and Herdr config
-./scripts/validate-dotfiles.sh
-./scripts/stow.sh apply
-
-# First time on this machine? Install Bash, Starship, and the supporting tools:
-brew bundle --file=Brewfile
-# or only the packaged shell stack:
-# brew install bash starship zoxide fzf mise ripgrep fd gawk
-
-# 3. Fully quit and reopen your terminal
-
-# 4. Install/update declared Herdr plugins and reload a running server
-./scripts/sync_herdr_plugins.sh
-
-# 5. Verify the basics
-node --version
-herdr --version
-```
-
-Use `./scripts/bootstrap.sh` instead when you also want to install or refresh Homebrew packages, Node.js, and Neovim plugins.
-
-What this already handles for you:
-
-- stows Bash, Starship, Git, Rex, Ghostty, Herdr, Neovim, Codex, Pi settings, and local bin config
-- configures Herdr with Tokyo Night, Bash, tmux-style `Ctrl-a` bindings, persistence, and agent-aware workspaces
-- avoids rerunning full-machine bootstrap tasks during normal dotfile updates
-
-What `./scripts/bootstrap.sh` additionally handles for you:
-
-- installs Homebrew packages from `Brewfile`
-- runs Neovim headless plugin sync automatically
-- installs Bun and Plannotator TUI, then syncs the declared Herdr plugins
-
-## Herdr and Neovim integrations
-
-The `herdr` Stow package also manages `~/.config/herdr/plugins.txt` and `~/.config/plannotator-tui/config.toml`.
-The default profile includes it.
-Stow only applies configuration, it does not install or update plugins.
-
-```bash
-# Existing machines: install the terminal review tool, then sync plugins.
-# Requires herdr >= 0.8.0, Bun, and jq on PATH.
-brew tap plannotator/tap
-# On Homebrew versions that support trust:
-# brew trust plannotator/tap
-brew install plannotator/tap/plannotator-tui
-./scripts/stow.sh apply
-./scripts/sync_herdr_plugins.sh
-```
-
-The sync command installs or updates `plannotator/herdr-annotate` and `paulbkim-dev/vim-herdr-navigation`, checks the config, and reloads a running Herdr server.
-Plannotator TUI opens in a full-tab overlay.
-The agent sidebar prioritizes agents needing attention, uses distinct status symbols, and asks before closing workspaces.
-Pane-history persistence remains disabled.
-
-| Shortcut                  | Action                                                        |
-| ------------------------- | ------------------------------------------------------------- |
-| `Ctrl-h/j/k/l`            | Navigate Neovim splits, then adjacent Herdr panes at the edge |
-| `Ctrl-a a`                | Annotate selected terminal text                               |
-| `Ctrl-a Shift-a`          | Copy annotations as agent context                             |
-| `Ctrl-a m`                | Manage annotations                                            |
-| `Ctrl-a Shift-o`          | Review documents in the current folder                        |
-| `Ctrl-a Shift-l`          | Review the agent's last reply                                 |
-| Neovim visual `<leader>a` | Send the selection to Herdr Annotate (or Rex, inside Rex)     |
-
-Press `Ctrl-a`, release it, then press the shortcut's second key.
-
-Launch Plannotator TUI directly from a shell:
-
-```bash
-plannotator-tui README.md       # Review a file
-plannotator-tui docs/           # Browse a folder
-plannotator-tui herdr open .    # Review this folder in a Herdr overlay
-plannotator-tui herdr last      # Annotate the agent's last reply in Herdr
-plannotator-tui last --host pi      # Review the latest Pi reply outside Herdr
-```
-
-The `plannotator-tui` commands open the terminal interface.
-The browser-based `plannotator` integration is installed alongside it.
-
-Existing `Ctrl-a o` pane cycling and `Ctrl-a z` zoom bindings are unchanged.
-Global `Ctrl-k` and `Ctrl-l` navigation takes precedence over shell line deletion and screen clearing inside Herdr.
-Neovim outside Herdr retains ordinary split navigation.
-The annotation handoff uses a private temporary file that the plugin consumes and deletes.
-
-### Clickable links in terminal chat
-
-In Ghostty on macOS, hold **Shift + Cmd** and click a link to open it, including inside Herdr.
-This gesture has not been verified in Rex yet.
-This bypasses application mouse capture and lets Ghostty handle the link.
-This gesture was verified in this setup, while Herdr's documented Ctrl-click gesture did not work.
-Keep mouse capture enabled to preserve Herdr's mouse UI.
-See [Herdr's mouse guide](https://herdr.dev/docs/quick-start/#use-the-mouse).
-
-Pi renders Markdown links as terminal hyperlinks, but relative targets such as `docs/plan.md` remain unresolved relative paths.
-The global Pi rules request absolute `file:///` URLs for local files in chat and full `https://` URLs for web links.
-File labels can still show readable repository-relative paths and line numbers.
-Line numbers are informational, not editor jump targets.
-Links written inside repository documentation remain relative for portability.
-
-Shift-Cmd-click uses the system opener rather than the Herdr Annotate plugin.
-To review Markdown in Plannotator TUI, use `Ctrl-a Shift-o` or `plannotator-tui herdr open <file.md>`.
-Existing messages are not rewritten by the rule change.
-Start a new Pi session or use `/reload` to refresh the global instructions in an existing session.
-
-### Neovim secret masking and TypeScript tools
-
-- `cloak.nvim` visually masks values in `.env`, `.dev.vars`, selected shell configuration files, and TOML token assignments.
-  Use `<leader>uC` to toggle masking.
-  This only affects display, not file contents, clipboard access, or agent access.
-- `:TSC` runs the project's TypeScript compiler with `--noEmit` and opens errors in quickfix.
-  Install TypeScript in the project first.
-- `ts-error-translator.nvim` improves the readability of TypeScript diagnostics.
-- In TypeScript buffers, `:TwoslashQueriesEnable` enables inline type queries and `:TwoslashQueriesInspect` inspects the type at the cursor.
-  `:TwoslashQueriesDisable` turns queries off.
-
-Use `:Lazy install` to install missing plugins on an existing machine.
-The TypeScript tools reuse the existing `ts_ls` setup.
-
-## Planning and review
-
-Planning and review can use ordinary chat, Plannotator TUI, or Plannotator's browser UI.
-Plans are maintained as project Markdown, revised from feedback, and implemented only after explicit approval.
-
-Pi provides `/plannotator-plan-mode`, `/plannotator-review`, `/plannotator-annotate`, and `/plannotator-last` through `@plannotator/pi-extension`; `Ctrl+Alt+P` toggles its plan mode.
-Codex uses its managed `Stop` hook for browser review.
-
-## Stow How-To
-
-GNU Stow is the source of truth for tracked dotfiles. Each folder under `stow/` is a package that mirrors paths under `$HOME`.
-
-Example: `stow/nvim/.config/nvim/init.lua` becomes `~/.config/nvim/init.lua`.
-
-### Apply Dotfiles
-
-Use the wrapper for normal dotfile updates:
-
-```bash
-cd ~/dotfiles
-./scripts/stow.sh dry-run
-./scripts/stow.sh apply
-```
-
-With no action, the wrapper defaults to `dry-run` and does not change the live configuration.
-An explicit `apply` runs the isolated preflight before making changes.
-The equivalent unguarded direct Stow command is:
-
-```bash
-cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin codex pi
-```
-
-### Run Stow Without Scripts
-
-Use direct Stow commands when you want to bypass the shell wrappers. Direct Stow only creates or removes symlinks. Herdr integrations remain a separate per-machine installation step.
-
-```bash
-cd ~/dotfiles
-
-# Personal machine: preview and apply the full shared profile
-stow --no-folding -n -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin codex pi
-stow --no-folding -R -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin codex pi
-
-# Remove the personal shared profile symlinks
-stow --no-folding -D -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin codex pi
-
-```
-
-### Apply One Package
-
-```bash
-# Neovim only
-stow --no-folding -R -v -t "$HOME" -d stow nvim
-
-# Herdr only
-stow --no-folding -R -v -t "$HOME" -d stow herdr
-
-# Bash and Starship only
-stow --no-folding -R -v -t "$HOME" -d stow bash
-
-
-# Pi settings only
-stow --no-folding -R -v -t "$HOME" -d stow pi
-
-```
-
-### Bash + Starship setup
-
-The `stow/bash` package provides Homebrew Bash 5, GNU Readline settings, Starship, FZF completion and keybindings, zoxide, mise, and personal tool paths.
-
-Install and apply the default profile:
-
-```bash
-brew bundle --file=Brewfile
-./scripts/bootstrap.sh
-exec /opt/homebrew/bin/bash --login
-```
-
-Rex (its Shell setting), Ghostty, and Herdr launch `/opt/homebrew/bin/bash` explicitly. Bootstrap attempts to select Homebrew Bash as the macOS login shell. Machine-local secrets and overrides belong in `~/.config/bash/local.bash`.
-
-#### Prompt and runtime behavior
-
-Starship keeps non-truncated directories, 18-character Git branches, project-marker-only Node detection, and the existing Nerd Font glyphs. FZF supplies fuzzy completion and history/file keybindings, with `Ctrl-F` opening fuzzy history search. GNU Readline supplies history navigation and editable keybindings. Bash caches the generated FZF, Starship, and Zoxide initialization scripts until their executables change; mise is activated fresh in each shell because its script embeds the current `PATH`. mise manages project runtime versions and environments.
-
-#### Rollback
-
-The former Fish package is preserved under `old/fish`. To roll back, remove the Bash profile with `./scripts/stow.sh delete`, Stow the archived package explicitly, and point Ghostty and Herdr back to Fish.
-
-### Migrate An Existing Machine
-
-Use this when a machine already has real config files or directories, such as an older `~/.config/nvim`, `~/.config/ghostty/config`, or `~/.config/herdr/config.toml`. Stow will not overwrite those automatically; move them aside first.
-
-Check whether each target is already a Stow symlink:
-
-```bash
-readlink ~/.config/nvim
-readlink ~/.config/ghostty/config
-readlink ~/.config/herdr/config.toml
-```
-
-If a command prints a path into `~/dotfiles/stow/...`, that target is already managed by Stow and does not need to be moved. If it prints nothing, back up the real file or directory before stowing.
-
-The guarded commands below only move targets that exist and are not already symlinks, so they are safe to paste on machines where some targets are already migrated:
-
-```bash
-cd ~/dotfiles
-git pull
-
-timestamp=$(date +%Y%m%d%H%M%S)
-
-[ -e ~/.config/nvim ] && [ ! -L ~/.config/nvim ] && mv ~/.config/nvim ~/.config/nvim.backup.$timestamp
-[ -e ~/.config/ghostty/config ] && [ ! -L ~/.config/ghostty/config ] && mv ~/.config/ghostty/config ~/.config/ghostty/config.backup.$timestamp
-[ -e ~/.config/herdr/config.toml ] && [ ! -L ~/.config/herdr/config.toml ] && mv ~/.config/herdr/config.toml ~/.config/herdr/config.toml.backup.$timestamp
-
-stow --no-folding -R -v -t "$HOME" -d stow nvim ghostty herdr
-```
-
-After migration, validate tracked configuration before applying it:
-
-```bash
-cd ~/dotfiles
-git pull
-./scripts/validate-dotfiles.sh
-./scripts/stow.sh apply
-```
-
-`stow.sh apply` repeats the isolated preflight before changing the live configuration.
-The preflight checks Bash syntax, sources every Bash startup path 100 times without losing or duplicating PATH entries, applies every package into a temporary home directory, and smoke-tests a clean Bash startup.
-If any check fails, the live home directory is not changed.
-
-### Preview Changes
-
-```bash
-./scripts/stow.sh dry-run
-```
-
-This shows what Stow would do without changing files.
-
-### Remove Symlinks
-
-```bash
-# Unstow one package directly
-stow --no-folding -D -v -t "$HOME" -d stow nvim
-
-# Unstow all managed packages
-./scripts/stow.sh delete
-```
-
-This removes Stow-managed symlinks only. It does not delete files inside this repo.
-
-### Add A New Managed File
-
-```bash
-# Example: manage ~/.config/example/config.toml
-mkdir -p stow/example/.config/example
-mv ~/.config/example/config.toml stow/example/.config/example/config.toml
-stow --no-folding -R -v -t "$HOME" -d stow example
-```
-
-Use one package per tool when possible. That keeps `stow nvim`, `stow herdr`, and `stow ghostty` independently manageable.
-
-### Edit Managed Files
-
-Edit either the `$HOME` path or the repo path. Because Stow creates symlinks, both point to the same file.
-
-```bash
-nvim ~/.bashrc
-nvim ~/dotfiles/stow/bash/.bashrc
-```
-
-After editing, check repo changes:
-
-```bash
-cd ~/dotfiles
-git status --short
-git diff
-```
-
-### Backup Current Machine State
-
-```bash
-cd ~/dotfiles
-./scripts/backup.sh
-./mcp_setup.sh backup
-```
-
-`scripts/backup.sh` follows symlinks with `cp -L`, so it captures the configured shell/editor files into `stow/*`. It intentionally does not copy live agent account/runtime state because those files can contain API keys, session data, or local machine history.
-
-## Command Cheatsheet
-
-| Task                                    | Command                                                                                                                                  |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Full install/update                     | `./scripts/bootstrap.sh`                                                                                                                 |
-| Backup shell/editor config              | `./scripts/backup.sh`                                                                                                                    |
-| Validate without live changes           | `./scripts/validate-dotfiles.sh`                                                                                                         |
-| Apply all Stow packages after preflight | `./scripts/stow.sh apply`                                                                                                                |
-| Preview all Stow changes                | `./scripts/stow.sh dry-run`                                                                                                              |
-| Remove all Stow symlinks                | `./scripts/stow.sh delete`                                                                                                               |
-| Restow Bash config                      | `stow --no-folding -R -v -t "$HOME" -d stow bash`                                                                                        |
-| Restow Codex settings/skills/hooks      | `./scripts/stow.sh apply`                                                                                                                |
-| Restow Pi settings                      | `stow --no-folding -R -v -t "$HOME" -d stow pi`                                                                                          |
-| Run Pi with request logging             | `pi-log`                                                                                                                                 |
-| Unstow Neovim                           | `stow --no-folding -D -v -t "$HOME" -d stow nvim`                                                                                        |
-| Restow Neovim                           | `stow --no-folding -R -v -t "$HOME" -d stow nvim`                                                                                        |
-| Restow Herdr config                     | `stow --no-folding -R -v -t "$HOME" -d stow herdr`                                                                                       |
-| Reload Herdr config                     | `herdr server reload-config`                                                                                                             |
-| Check Herdr integrations                | `herdr integration status`                                                                                                               |
-| Restore Neovim plugins                  | `nvim --headless -c "Lazy! restore" -c "qa"`                                                                                             |
-| Open Lazy UI                            | `nvim +Lazy`                                                                                                                             |
-| Open Mason UI                           | `nvim +Mason`                                                                                                                            |
-| Shell syntax checks                     | `bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash` |
-| Neovim safety check                     | `bash test/nvim_plugin_safety.sh --base-ref HEAD`                                                                                        |
-| Docker test suite                       | `docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test`                                                    |
-
-## What Gets Installed
-
-### Bootstrap (`scripts/bootstrap.sh`)
-
-- **Homebrew** + all packages from `Brewfile` (includes Bash 5, Starship, Zoxide, mise, Stow, Ghostty, and Herdr)
-- **Starship** prompt with bounded project/runtime detection
-- **FZF** completion and history/file keybindings through its native Bash integration
-- **Node.js** from `Brewfile`
-- **Configs stowed**: `stow/bash`, `stow/git`, `stow/rex`, `stow/ghostty`, `stow/herdr`, `stow/nvim`, `stow/bin`, `stow/codex`, and `stow/pi` into `$HOME`
-- **Herdr**: Stow-managed Tokyo Night config with Bash and preserved `Ctrl-a` workspace, tab, and pane controls
-- **Rex agent skill and hooks** via `rex skill setup` when Rex is installed
-- **Neovim plugins restored** headlessly from `lazy-lock.json` via lazy.nvim (`nvim --headless -c "Lazy! restore" -c "qa"`)
-- **fzf shell integration** when Homebrew fzf is available
-- **Global npm packages** from `npm-global-packages.txt`
-
-### npm Global Packages (`npm-global-packages.txt`)
-
-- `@openai/codex` - OpenAI Codex CLI
-- `vercel` - Vercel CLI
-- `tree-sitter-cli` - Parser generator for nvim-treesitter
-
-### MCP Configuration
-
-MCP (Model Context Protocol) configs for AI coding assistants:
-
-- **Codex**: `~/.codex/config.toml`
-- **Pi**: `~/.pi/agent/mcp.json`
-
-These configurations are Stow-managed.
-`mcp_setup.sh` supports standalone Codex config installation and capture.
-See `mcp/README.md` for setup instructions and API key configuration.
-
-Preferred tool usage after setup:
-
-- Use Ref for documentation lookup: search with `ref_ref_search_documentation`, then read the result with `ref_ref_read_url`.
-- Use exa for web search and page fetches when current web context is needed.
-
-### AI Agent Configuration
-
-#### Shared rules and skills
-
-Global agent rules are tracked in [stow/pi/.pi/agent/AGENTS.md](stow/pi/.pi/agent/AGENTS.md).
-The `claude` and `codex` Stow packages link to this file, so Pi, Claude Code, and Codex share one copy.
-Reload existing sessions after you change the rules.
-
-The shared skill catalog is tracked once under `stow/agents/.agents/skills/`.
-`scripts/stow.sh` links each complete skill directory into `~/.agents/skills/`.
-Pi uses `~/.agents/skills/`.
-
-The catalog combines the baseline catalog, the personalization layer, and local skills.
-Skill ownership is recorded in `stow/agents/.agents/skills/.skill-sources.tsv`.
-Use `./scripts/update_agent_skills.sh --check` to check for drift.
-Use `--review` to open a Plannotator review and `--sync` to update the tracked snapshot.
-An update stays uncommitted for normal Git review.
-Explicit `local` ownership protects personalized skills against both upstream catalogs.
-[frontend-design](stow/agents/.agents/skills/frontend-design/SKILL.md) is vendored unchanged with its license from [Anthropic's skills](https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design) at commit `dbd4588f9e1033efb41dad4bef2f7947c8993d44` and uses `local` ownership to preserve this snapshot.
-It guides visual direction, typography, layout, and interface copy.
-To remove an upstream skill for good, delete its folder and set its manifest owner to `excluded`; synchronization then never copies it back.
-The `plannotator-review`, `plannotator-annotate`, and `plannotator-last` skills are `excluded` because Plannotator's own installer writes them into every harness; `scripts/bootstrap.sh` runs that installer when `plannotator` is missing, and rerunning it updates the CLI and the skills together.
-Research and review default to direct execution for small tasks; independent reviewers and investigators remain available when scope warrants authorized delegation.
-The `coding-standards` skill handles Effect-specific work; `coding-standards-ts` handles ordinary TypeScript.
-
-Local language standards include `coding-standards-ts`, `coding-standards-go`, [coding-standards-javascript](stow/agents/.agents/skills/coding-standards-javascript/SKILL.md) for plain JavaScript without TypeScript, [coding-standards-rust](stow/agents/.agents/skills/coding-standards-rust/SKILL.md), [coding-standards-swift](stow/agents/.agents/skills/coding-standards-swift/SKILL.md), [coding-standards-kotlin](stow/agents/.agents/skills/coding-standards-kotlin/SKILL.md), and [coding-standards-rails](stow/agents/.agents/skills/coding-standards-rails/SKILL.md).
-New language packs start from [the language pack template](stow/agents/.agents/skills/fstack/references/language-pack-template.md).
-The Rails standards are a short router that loads per-concern references, such as persistence, jobs, and lint policy, only when a change touches that concern.
-
-[fstack](stow/agents/.agents/skills/fstack/SKILL.md) is an optional, language-neutral workflow.
-Run `/fstack <task>` to select investigate, fix, build, or reshape; ordinary coding tasks do not automatically start it.
-Its build and reshape routes use `dig` for a ground brief and `prove` for a thorough runtime check.
-Its fix route uses a focused reproduction and relevant tests without requiring a full brief or proof inventory.
-`sketch` runs when you request alternatives, and `code-review` runs when you request independent review.
-Outside fstack, `dig`, `prove`, and `learn-visually` require a deliberate investigation, verification-audit, or full-lesson request rather than a routine question or edit.
-These skills retain natural-language discovery and explicit workflow composition; they are not slash-command-only.
-`testing` and the matching language standards remain available for ordinary work without pulling in the full workflow.
-`pr` still opens pull requests only when requested.
-`/correct` turns a mistake agents keep repeating into a lint rule, type, or test.
-The [shared engineering guidance](stow/agents/.agents/skills/fstack/references/doctrine.md) follows each project's language and architecture, with no Rails baseline.
-TypeScript, Effect, Go, Rust, Swift, Kotlin, and Rails guidance loads only for relevant code; application-specific architecture belongs in the project's own documentation.
-Loading a language guide does not start a fstack route.
-`code-review` reviews Standards and Intent, then gets a second review from a different model family when delegation is authorized.
-Pi routes the `reviewer` between OpenAI and Claude through the provider overrides in `stow/pi/.pi/agent/settings.json`.
-Its prompt lives in `stow/pi/.pi/agent/agents/reviewer.md`, which replaces the `pi-subagents` builtin and requires every finding to name a trigger and survive a refutation attempt.
-The `testing` skill replaces `tdd`, and fstack's build route replaces `implement`; both upstream skills are `excluded`.
-The `worktrees` skill from dmmulroy manages Git worktrees under one canonical `.bare` repository root for parallel agent work.
-
-In Pi, `/skills` opens a scrolling menu of every loaded skill with a one-line summary; type to filter by name.
-Pick one, or run `/skills <name>`, to open a tldr-style page that shows how to invoke it in each harness, whether agents load it automatically, what it covers, and where its full instructions live.
-`/skills <words>`, such as `/skills rails`, searches names and descriptions.
-[anti-slop](stow/agents/.agents/skills/anti-slop/SKILL.md) runs the global command below, selects the generic or Effect rules, and reports findings without changing files unless fixes are requested.
-Ask the agent to check anti-slop violations in a project or selected files; no per-project installation is needed.
-The retired `anti-slop-ts` installer and `anti-slop-rails` review skill are excluded from the shared catalog so synchronization cannot restore them.
-
-##### Global anti-slop
-
-The `bin` Stow package provides `anti-slop`, backed by one shared Oxlint installation and an unmodified copy of [Dillon Mulroy's rules](https://github.com/dmmulroy/anti-slop).
-[UPSTREAM.md](stow/bin/.local/share/anti-slop/UPSTREAM.md) records the exact source revision.
-Bootstrap installs the runtime dependencies beside the tracked plugin source after applying the dotfiles.
-Dependencies remain ignored by Git; this keeps Node module resolution correct through Stow symlinks.
-For an existing machine, after reviewing and approving the live configuration change:
-
-```bash
-stow --no-folding --restow --dir=stow --target="$HOME" bin
-npm install --prefix "$PWD/stow/bin/.local/share/anti-slop" --omit=dev --ignore-scripts --no-package-lock --no-audit --no-fund
-```
-
-Run it from any project; that project needs no npm dependencies or configuration for this check:
-
-```bash
-anti-slop .                 # generic JavaScript/TypeScript rules
-anti-slop --effect .        # generic rules plus the Effect rules
-anti-slop src/example.ts    # selected files
-anti-slop --fix .           # opt-in upstream autofixes; modifies files
-```
-
-The shared check deliberately selects its global config instead of project-local or nested Oxlint configs.
-It complements rather than replaces the project's own lint commands, typechecking, and CI.
-It does not make remote CI or editor integrations use this machine-local installation automatically.
-Agent tooling directories and `node_modules` are ignored relative to the target project.
-Effect rules are explicit because not every JavaScript or TypeScript project uses Effect.
-
-Validate changes with `bash test/global_anti_slop_test.sh`; this installs a temporary runtime, checks two temporary projects, and leaves live configuration alone.
-
-[learn-visually](stow/agents/.agents/skills/learn-visually/SKILL.md) teaches a technical concept from one tested running example, rendered as an interactive HTML lesson, an illustrated PDF manual, or a Psychopomp animation.
-Run `/skill:learn-visually <topic> mode=interactive,manual,animation`; lessons are written to `~/code/personal/learn-visually/<slug>/` unless `LEARN_VISUALLY_OUT` or `out=` says otherwise.
-Animation mode needs the pinned Psychopomp renderer; `scripts/psychopomp.sh status` in the skill reports what is missing, and `setup` installs it after approval.
-
-#### Claude Code
-
-The `claude` Stow package owns Claude Code settings, hooks, Tokyo Night theme, status line, and local mods.
-Shared skills are linked into `~/.claude/skills/`, and Claude Code shares the global agent rules with Pi and Codex.
-Bootstrap installs Claude Code with its native installer; the deprecated npm installer is not used.
-Claude Code registers its browser extension's native host for Chrome but not Helium, so bootstrap copies that manifest into Helium's `NativeMessagingHosts` folder.
-Run `claude --chrome` once first so the Chrome manifest exists, then restart Helium after bootstrap.
-The Helium copy is a snapshot, so rerun bootstrap or copy the manifest again if Claude Code rewrites its Chrome manifest and the extension stops connecting in Helium.
-To install it separately after approving the live change:
-
-```bash
-curl -fsSL https://claude.ai/install.sh | bash
-```
-
-Run `claude` to sign in with your Claude account.
-The existing settings use `auto` permission mode, with the shared dangerous-command and generated-file hooks enabled.
-Review those settings before applying them.
-
-After approving the live change, run `./mcp_setup.sh install-claude` to import Pi's seven MCP server definitions into Claude's machine-local `~/.claude.json`.
-This preserves environment-variable credentials and leaves account connectors alone.
-The Jev mods require the imported `jev` server.
-Web screening covers Exa and Ref search/read results, withholding content when screening flags it or fails.
-A failed edit-scope audit blocks completion once with instructions to perform the final review and completion gate.
-The X-search mod exposes Pi's image/video and turn/output options through the shared runner's explicit interactive mode.
-The default scheduled runner retains its four-turn, 3,000-token, text-only limits.
-The codex-reviewer mod replaces the same-model `reviewer` agent with a `reviewer` tool that runs `agents/reviewer.md` on GPT through a read-only `codex exec`, matching Pi's cross-provider reviewer.
-It needs a signed-in `codex` on `PATH`, and one review may run for at most ten minutes.
-The inline-skills mod loads skills mentioned as `/name` anywhere in a prompt, as Pi's inline-skills extension does, reading `~/.claude/skills/` before the project's `.claude/skills/`.
-
-Pi loads `pi-claude-bridge@0.9.3` to expose Claude models through Claude Code's Agent SDK.
-The tracked `claude-bridge.json` uses the Max plan, disables extra-usage long context, and leaves `AskClaude` disabled.
-After approving the live change, install the bridge with `pi install npm:pi-claude-bridge@0.9.3` and restart Pi.
-Select a `claude-bridge` model with `/model`; Pi's existing OpenAI startup default is unchanged.
-Provider overrides route OpenAI reviews to Claude and Claude reviews to OpenAI.
-
-#### Pi
-
-The `pi` Stow package owns settings, MCP configuration, prompts, themes, and extensions under `stow/pi/.pi/agent/`.
-Pi uses its built-in MCP support for Ref, exa, Jev, Chrome DevTools, codex-chrome, and HEY.
-The MCP config reads `REF_API_KEY`, `EXA_API_KEY`, and `TYPESAFE_API_KEY` from the environment.
-Codemode is explicitly enabled alongside the ordinary coding tools.
-Ref and exa remain directly exposed; Jev, HEY, and browser tools are discovered through Codemode.
-The HEY server runs `hey mcp` from the `basecamp/tap/hey` cask in `Brewfile` and uses the account from `hey auth login`, stored in the macOS keychain.
-It has read and write access to mail, calendars, todos, and contacts; change its args to `["mcp", "--read-only"]` to limit it to reads.
-The `hey` skill is machine-local: run `hey skill install` once, and the CLI owns `~/.agents/skills/hey` and refreshes it on each release.
-Chrome DevTools uses an isolated browser; codex-chrome controls the existing profile through the machine-local bridge described in [Codex Chrome Extension Bridge](#codex-chrome-extension-bridge).
-Run `pi mcp list` to check connections after applying the configuration.
-Pi's native `shellPath` selects `~/.local/bin/bash` for both model commands and user `!`/`!!` commands; the Zsh override is removed.
-`scripts/stow.sh apply` links that path to the machine's Bash 4+ (Homebrew Bash on macOS, `/bin/bash` on Linux), because Pi needs an existing path and does not search `PATH`.
-Apply stops if a regular file already sits at `~/.local/bin/bash`.
-`/lg` expands the shared `lg` skill and preserves follow-up queuing while busy.
-`/update` asks for confirmation, waits for idle, and runs native `pi update`; unattended startup updating and custom package-manager detection are removed.
-For a ChatGPT subscription on Pi 1.0 and newer, use `/login openai` and choose **Sign in with ChatGPT**.
-The tracked `codex-fast-variants` extension adds selectable `openai` priority variants for GPT-6 and GPT-6.1 Sol, Astra, and Luna chat models, such as `gpt-6.1-sol-fast`, while preserving normal models and authentication.
-It also adds `openai/gpt-6.1-sol-ultrafast` and `openai/gpt-6-astra-ultrafast`, which request `service_tier: "ultrafast"`.
-New Pi sessions default to `openai/gpt-6.1-sol-ultrafast` with medium thinking.
-The tracked `models.json` sets GPT-6.1 Sol to 500K context and GPT-6 Astra to 272K across their standard, Fast, and Ultrafast variants on `openai`.
-The legacy `openai-codex` Astra and Astra Fast overrides also use 272K; other models keep their existing limits.
-Automatic compaction is enabled globally, using Pi's default 16,384-token response reserve and roughly 20K tokens of retained recent conversation.
-Select either with `/model`; use ChatGPT sign-in to draw on an eligible Pro $500 subscription rather than separately billed API usage.
-Press `Ctrl+S` in the model picker to save the selected model as the startup default.
-Only models present in Pi's built-in catalog get Fast variants; the separate Luna classifier is unchanged.
-Fast variants request `service_tier: "priority"`; their availability and usage remain subject to OpenAI's rules.
-The legacy `openai-codex` provider retains its account-specific Fast capability discovery.
-
-`stow/pi/.pi/agent/extensions/continue-after-compaction.ts` resumes the task after automatic compaction by having the agent recover its context from the session log.
-It does nothing after a manual `/compact`.
-
-`stow/pi/.pi/agent/extensions/request-logger.ts` is an opt-in request logger.
-Run `pi-log` to enable it for one process.
-Captured requests are machine-local state under `~/.pi/agent/logs/requests/`.
-
-`extensions/xai-search/` is a guarded local variant of `@zhenhuang/pi-xai-search` that adds the `xai_search` X search tool and a `/xai-search` status command.
-It only uses Pi's built-in `xai` provider with a stored SuperGrok or X Premium OAuth sign-in, sends requests only to `https://api.x.ai/v1/responses`, and rejects API keys, environment credentials, and endpoint overrides.
-The untracked `~/.pi/agent/pi-xai-search.json` can set `model`, which defaults to `grok-4.5`.
-`extensions/xai-search/run-xai-search.ts` runs one bounded search without a Pi session, for scheduled digests.
-Do not also install the upstream package; see `extensions/xai-search/README.md` for the date contract and usage reporting.
-
-`extensions/jev-guardrails/` uses Pi's native `typesafe/jev-latest` classifier for automatic web screening and edit-scope audits.
-It requires `TYPESAFE_API_KEY` and makes paid external calls with fetched text and edited code.
-Ref and Exa text results, including nested Codemode calls, are screened in 20,000-character chunks before delivery.
-Passing results are unchanged; suspicious or uncertain results and screening failures are withheld, without warning annotations or toasts.
-Successful `edit` calls record every `edits[]` replacement, and successful `write` calls record their content for one audit before settlement.
-Writes preserve unknown before-text as `null`; the duplicate first-edit decision reminder is removed.
-The audit considers the first 2,000 characters of each before/after value and does not cover shell-based edits or replace a final-diff review.
-Confident findings request one continuation to review the changes; failed audits request one continuation to report the failure and use the normal completion checks.
-The extension never reverts files automatically.
-These automatic checks use native classifier questions; the specialized Jev MCP tools remain available for explicit screening, verification, decisions, and completion gates.
-Global rules own judgment policy; already-screened content does not need a duplicate screen unless it changes.
-
-Pi regression tests and strict typechecking live in `test/package.json` and `test/tsconfig.pi.json`.
-With the declared development dependencies installed, run `npm --prefix test test` and `npm --prefix test run typecheck`.
-Run `bash test/agent_skills_sync_test.sh "$PWD"` for the offline skill-ownership regression test.
-The test uses fake upstream fixtures and does not fetch repositories or mutate live configuration.
-
-#### Codex
-
-The `codex` Stow package owns personal defaults, MCP server definitions, hooks, and the Tokyo Night theme under `stow/codex/.codex/`.
-The MCP configuration reads `REF_API_KEY` and `EXA_API_KEY` through `env_http_headers`.
-Stdio servers forward `TYPESAFE_API_KEY` (Jev) with `env_vars`; never put literal keys in `env`.
-Authentication, sessions, logs, plugin caches, and other runtime data are machine-local state under `~/.codex/`.
-On Linux, `scripts/stow.sh` leaves `~/.codex/config.toml` out of Stow and backups, because the tracked file is mostly state written by the macOS ChatGPT app; Codex creates its own config there.
-
-#### Guardrails and secrets
-
-Codex and Pi use the shared guardrail scripts under `stow/bin/.local/share/agent-guardrails/`.
-These scripts block dangerous shell commands and edits to generated files.
-Pi runs them from `stow/pi/.pi/agent/extensions/agent-guardrails.ts`, including calls made from Codemode scripts, and warns once if the `bin` Stow package is missing.
-
-The Rails rules block hand edits to `db/schema.rb`, `db/structure.sql`, `Gemfile.lock`, encrypted credentials, and key files.
-They also block editing a migration whose version the schema already records; roll it back first if it exists only on your branch.
-Destructive database tasks such as `db:drop`, `db:reset`, and `db:schema:load` are allowed only with `RAILS_ENV=test`.
-Rails commands against production, `DISABLE_DATABASE_ENVIRONMENT_CHECK=1`, and `credentials:edit` are blocked for agents.
-Pi and Codex set `GIT_EDITOR=true` for agent git commands so a rebase or merge never waits on an interactive editor.
-Run `bash test/agent_guardrails_test.sh "$PWD"` to test the rules.
-
-Keep credentials in machine-local state.
-Do not copy live MCP URLs, API keys, tokens, auth files, sessions, logs, or telemetry into tracked sources.
-Use environment interpolation for secrets when the harness supports it.
-
-A new machine can apply the tracked skill snapshot with `./scripts/stow.sh apply`.
-Bootstrap does not need to fetch the upstream skill catalogs.
-
-### Karabiner Status
-
-Karabiner is deprecated in this repo and no longer installed by `scripts/bootstrap.sh`/`Brewfile`.
-Existing configs have been moved to `old/karabiner/` for historical reference.
-
-## Development Environment
-
-### Primary Tools
-
-| Tool         | Purpose                                |
-| ------------ | -------------------------------------- |
-| **Neovim**   | Primary editor (lazy.nvim)             |
-| **Rex**      | Terminal and multiplexer (default)     |
-| **Ghostty**  | Terminal emulator (fallback)           |
-| **Herdr**    | Agent-aware terminal workspace manager |
-
-### Neovim Plugins
-
-| Plugin             | Purpose                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------- |
-| snacks.nvim        | Modern QoL plugins (replaces telescope, alpha, indent-blankline, nvim-surround, Comment.nvim) |
-| fff                | Cursor-style `Cmd-P` file finder and `Cmd-Shift-F` search (Rust index, frecency, typo-tolerant) |
-| dropbar.nvim       | Breadcrumbs bar at the top of each window                                                     |
-| render-markdown    | Renders Markdown headings, tables, and code blocks while reading                              |
-| mini.icons         | File and UI icons; stands in for nvim-web-devicons                                            |
-| blink.cmp          | High-performance autocompletion (Rust-based fuzzy matching)                                   |
-| flash.nvim         | Motion/jump plugin (character, word, line jumps)                                              |
-| mason + lspconfig  | LSP support                                                                                   |
-| treesitter         | Syntax highlighting + parser management                                                       |
-| treesitter-context | Sticky one-line code context                                                                  |
-| noice.nvim         | Command-line, message, and LSP UI                                                             |
-| gitsigns           | Git signs, hunks, and inline blame on the current line                                        |
-| diffview.nvim      | Git diff review and file history UI                                                           |
-| nvim-spectre       | Project-wide search and replace panel                                                         |
-| lualine            | Status line                                                                                   |
-| bufferline         | Buffer tabs                                                                                   |
-| vim-test           | Test runner using Neovim terminal splits                                                      |
-
-**Key plugins explained:**
-
-- **snacks.nvim**: Collection of 15+ QoL plugins including `picker` (fuzzy finder), `explorer` (the file sidebar), `scroll` (smooth scrolling), `dashboard` (startup screen), `lazygit`, `notifier`, `bufdelete`, `indent` (guides), `scope` (text objects), `scratch` (buffers), `words` (LSP navigation), `explorer`, `git`, `zen`, `toggle`, and more
-- **blink.cmp**: Rust-based completion engine with 0.5-4ms response time, typo-resistant fuzzy matching, and native LuaSnip support
-- **flash.nvim**: Fast motion plugin under the `<leader>j` group for jumping to characters (`<leader>jj`), words (`<leader>jw`), and lines (`<leader>jl`)
-
-### LSP Servers (auto-installed via Mason)
-
-- `lua_ls` - Lua
-- `ts_ls` - TypeScript/JavaScript
-- `gopls` - Go
-- `clangd` - C/C++
-- `ty` - Python (Beta type checker from Astral)
-
-### Ruby on Rails in Neovim
-
-- Ruby LSP provides completion, navigation, and project-configured RuboCop diagnostics and formatting.
-- Ruby LSP is enabled outside Mason, and a separate RuboCop LSP is excluded to avoid duplicate diagnostics.
-- Ruby and ERB use two-space indentation, with project EditorConfig settings taking precedence.
-- Treesitter installs `ruby` and `embedded_template` alongside HTML and CSS.
-- Ruby formats through Ruby LSP on save, while ERB uses the project's `bundle exec erb-format` through Conform.
-- Existing vim-test mappings support the app's test runner: `<leader>tt` for nearest, `<leader>tf` for file, and `<leader>ts` for suite.
-
-Bash puts Homebrew Ruby and Bundler ahead of inherited rbenv shims.
-After changing shell paths, open a new terminal or run `exec /opt/homebrew/bin/bash --login` before launching Neovim.
-From the Rails app directory, confirm that this Ruby matches the app's required version, then install Ruby LSP:
-
-```bash
-ruby --version
-gem install ruby-lsp --bindir "$HOME/.local/bin" --no-document
-```
-
-Launch Neovim from that environment.
-If a project requires another Ruby version, explicitly activate a version manager with that version installed rather than mixing its Bundler shim with Homebrew Ruby.
-If Ruby LSP was previously installed through Mason, uninstall `ruby-lsp` there so its executable does not shadow your version-manager shim.
-Ruby LSP automatically includes its Rails add-on when it detects a Rails app.
-Do not add a separate Rails add-on dependency just for this configuration.
-
-Keep the app's existing RuboCop rules.
-For apps using Rails defaults, `rubocop-rails-omakase` supplies DHH's preferred style through `.rubocop.yml`.
-Do not replace an existing team's style configuration.
-For ERB formatting, add `erb-formatter` to the app's development bundle if it is not already present:
-
-```bash
-bundle add erb-formatter --group development --require=false
-bundle exec erb-format --help
-```
-
-Restart Neovim and open a Ruby file to check `:LspInfo`, or an ERB file to check `:ConformInfo`.
-Format-on-save allows three seconds for Ruby/ERB tooling, while other languages retain the 500 ms timeout.
-Rails-specific navigation plugins such as `vim-rails` are optional and are not installed.
-
-References: [Ruby LSP editor setup](https://shopify.github.io/ruby-lsp/editors.html), [Rails add-on](https://github.com/Shopify/ruby-lsp-rails), and [Rails Omakase style](https://github.com/rails/rubocop-rails-omakase).
-
-### Neovim Editing Defaults
-
-- Per-language indentation now lives in `stow/nvim/.config/nvim/ftplugin/*.lua` for simpler ownership and less global autocmd logic
-- Go uses real tabs; Python, JavaScript, and TypeScript stay space-based
-- Incremental search and autoread are enabled for faster search feedback and cleaner external file reloads
-- Visible whitespace (`listchars`) and an 80-column guide (`colorcolumn`) are enabled globally
-
-## Keybindings
-
-### Neovim
-
-Tiny which-key guide: `<leader>g` Git, `<leader>s` Search, `<leader>t` Test, `<leader>j` Jump, `<leader>u` Toggle.
-
-VSpaceCode-style aliases are also available: `<leader>f` File, `<leader>b` Buffer, `<leader>p` Project, `<leader>w` Window, `<leader>q` Quit/Session, and `,` Major Mode.
-
-| Keys                                       | Action                                                          |
-| ------------------------------------------ | --------------------------------------------------------------- |
-| `Space`                                    | Leader key                                                      |
-| `jk` (insert)                              | Escape to Normal                                                |
-| `%%` (command)                             | Insert current file directory                                   |
-| `<C-n>`                                    | Toggle the file explorer                                        |
-| **Cursor-style (Cmd keys, in Rex)**        |                                                                 |
-| `Cmd-P` / `Cmd-Shift-F`                    | Find files / search in files (fff)                              |
-| `Cmd-B`                                    | Toggle the file explorer                                        |
-| `Cmd-Shift-P`                              | Commands (Rex's palette outside Neovim)                         |
-| `Cmd-Shift-O`                              | Go to symbol                                                    |
-| `Cmd-S` / `Cmd-/`                          | Save / toggle comment                                           |
-| `<leader>;`                                | Pick from the breadcrumbs bar                                   |
-| **File explorer (cursor in the file list)** |                                                                 |
-| `Ctrl-h` / `Ctrl-l`                        | Move into the explorer / back to the file                       |
-| `/` then `Esc`                             | Filter the tree / return to the list                            |
-| `a` / `r` / `d`                            | Add / rename / delete a file (end a name with `/` for a folder) |
-| `c` / `m`                                  | Copy / move (select several with `Tab` first)                   |
-| `y` / `p`                                  | Yank paths / paste files here                                   |
-| `H` / `I`                                  | Show or hide hidden / gitignored files                          |
-| `]g` / `[g`                                | Next / previous file with git changes                           |
-| `o` / `P`                                  | Open with the macOS app / toggle preview                        |
-| `<leader>h`                                | Clear search highlight                                          |
-| **VSpaceCode-style File/Project**          |                                                                 |
-| `<leader>ff` / `<leader>pf`                | Find files / project files                                      |
-| `<leader>fr` / `<leader>pp`                | Recent files                                                    |
-| `<leader>fs` / `<leader>fS`                | Save file / save all                                            |
-| `<leader>ft` / `<leader>pt`                | File/project tree                                               |
-| `<leader>fT`                               | Reveal current file in tree                                     |
-| `<leader>fy`                               | Copy current file path                                          |
-| `<leader>fe`                               | Edit Neovim config                                              |
-| **VSpaceCode-style Buffer/Window**         |                                                                 |
-| `<leader>bb`                               | Buffer picker                                                   |
-| `<leader>bn` / `<leader>bN`                | Next / previous buffer                                          |
-| `<leader>bu`                               | Alternate buffer                                                |
-| `<leader>wh/j/k/l`                         | Move between windows                                            |
-| `<leader>w/` / `<leader>w-`                | Split right / below                                             |
-| `<leader>wd` / `<leader>w=`                | Close / balance windows                                         |
-| `<leader>qq` / `<leader>qf` / `<leader>qr` | Quit all / close window / reload config                         |
-| **Major Mode `,`**                         |                                                                 |
-| `,f`                                       | Format buffer                                                   |
-| `,t` / `,T`                                | Test nearest / test file                                        |
-| `,r` / `,a`                                | Rename symbol / code action                                     |
-| `,d` / `,s`                                | Line diagnostics / document symbols                             |
-| **snacks.picker (Search)**                 |                                                                 |
-| `<C-p>` / `<leader>sf`                     | Find files                                                      |
-| `<leader>sg`                               | Grep                                                            |
-| `<leader>sb`                               | Buffers                                                         |
-| `<leader>sr`                               | Recent files                                                    |
-| `<leader>sh`                               | Help pages                                                      |
-| `<leader>sk`                               | Keymaps                                                         |
-| `<leader>sc`                               | Colorschemes                                                    |
-| `<leader>sn`                               | Notification history                                            |
-| `<leader><space>`                          | Smart find files                                                |
-| `<leader>ss`                               | LSP symbols                                                     |
-| `<leader>sS`                               | LSP workspace symbols                                           |
-| `<leader>sd`                               | Diagnostics                                                     |
-| `<leader>sj`                               | Document symbols (VSpaceCode alias)                             |
-| `<leader>sJ`                               | Jumps                                                           |
-| `<leader>sm`                               | Marks                                                           |
-| `<leader>sq`                               | Quickfix list                                                   |
-| `<leader>su`                               | Undo history                                                    |
-| `<leader>sR`                               | Spectre: replace in project                                     |
-| `<leader>sw` / visual `<leader>sw`         | Spectre: search current word / selection                        |
-| `<leader>sW`                               | Spectre: search current file                                    |
-| `gd` / `gr` / `gI` / `gy`                  | LSP: definition / references / implementation / type definition |
-| **flash.nvim (Jump)**                      |                                                                 |
-| `<leader>jj`                               | Jump to character                                               |
-| `<leader>jw`                               | Jump to word                                                    |
-| `<leader>jl`                               | Jump to line                                                    |
-| **snacks (Utilities)**                     |                                                                 |
-| `<leader>bd`                               | Delete buffer                                                   |
-| `<leader>e`                                | File explorer                                                   |
-| `<leader>gg`                               | Lazygit                                                         |
-| `<leader>z`                                | Zen mode                                                        |
-| `<leader>.`                                | Toggle scratch buffer                                           |
-| `<leader>S`                                | Select scratch buffer                                           |
-| `<leader>cR`                               | Rename file                                                     |
-| `]]` / `[[`                                | Next/prev LSP reference                                         |
-| **snacks (Git)**                           |                                                                 |
-| `<leader>gb`                               | Git branches                                                    |
-| `<leader>gl`                               | Git log                                                         |
-| `<leader>gs`                               | Git status                                                      |
-| `<leader>gB`                               | Git browse (opens in browser)                                   |
-| **Navigation**                             |                                                                 |
-| `<C-h/j/k/l>`                              | Navigate Neovim windows                                         |
-| `<S-h>` / `<S-l>`                          | Previous/next buffer                                            |
-| **LSP**                                    |                                                                 |
-| `K`                                        | LSP: hover documentation                                        |
-| `<leader>rn` / `<leader>ca`                | LSP: rename / code action                                       |
-| `<leader>lf`                               | Format file                                                     |
-| `gl` / `[d` / `]d`                         | Diagnostics: float / prev / next                                |
-| **Testing & Git**                          |                                                                 |
-| `<leader>tt` / `<leader>tf` / `<leader>ts` | Test: nearest / file / suite                                    |
-| `<leader>gp` / `<leader>gt`                | Git: preview hunk / toggle blame                                |
-| `<leader>gd`                               | Git: picker diff                                                |
-| `<leader>gD` / `<leader>gC`                | Diffview: open / close                                          |
-| `<leader>gh` / `<leader>gH`                | Diffview: file history (current/repo)                           |
-| `]h` / `[h`                                | Git: next/prev hunk                                             |
-| **Markdown**                               |                                                                 |
-| `<leader>mp` / `,p`                        | Preview current Markdown file with `glow`                       |
-
-Snacks file discovery includes hidden and ignored files by default, so local-only files such as `override.yml` still appear in `<C-p>`, `<leader>sf`, `<leader><space>`, `<leader>sg`, and the file explorer.
-
-### Debugging
-
-Use a terminal-first debugging flow instead of an in-editor DAP stack.
-
-- Go: use `dlv debug`, `dlv test`, or `dlv attach` directly in a Herdr pane
-- Python: use `python -m debugpy --listen localhost:5678 ...` when you need an attachable debugger
-- Day to day: prefer tests, logs, and targeted print statements for fast iteration
-
-### Herdr
-
-Herdr runs inside Ghostty and organizes projects as workspaces, layouts as tabs, and terminals as panes. The persistent server keeps shells and agents alive after detaching.
-
-| Keys                              | Action                             |
-| --------------------------------- | ---------------------------------- |
-| `C-a`                             | Prefix                             |
-| `C-a r`                           | Reload Herdr config                |
-| `C-a q`                           | Detach while keeping panes running |
-| `C-a s` / `C-a w`                 | Workspace picker                   |
-| `C-a Shift-n` / `C-a $` / `C-a d` | Create / rename / close workspace  |
-| `C-a (` / `C-a )`                 | Previous / next workspace          |
-| `C-a c`                           | Create tab                         |
-| `C-a p` / `C-a n`                 | Previous / next tab                |
-| `C-a 1..9`                        | Select tab                         |
-| `C-a "` / `C-a %`                 | Split down / right                 |
-| `C-a h/j/k/l`                     | Navigate Herdr panes               |
-| `C-a o`                           | Cycle panes                        |
-| `C-a z` / `C-a x`                 | Zoom / close pane                  |
-| `C-a [`                           | Copy mode                          |
-| `C-a Shift-r`                     | Resize mode                        |
-
-CLI cheat sheet:
-
-| Task                            | Command                                                           |
-| ------------------------------- | ----------------------------------------------------------------- |
-| Start Herdr                     | `herdr`                                                           |
-| Show keyboard help              | `C-a ?`                                                           |
-| Show CLI help                   | `herdr --help`                                                    |
-| List workspaces, tabs, or panes | `herdr workspace list`, `herdr tab list`, `herdr pane list`       |
-| Create a workspace              | `herdr workspace create --cwd /path/to/project --label project`   |
-| Create a tab                    | `herdr tab create --workspace <workspace-id> --label logs`        |
-| Split the current pane          | `herdr pane split --current --direction right`                    |
-| Run a command in a pane         | `herdr pane run <pane-id> "npm test"`                             |
-| Read recent pane output         | `herdr pane read <pane-id> --source recent-unwrapped --lines 100` |
-| List managed agents             | `herdr agent list`                                                |
-| Reload configuration            | `herdr server reload-config`                                      |
-| Check agent integrations        | `herdr integration status`                                        |
-
-Use `herdr <resource> --help`, such as `herdr pane --help`, for the complete command reference.
-
-The active config is `stow/herdr/.config/herdr/config.toml` and uses its built-in Tokyo Night theme with Bash as the pane shell. `C-a s` replaces the former tmux-sessionizer workflow with Herdr's workspace picker.
-
-Install agent integrations once per machine:
-
-```bash
-herdr integration install pi
-herdr integration install codex
-herdr integration status
-```
-
-Generated integration files remain machine-managed. The shared `herdr` skill teaches Pi and Codex to coordinate workspaces, tabs, panes, and sibling agents through the Herdr CLI.
-
-## Shell Configuration
-
-Bash stores interactive history in `~/.bash_history`. FZF provides fuzzy completion and history/file keybindings; GNU Readline uses the tracked `.inputrc`; Starship renders the prompt; zoxide handles directory jumping; and mise activates project runtime versions and environments. Generated initialization scripts for FZF, Starship, and Zoxide are cached under `${XDG_CACHE_HOME:-~/.cache}/bash/init/` and regenerated after their executables change; mise is activated fresh in each shell because its script embeds the current `PATH`.
-
-Zed and Cursor are retired; Neovim in Rex is the code reader.
-Their last tracked configs are archived in `old/zed/stow/` and `old/cursor/stow/`, next to older iterations.
-The custom Zed build (`old/zed/build_zed.sh` and `old/zed/custom/`) is archived as-is; its paths assume the old layout.
-See `docs/research/nvim-cursor-like-ui.md` for the Neovim changes that replaced them.
-
-## File Structure
-
-```
-dotfiles/
-├── scripts/                # Bootstrap, backup, and Stow wrappers
-│   ├── bootstrap.sh        # Full machine bootstrap for non-Stow setup
-│   ├── backup.sh           # Backup current machine config into repo
-│   ├── stow.sh             # Apply/delete/dry-run GNU Stow packages
-│   └── validate-dotfiles.sh # Isolated preflight before live Stow apply
-├── mcp_setup.sh            # MCP config backup/install
-├── Brewfile                # Homebrew packages
-├── npm-global-packages.txt # Global npm packages
-├── CHANGELOG.md            # Change history
-├── stow/                   # GNU Stow packages, each mirroring $HOME
-│   ├── bash/               # Bash, Readline, FZF integration, Starship, functions
-│   ├── git/                # .gitconfig, .gitignore_global
-│   ├── ghostty/            # .config/ghostty/config
-│   ├── herdr/              # .config/herdr/config.toml
-│   ├── bin/                # .local/bin tools and shared agent guardrail scripts
-│   ├── agents/             # Shared Agent Skills catalog used by Pi, Claude Code, and Codex
-│   ├── codex/              # .codex/: config, hooks, themes
-│   ├── pi/                 # .pi/agent/: settings, MCP, prompts, themes, extensions
-│   └── nvim/               # .config/nvim (lazy.nvim + Tokyo Night)
-│       └── .config/nvim/
-│           ├── init.lua
-│           ├── lazy-lock.json
-│           ├── ftplugin/
-│           └── lua/plugins/
-├── old/tmux/                # Archived tmux config and tmux-sessionizer
-├── old/karabiner/           # Deprecated keyboard remapping archive
-├── mcp/                    # MCP configs for AI tools
-└── old/                    # Archived/deprecated configs
-```
-
-## Neovim Plugin Safety Harness
-
-Use this before and after plugin edits to catch startup regressions without touching your live `~/.config/nvim`.
-
-```bash
-# Full safety pass with an isolated profile and one-by-one plugin rollout
 bash test/nvim_plugin_safety.sh --base-ref HEAD
 ```
 
-What it enforces:
+## Shell
 
-- no explicit lockfile-changing lazy commands (`sync`/`update`/`restore`) inside the harness
-- `stow/nvim/.config/nvim/lazy-lock.json` checksum must stay unchanged unless `--allow-lockfile-change` is explicitly passed
-- isolated startup checks in a throwaway XDG profile
-- one-by-one rollout for changed plugin files under `stow/nvim/.config/nvim/lua/plugins/*.lua`
-- guardrails against known `background`/`OptionSet` loop traps
-- high-risk plugin lazy-loading checks (`noice.lua`)
+Homebrew Bash 5 is the login shell, and Rex, Ghostty, and Herdr all launch `/opt/homebrew/bin/bash` explicitly.
+Layout: environment and `PATH` in `~/.config/bash/environment.bash`, aliases in `aliases.bash`, functions in `functions.bash`, secrets and machine overrides in the untracked `local.bash`.
+Starship renders the prompt, FZF provides completion and `Ctrl-F` fuzzy history, zoxide provides `z`, and mise activates per-project runtimes.
+Generated init scripts for FZF, Starship, and zoxide are cached under `~/.cache/bash/init/` and regenerated when their binaries change.
 
-## Backup Your Current Mac
+## Agents
+
+Claude Code is the primary harness.
+Pi is the harness for every other model (its default is an OpenAI model, set in `stow/pi/.pi/agent/settings.json`; select others with `/model`).
+Codex is kept configured mainly as the cross-provider reviewer both harnesses call, so a Claude-written change gets reviewed by a GPT model and vice versa.
+
+### Shared rules and skills
+
+One global rules file, `stow/pi/.pi/agent/AGENTS.md`, is symlinked into Claude Code and Codex by their Stow packages, so all three harnesses follow the same instructions.
+Reload or restart sessions after changing it.
+
+Skills live once in `stow/agents/.agents/skills/` and are linked into `~/.agents/skills/`, which every harness reads.
+Ownership (upstream baseline, personalization layer, or local) is recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
 
 ```bash
-cd ~/dotfiles
-
-# Backup shell configs and Brewfile
-./scripts/backup.sh
-
-# Backup MCP configs
-./mcp_setup.sh backup
-
-# Commit and push
-git add -A
-git commit -m "Backup configs"
-git push
+./scripts/update_agent_skills.sh --check   # report drift from upstream catalogs
+./scripts/update_agent_skills.sh --review  # open a Plannotator review of the diff
+./scripts/update_agent_skills.sh --sync    # update the tracked snapshot (uncommitted)
 ```
 
-## Recent Neovim Incident Log (Feb 2026)
+`local` skills are never overwritten by sync, and `excluded` skills are never restored.
+Plannotator's own skills are excluded on purpose because its installer owns them (bootstrap runs it).
+A new machine gets the tracked snapshot from `./scripts/stow.sh apply` with no upstream fetch.
 
-- Plugin update happened during aesthetic changes and introduced startup instability.
-- `opencode.nvim` changed API (`provider` removed), which caused blocking startup prompts.
-- Background toggle/autocmd interactions (`OptionSet background`) created startup loop risk in some plugin combinations.
-- Markdown crashes were traced to stale parser artifacts under `~/.local/share/nvim/site/parser` named `markdown.so.disabled` and `markdown_inline.so.disabled`.
-    - Even with `.disabled` suffix, Neovim runtime parser discovery still picked them up.
-    - macOS killed Neovim with `CODESIGNING Invalid Page` while loading parser via `uv_dlopen`.
-- Recovery that restored stability:
-    - removed stale parser artifacts from runtime path
-    - rolled back recent visual plugins
-    - kept only `noice.nvim` from recent additions
-    - retained the safety harness (`test/nvim_plugin_safety.sh`) for one-by-one rollout checks
-- Post-recovery history: switched theme from Nord to Catppuccin Macchiato across Neovim, Ghostty, and tmux, then later returned the active stack to Tokyo Night. Added `flash.nvim` for motion/jump support.
+### MCP servers
+
+Pi's tracked config (`stow/pi/.pi/agent/mcp.json`) defines seven servers: Ref (library docs), Exa (web search), Jev (TypeSafe judgments), Chrome DevTools (isolated browser), codex-chrome (your real Chrome profile), HEY (mail/calendar via `hey mcp`), and superlogical (Rex docs and feedback).
+Keys come from the environment (`REF_API_KEY`, `EXA_API_KEY`, `TYPESAFE_API_KEY`), never from tracked files.
+Run `pi mcp list` to check connections.
+
+To give Claude Code the same servers, import them into its machine-local config:
+
+```bash
+./mcp_setup.sh install-claude
+```
+
+Codex declares its servers in `stow/codex/.codex/config.toml`.
+The legacy template flow in `mcp/` is documented in `mcp/README.md`.
+
+Two things worth knowing:
+
+- codex-chrome uses the community `codex-control-chrome-mcp` bridge to drive your signed-in Chrome through the Codex extension.
+  It has full page access and no per-site permissions.
+  Install with `npm install -g codex-control-chrome-mcp` and `codex-control-chrome-mcp install-native-host --browser chrome`; `uninstall-native-host` undoes it.
+  Chrome DevTools is the isolated alternative.
+- HEY has read/write access to mail, calendars, todos, and contacts.
+  Change its args to `["mcp", "--read-only"]` in `mcp.json` to limit it to reads.
+
+### Guardrails
+
+Shared scripts in `stow/bin/.local/share/agent-guardrails/` block dangerous shell commands and hand edits to generated files.
+Claude Code and Codex run them as hooks; Pi runs them from its `agent-guardrails` extension.
+Rails extras: schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
+Pi also screens fetched web content and audits edit scope with Jev (`jev-guardrails` extension), and Claude Code does the equivalent through its `jev-*` mods.
+Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.
+
+### Planning and review
+
+Plans are project Markdown files, reviewed in chat, Plannotator TUI (`plannotator-tui <file>`), or Plannotator's browser UI, and implemented only after explicit approval.
+`Ctrl-a Shift-o` and `Ctrl-a Shift-l` review a folder or an agent's last reply in Herdr; in Rex, run `plannotator-tui` directly.
+
+### Debugging Pi requests
+
+```bash
+pi-log   # Pi with the request logger enabled for that process only
+```
+
+Logs land in `~/.pi/agent/logs/requests/` with owner-only permissions.
+They contain full prompts and tool results, so review before sharing and delete when done (`rm -rf ~/.pi/agent/logs/requests`).
+
+## Extra tools in `bin`
+
+- `anti-slop` runs a shared Oxlint rule set (Dillon Mulroy's rules, vendored unmodified; see `stow/bin/.local/share/anti-slop/UPSTREAM.md`) against any JS/TS project without per-project setup: `anti-slop .`, `anti-slop --effect .` for Effect rules, `anti-slop --fix .` to autofix.
+  Bootstrap installs its runtime; validate with `bash test/global_anti_slop_test.sh`.
+- `rex-annotate` backs the Rex annotation keys described above.
+- `spotify-visualizer` renders a terminal dot-matrix visualizer driven by the current Spotify track.
+  It needs a Spotify developer app with redirect URI `http://127.0.0.1:8974/callback` and `SPOTIFY_CLIENT_ID` exported; tokens cache under `~/.cache/dotfiles/spotify-visualizer/`.
+  Keys: `Space` play/pause, `n`/`p` next/previous, `s` shuffle, `r` repeat, `q` quit.
+
+## Herdr and Ghostty (fallbacks)
+
+Ghostty (`stow/ghostty/`) is the fallback terminal; its config is what Rex's theme was imported from.
+Shift-Cmd-click opens links there despite application mouse capture.
+
+Herdr (`stow/herdr/`) shares Rex's `Ctrl-a` mental model and still matters in two places: its annotate plugin powers Rex annotations, and it is the phone path into `agentbox`.
+Useful commands: `herdr server reload-config`, `herdr integration status`, `herdr pane list`, `herdr agent list`.
+Keep its plugins current with `./scripts/sync_herdr_plugins.sh`, which installs `plannotator/herdr-annotate` and `paulbkim-dev/vim-herdr-navigation` from the tracked `plugins.txt`.
+Install agent integrations once per machine with `herdr integration install pi` or `herdr integration install codex`.
+
+## Validation
+
+```bash
+./scripts/validate-dotfiles.sh                 # full isolated preflight, no live changes
+bash -n scripts/*.sh stow/bash/.bashrc         # shell syntax spot check
+bash test/run_tests.sh                         # shell test suite
+npm --prefix test test                         # Pi extension tests
+npm --prefix test run typecheck                # Pi extension types
+bash test/nvim_plugin_safety.sh --base-ref HEAD
+(cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i error
+docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test  # closest to CI
+```
+
+`AGENTS.md` lists the full preflight and per-area checks.
 
 ## Troubleshooting
 
-**Stow says `WARNING! stowing ... would cause conflicts`**
+**Stow reports conflicts.**
+A real file sits where a symlink goes.
+Move it aside with a `.backup.$(date +%Y%m%d%H%M%S)` suffix and restow, or run bootstrap, which backs up known targets first.
 
-- A real file already exists at the target path, for example `~/.bashrc` or `~/.config/nvim`.
-- If you trust the repo version, move the existing file aside and restow:
+**Edits to `~/.config/...` do not show in git.**
+Run `readlink` on the path; if it does not point into this repo, the package is not applied.
+Restow that package.
 
-```bash
-mv ~/.bashrc ~/.bashrc.backup.$(date +%Y%m%d%H%M%S)
-stow --no-folding -R -v -t "$HOME" -d ~/dotfiles/stow bash
-```
+**Neovim LSP or treesitter trouble.**
+Needs Neovim >= 0.11 and `tree-sitter-cli` >= 0.26.1.
+Check `:Mason`, `:LspInfo`, and `:checkhealth nvim-treesitter`.
 
-For a full migration, prefer `./scripts/bootstrap.sh`; it backs up known target paths before stowing.
+**Markdown crashes Neovim with `CODESIGNING Invalid Page`.**
+Stale parsers in `~/.local/share/nvim/site/parser` (even `markdown.so.disabled`) get loaded and killed by macOS.
+Move them out of that directory and retry.
 
-**A Stow symlink points to the wrong place**
+**Prompt looks plain after an update.**
+Run `brew bundle --file=Brewfile`, then `./scripts/stow.sh apply`, then `exec /opt/homebrew/bin/bash --login`.
 
-- Check the symlink target:
-
-```bash
-readlink ~/.bashrc
-readlink ~/.config/nvim
-```
-
-- Recreate links from the repo:
-
-```bash
-cd ~/dotfiles
-stow --no-folding -R -v -t "$HOME" -d stow bash nvim
-```
-
-**I edited `~/.config/nvim`, but Git does not show changes**
-
-- Confirm `~/.config/nvim` is a symlink into this repo:
-
-```bash
-readlink ~/.config/nvim
-```
-
-- If it is not linked into `~/dotfiles/stow/nvim`, restow it:
-
-```bash
-cd ~/dotfiles
-mv ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d%H%M%S)
-stow --no-folding -R -v -t "$HOME" -d stow nvim
-```
-
-**`stow: command not found`**
-
-- Install it with Homebrew or run the full installer:
-
-```bash
-brew install stow
-# or
-cd ~/dotfiles && ./scripts/bootstrap.sh
-```
-
-**Need to undo the Stow migration temporarily?**
-
-- Unstow packages, then restore a backup if needed:
-
-```bash
-cd ~/dotfiles
-stow --no-folding -D -v -t "$HOME" -d stow bash git rex ghostty herdr nvim bin pi
-```
-
-Backups created by the installer use the suffix `.backup.YYYYMMDDhhmmss`.
-
-**Neovim LSP not working?**
-
-- Requires Neovim >= 0.11.0 for mason-lspconfig v2
-- Run `:Mason` to check installed servers
-- Run `:LspInfo` to verify attachment
-
-**Treesitter parsers not compiling?**
-
-- Requires `tree-sitter-cli` >= 0.26.1 for nvim-treesitter `main` branch
-- Run `:checkhealth nvim-treesitter` to verify CLI is found
-- Install via: `npm install -g tree-sitter-cli`
-
-**Markdown preview with glow not working?**
-
-- Ensure `glow` is installed: `brew install glow`
-- Save the Markdown file before previewing; the keymap previews the current file path
-- Use `<leader>mp` or `,p` inside a Markdown buffer
-
-**Markdown files crash Neovim with `CODESIGNING Invalid Page`?**
-
-- Check for stale parser files in `~/.local/share/nvim/site/parser`:
-    - `markdown.so.disabled`
-    - `markdown_inline.so.disabled`
-- Move those files out of parser runtime path (for example to `/tmp`) and retry.
-- Confirm active runtime parser paths with:
-    - `nvim --noplugin --headless "+lua for _,f in ipairs(vim.api.nvim_get_runtime_file('parser/markdown*', true)) do print(f) end" +qa`
-
-**Seeing `module 'nvim-treesitter.configs' not found`?**
-
-- This usually means old treesitter `master`-style config is mixed with `main`-branch plugin files
-- Re-stow your dotfiles Neovim config and rerun setup: `./scripts/bootstrap.sh`
-- The setup script runs headless `Lazy! restore` to install plugin files from `lazy-lock.json`
-
-**Prompt is plain or Bash highlighting is missing after an update?**
-
-- Check `brew list --versions bash starship zoxide fzf mise` and run `brew bundle --file=~/dotfiles/Brewfile` for anything missing.
-- Reapply the Bash package with `./scripts/stow.sh apply`, then run `exec /opt/homebrew/bin/bash --login`.
-- Verify `fzf` is available and `~/.config/starship.toml` exists.
-- Private-use prompt glyphs use Ghostty's built-in `Symbols Nerd Font` fallback; see `plans/theme-font-glyph-followups.md`.
-
-**Herdr config not loading?**
-
-- Confirm `~/.config/herdr/config.toml` points into `stow/herdr/` with `readlink ~/.config/herdr/config.toml`.
-- Reapply the Stow profile with `./scripts/stow.sh apply`, then run `herdr server reload-config`.
-- Herdr keeps the previous keymap if keybindings are invalid. Check `~/.config/herdr/herdr-server.log` for startup or reload warnings.
-
-**Herdr agent state is missing or stale?**
-
-- Run `herdr integration status`.
-- Reinstall the affected integration with `herdr integration install pi` or `codex`.
-- Generated integration files are machine-managed and should not be copied into Stow.
-
-**Herdr and Neovim navigation**
-
-- Bare `C-h/j/k/l` navigate Neovim windows, including moving between the file explorer and editor splits.
-- Use prefixed `C-a h/j/k/l` to navigate Herdr panes.
-
-**A project runtime is missing?**
-
-- `scripts/bootstrap.sh` installs Node.js from `Brewfile` and activates mise in interactive Bash sessions.
-- Add the project runtime with `mise use`, then open a new shell or run `mise install`.
-
-**Terminal debugging workflow**
-
-- Go: run `dlv debug` or `dlv test` in a Herdr pane
-- Python: run `python -m debugpy --listen localhost:5678 --wait-for-client myfile.py`
-- Prefer tests and print/log debugging first; reach for `dlv` or `debugpy` when the bug is stubborn
-
-## Zoxide
-
-Zoxide is installed from `Brewfile` and initialized for interactive Bash sessions. Use `z dotfiles` to jump to frequently used directories.
+**Herdr config or agent state looks stale.**
+Confirm `readlink ~/.config/herdr/config.toml` points into `stow/herdr/`, run `herdr server reload-config`, and check `herdr integration status`.
+Herdr keeps the previous keymap when bindings are invalid; details are in `~/.config/herdr/herdr-server.log`.
