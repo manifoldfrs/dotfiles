@@ -906,44 +906,6 @@ After approving the live change, install the bridge with `pi install npm:pi-clau
 Select a `claude-bridge` model with `/model`; Pi's existing OpenAI startup default is unchanged.
 Provider overrides route OpenAI reviews to Claude and Claude reviews to OpenAI.
 
-##### Subscription-backed GPT and Muse sessions
-
-Normal `claude` keeps its existing Claude Max login and configuration.
-The `claudex` and `claude-muse` Bash functions launch the same harness through a local CLIProxyAPI instance, using separately selected Codex and Muse models.
-Shortcuts: `cc` runs normal Claude Code, `ccx` runs `claudex`, and `ccm` runs `claude-muse`.
-Their provider environment is scoped to the child process; it is not exported into the parent shell or the Pi bridge.
-All model roles, including subagents, use the selected model, and gateway sessions disable deferred tool search for compatibility.
-
-After approving installation and live configuration changes:
-
-```bash
-brew install cliproxyapi
-# Apply the bin and Bash sources using your reviewed Stow workflow.
-claude-proxy init
-claude-proxy serve
-```
-
-Keep `claude-proxy serve` running in a dedicated terminal.
-Do not use the default Homebrew service configuration: this setup supplies its own loopback-only config and local authentication token.
-In another terminal, complete the native OAuth flows:
-
-```bash
-claude-proxy login codex
-claude-proxy login muse
-claude-proxy models
-claude-proxy select codex MODEL_ID_FROM_THE_LIST
-claude-proxy select muse MODEL_ID_FROM_THE_LIST
-claudex
-claude-muse
-```
-
-Choose each model from the running proxy's advertised list after signing in; no model or paid API fallback is invented when it is absent.
-The proxy config, token, model choices, and OAuth credentials live under `~/.config/claude-proxy/` and are not tracked.
-The proxy listens only on `127.0.0.1:8317`, disables its management interface and control panel, and disables request logging.
-`init` preserves existing configuration; `run` fails before launching Claude if the selected model or proxy is unavailable.
-CLIProxyAPI is a third-party compatibility layer that receives prompts and holds OAuth credentials; only authorize accounts you intend to use with it.
-Account entitlement and provider policy determine available models and usage limits.
-
 #### Pi
 
 The `pi` Stow package owns settings, MCP configuration, prompts, themes, and extensions under `stow/pi/.pi/agent/`.

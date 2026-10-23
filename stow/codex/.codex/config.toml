@@ -64,6 +64,18 @@ trust_level = "trusted"
 [projects."/Users/frshbb/Documents/Codex/2026-09-28/i-m"]
 trust_level = "trusted"
 
+[projects."/Users/frshbb/code/optoai/opto2_worktrees/avatar_fix"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/code/optoai/opto2/.claude/worktrees/agent-a1f5608d60aaf8bf0"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/code/optoai/opto2_worktrees/drop_manifests"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/code/optoai/opto2_worktrees/mc_v2"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 
@@ -248,6 +260,7 @@ usePointerCursors = true
 external-agent-import-sync-enabled = true
 external-agent-import-sync-item-types = "all"
 selected-avatar-id = "null-signal"
+"browser-family-enabled:chrome" = false
 
 [desktop.open-in-target-preferences]
 global = "fileManager"

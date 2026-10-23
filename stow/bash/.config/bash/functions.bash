@@ -154,17 +154,13 @@ grt() {
 # The session-relaunch mod's /update and /restart write a session id to CLAUDE_RELAUNCH_FILE before exiting.
 claude() {
     local relaunch_file session_id status
-    local -a settings_args=()
-    if [[ -n ${CLAUDE_PROXY_SETTINGS:-} ]]; then
-        settings_args=(--settings "$CLAUDE_PROXY_SETTINGS")
-    fi
     relaunch_file=$(mktemp "${TMPDIR:-/tmp}/claude-relaunch.XXXXXX") || return
-    CLAUDE_RELAUNCH_FILE=$relaunch_file command claude "${settings_args[@]}" "$@"
+    CLAUDE_RELAUNCH_FILE=$relaunch_file command claude "$@"
     status=$?
     while [[ -s $relaunch_file ]]; do
         session_id=$(<"$relaunch_file")
         : >"$relaunch_file"
-        CLAUDE_RELAUNCH_FILE=$relaunch_file command claude "${settings_args[@]}" --resume "$session_id"
+        CLAUDE_RELAUNCH_FILE=$relaunch_file command claude --resume "$session_id"
         status=$?
     done
     rm -f "$relaunch_file"
@@ -224,14 +220,6 @@ opencode() {
     done
     rm -f "$relaunch_file"
     return "$status"
-}
-
-claudex() {
-    command claude-proxy run codex "$@"
-}
-
-claude-muse() {
-    command claude-proxy run muse "$@"
 }
 
 claude-log() {

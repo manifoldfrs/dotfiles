@@ -34,7 +34,6 @@ bash test/opencode_relaunch_test.sh "$DOTFILES_DIR"
 bash test/agent_skills_sync_test.sh "$DOTFILES_DIR"
 bash test/agent_guardrails_test.sh "$DOTFILES_DIR"
 bash test/claude_mcp_setup_test.sh
-bash test/claude_proxy_test.sh
 
 # Test 2: portable Git config
 echo "[TEST 2] Checking .gitconfig for forced SSH rewrites..."
