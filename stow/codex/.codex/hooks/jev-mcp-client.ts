@@ -5,16 +5,16 @@ import { createInterface } from "node:readline";
 const JEV_COMMAND = ["npx", "-y", "@jkudish/jev-mcp"];
 const CALL_TIMEOUT_MS = 60_000;
 
-export type JevCall = (tool: string, args: Record<string, unknown>) => Promise<unknown>;
+export type JevCall = (tool: string, args: Record<string, unknown>, timeoutMs?: number) => Promise<unknown>;
 
 type RpcMessage = { id?: number; result?: unknown; error?: { message?: string } };
 type ToolResult = { isError?: boolean; content?: { type: string; text?: string }[] };
 
 /** Call one Jev tool over a short-lived stdio MCP session and return its parsed JSON body. */
-export const callJev: JevCall = (tool, args) => new Promise((resolve, reject) => {
+export const callJev: JevCall = (tool, args, timeoutMs = CALL_TIMEOUT_MS) => new Promise((resolve, reject) => {
   const child = spawn(JEV_COMMAND[0]!, JEV_COMMAND.slice(1), { stdio: ["pipe", "pipe", "ignore"] });
   const pending = new Map<number, (message: RpcMessage) => void>();
-  const timer = setTimeout(() => finish(new Error("Jev call timed out")), CALL_TIMEOUT_MS);
+  const timer = setTimeout(() => finish(new Error("Jev call timed out")), timeoutMs);
   let done = false;
 
   function finish(error: Error | undefined, value?: unknown) {

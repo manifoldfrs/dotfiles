@@ -8,17 +8,18 @@ const SCREENED_TOOLS = new Set([
   "mcp__Ref__ref_search_documentation",
 ]);
 const CHUNK_CHARS = 20_000;
+// Stays under the 120 s hook timeout in hooks.json: a killed hook leaves the unscreened result in place.
+const SCREEN_BUDGET_MS = 100_000;
 
 type HookOutput = { decision: "block"; reason: string };
 
+// Error results are screened too, since their text can still carry fetched page content.
 function responseText(response: unknown): string {
   if (!response || typeof response !== "object") return typeof response === "string" ? response : "";
-  const { content, structuredContent, isError } = response as {
+  const { content, structuredContent } = response as {
     content?: unknown;
     structuredContent?: unknown;
-    isError?: unknown;
   };
-  if (isError === true) return "";
   if (!Array.isArray(content)) return JSON.stringify(response);
   const text = content
     .filter((block): block is { type: "text"; text: string } => block?.type === "text" && typeof block.text === "string")
@@ -27,8 +28,8 @@ function responseText(response: unknown): string {
   return structuredContent === undefined ? text : `${text}\n${JSON.stringify(structuredContent)}`;
 }
 
-async function passes(call: JevCall, text: string): Promise<boolean> {
-  const parsed = await call("jev_screen", { text });
+async function passes(call: JevCall, text: string, timeoutMs: number): Promise<boolean> {
+  const parsed = await call("jev_screen", { text }, timeoutMs);
   if (!parsed || typeof parsed !== "object" || !("recommendation" in parsed)) throw new Error("invalid screen result");
   if ("status" in parsed && parsed.status === "invalid_response") throw new Error("invalid screen result");
   const recommendation = parsed.recommendation as { action?: unknown } | null;
@@ -39,14 +40,22 @@ async function passes(call: JevCall, text: string): Promise<boolean> {
 }
 
 /** Return a blocking hook result when Jev does not pass a screened web result. */
-export async function screen(input: Record<string, unknown>, call: JevCall = callJev): Promise<HookOutput | undefined> {
+export async function screen(
+  input: Record<string, unknown>,
+  call: JevCall = callJev,
+  budgetMs = SCREEN_BUDGET_MS,
+  now: () => number = Date.now,
+): Promise<HookOutput | undefined> {
   if (typeof input.tool_name !== "string" || !SCREENED_TOOLS.has(input.tool_name)) return undefined;
   const text = responseText(input.tool_response);
   if (!text.trim()) return undefined;
 
+  const deadline = now() + budgetMs;
   try {
     for (let offset = 0; offset < text.length; offset += CHUNK_CHARS) {
-      if (!await passes(call, text.slice(offset, offset + CHUNK_CHARS))) {
+      const remaining = deadline - now();
+      if (remaining <= 0) throw new Error("screening budget exhausted");
+      if (!await passes(call, text.slice(offset, offset + CHUNK_CHARS), remaining)) {
         return { decision: "block", reason: "Jev screening withheld this web result." };
       }
     }
