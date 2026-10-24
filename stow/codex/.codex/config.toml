@@ -267,7 +267,7 @@ trusted_hash = "sha256:c14c21d72b8ddb7a4dbd7eedcac9d3fff0d7b4b97e4f24dd8f6277d78
 trusted_hash = "sha256:c8ae3770a85b13f9f51aabce263943340a878625c5e71eadb429bb2743835d9e"
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:8866cd49803da64e3935f3d83a09e381e2d696a07e521b5145fce881f62f94fa"
+trusted_hash = "sha256:fe4f053bf07373086cfa87ef68ed078eed1c3784bcbfe4a9f097ac345de7076b"
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:post_tool_use:1:0"]
 trusted_hash = "sha256:fe4f053bf07373086cfa87ef68ed078eed1c3784bcbfe4a9f097ac345de7076b"
