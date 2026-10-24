@@ -1,7 +1,7 @@
 # Shared engineering guidance
 
 This reference holds principles, not an instruction to start fstack or another workflow.
-Loading a language pack does not authorize a full investigation, prototype, or second-model review.
+Loading a language pack does not authorize a full investigation, prototype, or council review.
 Project instructions, safety rules, and the user's requested scope remain authoritative.
 
 ## Principles

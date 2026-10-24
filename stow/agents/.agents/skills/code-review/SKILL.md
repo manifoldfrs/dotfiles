@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review requested changes for standards and intent, with a second-model review when delegation is authorized. Use only when the user explicitly requests a branch, PR, working-tree, or fixed-point code review; not automatically after an edit or test run.
+description: Review requested changes for standards and intent, with a council review when delegation is authorized. Use only when the user explicitly requests a branch, PR, working-tree, or fixed-point code review; not automatically after an edit or test run.
 ---
 
 Run this workflow only for an explicit review request, not automatically after implementation, testing, or verification.
@@ -12,7 +12,7 @@ Two-axis review of the requested committed or working-tree changes:
 Review both axes directly for small changes.
 For broad or consequential changes, use separate read-only reviewers with fresh contexts when delegation is authorized.
 Keep the axes separate in either mode.
-Then run the second-model review in step 6.
+Then run the council review in step 6.
 Within fstack, apply the [fstack doctrine](../fstack/references/doctrine.md).
 
 Use an existing issue-tracker guide when fetching issues; do not require tracker setup for a local review.
@@ -87,19 +87,13 @@ Present the two reports under `## Standards` and `## Intent` headings, verbatim 
 
 End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes — that's the reranking the separation exists to prevent.
 
-### 6. Second-model review
+### 6. Council review
 
-When delegation is authorized for this review, ask a reviewer from a different model family than the one that wrote the code to review the same scope with both briefs.
-Otherwise report that the second-model review was not run and ask before delegating.
+When delegation is authorized for this review, run the [`council`](../council/SKILL.md) skill on the same scope, with both briefs from step 4 in its brief.
+Otherwise report that the council review was not run and ask before delegating.
 
-- In Pi, run the `reviewer` subagent; its model is pinned per parent provider in the Pi settings.
-- In Claude Code, call the `reviewer` tool; it runs the same review prompt on GPT through a read-only Codex session.
-- Elsewhere, write the diff to a temporary file and use the other family's command line:
-  for a change a GPT model wrote, `claude -p --permission-mode plan "<both briefs and the diff file path>"`;
-  for a change a Claude model wrote, `codex exec -s read-only -C <repo> -o <file> "<both briefs and the diff file path>"`, then read the file.
-
-Present its findings under `## Second model`, and mark each one that matches a finding from step 5.
-Agreement between the two families is high signal.
+Present its report under `## Council`, and mark each finding that matches one from step 5.
+Agreement across model families is high signal.
 Dismiss a behavior finding only with a test that shows the case works.
 Dismiss a standards finding only by citing the standard or fact that disproves it.
 

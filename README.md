@@ -14,7 +14,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Shell | Homebrew Bash 5 + Starship | FZF, zoxide, and mise on top. Fish/Zsh configs under `old/` are rollback-only. |
 | Primary agent harness | Claude Code | Settings, hooks, status line, and local mods in `stow/claude/.claude/`. |
 | Every other model | Pi | OpenAI, xAI, and the rest run through Pi (`stow/pi/.pi/agent/`). It can also reach Claude models via `pi-claude-bridge`. |
-| Reviewer / second opinion | Codex | Mostly used as the cross-provider reviewer for Claude Code and Pi, not as a daily harness. |
+| Reviewer / second opinion | `council` skill | Opus 5.5, GPT-6.1 Sol, and Muse Wonder Full review in parallel; in Claude Code, Sol and Muse run through `pi -p`. Codex stays configured but is not a daily harness. |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception: its theme and font are app settings, not files (see [Rex app settings](#rex-app-settings-one-time-per-machine)).
@@ -256,7 +256,8 @@ Generated init scripts for FZF, Starship, and zoxide are cached under `~/.cache/
 
 Claude Code is the primary harness.
 Pi is the harness for every other model (its default is an OpenAI model, set in `stow/pi/.pi/agent/settings.json`; select others with `/model`).
-Codex is kept configured mainly as the cross-provider reviewer both harnesses call, so a Claude-written change gets reviewed by a GPT model and vice versa.
+Codex stays configured, but cross-provider review now goes through the `council` skill: Opus, Sol, and Muse review the same diff in parallel, and `code-review` calls it for its council step.
+In Pi, invoke it as `/skill:council`, since Pi's `/council` belongs to pi-subagents.
 
 ### Shared rules and skills
 
