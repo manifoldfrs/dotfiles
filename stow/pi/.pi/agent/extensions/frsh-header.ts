@@ -1,43 +1,70 @@
-import type { ExtensionAPI, Theme } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { VERSION } from "@earendil-works/pi-coding-agent";
+import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import { homedir } from "node:os";
 
-function renderPi(theme: Theme): string[] {
-  const blue = (text: string) => theme.fg("accent", text);
-  const cyan = (text: string) => theme.fg("mdCode", text);
-  const purple = (text: string) => theme.fg("borderAccent", text);
-  const muted = (text: string) => theme.fg("dim", text);
+const ART = [
+  "       3.141592653589793238462643383279",
+  "      5028841971693993751058209749445923",
+  "     07816406286208998628034825342117067",
+  "     9821    48086         5132",
+  "    823      06647        09384",
+  "   46        09550        58223",
+  "             1725         3594",
+  "            08128        48111",
+  "           74502         84102",
+  "          70193          85211        05",
+  "        5596446           22948954930381",
+  "       9644288             10975665933",
+];
+const ART_WIDTH = Math.max(...ART.map((line) => line.length));
+const INFO_GAP = 4;
 
-  const art = [
-    "       3.141592653589793238462643383279",
-    "      5028841971693993751058209749445923",
-    "     07816406286208998628034825342117067",
-    "     9821    48086         5132",
-    "    823      06647        09384",
-    "   46        09550        58223",
-    "             1725         3594",
-    "            08128        48111",
-    "           74502         84102",
-    "          70193          85211        05",
-    "        5596446           22948954930381",
-    "       9644288             10975665933",
-  ];
+function colorArt(theme: Theme, line: string, index: number): string {
+  if (index < 3) return theme.fg("accent", line);
+  if (index < 6) return theme.fg("borderAccent", line);
+  return theme.fg("mdCode", line);
+}
 
+function shortCwd(cwd: string): string {
+  const home = homedir();
+  return cwd.startsWith(home) ? `~${cwd.slice(home.length)}` : cwd;
+}
+
+function modelLine(pi: ExtensionAPI, ctx: ExtensionContext): string {
+  const model = ctx.model;
+  if (!model) return "no model selected";
+  const thinking = pi.getThinkingLevel();
+  const effort = model.reasoning && thinking !== "off" ? ` with ${thinking} effort` : "";
+  return `${model.name || model.id}${effort} · ${model.provider}`;
+}
+
+function infoLines(pi: ExtensionAPI, ctx: ExtensionContext, theme: Theme): string[] {
   return [
-    "",
-    `       ${muted("pi agent")} ${muted(`v${VERSION}`)}`,
-    "",
-    ...art.map((line, index) => {
-      if (index < 3) {
-        return blue(line);
-      }
-      if (index < 6) {
-        return purple(line);
-      }
-      return cyan(line);
-    }),
-    "",
-    "",
+    `${theme.bold(theme.fg("text", "pi agent"))} ${theme.fg("dim", `v${VERSION}`)}`,
+    theme.fg("muted", modelLine(pi, ctx)),
+    theme.fg("muted", shortCwd(ctx.cwd)),
   ];
+}
+
+function renderHeader(pi: ExtensionAPI, ctx: ExtensionContext, theme: Theme, width: number): string[] {
+  const art = ART.map((line, index) => colorArt(theme, line, index));
+  const info = infoLines(pi, ctx, theme);
+
+  // Too narrow for side by side: stack the details under the art.
+  if (width < ART_WIDTH + INFO_GAP + 20) {
+    return ["", ...art, "", ...info.map((line) => `  ${truncateToWidth(line, width - 2, "…")}`), ""];
+  }
+
+  const infoStart = Math.floor((ART.length - info.length) / 2);
+  const infoWidth = width - ART_WIDTH - INFO_GAP;
+  const rows = art.map((line, index) => {
+    const detail = info[index - infoStart];
+    if (detail === undefined) return line;
+    const gap = " ".repeat(ART_WIDTH - visibleWidth(line) + INFO_GAP);
+    return `${line}${gap}${truncateToWidth(detail, infoWidth, "…")}`;
+  });
+  return ["", ...rows, ""];
 }
 
 export default function (pi: ExtensionAPI) {
@@ -47,8 +74,8 @@ export default function (pi: ExtensionAPI) {
     }
 
     ctx.ui.setHeader((_tui, theme) => ({
-      render(_width: number): string[] {
-        return renderPi(theme);
+      render(width: number): string[] {
+        return renderHeader(pi, ctx, theme, width);
       },
       invalidate() {},
     }));
