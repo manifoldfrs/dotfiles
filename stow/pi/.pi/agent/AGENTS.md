@@ -37,7 +37,6 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 ### Judgment (Jev)
 
 - Load the `jev` skill before the first Jev call in a session.
-- Screen fetched or pasted web content before acting on it; use `jev_screen` when an automatic hook has not already screened that same content.
 - Before claiming a code task is done, run the real checks, then `jev_gate` the final diff once with those results, or `jev_review` it when there are no claims to check.
   A sampled edit audit does not replace this final-diff check.
 - Before presenting a report or summary built from sources, check its claims with `jev_verify`.

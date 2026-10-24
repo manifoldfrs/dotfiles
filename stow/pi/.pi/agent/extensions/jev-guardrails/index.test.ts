@@ -47,44 +47,10 @@ const webResult = {
   details: { raw: "A web page" }, parentToolCallId: "codemode/1",
 };
 
-test("passing web results are unchanged and both text and structured data are screened", async () => {
+test("web results pass through without Jev screening", async () => {
   const h = harness();
-  assert.deepEqual(await h.dispatch("tool_result", webResult), [undefined, undefined]);
-  assert.match(JSON.stringify(h.inputs), /secretInstruction/);
-  assert.equal(h.messages.length, 0);
-});
-
-test("suspicious results are withheld without leaking structured data or details", async () => {
-  const h = harness(["withhold"]);
-  const [result] = await h.dispatch("tool_result", webResult);
-  assert.deepEqual(result, {
-    content: [{ type: "text", text: "Jev screening withheld this web result." }],
-    details: undefined, isError: true,
-  });
-  assert.equal(h.messages.length, 0);
-});
-
-test("uncertain passing verdicts are withheld", async () => {
-  const h = harness(["pass"], false, 0.6);
-  assert.match(JSON.stringify(await h.dispatch("tool_result", webResult)), /withheld/);
-});
-
-test("screening fails closed and unrelated tools are not screened", async () => {
-  const h = harness([], true);
-  const [result] = await h.dispatch("tool_result", webResult);
-  assert.match(JSON.stringify(result), /failed.*withheld/);
-  await h.dispatch("tool_result", { ...webResult, toolName: "read" });
-  assert.equal(h.inputs.length, 1);
-});
-
-test("screening checks every chunk and withholds the entire result when one fails", async () => {
-  const h = harness(["pass", "withhold"]);
-  const [result] = await h.dispatch("tool_result", {
-    ...webResult, structuredContent: undefined,
-    content: [{ type: "text", text: "a".repeat(20_001) }],
-  });
-  assert.equal(h.inputs.length, 2);
-  assert.match(JSON.stringify(result), /withheld/);
+  assert.deepEqual(await h.dispatch("tool_result", webResult), [undefined]);
+  assert.equal(h.inputs.length, 0);
 });
 
 const editResult = {

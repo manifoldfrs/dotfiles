@@ -307,8 +307,8 @@ Two things worth knowing:
 Shared scripts in `stow/bin/.local/share/agent-guardrails/` block dangerous shell commands and hand edits to generated files.
 Claude Code and Codex run them as hooks; Pi runs them from its `agent-guardrails` extension.
 Rails extras: schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
-Pi also screens fetched web content and audits edit scope with Jev (`jev-guardrails` extension), and Claude Code does the equivalent through its `jev-*` mods.
-Codex does the same with `jev-screen.ts` and `jev-coding.ts` hooks in `stow/codex/.codex/hooks/`; Codex runs new or changed hooks only after you trust them in `/hooks`.
+Pi also audits edit scope with Jev (`jev-guardrails` extension), Claude Code does the equivalent through its `jev-coding` mod, and Codex through the `jev-coding.ts` hook in `stow/codex/.codex/hooks/`; Codex runs new or changed hooks only after you trust them in `/hooks`.
+No harness screens tool results: web and MCP content reaches the model unfiltered.
 Codex has no equivalent of the Claude `jev-pipeline` mod; its code mode (`features.code_mode`, still marked under development) covers it by calling MCP tools and Jev from one script, and the Jev server is pre-approved so those calls don't prompt.
 Codex runs with full access and asks only for commands in `stow/codex/.codex/rules/dangerous.rules` (recursive deletes, force-push, `git reset --hard`, `sudo`, and similar) and for HEY and codex-chrome write tools; check a command with `codex execpolicy check --rules ~/.codex/rules/dangerous.rules -- <command>`.
 Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.

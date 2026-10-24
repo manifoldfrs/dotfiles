@@ -2,15 +2,6 @@
 
 One block per tool: arguments that matter, output shape, defaults, limits, failure modes. Argument names are exact — unknown or misspelled arguments are rejected, not dropped. The live MCP tool schema in your client is the complete, current call shape; this reference is the working map.
 
-## jev_screen
-
-Screen text before it enters agent context: prompt injection, substance, and task relevance.
-
-- Input: `text`; optional `purpose` (enables the relevance judgment and the `skip` action); thresholds `review_at` (default 0.25) and `block_at` (default 0.75).
-- Output: `probabilities` (`injection`, `substance`, `relevance` when a purpose was given), `thresholds`, and `recommendation: {action, reason}` with action `pass` | `review` | `block` | `skip`.
-- `skip` = little substance (< 0.3) or off-purpose (< 0.3); `block` = injection ≥ block threshold — show the recommendation and probabilities to the human before using the content.
-- Fail-closed: a malformed model answer returns `status: invalid_response` with `recommendation.action: review`, never a clean pass.
-
 ## jev_verify
 
 Test claims against supplied evidence.
@@ -91,7 +82,7 @@ Audit extracted values against the source text they claim to come from, before t
 - Input: `source` (the document or a dense vision/ASR transcript, ≤ 50,000 chars); `records[]` (up to 32, each `{id, request, value}` — `request` ≤ 500 chars saying what was to be extracted, `value` ≤ 2,000 chars verbatim, empty if the extractor returned nothing); optional `wrong_at` (default 0.7, must be ≥ 0.5).
 - Output per record: `checks` (per failure mode: `hallucinated`, `off_target`, `incomplete`, `format` — or just `absence` for an empty value), `p_wrong` (the max over checks), `action` `ok` | `wrong` | `invalid_response`; plus overall `action` `pass` | `review` (truncated source) | `escalate` and `summary` (`records`, `flagged`, `invalid`).
 - Every check is framed so yes = something is wrong; the gate is the max, never a mean — one fired flag cannot be diluted by clean siblings. A `wrong` record is a fabrication or omission signal: escalate, do not re-run the extractor with the same prompt.
-- Multimodal intake: when the original text exists, audit against it directly. Otherwise your vision/ASR model produces the transcript and the values; `jev_screen` the transcript (honor `block`/`review` before passing it on — the screen protects your context, not the upstream model, which already consumed the untrusted material), `jev_audit` the values against it, then judge with the other tools. Jev reads text only; it never sees pixels or audio. The audit cross-checks two text artifacts, usually from one host model: a shared misreading can pass, and `pass` means no check crossed the threshold, not that the source was verified.
+- Multimodal intake: when the original text exists, audit against it directly. Otherwise your vision/ASR model produces the transcript and the values; `jev_audit` the values against it, then judge with the other tools. Jev reads text only; it never sees pixels or audio. The audit cross-checks two text artifacts, usually from one host model: a shared misreading can pass, and `pass` means no check crossed the threshold, not that the source was verified.
 - Fail-closed: a malformed answer marks the record `invalid_response` and escalates; a truncated source demotes `pass` to `review`.
 
 ## jev_review

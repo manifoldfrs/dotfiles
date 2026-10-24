@@ -373,7 +373,7 @@ CLAUDE_CODE_MAX_OUTPUT_TOKENS = "128000"
 ENABLE_TOOL_SEARCH = "true"
 MAX_MCP_OUTPUT_TOKENS = "30000"
 MCP_TIMEOUT = "60000"
-CLAUDE_CODE_PLUGIN_DIRS = "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-pipeline:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-screen:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-coding:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
+CLAUDE_CODE_PLUGIN_DIRS = "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-pipeline:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-coding:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
 
 [memories]
 generate_memories = true
