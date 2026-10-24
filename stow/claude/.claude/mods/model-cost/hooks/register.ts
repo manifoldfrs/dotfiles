@@ -38,7 +38,8 @@ export const register: Register = on => {
       lastUsd = 0
     }
 
-    const model = result.usage?.model ?? e.model
+    // Steps without usage fall back to the requested id, whose context-window suffix ("[1m]") would split one model in two.
+    const model = (result.usage?.model ?? e.model).replace(/\[.*\]$/, '')
     costs[model] = (costs[model] ?? 0) + usd - lastUsd
     lastUsd = usd
     await $.fs.write(await costFile($), JSON.stringify(costs))
