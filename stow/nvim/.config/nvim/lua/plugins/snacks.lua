@@ -114,6 +114,29 @@ return {
     { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" } },
   },
   init = function()
+    -- Close the explorer when quitting the last file window so Neovim exits.
+    -- Otherwise snacks reopens the last buffer when the lone explorer closes.
+    vim.api.nvim_create_autocmd("QuitPre", {
+      callback = function()
+        local current = vim.api.nvim_get_current_win()
+        if vim.api.nvim_win_get_config(current).relative ~= "" then
+          return
+        end
+        local explorer_wins = {}
+        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+          if win ~= current and vim.api.nvim_win_get_config(win).relative == "" then
+            if vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "snacks_layout_box" then
+              return
+            end
+            table.insert(explorer_wins, win)
+          end
+        end
+        for _, win in ipairs(explorer_wins) do
+          vim.api.nvim_win_close(win, true)
+        end
+      end,
+    })
+
     vim.api.nvim_create_autocmd("User", {
       pattern = "VeryLazy",
       callback = function()
