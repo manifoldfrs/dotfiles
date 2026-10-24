@@ -101,6 +101,8 @@ scripts/
   sync_herdr_plugins.sh Install/update declared Herdr plugins
   update_agent_skills.sh Check or sync the shared skill catalog
   rex_server_setup.sh  Root-only Rex login server setup for agentbox
+  rex_prefs.sh         Save / load / auto-save Rex app settings
+rex/                   Tracked Rex app settings (not stowed)
 server/rex/            Files installed under /etc on agentbox (not stowed)
 mcp/                   MCP templates and notes (see mcp/README.md)
 test/                  Shell and TypeScript tests, Docker harness
@@ -155,10 +157,17 @@ Rex has no selection API yet, so annotations read the clipboard: select text fir
 ### Rex app settings (one time per machine)
 
 Theme, font, and GUI settings live in the app (`com.superlogical.rex.plist`), not in `init.lua`.
-Set these once:
+`scripts/rex_prefs.sh` tracks the `Workspace.*` settings (themes, font, tabs, cursor, padding) in `rex/preferences.plist`:
 
-- [ ] Themes: import `/Applications/Ghostty.app/Contents/Resources/ghostty/themes/TokyoNight Night` and use it for both appearances.
-- [ ] Font: `MonoLisaCode` 14 pt; check the `cv05` and `cv09` features apply.
+```bash
+./scripts/rex_prefs.sh save    # copy current Rex settings into the repo
+./scripts/rex_prefs.sh load    # restore them (quit Rex first)
+./scripts/rex_prefs.sh watch   # LaunchAgent that runs save whenever Rex changes a setting
+```
+
+Window positions, sessions, and server/host state stay machine-local.
+Set the rest once:
+
 - [ ] Shell: `/opt/homebrew/bin/bash --login`.
 - [ ] Terminal: copy on select, Option as Alt, blinking block cursor, padding color matching the background, fade inactive panes.
 - [ ] Notifications: macOS notifications for blocked and finished programs, sounds off.
