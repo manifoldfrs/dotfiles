@@ -90,7 +90,7 @@ stow/                  Stow packages, each mirroring $HOME
   nvim/                Neovim config (see stow/nvim/AGENTS.md)
   bin/                 ~/.local/bin tools and shared agent guardrail scripts
   claude/              Claude Code settings, hooks, theme, status line, mods/
-  codex/               Codex config, hooks, theme
+  codex/               Codex config, hooks, theme, reviewer agent, xai-search MCP adapter
   pi/                  Pi settings, MCP config, models, themes, extensions/
   agents/              Shared skill catalog under ~/.agents/skills/
 scripts/
@@ -290,6 +290,7 @@ To give Claude Code the same servers, import them into its machine-local config:
 ```
 
 Codex declares its servers in `stow/codex/.codex/config.toml`.
+It also gets `xai_search` (X search), which Pi and Claude Code have through their own extensions, from a small stdio MCP adapter (`stow/codex/.codex/mcp/xai-search.ts`) around Pi's runner, so it uses Pi's xAI sign-in.
 The legacy template flow in `mcp/` is documented in `mcp/README.md`.
 
 Two things worth knowing:
@@ -307,7 +308,11 @@ Shared scripts in `stow/bin/.local/share/agent-guardrails/` block dangerous shel
 Claude Code and Codex run them as hooks; Pi runs them from its `agent-guardrails` extension.
 Rails extras: schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
 Pi also screens fetched web content and audits edit scope with Jev (`jev-guardrails` extension), and Claude Code does the equivalent through its `jev-*` mods.
+Codex does the same with `jev-screen.ts` and `jev-coding.ts` hooks in `stow/codex/.codex/hooks/`; Codex runs new or changed hooks only after you trust them in `/hooks`.
+Codex has no equivalent of the Claude `jev-pipeline` mod; its code mode (`features.code_mode`, still marked under development) covers it by calling MCP tools and Jev from one script, and the Jev server is pre-approved so those calls don't prompt.
+Codex runs with full access and asks only for commands in `stow/codex/.codex/rules/dangerous.rules` (recursive deletes, force-push, `git reset --hard`, `sudo`, and similar) and for HEY and codex-chrome write tools; check a command with `codex execpolicy check --rules ~/.codex/rules/dangerous.rules -- <command>`.
 Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.
+Test the Codex adapters with `node --test stow/codex/.codex/hooks/*.test.ts stow/codex/.codex/mcp/*.test.ts`.
 
 ### Planning and review
 

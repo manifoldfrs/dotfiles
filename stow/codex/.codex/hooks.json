@@ -24,6 +24,40 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "^mcp__(exa__web_fetch_exa|exa__web_search_exa|exa__web_search_advanced_exa|Ref__ref_read_url|Ref__ref_search_documentation)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/node ~/.codex/hooks/jev-screen.ts",
+            "timeout": 120,
+            "statusMessage": "Screening web result with Jev"
+          }
+        ]
+      },
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/node ~/.codex/hooks/jev-coding.ts",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/node ~/.codex/hooks/jev-coding.ts",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
@@ -31,6 +65,16 @@
             "type": "command",
             "command": "~/.local/bin/plannotator",
             "timeout": 345600
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/node ~/.codex/hooks/jev-coding.ts",
+            "timeout": 180,
+            "statusMessage": "Auditing edit scope with Jev"
           }
         ]
       }

@@ -3,12 +3,16 @@ model_reasoning_effort = "medium"
 model_verbosity = "low"
 tool_output_token_limit = 25000
 personality = "pragmatic"
+# Full access without prompts, except commands matched by rules/dangerous.rules and MCP tools left on prompt.
+approval_policy = "on-request"
+sandbox_mode = "danger-full-access"
+suppress_unstable_features_warning = true
 approvals_reviewer = "user"
 notify = [
     "/Users/frshbb/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
     "turn-ended",
 ]
-service_tier = "fast"
+service_tier = "ultrafast"
 
 [projects."/Users/frshbb/code"]
 trust_level = "trusted"
@@ -124,8 +128,9 @@ enabled = true
 [plugins."computer-use@openai-bundled"]
 enabled = true
 
+# The marketplace ships Plannotator's Claude plugin, whose hooks.json Codex can't parse; the Stop hook in hooks.json covers Codex.
 [plugins."plannotator@plannotator"]
-enabled = true
+enabled = false
 
 [plugins."typesafe@typesafe-ai"]
 enabled = true
@@ -142,20 +147,20 @@ screen_reader_detection_done = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
-"gpt-6.1-sol" = 2
+"gpt-6.1-sol" = 4
 
 [mcp_servers.Ref]
-type = "http"
 url = "https://api.ref.tools/mcp"
 enabled = true
+default_tools_approval_mode = "approve"
 
 [mcp_servers.Ref.env_http_headers]
 x-ref-api-key = "REF_API_KEY"
 
 [mcp_servers.exa]
-type = "http"
 url = "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
 enabled = true
+default_tools_approval_mode = "approve"
 
 [mcp_servers.exa.env_http_headers]
 x-api-key = "EXA_API_KEY"
@@ -196,6 +201,8 @@ args = [
     "@jkudish/jev-mcp",
 ]
 env_vars = ["TYPESAFE_API_KEY"]
+# Jev tools only return judgments, so code-mode pipelines can call them without a prompt each time.
+default_tools_approval_mode = "approve"
 
 [mcp_servers.chrome-devtools]
 command = "npx"
@@ -205,17 +212,29 @@ args = [
     "--isolated",
     "--no-usage-statistics",
 ]
+default_tools_approval_mode = "approve"
 
+# codex-chrome and HEY act on the signed-in browser and real mail, so their write tools still prompt.
 [mcp_servers.codex-chrome]
 command = "codex-control-chrome-mcp"
 args = ["--stdio"]
+default_tools_approval_mode = "writes"
 
 [mcp_servers.hey]
 command = "hey"
 args = ["mcp"]
+default_tools_approval_mode = "writes"
 
 [mcp_servers.superlogical]
 url = "https://www.superlogical.com/rex/community-mcp"
+default_tools_approval_mode = "approve"
+
+[mcp_servers.xai-search]
+command = "/opt/homebrew/bin/node"
+args = ["/Users/frshbb/.codex/mcp/xai-search.ts"]
+tool_timeout_sec = 330
+
+[hooks.state]
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:23a8ebf007ace63070ce68117cc10069ec15dae1861e6913cf7de5eae02e297f"
@@ -247,7 +266,23 @@ trusted_hash = "sha256:c14c21d72b8ddb7a4dbd7eedcac9d3fff0d7b4b97e4f24dd8f6277d78
 [hooks.state."plannotator@plannotator:hooks/hooks.json:permission_request:0:0"]
 trusted_hash = "sha256:c8ae3770a85b13f9f51aabce263943340a878625c5e71eadb429bb2743835d9e"
 
+[hooks.state."/Users/frshbb/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:8866cd49803da64e3935f3d83a09e381e2d696a07e521b5145fce881f62f94fa"
+
+[hooks.state."/Users/frshbb/.codex/hooks.json:post_tool_use:1:0"]
+trusted_hash = "sha256:fe4f053bf07373086cfa87ef68ed078eed1c3784bcbfe4a9f097ac345de7076b"
+
+[hooks.state."/Users/frshbb/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:7ac16f27c7b29bec5952047d0a2193dc7595d731faca5a12c3c476194bd2d532"
+
+[hooks.state."/Users/frshbb/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:dc38935b52c8f5b36db1aebee05982bbad9f91b63eee039b9870508447bdf6cc"
+
+[hooks.state."/Users/frshbb/.codex/hooks.json:stop:1:0"]
+trusted_hash = "sha256:0293b1bc4c865f8144b3fe59b8bc465b0dd0f31e9a7832747dd63020a189a004"
+
 [features]
+code_mode = true
 hooks = true
 js_repl = false
 memories = true

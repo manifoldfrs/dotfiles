@@ -1,0 +1,87 @@
+# Commands Codex must ask about even with full access and approval_policy = "on-request".
+# The shared dangerous-bash hook already hard-blocks the worst forms (absolute-path rm -rf,
+# force-push to protected branches, git branch -D); these are risky but sometimes legitimate.
+# Codex only splits plain `a && b` chains; scripts with redirects, variables, or globs are matched as one
+# `bash -lc` string, so these prefixes do not see inside them.
+
+prefix_rule(
+    pattern = ["rm", ["-rf", "-fr", "-Rf", "-r", "-R"]],
+    decision = "prompt",
+    justification = "Recursive delete",
+    match = ["rm -rf build", "rm -r node_modules"],
+    not_match = ["rm file.txt"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f", "--force-with-lease"]],
+    decision = "prompt",
+    justification = "Force-push rewrites remote history",
+    match = ["git push --force origin feature"],
+    not_match = ["git push origin feature"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "prompt",
+    justification = "Discards uncommitted work",
+)
+
+prefix_rule(
+    pattern = ["git", "clean"],
+    decision = "prompt",
+    justification = "Deletes untracked files",
+)
+
+prefix_rule(
+    pattern = ["git", "stash", ["drop", "clear"]],
+    decision = "prompt",
+    justification = "Deletes stashed work",
+)
+
+prefix_rule(
+    pattern = ["sudo"],
+    decision = "prompt",
+    justification = "Runs as root",
+)
+
+prefix_rule(
+    pattern = [["chmod", "chown"], "-R"],
+    decision = "prompt",
+    justification = "Recursive permission or ownership change",
+)
+
+prefix_rule(
+    pattern = [["dd", "mkfs", "diskutil", "chsh"]],
+    decision = "prompt",
+    justification = "Disk or login-shell change",
+)
+
+prefix_rule(
+    pattern = [["kill", "pkill", "killall"]],
+    decision = "prompt",
+    justification = "Stops running processes",
+)
+
+prefix_rule(
+    pattern = ["brew", ["uninstall", "remove", "rm"]],
+    decision = "prompt",
+    justification = "Removes installed packages",
+)
+
+prefix_rule(
+    pattern = ["npm", ["publish", "unpublish"]],
+    decision = "prompt",
+    justification = "Publishes to the npm registry",
+)
+
+prefix_rule(
+    pattern = ["gh", ["repo", "release"], "delete"],
+    decision = "prompt",
+    justification = "Deletes a GitHub repository or release",
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "merge"],
+    decision = "prompt",
+    justification = "Merges a pull request",
+)
