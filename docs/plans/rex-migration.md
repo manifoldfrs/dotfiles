@@ -90,7 +90,7 @@ Versions: Rex Beta 0.1.0 (1347), CLI `0.0.1792607779-g171246`, Linux server prev
 - [ ] Terminal: copy on select, Option as Alt, block cursor with blink, padding color matching the background, and fade for inactive panes (Ghostty used 0.97).
 - [ ] Notifications: macOS notifications for blocked and done; sounds off, matching Herdr's `ui.sound = false`.
 - [x] Turn on Remote Control, which agents and `rex do` need to drive the app.
-- [ ] Integrations: decide on automatic session naming for agent sessions.
+- [x] Integrations: keep automatic session naming on; always run `rex skill setup --session-naming` so every machine writes the same tracked hooks.
 - [ ] Add Rex to the Dock and login items in place of Ghostty.
 
 ## Phase 4: Agents (Mac)
@@ -108,16 +108,16 @@ Versions: Rex Beta 0.1.0 (1347), CLI `0.0.1792607779-g171246`, Linux server prev
 
 Root steps go through `ssh root@agentbox`, because `frshbb` has no sudo.
 
-- [ ] Install from the logged-in install command on the docs page; keep `REX_PACKAGE_TOKEN` out of the repo.
+- [x] Install from the logged-in install command on the docs page; keep `REX_PACKAGE_TOKEN` out of the repo.
 - [x] Add tracked server files under `server/rex/`:
   - `accounts.jsonc` letting `tailscale:manifoldfrs@github` in as `frshbb`, with that as the default.
   - `rex-login-server.service.d/override.conf` with the `tailnet://:7297` listener and `After=`/`Requires=tailscaled.service`.
     Copy `ExecStart` from the installed unit (`systemctl cat rex-login-server`) and append only `--extra-listen`, because the docs say to keep the original options.
   The setup script refuses to install the drop-in if the packaged `ExecStart` differs from the tracked one.
 - [x] Add an idempotent `scripts/rex_server_setup.sh` that installs both files with `install -m`, runs `systemctl daemon-reload`, enables and starts `rex-login-server.service`, and reloads it after a change.
-- [ ] Verify with `systemctl status rex-login-server`, `journalctl -u rex-login-server.service`, and `rex server status`.
-- [ ] As `frshbb`, run `rex skill setup`; the tracked hooks should report `unchanged`, and only the stub skills are created.
-- [ ] Check that no host firewall (ufw) blocks port 7297 on `tailscale0`.
+- [x] Verify with `systemctl status rex-login-server`, `journalctl -u rex-login-server.service`, and `rex server status`.
+- [x] As `frshbb`, run `rex skill setup --session-naming`; the tracked hooks should report `unchanged`, and only the stub skills are created.
+- [x] Check that no host firewall (ufw) blocks port 7297 on `tailscale0`.
   DigitalOcean's Cloud Firewall needs no change, because the traffic travels inside Tailscale.
 - [x] Tailscale: no change needed; HTTPS certificates stay off.
 - [x] Keep Plannotator's remote setup (`PLANNOTATOR_REMOTE=1`) unchanged.
@@ -125,7 +125,7 @@ Root steps go through `ssh root@agentbox`, because `frshbb` has no sudo.
 ## Phase 6: Connect and prove it works
 
 - [x] `rex hosts list` shows `agentbox` from `init.lua`, and the app's session picker lists it.
-- [ ] `rex -S agentbox ls` works from the Mac.
+- [x] `rex -S agentbox ls` works from the Mac.
 - [ ] On `agentbox`, `rex client ls` shows the Mac's connection with the `principal` `tailscale:manifoldfrs@github`, and nothing else connected.
 - [ ] Start Claude Code and Pi in a Rex session on `agentbox`; close the lid; reopen and confirm the output is intact and status indicators work.
 - [ ] Upgrade the package on `agentbox` while an agent runs, and confirm the session survives.

@@ -182,7 +182,7 @@ Set the rest once:
 ```bash
 # On agentbox, after installing the rex package from the Rex docs
 sudo ~/code/personal/dotfiles/scripts/rex_server_setup.sh
-rex skill setup
+rex skill setup --session-naming
 
 # From the Mac
 rex -S agentbox ls

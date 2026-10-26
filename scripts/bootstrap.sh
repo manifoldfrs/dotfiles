@@ -253,7 +253,8 @@ setup_rex_agents() {
     fi
 
     info "Installing Rex's agent skill and hooks..."
-    "$rex_bin" skill setup || warn "Rex agent setup failed; rerun: rex skill setup"
+    # Pass the naming choice explicitly; without it, newer Rex builds rewrite the tracked hooks to turn naming off.
+    "$rex_bin" skill setup --session-naming || warn "Rex agent setup failed; rerun: rex skill setup --session-naming"
 }
 
 main() {
