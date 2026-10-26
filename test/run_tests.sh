@@ -90,7 +90,7 @@ grep -q '^font-size = 14$' stow/ghostty/.config/ghostty/config
 grep -q 'name = "tokyo-night"' stow/herdr/.config/herdr/config.toml
 grep -q '^default_shell = "bash"$' stow/herdr/.config/herdr/config.toml
 grep -Fq 'local prefix = "ctrl+a>"' stow/rex/.config/rex/keys.lua
-grep -Fq 'endpoint = "http://agentbox.tail52943f.ts.net:7297"' stow/rex/.config/rex/init.lua
+grep -Fq 'endpoint = "http://100.82.139.102:7297"' stow/rex/.config/rex/init.lua
 grep -Fq '"pankrashin/vim-rex-navigator"' stow/nvim/.config/nvim/lua/plugins/vim-rex-navigator.lua
 grep -Fq '"frshbb": { "principals": ["tailscale:manifoldfrs@github"] }' server/rex/accounts.jsonc
 grep -Eq '^ExecStart=/usr/bin/rex login-server .* --extra-listen tailnet://:7297$' server/rex/rex-login-server.service.d/override.conf

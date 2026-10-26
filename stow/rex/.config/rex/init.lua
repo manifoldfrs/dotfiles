@@ -5,5 +5,5 @@ require("cmd-keys")
 
 rex.host({
   label = "agentbox",
-  endpoint = "http://agentbox.tail52943f.ts.net:7297",
+  endpoint = "http://100.82.139.102:7297",
 })

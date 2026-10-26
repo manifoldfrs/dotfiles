@@ -75,7 +75,7 @@ Versions: Rex Beta 0.1.0 (1347), CLI `0.0.1792607779-g171246`, Linux server prev
   - `annotate.capture` and `annotate.copy-context`: Rex has no API for selected text, so capture the focused terminal's screen with the terminal block's `format` method and hand that text to Plannotator.
   - First check which Plannotator commands work outside Herdr; record anything that cannot be ported.
   Done with floating layers instead of splits: capture opens `herdr-annotate editor` (through `rex-annotate`) on the clipboard selection or text passed by Neovim's visual `<leader>a`, rather than the whole screen; copy-context, copy-archive, and manage run `herdr-annotate` directly; open and last were ported and then removed by decision on 2026-10-21, because they are unused.
-- [x] Declare the droplet: `rex.host{ label = "agentbox", endpoint = "http://agentbox.tail52943f.ts.net:7297" }`.
+- [x] Declare the droplet: `rex.host{ label = "agentbox", endpoint = "http://100.82.139.102:7297" }`, the Tailscale IPv4 address because Rex terminals fail on the `ts.net` name's IPv6 address.
 - [x] Add `rex` to `STOW_PACKAGES` in `scripts/stow.sh` and `scripts/validate-dotfiles.sh`, Mac only, matching how `zed` and `cursor` are handled.
   `zed` and `cursor` are stowed on every OS, so `rex` is too.
 - [x] Add `init.lua` and its required files to `scripts/backup.sh`.

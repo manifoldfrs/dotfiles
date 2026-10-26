@@ -177,7 +177,7 @@ Set the rest once:
 ### Rex server on agentbox
 
 `agentbox` (Linux, on the tailnet) runs the Rex login server, so sessions keep running while the Mac is closed and survive Rex upgrades.
-`init.lua` declares the host, so it shows up in the app and in `rex hosts list`.
+`init.lua` declares the host for the CLI (`rex hosts list`, `rex -S agentbox`); the app needs it added once with **Add Remote Host…**.
 
 ```bash
 # On agentbox, after installing the rex package from the Rex docs
@@ -187,6 +187,25 @@ rex skill setup --session-naming
 # From the Mac
 rex -S agentbox ls
 ```
+
+#### Using sessions on agentbox
+
+One-time: in the app, choose **Add Remote Host…** with URL `http://100.82.139.102:7297` and name `agentbox`.
+Use agentbox's Tailscale IPv4 address, not its `ts.net` name: the name also resolves to IPv6, and Rex panes then hang on "Opening terminal…" ([Rex bug](https://discord.com/channels/1546797889009881158/1564343288335564820)).
+The app needs Rex for Mac preview.21 or newer to connect to a plain-HTTP tailnet address; older builds show it as Disconnected.
+
+Then, on the Mac, `rexbox` connects the app to a session, creating it first if needed:
+
+```bash
+rexbox                                  # list sessions on agentbox
+rexbox opto2 code/optoai/opto2          # open opto2, creating it in ~/code/optoai/opto2 on agentbox
+rexbox opto2                            # open an existing session
+rex -S agentbox kill opto2              # end one
+```
+
+Run these on the Mac, never on agentbox itself; there, the name `agentbox` resolves to loopback and the connection is refused.
+The directory is relative to the agentbox home; with raw `rex -S agentbox new -c`, pass a full `/home/frshbb/...` path, because the Mac's shell expands `~` to `/Users/frshbb`.
+You can also click **agentbox** in the app's sidebar and pick the session there.
 
 The setup script installs `server/rex/accounts.jsonc` and the systemd drop-in, and refuses to run if the packaged `ExecStart` no longer matches the tracked one.
 Pin upgrades with `sudo apt-mark hold rex` when you want to postpone one.

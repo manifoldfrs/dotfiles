@@ -174,3 +174,34 @@ claude-log() {
 pi-log() {
     PI_REQUEST_LOG=1 command pi "$@"
 }
+
+# Open a Rex session on agentbox in the app, creating it first if needed.
+# DIR is relative to the agentbox home, because the Mac's shell would expand ~ to /Users.
+rexbox() {
+    local name=$1
+    local dir=${2:-}
+    local id
+    local client
+
+    if [[ -z $name ]]; then
+        rex -S agentbox ls
+        return
+    fi
+
+    id=$(rex -S agentbox ls --json | jq -r --arg name "$name" '.sessions[] | select(.label == $name) | .session_id' | head -n 1)
+    if [[ -z $id ]]; then
+        if [[ -n $dir && $dir != /* ]]; then
+            dir=/home/frshbb/$dir
+        fi
+        id=$(rex -S agentbox new "$name" ${dir:+-c "$dir"} --json | jq -r '.session_id') || return
+    fi
+
+    # A restarted app leaves its old connection listed for a while, so pick the newest live one.
+    client=$(rex -S agentbox client ls --json | jq -r '[.clients[] | select(.info.kind == "app" and .connection_state == "connected")] | sort_by(.connected_at) | last | .client_id // empty')
+    if [[ -z $client ]]; then
+        echo "rexbox: the Rex app isn't connected to agentbox; click agentbox in its sidebar" >&2
+        return 1
+    fi
+
+    rex -S agentbox -C "$client" do session.select session_id="$id"
+}
