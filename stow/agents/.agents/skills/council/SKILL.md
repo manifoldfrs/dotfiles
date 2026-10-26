@@ -1,16 +1,15 @@
 ---
 name: council
-description: Ask a council of Opus 5.5, GPT-6.1 Sol, and Muse Wonder Full to review a diff, PR, or plan in parallel and gate on their verdicts. Use when the user asks to consult the council, or when code-review's council step calls it; not automatically after an edit or test run.
+description: Ask a council of Opus 5.5 and GPT-6.1 Sol to review a diff, PR, or plan in parallel and gate on their verdicts. Use when the user asks to consult the council, or when code-review's council step calls it; not automatically after an edit or test run.
 argument-hint: "what to review and the question, e.g. PR #31 merge safety"
 ---
 
-The council is three read-only reviewers from three model families, each reviewing the same pinned scope with the same brief:
+The council is two read-only reviewers from two model families, each reviewing the same pinned scope with the same brief:
 
 | Seat | Model | Effort |
 | --- | --- | --- |
 | Opus | Claude Opus 5.5 | xhigh |
 | Sol | GPT-6.1 Sol | xhigh |
-| Muse | Muse Wonder Full | xhigh |
 
 Every seat reviews; no seat edits.
 You are the chair: you pin the scope, write the brief, and synthesize the verdicts, but you hold no vote.
@@ -44,12 +43,12 @@ Then tell the user in a few lines who sits on the council and which risks they a
 
 ## 3. Convene the seats
 
-Launch all three seats in one turn so they run in parallel.
+Launch both seats in one turn so they run in parallel.
 
 ### Claude Code
 
 - **Opus**: an `Agent` call with `subagent_type: "reviewer"`, `model: "opus"`, `effort: "xhigh"`, and the prompt `Read <dir>/brief.md and follow it.`
-- **Sol** and **Muse**: one background `Bash` call each, run with `run_in_background`, through Pi with read-only tools and the same reviewer prompt:
+- **Sol**: one background `Bash` call, run with `run_in_background`, through Pi with read-only tools and the same reviewer prompt:
 
   ```bash
   cd <repository root> && pi -p --no-session --no-mcp --no-skills --tools read,grep,find,ls \
@@ -58,17 +57,15 @@ Launch all three seats in one turn so they run in parallel.
     "Read $dir/brief.md and follow it." > "$dir/sol.md" 2>&1
   ```
 
-  For Muse, use `--model meta/muse-wonder-full-1.0:xhigh` and write to `$dir/muse.md`.
-
 ### Pi
 
-Run one async workflow with `runs.all` over the `reviewer` agent, one item per seat, each with `cwd` set to the repository root and a per-run `model`: `claude-bridge/claude-opus-5-5:xhigh`, `openai/gpt-6.1-sol:xhigh`, and `meta/muse-wonder-full-1.0:xhigh`.
+Run one async workflow with `runs.all` over the `reviewer` agent, one item per seat, each with `cwd` set to the repository root and a per-run `model`: `claude-bridge/claude-opus-5-5:xhigh` and `openai/gpt-6.1-sol:xhigh`.
 Each task is `Read <dir>/brief.md and follow it.`
 In Pi this skill is `/skill:council`; Pi's own `/council` is pi-subagents' advisor debate, a different workflow.
 
 ### Elsewhere
 
-Run all three seats with the `pi -p` command above, using `claude-bridge/claude-opus-5-5:xhigh` for Opus.
+Run both seats with the `pi -p` command above, using `claude-bridge/claude-opus-5-5:xhigh` for Opus.
 
 ## 4. Collect the verdicts
 
@@ -85,7 +82,7 @@ Report under `## Council`:
 
 - One line per seat: model, verdict, and finding count.
 - Findings merged by defect, each tagged with the seats that raised it.
-  Findings raised by two or three seats lead, since agreement across families is the council's strongest signal.
+  Findings raised by both seats lead, since agreement across families is the council's strongest signal.
 - For each finding, your disposition: accepted, or dismissed with the test, code, or cited fact that disproves it.
   A finding you cannot disprove stays accepted.
 - The council verdict: **OK** only when every seat returned `OK` or `OK with notes` and no accepted P0 remains; otherwise **BLOCK**.
