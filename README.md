@@ -32,7 +32,7 @@ cd ~/code/personal/dotfiles
 ./scripts/bootstrap.sh
 ```
 
-Bootstrap installs Homebrew and the `Brewfile`, installs Claude Code with its native installer, backs up conflicting live files (`.backup.YYYYMMDDhhmmss`), applies all Stow packages, syncs Herdr plugins, selects Homebrew Bash as the login shell, restores Neovim plugins from `lazy-lock.json`, installs the global npm packages, sets up the global `anti-slop` runtime and Plannotator, and runs `rex skill setup` when Rex is present.
+Bootstrap installs Homebrew and the `Brewfile`, installs Claude Code with its native installer, backs up conflicting live files (`.backup.YYYYMMDDhhmmss`), applies all Stow packages, syncs Herdr plugins, selects Homebrew Bash as the login shell, restores Neovim plugins from `lazy-lock.json`, installs the global npm packages, sets up the global `anti-slop` runtime and Plannotator, and runs `rex skill setup --session-naming` when Rex is present.
 
 Rex itself installs from its DMG and updates itself, so install it separately.
 Then quit and reopen your terminal (or `exec /opt/homebrew/bin/bash --login`) and sign in to each harness (`claude`, `pi` with `/login`, `codex`).
@@ -176,25 +176,40 @@ Set the rest once:
 
 ### Rex server on agentbox
 
-`agentbox` (Linux, on the tailnet) runs the Rex login server, so sessions keep running while the Mac is closed and survive Rex upgrades.
-`init.lua` declares the host for the CLI (`rex hosts list`, `rex -S agentbox`); the app needs it added once with **Add Remote Host…**.
+`agentbox` (Ubuntu droplet on the tailnet) runs the Rex login server, so sessions keep running while the Mac is closed and survive Rex upgrades.
+Rex on Linux is server only: you see and type into agentbox sessions through the Mac app.
+
+#### Server setup (once, as root on agentbox)
 
 ```bash
-# On agentbox, after installing the rex package from the Rex docs
-sudo ~/code/personal/dotfiles/scripts/rex_server_setup.sh
-rex skill setup --session-naming
-
-# From the Mac
-rex -S agentbox ls
+ssh root@agentbox
+export REX_PACKAGE_TOKEN=...   # from the Linux install command on the Rex docs page; never commit it
+curl -fsSL -u "rex:$REX_PACKAGE_TOKEN" https://pkgs.superlogical.com/rex/install.sh | sh
+sudo -u frshbb git -C /home/frshbb/code/personal/dotfiles pull
+/home/frshbb/code/personal/dotfiles/scripts/rex_server_setup.sh
 ```
 
-#### Using sessions on agentbox
+The setup script installs `server/rex/accounts.jsonc` (only `tailscale:manifoldfrs@github` gets in, as `frshbb`) and a systemd drop-in that listens on the tailnet at port 7297.
+It refuses to run if the packaged `ExecStart` no longer matches the tracked one; copy the new line from `systemctl cat rex-login-server` into the drop-in, keep `--extra-listen tailnet://:7297` at the end, and rerun.
+The login server starts on boot; your account's server starts when you connect and exits once its last session ends.
 
-One-time: in the app, choose **Add Remote Host…** with URL `http://100.82.139.102:7297` and name `agentbox`.
-Use agentbox's Tailscale IPv4 address, not its `ts.net` name: the name also resolves to IPv6, and Rex panes then hang on "Opening terminal…" ([Rex bug](https://discord.com/channels/1546797889009881158/1564343288335564820)).
-The app needs Rex for Mac preview.21 or newer to connect to a plain-HTTP tailnet address; older builds show it as Disconnected.
+Then, as `frshbb` on agentbox, run `rex skill setup --session-naming`.
+Always pass `--session-naming`: without it, newer Rex builds rewrite the tracked agent hooks to turn naming off, and the Mac and agentbox drift apart.
 
-Then, on the Mac, `rexbox` connects the app to a session, creating it first if needed:
+Rex updates arrive with `apt full-upgrade`; pin one with `sudo apt-mark hold rex` when it must wait.
+
+#### App setup (once per Mac)
+
+In the Rex app, choose **Add Remote Host…** with URL `http://100.82.139.102:7297` and name `agentbox`.
+`init.lua` declares the same host, but only the CLI (`rex hosts list`, `rex -S agentbox`) reads it.
+
+- Use agentbox's Tailscale IPv4 address, not its `ts.net` name: the name also resolves to IPv6, and panes then hang on "Opening terminal…" ([Rex bug](https://discord.com/channels/1546797889009881158/1564343288335564820)).
+- The app needs Rex for Mac preview.21 or newer to connect to a plain-HTTP tailnet address; older builds show the host as Disconnected.
+- If agentbox is ever removed from and re-added to the tailnet, its IP can change; update `init.lua` and the app's host to match.
+
+#### Daily use (on the Mac)
+
+`rexbox` shows an agentbox session in the app, creating it first if needed:
 
 ```bash
 rexbox                                  # list sessions on agentbox
@@ -203,12 +218,16 @@ rexbox opto2                            # open an existing session
 rex -S agentbox kill opto2              # end one
 ```
 
-Run these on the Mac, never on agentbox itself; there, the name `agentbox` resolves to loopback and the connection is refused.
-The directory is relative to the agentbox home; with raw `rex -S agentbox new -c`, pass a full `/home/frshbb/...` path, because the Mac's shell expands `~` to `/Users/frshbb`.
-You can also click **agentbox** in the app's sidebar and pick the session there.
+You can also click **agentbox** in the app's sidebar and pick a session.
+Closing a session's last tab ends the session, along with anything running in it.
 
-The setup script installs `server/rex/accounts.jsonc` and the systemd drop-in, and refuses to run if the packaged `ExecStart` no longer matches the tracked one.
-Pin upgrades with `sudo apt-mark hold rex` when you want to postpone one.
+#### Troubleshooting
+
+- **Connection refused:** you ran `rex -S agentbox` on agentbox itself, where the name resolves to loopback; run it on the Mac.
+- **Session starts in the wrong folder:** with raw `rex -S agentbox new -c`, pass a full `/home/frshbb/...` path, because the Mac's shell expands `~` to `/Users/frshbb`; `rexbox` takes paths relative to the agentbox home.
+- **Panes stuck on "Opening terminal…":** check the app's host URL is the IPv4 address; if local panes spin too, quit and reopen the app.
+- **Server logs:** `journalctl -u rex-login-server` on agentbox.
+
 Herdr also runs on `agentbox` because Rex has no public iOS client yet; the phone reaches it through Termius.
 
 ### Known Rex beta gaps
