@@ -79,7 +79,8 @@
     "frontend-design@claude-plugins-official": true,
     "plannotator@plannotator": true,
     "swift-lsp@claude-plugins-official": true,
-    "cloudflare@cloudflare": true
+    "cloudflare@cloudflare": true,
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "typesafe-ai": {
@@ -112,7 +113,7 @@
       "effortLevel": "high"
     },
     "claude-opus-5-5": {
-      "effortLevel": "medium"
+      "effortLevel": "high"
     }
   },
   "dialogExpiry": "never",

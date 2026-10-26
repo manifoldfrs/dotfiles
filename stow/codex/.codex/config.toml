@@ -85,6 +85,9 @@ trust_level = "trusted"
 [projects."/Users/frshbb/code/personal/website-v"]
 trust_level = "trusted"
 
+[projects."/Users/frshbb/Library/Application Support/Claude/scratch-workspaces/5d32a2d2-d041-4e7b-8d26-4be353c4e2e2/4bfe39c1-b53c-4472-b724-f0319168b2dd/scratch-2026-10-24-9f1543"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 
