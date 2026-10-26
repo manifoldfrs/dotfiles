@@ -79,7 +79,6 @@
     "frontend-design@claude-plugins-official": true,
     "plannotator@plannotator": true,
     "swift-lsp@claude-plugins-official": true,
-    "cloudflare@cloudflare": true,
     "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
@@ -93,12 +92,6 @@
       "source": {
         "source": "github",
         "repo": "backnotprop/plannotator"
-      }
-    },
-    "cloudflare": {
-      "source": {
-        "source": "github",
-        "repo": "cloudflare/skills"
       }
     }
   },
