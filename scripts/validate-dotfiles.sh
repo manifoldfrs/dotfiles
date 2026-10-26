@@ -21,6 +21,7 @@ for script in \
     "$DOTFILES_DIR/scripts/stow.sh" \
     "$DOTFILES_DIR/scripts/validate-dotfiles.sh" \
     "$DOTFILES_DIR/scripts/rex_server_setup.sh" \
+    "$DOTFILES_DIR/scripts/skill_catalog.sh" \
     "$DOTFILES_DIR/stow/bash/.bash_profile" \
     "$DOTFILES_DIR/stow/bash/.bashrc" \
     "$DOTFILES_DIR/stow/bash/.config/bash/aliases.bash" \
@@ -30,6 +31,7 @@ for script in \
 done
 
 bash "$DOTFILES_DIR/test/bash_path_test.sh" "$DOTFILES_DIR"
+bash "$DOTFILES_DIR/scripts/skill_catalog.sh" --check
 
 rex_bin=$(command -v rex || true)
 if [[ -z $rex_bin && -n ${REX_BIN_DIR:-} && -x "$REX_BIN_DIR/rex" ]]; then

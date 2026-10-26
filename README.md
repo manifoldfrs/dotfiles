@@ -266,11 +266,13 @@ Reload or restart sessions after changing it.
 
 Skills live once in `stow/agents/.agents/skills/` and are linked into `~/.agents/skills/`, which every harness reads.
 Ownership (upstream baseline, personalization layer, or local) is recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
+[docs/skills.md](docs/skills.md) lists every skill, who can invoke it, its owner, and what it does; it is generated from each `SKILL.md`, so run `./scripts/skill_catalog.sh` after adding, renaming, or editing a skill.
 
 ```bash
 ./scripts/update_agent_skills.sh --check   # report drift from upstream catalogs
 ./scripts/update_agent_skills.sh --review  # open a Plannotator review of the diff
 ./scripts/update_agent_skills.sh --sync    # update the tracked snapshot (uncommitted)
+./scripts/skill_catalog.sh                 # regenerate docs/skills.md (validate-dotfiles.sh checks it)
 ```
 
 `local` skills are never overwritten by sync, and `excluded` skills are never restored.
