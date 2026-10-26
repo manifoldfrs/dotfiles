@@ -34,6 +34,11 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - For general web search, use Exa: `web_search_exa`, or `web_search_advanced_exa` for domain, date, or category filters.
 - To read a specific non-docs URL, use `web_fetch_exa`.
 
+### Throwaway Artifacts
+
+- Write one-off HTML pages, diagrams, images, and films to the agent artifacts directory, `${TMPDIR:-/tmp}/agent-artifacts/`, then open them for the user.
+- Save an artifact inside a repository only when the user asks to keep it there.
+
 ### Judgment (Jev)
 
 - Load the `jev` skill before the first Jev call in a session.

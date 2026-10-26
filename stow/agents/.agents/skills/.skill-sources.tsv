@@ -20,6 +20,8 @@ council	local
 diagnosing-bugs	local
 dig	local
 domain-modeling	matt
+explain-diff	local
+explain-video	local
 fstack	local
 frontend-design	local
 grill-me	excluded
@@ -35,6 +37,7 @@ lg	local
 plannotator-annotate	excluded
 plannotator-last	excluded
 plannotator-review	excluded
+plain-english	local
 pr	local
 prototype	excluded
 prove	local
@@ -42,7 +45,7 @@ quiz-me	local
 recipe-diagrams	excluded
 research	local
 setup-matt-pocock-skills	excluded
-show-me	dmmulroy
+show-me	local
 sketch	local
 tdd	excluded
 teach	excluded

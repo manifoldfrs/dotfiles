@@ -1,0 +1,14 @@
+[package]
+name = "explain-video-@SLUG@"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+anyhow = "1.0"
+serde_json = "1.0"
+psychopomp = { path = "@PSYCHOPOMP_DIR@/crates/psychopomp" }
+psychopomp-media = { path = "@PSYCHOPOMP_DIR@/crates/psychopomp-media" }
+
+# A standalone crate, not a member of any surrounding workspace.
+[workspace]
