@@ -336,7 +336,7 @@ Verified 2026-10-09: a Mac session's messages reached the agentbox Pi by UUID an
 
 On 2026-10-21, Rex replaced Herdr as the Mac's terminal and multiplexer; see `docs/plans/rex-migration.md` and the README's Rex section.
 `agentbox` adds a Rex login server on tailnet port 7297, installed by `scripts/rex_server_setup.sh` from `server/rex/`.
-Herdr, Mosh, and the Termius host stay on `agentbox` for phone access, because Rex has no public iOS client.
+The iPhone reaches `agentbox` through Rex for iOS (beta) since 2026-10-26; Herdr, Mosh, and the Termius host stay as the fallback phone path.
 
 ## Sources
 

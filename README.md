@@ -9,7 +9,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 
 | Layer | Choice | Notes |
 | --- | --- | --- |
-| Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default. Ghostty is the fallback terminal; Herdr still runs on `agentbox` for phone access over Termius. |
+| Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default, on the Mac and on the iPhone (Rex for iOS beta). Ghostty is the fallback terminal; Herdr and Termius remain the fallback phone path into `agentbox`. |
 | Editor / IDE | Neovim | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Zed and Cursor are retired and archived under `old/`. |
 | Shell | Homebrew Bash 5 + Starship | FZF, zoxide, and mise on top. Fish/Zsh configs under `old/` are rollback-only. |
 | Primary agent harness | Claude Code | Settings, hooks, status line, and local mods in `stow/claude/.claude/`. |
@@ -221,14 +221,18 @@ rex -S agentbox kill opto2              # end one
 You can also click **agentbox** in the app's sidebar and pick a session.
 Closing a session's last tab ends the session, along with anything running in it.
 
+#### On the iPhone
+
+Rex for iOS (beta) shows the same agentbox sessions as the Mac.
+With Tailscale signed in to the same account, add a remote host with URL `http://100.82.139.102:7297` and name `agentbox`, using the IP for the same IPv6 reason as on the Mac.
+Herdr still runs on `agentbox` as the fallback phone path through Termius, for phones without Rex such as Android.
+
 #### Troubleshooting
 
 - **Connection refused:** you ran `rex -S agentbox` on agentbox itself, where the name resolves to loopback; run it on the Mac.
 - **Session starts in the wrong folder:** with raw `rex -S agentbox new -c`, pass a full `/home/frshbb/...` path, because the Mac's shell expands `~` to `/Users/frshbb`; `rexbox` takes paths relative to the agentbox home.
 - **Panes stuck on "Opening terminal…":** check the app's host URL is the IPv4 address; if local panes spin too, quit and reopen the app.
 - **Server logs:** `journalctl -u rex-login-server` on agentbox.
-
-Herdr also runs on `agentbox` because Rex has no public iOS client yet; the phone reaches it through Termius.
 
 ### Known Rex beta gaps
 
@@ -377,7 +381,7 @@ They contain full prompts and tool results, so review before sharing and delete 
 Ghostty (`stow/ghostty/`) is the fallback terminal; its config is what Rex's theme was imported from.
 Shift-Cmd-click opens links there despite application mouse capture.
 
-Herdr (`stow/herdr/`) shares Rex's `Ctrl-a` mental model and still matters in two places: its annotate plugin powers Rex annotations, and it is the phone path into `agentbox`.
+Herdr (`stow/herdr/`) shares Rex's `Ctrl-a` mental model and still matters in two places: its annotate plugin powers Rex annotations, and it is the fallback phone path into `agentbox` through Termius.
 Useful commands: `herdr server reload-config`, `herdr integration status`, `herdr pane list`, `herdr agent list`.
 Keep its plugins current with `./scripts/sync_herdr_plugins.sh`, which installs `plannotator/herdr-annotate` and `paulbkim-dev/vim-herdr-navigation` from the tracked `plugins.txt`.
 Install agent integrations once per machine with `herdr integration install pi` or `herdr integration install codex`.

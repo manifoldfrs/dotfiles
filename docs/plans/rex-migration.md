@@ -2,7 +2,7 @@
 
 Goal: make Rex Beta the default terminal and multiplexer on the Mac and the agent workspace on `agentbox`, with every tracked setting in this repo.
 Ghostty stays installed as the fallback terminal.
-Herdr stays on `agentbox` for Termius phone access until Rex ships a public iOS client.
+Rex for iOS (beta, joined 2026-10-26) is now the iPhone path into `agentbox`; Herdr stays there as the Termius fallback, including for Android.
 
 ## Verified facts
 
@@ -144,8 +144,8 @@ Root steps go through `ssh root@agentbox`, because `frshbb` has no sudo.
 ## Not in this migration
 
 - Keep `cask "ghostty"`, `stow/ghostty`, and the Ghostty `PATH` entry.
-- Keep Herdr, Mosh, and the Termius host on `agentbox` for phone access.
-- Revisit once Rex adds detach, close confirmation, copy mode, a diff viewer, remote image paste, or an iOS client.
+- Keep Herdr, Mosh, and the Termius host on `agentbox` as the fallback phone path; the iPhone uses Rex for iOS (beta) since 2026-10-26.
+- Revisit once Rex adds detach, close confirmation, copy mode, a diff viewer, or remote image paste, or once Rex for iOS leaves beta.
 
 ## Live changes that need separate approval
 
