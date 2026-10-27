@@ -80,7 +80,9 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 
 - Default to no code comment.
 - Add a comment only when it explains a non-obvious reason, hidden constraint, workaround, or deliberate tradeoff.
-- Keep comments short.
+- A comment is one line, two at most. If the reason needs more, link the issue or doc instead.
+- Before keeping a comment, ask whether the next reader would waste real effort without it. If not, delete it.
+- Never leave comments about the task, the conversation, or what changed.
 - Do not restate what the next line of code already says.
 - Review prose, summaries, code comments, and PR descriptions for the response-style rules before presenting them.
 
