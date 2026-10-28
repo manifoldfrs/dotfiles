@@ -88,6 +88,11 @@ expect block run_bash_hook 'git add -A -p && git commit'
 expect allow run_bash_hook 'git add -A && git status | rg -i staged'
 expect allow run_bash_hook 'git add src/ip.ts && grep -p foo'
 expect allow run_bash_hook 'git add -u'
+expect block run_bash_hook 'git add --all -p'
+expect block run_bash_hook 'git add --verbose --patch src'
+expect block run_bash_hook 'git add -- . -p'
+expect block run_bash_hook 'git add --pathspec-from-file=list -p'
+expect allow run_bash_hook 'git add --all'
 
 sql_app_dir=$(mktemp -d)
 mkdir -p "$sql_app_dir/db/migrate"
