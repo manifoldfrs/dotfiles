@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_dir=${1:?Pass the dotfiles repository directory}
-guardrails="$repo_dir/stow/bin/.local/share/agent-guardrails"
+guardrails="$repo_dir/stow/claude/.claude/hooks"
 app_dir=$(mktemp -d)
 trap 'rm -rf "$app_dir"' EXIT
 failures=0
@@ -74,6 +74,12 @@ expect allow run_edit_hook "$app_dir/Gemfile"
 
 expect block run_bash_hook 'git commit --no-verify -m wip'
 expect block run_bash_hook 'git push --force origin main'
+expect block run_bash_hook 'rm -rf /'
+expect block run_bash_hook 'rm -rf /*'
+expect block run_bash_hook 'rm -rf / && echo done'
+expect block run_bash_hook 'rm -rf ~'
+expect allow run_bash_hook 'rm -rf ./build'
+expect allow run_bash_hook 'rm -rf build/'
 
 sql_app_dir=$(mktemp -d)
 mkdir -p "$sql_app_dir/db/migrate"

@@ -14,7 +14,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Shell | Homebrew Bash 5 + Starship | FZF, zoxide, and mise on top. Fish/Zsh configs under `old/` are rollback-only. |
 | Primary agent harness | Claude Code | Settings, hooks, status line, and local mods in `stow/claude/.claude/`. |
 | Every other model | Pi | OpenAI, xAI, and the rest run through Pi (`stow/pi/.pi/agent/`). It can also reach Claude models via `pi-claude-bridge`. |
-| Reviewer / second opinion | `council` skill | Opus 5.5, GPT-6.1 Sol, and Muse Wonder Full review in parallel; in Claude Code, Sol and Muse run through `pi -p`. Codex stays configured but is not a daily harness. |
+| Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `codex exec` in a read-only sandbox; `code-review` adds standards and intent axes before it. |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception: its theme and font are app settings, not files (see [Rex app settings](#rex-app-settings-one-time-per-machine)).
@@ -88,11 +88,10 @@ stow/                  Stow packages, each mirroring $HOME
   ghostty/             Fallback terminal config
   herdr/               Herdr config, plugin list, Plannotator TUI config
   nvim/                Neovim config (see stow/nvim/AGENTS.md)
-  bin/                 ~/.local/bin tools and shared agent guardrail scripts
-  claude/              Claude Code settings, hooks, theme, status line, mods/
-  codex/               Codex config, hooks, theme
-  pi/                  Pi settings, MCP config, models, themes, extensions/
-  agents/              Shared skill catalog under ~/.agents/skills/
+  bin/                 ~/.local/bin tools
+  claude/              Claude Code settings, theme, status line, mods/, and the shared AGENTS.md, skills/, and guardrail hooks/
+  codex/               Codex config and theme; links AGENTS.md and hooks to claude/
+  pi/                  Pi settings, MCP config, models, themes, extensions/; links AGENTS.md to claude/
 scripts/
   bootstrap.sh         Full machine setup
   stow.sh              apply / dry-run / delete, with isolated preflight
@@ -298,15 +297,24 @@ Generated init scripts for FZF, Starship, and zoxide are cached under `~/.cache/
 
 Claude Code is the primary harness.
 Pi is the harness for every other model (its default is an OpenAI model, set in `stow/pi/.pi/agent/settings.json`; select others with `/model`).
-Codex stays configured, but cross-provider review now goes through the `council` skill: Opus, Sol, and Muse review the same diff in parallel, and `code-review` calls it for its council step.
-In Pi, invoke it as `/skill:council`, since Pi's `/council` belongs to pi-subagents.
+Codex stays configured, and cross-provider review goes through `sol-loop`: Sol reviews, the agent fixes, and the loop repeats until Sol approves.
+
+### Autonomous workflow
+
+Every skill is model-invoked, so agents pick up verification and review without being asked.
+Say **full send** to take a change to a merged PR unattended: `fstack` builds it, `prove` proves it, `sol-loop` reviews it, `pr` files it, and `babysit-pr` watches CI and review bots until the merge gate passes.
+Say **full stop** for the same work ending with the PR ready for you to merge, or **babysit** / **watch** for an existing PR.
+The agent asks only when it cannot prove the change, the merge gate cannot pass, or the next step is destructive, deploys, or leaves the repository.
+Each pull request addresses one goal; a request with several goals becomes several pull requests, stacked when they depend on each other.
+These adapt Theo Browne's [tstack](https://github.com/t3dotgg/tstack) (MIT).
 
 ### Shared rules and skills
 
-One global rules file, `stow/pi/.pi/agent/AGENTS.md`, is symlinked into Claude Code and Codex by their Stow packages, so all three harnesses follow the same instructions.
+Claude Code is the canonical home for everything the harnesses share.
+One global rules file, `stow/claude/.claude/AGENTS.md`, is symlinked into Codex and Pi by their Stow packages, so all three harnesses follow the same instructions.
 Reload or restart sessions after changing it.
 
-Skills live once in `stow/agents/.agents/skills/` and are linked into `~/.agents/skills/`, which every harness reads.
+Skills live once in `stow/claude/.claude/skills/`; `scripts/stow.sh` links each skill folder into `~/.claude/skills/` and `~/.agents/skills/`, which Codex and Pi read.
 Ownership (upstream baseline, personalization layer, or local) is recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
 [docs/skills.md](docs/skills.md) lists every skill, who can invoke it, its owner, and what it does; it is generated from each `SKILL.md`, so run `./scripts/skill_catalog.sh` after adding, renaming, or editing a skill.
 
@@ -347,8 +355,8 @@ Two things worth knowing:
 
 ### Guardrails
 
-Shared scripts in `stow/bin/.local/share/agent-guardrails/` block dangerous shell commands and hand edits to generated files.
-Claude Code and Codex run them as hooks; Pi runs them from its `agent-guardrails` extension.
+Claude Code's hooks in `stow/claude/.claude/hooks/` block dangerous shell commands and hand edits to generated files.
+Codex runs the same scripts through symlinks in `stow/codex/.codex/hooks/`, and Pi runs them from `~/.claude/hooks/` through its `agent-guardrails` extension.
 Rails extras: schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
 Pi also screens fetched web content and audits edit scope with Jev (`jev-guardrails` extension), and Claude Code does the equivalent through its `jev-*` mods.
 Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.

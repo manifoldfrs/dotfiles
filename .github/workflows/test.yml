@@ -29,7 +29,7 @@ jobs:
       - name: Verify Bash Stow layout
         run: |
           tmp_home="$(mktemp -d)"
-          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin claude codex pi agents
+          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin claude codex pi
           test -L "$tmp_home/.bashrc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"
@@ -37,7 +37,8 @@ jobs:
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"
           test -L "$tmp_home/.pi/agent/themes/tokyonight-frsh.json"
-          test -L "$tmp_home/.agents/skills/herdr/SKILL.md"
+          test ! -e "$tmp_home/.claude/skills"
+          test -L "$tmp_home/.codex/hooks/block-dangerous-bash.sh"
           test ! -e "$tmp_home/AGENTS.md"
 
       - name: Require Neovim theme startup

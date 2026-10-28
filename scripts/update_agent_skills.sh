@@ -6,7 +6,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-DEST="$DOTFILES_DIR/stow/agents/.agents/skills"
+DEST="$DOTFILES_DIR/stow/claude/.claude/skills"
 MANIFEST_NAME=".skill-sources.tsv"
 MATT_REPO="https://github.com/mattpocock/skills.git"
 DMMULROY_REPO="https://github.com/dmmulroy/.dotfiles.git"

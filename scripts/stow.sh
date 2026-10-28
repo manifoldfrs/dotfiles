@@ -9,18 +9,16 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude codex pi agents)
+STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude codex pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
 CODEX_CONFIG_TARGET="$HOME/.codex/config.toml"
-AGENT_SKILLS_DIR="$STOW_DIR/agents/.agents/skills"
+AGENT_SKILLS_DIR="$STOW_DIR/claude/.claude/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
 SHARED_BACKUP_TARGETS=(
     "$HOME/.config/herdr/plugins.txt"
     "$HOME/.config/plannotator-tui/config.toml"
-    "$HOME/.local/share/agent-guardrails/block-dangerous-bash.sh"
-    "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
 )
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/AGENTS.md"
@@ -142,7 +140,7 @@ backup_pi_stow_targets() {
 }
 
 backup_shared_stow_targets() {
-    mkdir -p "$HOME/.local/bin" "$HOME/.local/share/agent-guardrails"
+    mkdir -p "$HOME/.local/bin"
 
     for target in "${SHARED_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -243,7 +241,7 @@ backup_shared_skill_targets() {
     local target
     local target_dir
 
-    if ! has_stow_package agents; then
+    if ! has_stow_package claude; then
         return
     fi
 
@@ -314,7 +312,7 @@ ensure_shared_skill_folder_links() {
     local link_dest
     local target_dir
 
-    if ! has_stow_package agents; then
+    if ! has_stow_package claude; then
         return
     fi
 
@@ -332,6 +330,11 @@ ensure_shared_skill_folder_links() {
             if [ -L "$dest" ]; then
                 link_dest="$(readlink "$dest")"
                 if [ "$link_dest" = "$src" ]; then
+                    continue
+                fi
+                if is_stow_managed_link "$dest"; then
+                    ln -sfn "$src" "$dest"
+                    info "Repointed agent skill folder: $dest -> $src"
                     continue
                 fi
             fi
@@ -354,7 +357,7 @@ remove_shared_skill_folder_links() {
     local link_dest
     local target_dir
 
-    if ! has_stow_package agents; then
+    if ! has_stow_package claude; then
         return
     fi
 

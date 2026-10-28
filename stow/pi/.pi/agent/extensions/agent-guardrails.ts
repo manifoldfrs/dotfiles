@@ -55,5 +55,5 @@ export function registerAgentGuardrails(pi: ExtensionAPI, guardrailsDir: string)
 }
 
 export default function (pi: ExtensionAPI) {
-  registerAgentGuardrails(pi, join(homedir(), ".local/share/agent-guardrails"));
+  registerAgentGuardrails(pi, join(homedir(), ".claude/hooks"));
 }

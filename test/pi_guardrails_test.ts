@@ -6,7 +6,7 @@ import { test } from "node:test";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { registerAgentGuardrails } from "../stow/pi/.pi/agent/extensions/agent-guardrails.ts";
 
-const GUARDRAILS_DIR = join(import.meta.dirname, "../stow/bin/.local/share/agent-guardrails");
+const GUARDRAILS_DIR = join(import.meta.dirname, "../stow/claude/.claude/hooks");
 
 type ToolCallResult = { block?: boolean; reason?: string } | undefined;
 type ToolCallHandler = (event: Record<string, unknown>, ctx: ExtensionContext) => ToolCallResult;

@@ -18,12 +18,8 @@ for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh scripts/rex
     stow/bash/.config/bash/environment.bash \
     stow/bash/.config/bash/functions.bash \
     stow/bin/.local/bin/rex-annotate \
-    stow/bin/.local/share/agent-guardrails/block-dangerous-bash.sh \
-    stow/bin/.local/share/agent-guardrails/block-generated-edits.sh \
     stow/claude/.claude/hooks/block-dangerous-bash.sh \
-    stow/claude/.claude/hooks/block-generated-edits.sh \
-    stow/codex/.codex/hooks/block-dangerous-bash.sh \
-    stow/codex/.codex/hooks/block-generated-edits.sh mcp_setup.sh; do
+    stow/claude/.claude/hooks/block-generated-edits.sh mcp_setup.sh; do
     bash -n "$script"
 done
 pass "Shell syntax is valid"
@@ -31,6 +27,7 @@ pass "Shell syntax is valid"
 bash test/bash_path_test.sh "$DOTFILES_DIR"
 bash test/stow_preflight_test.sh "$DOTFILES_DIR"
 bash test/agent_skills_sync_test.sh "$DOTFILES_DIR"
+bash test/behavior_lines_test.sh "$DOTFILES_DIR"
 bash test/agent_guardrails_test.sh "$DOTFILES_DIR"
 bash test/claude_mcp_setup_test.sh
 
@@ -46,6 +43,7 @@ STOW_TEST_HOME="$(mktemp -d)"
 STOW_TEST_BIN="$(mktemp -d)"
 mkdir -p "$STOW_TEST_HOME/.agents/skills/show-me" "$STOW_TEST_HOME/.claude/skills/show-me" "$STOW_TEST_HOME/.local/bin"
 touch "$STOW_TEST_HOME/.agents/skills/show-me/SKILL.md"
+ln -s "$DOTFILES_DIR/stow/agents/.agents/skills/sol-loop" "$STOW_TEST_HOME/.claude/skills/sol-loop"
 printf '%s\n' '# existing Bash config' >"$STOW_TEST_HOME/.bashrc"
 mkdir -p "$STOW_TEST_HOME/.pi/agent"
 printf '%s\n' '{"startupNoticeShown": "2026-01-01"}' >"$STOW_TEST_HOME/.pi/agent/claude-bridge.json"
@@ -63,16 +61,20 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.config/rex/init.lua" ] \
-    && [ ! -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
-    && [ -f "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
-    && [ -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
+    && [ ! -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
+    && [ -f "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
+    && [ -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
-    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
-    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
+    && cmp "$STOW_TEST_HOME/.claude/AGENTS.md" "$STOW_TEST_HOME/.pi/agent/AGENTS.md" \
+    && cmp "$STOW_TEST_HOME/.claude/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
+    && [ -L "$DOTFILES_DIR/stow/codex/.codex/hooks/block-dangerous-bash.sh" ] \
+    && cmp "$STOW_TEST_HOME/.claude/hooks/block-dangerous-bash.sh" "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" \
+    && [ ! -L "$STOW_TEST_HOME/.claude/skills/herdr/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
+    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/sol-loop")" = "$DOTFILES_DIR/stow/claude/.claude/skills/sol-loop" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Bash Stow profile is idempotent"
 else

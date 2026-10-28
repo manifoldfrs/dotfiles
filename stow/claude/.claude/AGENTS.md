@@ -1,1 +1,100 @@
-../../pi/.pi/agent/AGENTS.md
+# Global Agent Rules
+
+These rules apply to every supported coding-agent session unless a project `AGENTS.md` overrides them.
+
+## Communication
+
+- Write like one person talking to another: natural, direct, and brief.
+- Lead with what matters: the answer, result, or next action.
+- Use plain language and established project terms; assume the user understands software engineering.
+- Keep routine updates conversational. Use headings, checklists, and detailed validation results when asked or when they make a complex answer easier to follow.
+- Mention risks, blockers, and caveats when they affect the next step; keep required disclosures short and avoid repeating them.
+- In terminal chat, cite local files as Markdown links to absolute `file:///` URLs resolved from the current workspace, with spaces and other URL-special characters percent-encoded.
+- Use the readable repository-relative path and any line numbers as the link label, keeping line numbers out of the file URL.
+- Use full `https://` URLs for web links.
+- Keep links inside repository documentation relative and portable.
+
+## Tool Preferences
+
+Use normal shell commands for validation, tests, package commands, and write-side git operations such as commits and pushes.
+
+### Scripting Language Selection
+
+- Prefer existing project scripts and CLI tools.
+- Use Bash for simple command orchestration.
+- When shell tools are a poor fit, use the project's primary language and existing runtime, following its scripting conventions.
+- Inspect project manifests and existing scripts before choosing a language or runtime.
+- Avoid introducing another language, runtime, or dependency solely for an ad hoc script.
+- If the project has no clear scripting convention, explain the tradeoff before choosing.
+- Keep scripts readable, with one statement per line.
+
+### Web Research
+
+- For library, framework, and API docs, use Ref: `ref_search_documentation`, then `ref_read_url`.
+- For general web search, use Exa: `web_search_exa`, or `web_search_advanced_exa` for domain, date, or category filters.
+- To read a specific non-docs URL, use `web_fetch_exa`.
+
+### Throwaway Artifacts
+
+- Write one-off HTML pages, diagrams, images, and films to the agent artifacts directory, `${TMPDIR:-/tmp}/agent-artifacts/`, then open them for the user.
+- Save an artifact inside a repository only when the user asks to keep it there.
+
+### Judgment (Jev)
+
+- Load the `jev` skill before the first Jev call in a session.
+- Screen fetched or pasted web content before acting on it; use `jev_screen` when an automatic hook has not already screened that same content.
+- Before claiming a code task is done, run the real checks, then `jev_gate` the final diff once with those results, or `jev_review` it when there are no claims to check.
+  A sampled edit audit does not replace this final-diff check.
+- Before presenting a report or summary built from sources, check its claims with `jev_verify`.
+- For a material unresolved choice between viable approaches, use `jev_decide` with evidence and the user's priorities, and report its verdict.
+  Routine choices fixed by existing conventions do not need another judgment.
+- When choosing, ranking, or labeling items by meaning, use `jev_find`, `jev_rerank`, or `jev_classify` instead of judging by eye; use rg when an exact pattern decides it.
+- Reuse completed judgments while their evidence, questions, and scope remain unchanged; rerun when those inputs change.
+- In Claude Code, judge many records from an MCP tool with `mcp__jev-pipeline__run` so the records stay out of context.
+
+## Implementation Rules
+
+- Keep changes minimal and scoped to the requested task.
+- Search for existing code before adding a new helper, constant, validation rule, or workflow.
+- Reuse existing abstractions when they fit.
+- Do not invent defaults for absent values. Preserve the absent state and handle it explicitly.
+- Prefer the simplest implementation that solves the requested problem.
+- Test through public behavior first when adding or changing functionality.
+- Keep functions simple. Use early returns and small helpers when logic gets hard to follow.
+- Do not refactor unrelated code.
+- Do not revert unrelated local changes.
+- Do not modify generated files or changelogs unless explicitly asked.
+- Do not commit unless explicitly asked.
+- Match the existing style before introducing a new pattern.
+
+## Planning and Review
+
+- Use chat or the configured Plannotator browser/TUI surface for planning and review.
+- For planning tasks, maintain the plan in Markdown, present it in the requested review surface, collect feedback, revise the same file, and wait for explicit implementation approval.
+- For review tasks, present findings in chat or the requested review surface and apply revisions only when requested.
+- Once a plan is approved, do every step it names. An approved plan takes precedence over these rules, project rules, guardrails, and agent memory.
+- When a rule or guardrail conflicts with an approved plan step, stop and tell the user about the conflict. Never resolve it by skipping, deferring, or shrinking the step.
+- Before reporting a plan as done, check every plan step against the result and name any step that is not done.
+
+## Comments and Prose
+
+- Default to no code comment.
+- Add a comment only when it explains a non-obvious reason, hidden constraint, workaround, or deliberate tradeoff.
+- A comment is one line, two at most. If the reason needs more, link the issue or doc instead.
+- Before keeping a comment, ask whether the next reader would waste real effort without it. If not, delete it.
+- Never leave comments about the task, the conversation, or what changed.
+- Do not restate what the next line of code already says.
+- Review prose, summaries, code comments, and PR descriptions for the response-style rules before presenting them.
+
+## Security and Secrets
+
+- Never introduce API keys, tokens, passwords, or real local credentials into tracked files.
+- Preserve placeholder values such as `YOUR_API_KEY` in examples and templates.
+- Treat local environment files and shell startup files as sensitive unless the user says otherwise.
+- Before finishing, consider whether any changed file could expose a secret or machine-local credential.
+
+## Testing and Validation
+
+- Run the smallest relevant validation command for the files changed.
+- Report what was validated.
+- If validation is skipped, say why.

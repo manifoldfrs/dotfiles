@@ -1,4 +1,176 @@
 #!/usr/bin/env bash
-# Claude Code hook wrapper for the shared generated-file guardrail.
+# Shared agent hook: block edits to generated files.
+# Exit 2 = block with stderr shown to the agent. Exit 0 = allow.
+# Accepts Claude-style and Codex-style hook JSON payloads.
 
-exec "$HOME/.local/share/agent-guardrails/block-generated-edits.sh"
+set -uo pipefail
+trap 'echo "Hook error in $(basename "$0") at line $LINENO. Failing closed." >&2; exit 2' ERR
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq not installed but required by $(basename "$0"). Install jq or remove this hook." >&2
+  exit 2
+fi
+
+input=$(cat) || { echo "Hook $(basename "$0"): failed to read stdin. Failing closed." >&2; exit 2; }
+
+paths=$(printf '%s' "$input" | jq -r '
+  def parsed_arguments:
+    if (.arguments? | type) == "string" then
+      try (.arguments | fromjson) catch {}
+    elif (.arguments? | type) == "object" then
+      .arguments
+    else
+      {}
+    end;
+
+  def patch_text:
+    [
+      .tool_input.patch?,
+      .input.patch?,
+      .params.patch?,
+      .patch?,
+      parsed_arguments.patch?
+    ]
+    | map(select(type == "string" and length > 0))
+    | .[0] // "";
+
+  (
+    [
+      .tool_input.file_path?,
+      .tool_input.path?,
+      .input.file_path?,
+      .input.path?,
+      .params.file_path?,
+      .params.path?,
+      .file_path?,
+      .path?,
+      .toolCall.arguments.file_path?,
+      .toolCall.arguments.path?,
+      .tool_call.arguments.file_path?,
+      .tool_call.arguments.path?,
+      parsed_arguments.file_path?,
+      parsed_arguments.path?
+    ]
+    | map(select(type == "string" and length > 0))
+  ) + (
+    patch_text
+    | split("\n")
+    | map((try capture("^\\*\\*\\* (Add|Update|Delete) File: (?<path>.+)$").path catch empty) // empty)
+    | map(select(type == "string" and length > 0))
+  )
+  | unique
+  | .[]
+' 2>/dev/null) || {
+  echo "Hook $(basename "$0"): malformed JSON input. Failing closed." >&2
+  exit 2
+}
+[ -z "$paths" ] && exit 0
+
+hook_cwd=$(printf '%s' "$input" | jq -r '.cwd? // empty' 2>/dev/null) || hook_cwd=""
+[ -n "$hook_cwd" ] || hook_cwd=$PWD
+
+# Prints the latest applied migration version recorded by db/schema.rb or db/structure.sql.
+rails_schema_version() {
+  local app_root=$1
+  if [ -f "$app_root/db/schema.rb" ]; then
+    grep -oE 'define\(version: [0-9_]+' "$app_root/db/schema.rb" | grep -oE '[0-9_]+$' | tr -d '_' | head -1
+  elif [ -f "$app_root/db/structure.sql" ]; then
+    grep -oE "'[0-9]{14}'" "$app_root/db/structure.sql" | tr -d "'" | sort | tail -1
+  fi
+}
+
+check_applied_migration() {
+  local file_path=$1
+  local absolute_path=$file_path
+  case "$absolute_path" in
+    /*) ;;
+    *) absolute_path="$hook_cwd/$absolute_path" ;;
+  esac
+  [ -f "$absolute_path" ] || return 0
+
+  local app_root=${absolute_path%/db/migrate/*}
+  local migration_version
+  migration_version=$(basename "$absolute_path" | grep -oE '^[0-9]{14}') || return 0
+  local schema_version
+  schema_version=$(rails_schema_version "$app_root")
+  [ -n "$schema_version" ] || return 0
+
+  if [ "$migration_version" -le "$schema_version" ]; then
+    echo "Refusing edit to an applied Rails migration: $file_path" >&2
+    echo "The schema already records version $schema_version, so changing this file will not change any database that ran it." >&2
+    echo "Write a new migration. If this migration exists only on your branch, run 'bin/rails db:rollback' first, then edit it." >&2
+    exit 2
+  fi
+}
+
+check_path() {
+  local file_path=$1
+
+  case "$file_path" in
+    # Protobuf and gRPC generated, all common languages
+    *.pb.go|*_grpc.pb.go|*.pb.cc|*.pb.h|*.pb.py|*_pb2.py|*_pb2_grpc.py|*.pb.ts|*.pb.js|*.pb.swift|*.pb.rb|*.pb.rs|*_pb.rs|*.pb.java|*Grpc.java|*.pb.kt|*GrpcKt.kt)
+      echo "Refusing edit to generated protobuf or gRPC file: $file_path" >&2
+      echo "Regenerate from the .proto source instead." >&2
+      exit 2
+      ;;
+    # Generic codegen markers, language-agnostic. Skip known hand-written
+    # config files that happen to match the *.gen.* glob (notably buf's
+    # buf.gen.yaml template, which is the source-of-truth for codegen, not
+    # an output of it).
+    *.gen.*|*.generated.*)
+      case "$file_path" in
+        */buf.gen.yaml|buf.gen.yaml) ;;
+        *)
+          echo "Refusing edit to generated file: $file_path" >&2
+          echo "Regenerate from the source spec or template." >&2
+          exit 2
+          ;;
+      esac
+      ;;
+    # Generated mock files. testutils/*/mocks/* are hand-written test helpers, not mockgen output.
+    */mock_*.go|*/mocks/*|*/__mocks__/*)
+      case "$file_path" in
+        testutils/*) ;;
+        *)
+          echo "Refusing edit to generated mock file: $file_path" >&2
+          echo "Regenerate via the project's mock-generation command (e.g. 'make gen', 'make gen.mocks')." >&2
+          exit 2
+          ;;
+      esac
+      ;;
+    # Rails schema dumps, regenerated by migrations
+    db/schema.rb|*/db/schema.rb|db/*_schema.rb|*/db/*_schema.rb|db/structure.sql|*/db/structure.sql|db/*_structure.sql|*/db/*_structure.sql)
+      echo "Refusing edit to Rails schema dump: $file_path" >&2
+      echo "Write a migration and run 'bin/rails db:migrate' to regenerate it." >&2
+      exit 2
+      ;;
+    # Bundler lockfile, regenerated by Bundler
+    Gemfile.lock|*/Gemfile.lock)
+      echo "Refusing hand edit to Gemfile.lock: $file_path" >&2
+      echo "Change the Gemfile and run 'bundle install', or use 'bundle update <gem>'." >&2
+      exit 2
+      ;;
+    # Rails encrypted credentials and their keys
+    config/credentials.yml.enc|*/config/credentials.yml.enc|config/credentials/*.yml.enc|*/config/credentials/*.yml.enc|config/master.key|*/config/master.key|config/credentials/*.key|*/config/credentials/*.key)
+      echo "Refusing edit to Rails credentials or key file: $file_path" >&2
+      echo "Ask the user to run 'bin/rails credentials:edit' themselves." >&2
+      exit 2
+      ;;
+    db/migrate/*.rb|*/db/migrate/*.rb)
+      check_applied_migration "$file_path"
+      ;;
+    # Generated directories
+    */generated/*|*/gen/*|*/__generated__/*)
+      echo "Refusing edit inside generated directory: $file_path" >&2
+      echo "Edit the source spec or template, then regenerate." >&2
+      exit 2
+      ;;
+  esac
+}
+
+while IFS= read -r file_path; do
+  [ -z "$file_path" ] && continue
+  check_path "$file_path"
+done <<< "$paths"
+
+exit 0

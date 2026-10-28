@@ -39,7 +39,7 @@ _Avoid_: Package, live configuration
 ## Agent configuration
 
 **Shared skill catalog**:
-The tracked set of agent skills made available to supported harnesses from one canonical source tree.
+The tracked set of agent skills made available to supported harnesses from one canonical source tree, `stow/claude/.claude/skills/`.
 _Avoid_: Claude skills, Pi skills
 
 **Baseline catalog**:
@@ -66,7 +66,7 @@ _Avoid_: Skill copy
 
 **Global agent rules**:
 User-scoped instructions shared across repositories and imported by supported coding-agent harnesses.
-The canonical tracked file is `stow/pi/.pi/agent/AGENTS.md`; the Claude and Codex Stow packages expose it through relative symlinks.
+The canonical tracked file is `stow/claude/.claude/AGENTS.md`; the Codex and Pi Stow packages expose it through relative symlinks.
 _Avoid_: Project rules
 
 **Project rules**:

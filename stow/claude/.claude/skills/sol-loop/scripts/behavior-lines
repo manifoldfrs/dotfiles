@@ -1,0 +1,70 @@
+#!/bin/bash
+# Count the behavior lines a reviewer must reason about in a change.
+# Usage: behavior-lines <base> [-- <paths>...]
+# Counts added plus removed lines from base to the working tree, untracked files included.
+# Skips lockfiles, snapshots, files marked linguist-generated or -diff in .gitattributes, and pure renames.
+# Prints the total, then one line per skipped file on stderr.
+
+set -euo pipefail
+
+if [ $# -lt 1 ]; then
+    echo "usage: behavior-lines <base> [-- <paths>...]" >&2
+    exit 2
+fi
+
+base=$1
+shift
+if [ "${1:-}" = "--" ]; then
+    shift
+fi
+
+is_skipped() {
+    local path=$1
+    case "$path" in
+        *.lock|*-lock.json|*-lock.yaml|*.lockb|go.sum|*/go.sum|*.snap|*/__snapshots__/*)
+            return 0
+            ;;
+    esac
+    local attrs
+    attrs="$(git check-attr linguist-generated diff -- "$path")"
+    if printf '%s\n' "$attrs" | grep -qE ': (linguist-generated: (set|true)|diff: unset)$'; then
+        return 0
+    fi
+    return 1
+}
+
+total=0
+count() {
+    local added=$1
+    local removed=$2
+    local path=$3
+    if [ "$added" = "-" ]; then
+        echo "skipped binary: $path" >&2
+        return
+    fi
+    if is_skipped "$path"; then
+        echo "skipped: $path ($((added + removed)) lines)" >&2
+        return
+    fi
+    total=$((total + added + removed))
+}
+
+# Untracked files join a throwaway index as intent-to-add, so a plain `mv` still diffs as a rename.
+GIT_INDEX_FILE="$(mktemp)"
+export GIT_INDEX_FILE
+trap 'rm -f "$GIT_INDEX_FILE"' EXIT
+real_index="$(git rev-parse --absolute-git-dir)/index"
+if [ -f "$real_index" ]; then
+    cp "$real_index" "$GIT_INDEX_FILE"
+else
+    rm -f "$GIT_INDEX_FILE"
+fi
+while IFS= read -r -d '' path; do
+    git add --intent-to-add -- "$path"
+done < <(git ls-files -z --others --exclude-standard -- "$@")
+
+while IFS=$'\t' read -r added removed path; do
+    count "$added" "$removed" "${path##*=> }"
+done < <(git diff --numstat -M "$base" -- "$@" | sed -E 's/\{[^}]* => ([^}]*)\}/\1/')
+
+echo "$total"
