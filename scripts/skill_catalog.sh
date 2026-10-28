@@ -5,6 +5,8 @@
 #   --check  exit non-zero when docs/skills.md is out of date
 
 set -euo pipefail
+# Glob order follows the locale; C keeps the catalog identical on macOS and Linux.
+export LC_ALL=C
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 SKILLS_DIR="$DOTFILES_DIR/stow/claude/.claude/skills"
