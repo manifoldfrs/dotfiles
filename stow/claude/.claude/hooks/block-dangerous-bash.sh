@@ -69,7 +69,7 @@ if echo "$cmd" | grep -qE 'git[[:space:]]+rebase[[:space:]].*-i([[:space:]]|$)';
 fi
 
 # git add -i / -p (interactive)
-if echo "$cmd" | grep -qE 'git[[:space:]]+add[[:space:]].*-(i|p)([[:space:]]|$)'; then
+if echo "$cmd" | grep -qE 'git[[:space:]]+add([[:space:]]+[^-;&|[:space:]][^;&|[:space:]]*|[[:space:]]+-[a-zA-Z]+)*[[:space:]]+(-[a-zA-Z]*[ip][a-zA-Z]*|--interactive|--patch)([[:space:];&|]|$)'; then
   echo "Refusing interactive 'git add -i' or '-p'. Stage specific files by name instead." >&2
   exit 2
 fi

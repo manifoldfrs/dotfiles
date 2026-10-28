@@ -39,7 +39,7 @@ _Avoid_: Package, live configuration
 ## Agent configuration
 
 **Shared skill catalog**:
-The tracked set of agent skills made available to supported harnesses from one canonical source tree, `stow/claude/.claude/skills/`.
+The tracked set of agent skills made available to supported harnesses from one canonical source tree, `stow/claude/skills/`.
 _Avoid_: Claude skills, Pi skills
 
 **Baseline catalog**:

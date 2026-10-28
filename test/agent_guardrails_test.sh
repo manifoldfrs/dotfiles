@@ -80,6 +80,14 @@ expect block run_bash_hook 'rm -rf / && echo done'
 expect block run_bash_hook 'rm -rf ~'
 expect allow run_bash_hook 'rm -rf ./build'
 expect allow run_bash_hook 'rm -rf build/'
+expect block run_bash_hook 'git add -p'
+expect block run_bash_hook 'git add -i src'
+expect block run_bash_hook 'git add -Ap'
+expect block run_bash_hook 'git add src --patch'
+expect block run_bash_hook 'git add -A -p && git commit'
+expect allow run_bash_hook 'git add -A && git status | rg -i staged'
+expect allow run_bash_hook 'git add src/ip.ts && grep -p foo'
+expect allow run_bash_hook 'git add -u'
 
 sql_app_dir=$(mktemp -d)
 mkdir -p "$sql_app_dir/db/migrate"

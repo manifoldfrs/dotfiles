@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const catalog = resolve(root, "stow/claude/.claude/skills");
+const catalog = resolve(root, "stow/claude/skills");
 const read = (path) => readFileSync(path, "utf8");
 const skill = (name) => read(resolve(catalog, name, "SKILL.md"));
 const frontmatter = (text) => text.split("\n---")[0];

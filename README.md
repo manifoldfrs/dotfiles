@@ -314,7 +314,7 @@ Claude Code is the canonical home for everything the harnesses share.
 One global rules file, `stow/claude/.claude/AGENTS.md`, is symlinked into Codex and Pi by their Stow packages, so all three harnesses follow the same instructions.
 Reload or restart sessions after changing it.
 
-Skills live once in `stow/claude/.claude/skills/`; `scripts/stow.sh` links each skill folder into `~/.claude/skills/` and `~/.agents/skills/`, which Codex and Pi read.
+Skills live once in `stow/claude/skills/`; `scripts/stow.sh` links each skill folder into `~/.claude/skills/` and `~/.agents/skills/`, which Codex and Pi read.
 Ownership (upstream baseline, personalization layer, or local) is recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
 [docs/skills.md](docs/skills.md) lists every skill, who can invoke it, its owner, and what it does; it is generated from each `SKILL.md`, so run `./scripts/skill_catalog.sh` after adding, renaming, or editing a skill.
 

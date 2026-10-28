@@ -1,4 +1,4 @@
 ^/\.claude/mods
 # scripts/stow.sh links complete skill directories into ~/.claude/skills and ~/.agents/skills,
 # so references, scripts, and metadata stay together and updates replace atomically.
-^/\.claude/skills
+^/skills

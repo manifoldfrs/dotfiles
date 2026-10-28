@@ -14,7 +14,7 @@ STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
 CODEX_CONFIG_TARGET="$HOME/.codex/config.toml"
-AGENT_SKILLS_DIR="$STOW_DIR/claude/.claude/skills"
+AGENT_SKILLS_DIR="$STOW_DIR/claude/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
 SHARED_BACKUP_TARGETS=(
     "$HOME/.config/herdr/plugins.txt"
