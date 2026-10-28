@@ -60,15 +60,7 @@ After any later UI change, retake every screenshot and GIF, not only the new one
 
 **Complete when:** every changed screen and flow has current evidence in the folder.
 
-## 5. Upload
-
-Host images on GitHub and never in a branch or the repository.
-On the pull request page, attach the files through the file input of the "Add a comment" box, `#new_comment_field`, read the `user-attachments` URLs from that textarea, then clear it without posting.
-Target `#new_comment_field` by id, because the hidden description editor also contains `user-attachments` links.
-
-**Complete when:** every evidence file has a `user-attachments` URL and no comment was posted.
-
-## 6. Write the body
+## 5. Write the body
 
 When the repository has a template, fill in its sections and handle every checkbox.
 Otherwise use:
@@ -92,11 +84,15 @@ Follow the repository's title conventions from recent merged pull requests, and 
 Open the body with the problem in the user's terms, then the fix; never lead with an inventory of changed files.
 Write for a teammate reading on a phone: short sentences and plain words.
 Link no local plans.
-Apply the body with `gh pr edit --body-file`.
 
-**Complete when:** the body shows current evidence for every changed screen and behavior, the diff holds only the change's files, and stale evidence folders are gone.
+Host images on GitHub and never in a branch or the repository.
+Save the body as `body.md` in the evidence folder and reference each evidence file there as `![alt](./name.png)`.
+From that folder, apply it with `gh pr edit <n> --body-file body.md --attach ./name.png`, one `--attach` per referenced file; `gh` 2.99 or later uploads each file and rewrites its reference to a `user-attachments` URL, which needs push access.
+Spell each `--attach` path exactly as the body does: a different spelling, such as an absolute path, leaves the reference unchanged and appends a second copy of the image at the end of the body.
 
-## 7. Babysit
+**Complete when:** the body shows current evidence for every changed screen and behavior, every image in the live body (`gh pr view --json body`) is a `user-attachments` URL with none appended at the end, the diff holds only the change's files, and stale evidence folders are gone.
+
+## 6. Babysit
 
 Hand the pull request to [`babysit-pr`](../babysit-pr/SKILL.md) and stay with it until it is ready, unless the user said only to open it.
 When `full-send` or `full-stop` called this skill, return to it once the pull request is open; it runs `babysit-pr` itself.
