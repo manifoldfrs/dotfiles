@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_dir=${1:?Pass the dotfiles repository directory}
-script="$repo_dir/stow/claude/skills/sol-loop/scripts/behavior-lines"
+script="$repo_dir/stow/opencode/skills/sol-loop/scripts/behavior-lines"
 test_dir=$(mktemp -d)
 trap 'rm -rf "$test_dir"' EXIT
 

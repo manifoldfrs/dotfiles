@@ -6,8 +6,8 @@ test_dir=$(mktemp -d)
 trap 'rm -rf "$test_dir"' EXIT
 
 mkdir -p "$test_dir/repo/scripts" "$test_dir/bin" \
-    "$test_dir/repo/stow/claude/skills/local-matt" \
-    "$test_dir/repo/stow/claude/skills/local-dmm" \
+    "$test_dir/repo/stow/opencode/skills/local-matt" \
+    "$test_dir/repo/stow/opencode/skills/local-dmm" \
     "$test_dir/matt/skills/engineering/local-matt" \
     "$test_dir/matt/skills/engineering/upstream" \
     "$test_dir/dmm/home/.agents/skills/local-dmm" \
@@ -16,7 +16,7 @@ mkdir -p "$test_dir/repo/scripts" "$test_dir/bin" \
     "$test_dir/dmm/home/.agents/skills/dropped-dmm"
 
 cp "$repo_dir/scripts/update_agent_skills.sh" "$test_dir/repo/scripts/"
-skills_dir="$test_dir/repo/stow/claude/skills"
+skills_dir="$test_dir/repo/stow/opencode/skills"
 printf 'local Matt customization\n' >"$skills_dir/local-matt/SKILL.md"
 printf 'local Dillon customization\n' >"$skills_dir/local-dmm/SKILL.md"
 printf '# skill\tsource\ndropped-dmm\texcluded\ndropped-matt\texcluded\nlocal-matt\tlocal\nlocal-dmm\tlocal\n' >"$skills_dir/.skill-sources.tsv"

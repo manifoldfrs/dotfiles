@@ -17,6 +17,9 @@ STOW_TARGETS=(
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"
+    "$HOME/.config/opencode/AGENTS.md"
+    "$HOME/.config/opencode/cli.json"
+    "$HOME/.config/opencode/opencode.jsonc"
     "$HOME/.claude/settings.local.json"
     "$HOME/.config/herdr/config.toml"
     "$HOME/.config/herdr/plugins.txt"
@@ -100,7 +103,7 @@ backup_stow_target() {
 }
 
 backup_existing_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.claude" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
 
     for target in "${STOW_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -195,6 +198,22 @@ install_global_anti_slop() {
     npm install --prefix "$runtime" --omit=dev --ignore-scripts --no-package-lock --no-audit --no-fund || warn "Global anti-slop dependency installation failed"
 }
 
+install_opencode() {
+    local version
+
+    if command -v opencode &> /dev/null; then
+        version="$(opencode --version 2>/dev/null || true)"
+        if [[ "$version" == "opencode v2."* ]]; then
+            info "OpenCode 2 already installed: $version"
+            return
+        fi
+    fi
+
+    # The tracked Bash environment already puts ~/.opencode/bin on PATH.
+    info "Installing OpenCode 2..."
+    (set -o pipefail; curl -fsSL https://opencode.ai/v2/install | bash -s -- --no-modify-path) || warn "OpenCode 2 installation failed"
+}
+
 install_claude_code() {
     if command -v claude &> /dev/null; then
         info "Claude Code already installed"
@@ -261,6 +280,7 @@ main() {
     info "Bootstrapping development environment..."
     install_homebrew
     install_brewfile
+    install_opencode
     install_claude_code
     install_claude_chrome_host_for_helium
     apply_dotfiles

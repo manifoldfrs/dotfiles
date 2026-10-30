@@ -58,7 +58,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/bin/sh -c 'rex __internal session-start --agent claude 2>/dev/null || true'",
+            "command": "/bin/sh -c 'rex __internal session-start --agent claude --feature-session-naming=false 2>/dev/null || true'",
             "timeout": 5
           }
         ]
@@ -166,5 +166,6 @@
       "**Org-specific CLIs**: None configured",
       "routine under joinopto/opto2 prefix: git and bundle/rails operations scoped to this trusted repo and its origin remote"
     ]
-  }
+  },
+  "tui": "fullscreen"
 }

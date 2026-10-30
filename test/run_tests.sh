@@ -61,12 +61,14 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.config/rex/init.lua" ] \
-    && [ ! -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
-    && [ -f "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
+    && [ ! -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
+    && [ -f "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
+    && [ -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
     && cmp "$STOW_TEST_HOME/.claude/AGENTS.md" "$STOW_TEST_HOME/.pi/agent/AGENTS.md" \
     && cmp "$STOW_TEST_HOME/.claude/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
+    && cmp "$STOW_TEST_HOME/.config/opencode/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/hooks/block-dangerous-bash.sh" ] \
     && cmp "$STOW_TEST_HOME/.claude/hooks/block-dangerous-bash.sh" "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" \
     && [ ! -L "$STOW_TEST_HOME/.claude/skills/herdr/SKILL.md" ] \
@@ -74,7 +76,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
-    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/sol-loop")" = "$DOTFILES_DIR/stow/claude/skills/sol-loop" ] \
+    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/sol-loop")" = "$DOTFILES_DIR/stow/opencode/skills/sol-loop" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Bash Stow profile is idempotent"
 else

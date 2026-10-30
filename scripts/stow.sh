@@ -9,12 +9,12 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude codex pi)
+STOW_PACKAGES=(bash git ghostty herdr rex nvim bin opencode claude codex pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
 CODEX_CONFIG_TARGET="$HOME/.codex/config.toml"
-AGENT_SKILLS_DIR="$STOW_DIR/claude/skills"
+AGENT_SKILLS_DIR="$STOW_DIR/opencode/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
 SHARED_BACKUP_TARGETS=(
     "$HOME/.config/herdr/plugins.txt"
@@ -31,6 +31,11 @@ PI_BACKUP_TARGETS=(
     "$HOME/.pi/agent/claude-bridge.json"
     "$HOME/.pi/agent/mcp.json"
     "$HOME/.pi/agent/settings.json"
+)
+OPENCODE_BACKUP_TARGETS=(
+    "$HOME/.config/opencode/AGENTS.md"
+    "$HOME/.config/opencode/cli.json"
+    "$HOME/.config/opencode/opencode.jsonc"
 )
 
 # The tracked Codex config is mostly state written by the macOS ChatGPT app, so other systems keep their own.
@@ -139,6 +144,20 @@ backup_pi_stow_targets() {
     done
 }
 
+backup_opencode_stow_targets() {
+    local target
+
+    if ! has_stow_package opencode; then
+        return
+    fi
+
+    mkdir -p "$HOME/.config/opencode"
+
+    for target in "${OPENCODE_BACKUP_TARGETS[@]}"; do
+        backup_stow_target "$target"
+    done
+}
+
 backup_shared_stow_targets() {
     mkdir -p "$HOME/.local/bin"
 
@@ -241,7 +260,7 @@ backup_shared_skill_targets() {
     local target
     local target_dir
 
-    if ! has_stow_package claude; then
+    if ! has_stow_package opencode; then
         return
     fi
 
@@ -312,7 +331,7 @@ ensure_shared_skill_folder_links() {
     local link_dest
     local target_dir
 
-    if ! has_stow_package claude; then
+    if ! has_stow_package opencode; then
         return
     fi
 
@@ -357,7 +376,7 @@ remove_shared_skill_folder_links() {
     local link_dest
     local target_dir
 
-    if ! has_stow_package claude; then
+    if ! has_stow_package opencode; then
         return
     fi
 
@@ -393,6 +412,7 @@ apply_dotfiles() {
     backup_bash_stow_targets
     backup_shared_stow_targets
     backup_pi_stow_targets
+    backup_opencode_stow_targets
     backup_shared_skill_targets
 
     backup_codex_stow_targets

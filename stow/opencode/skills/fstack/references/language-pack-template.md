@@ -1,6 +1,6 @@
 # Language pack template
 
-Copy this file to `stow/claude/skills/coding-standards-<language>/SKILL.md` when work in a new language starts.
+Copy this file to `stow/opencode/skills/coding-standards-<language>/SKILL.md` when work in a new language starts.
 Replace every `<placeholder>`, delete every line that starts with `>`, and keep the pack under about 100 lines.
 Move detail that only some changes need into `references/<concern>.md` and list it in step 2.
 

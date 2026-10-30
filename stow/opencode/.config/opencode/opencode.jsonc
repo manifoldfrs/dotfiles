@@ -1,0 +1,88 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "update": "auto",
+  "model": "claude-agent/opus",
+  "providers": {
+    "claude-agent": {
+      "models": {
+        // The root model can't carry a #variant, so pin the effort on the model itself.
+        "opus": {
+          "settings": {
+            "effort": "medium"
+          }
+        }
+      }
+    }
+  },
+  "permissions": [
+    {
+      "action": "*",
+      "resource": "*",
+      "effect": "allow"
+    }
+  ],
+  "mcp": {
+    "servers": {
+      "ref": {
+        "type": "remote",
+        "url": "https://api.ref.tools/mcp",
+        "headers": {
+          "x-ref-api-key": "{env:REF_API_KEY}"
+        },
+        "codemode": false,
+        "timeout": {
+          "catalog": 10000,
+          "execution": 10000
+        }
+      },
+      "exa": {
+        "type": "remote",
+        "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa",
+        "headers": {
+          "x-api-key": "{env:EXA_API_KEY}"
+        },
+        "codemode": false,
+        "timeout": {
+          "catalog": 10000,
+          "execution": 10000
+        }
+      },
+      "jev": {
+        "type": "local",
+        "command": ["npx", "-y", "@jkudish/jev-mcp"],
+        "environment": {
+          "TYPESAFE_API_KEY": "{env:TYPESAFE_API_KEY}"
+        },
+        "codemode": true,
+        "timeout": {
+          "catalog": 30000,
+          "execution": 30000
+        }
+      },
+      "chrome-devtools": {
+        "type": "local",
+        "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--isolated", "--no-usage-statistics"],
+        "codemode": true,
+        "timeout": {
+          "catalog": 30000,
+          "execution": 60000
+        }
+      },
+      "codex-chrome": {
+        "type": "local",
+        "command": ["codex-control-chrome-mcp", "--stdio"],
+        "codemode": true
+      },
+      "hey": {
+        "type": "local",
+        "command": ["hey", "mcp"],
+        "codemode": true
+      },
+      "superlogical": {
+        "type": "remote",
+        "url": "https://www.superlogical.com/rex/community-mcp",
+        "codemode": true
+      }
+    }
+  }
+}

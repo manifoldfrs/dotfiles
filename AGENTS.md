@@ -31,6 +31,7 @@ Agent behavior:
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
+- `stow/opencode/` - OpenCode 2 config, the primary agent harness, and the canonical global AGENTS.md
 - `stow/rex/` - Rex config (`init.lua` and the Lua files it requires); Rex is the default terminal and Ghostty the fallback
 - `server/rex/` - files the Rex login server setup installs under `/etc` (not stowed)
 - `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files
@@ -166,10 +167,12 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 ### Live Configuration Approval Gate
 - Treat the live home directory and running terminal applications as production infrastructure.
 - Editing tracked sources does not authorize applying them to the live configuration.
-- Do not run `scripts/stow.sh apply`, `scripts/bootstrap.sh`, package installation or removal, shell changes, service reloads, or direct writes under `$HOME` unless the user separately and explicitly approves the live mutation after reviewing the planned changes and validation results.
-- Use `scripts/stow.sh dry-run`, `scripts/validate-dotfiles.sh`, and temporary home directories for validation before requesting approval.
+- Do not run `scripts/stow.sh apply`, `scripts/bootstrap.sh`, package installation or removal, shell changes, service reloads, or edits to live config under `$HOME` unless the user explicitly asks for that live change.
+- A direct request such as "install X" or "apply the config" is that approval; do not ask again.
+- Work confined to `$TMPDIR`, throwaway copies, or temporary home directories is not a live mutation and needs no approval.
+- Use `scripts/stow.sh dry-run`, `scripts/validate-dotfiles.sh`, and temporary home directories for validation before applying.
 - Never run `chsh` or modify `/etc/shells` for the user.
-- After approval, run the smallest live mutation necessary and immediately verify the affected public behavior.
+- When applying, run the smallest live mutation necessary and immediately verify the affected public behavior.
 
 ## Security and Secrets
 - Never commit API keys/tokens or real local credentials.

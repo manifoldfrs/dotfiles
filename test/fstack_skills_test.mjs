@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const catalog = resolve(root, "stow/claude/skills");
+const catalog = resolve(root, "stow/opencode/skills");
 const read = (path) => readFileSync(path, "utf8");
 const skill = (name) => read(resolve(catalog, name, "SKILL.md"));
 const frontmatter = (text) => text.split("\n---")[0];
@@ -77,7 +77,7 @@ test("changed skill documents retain valid local reference links", () => {
   const paths = ["fstack/references/doctrine.md", ...workflows.map((name) => `${name}/SKILL.md`), "testing/SKILL.md", ...["rust", "swift", "kotlin", "javascript"].map((name) => `coding-standards-${name}/SKILL.md`)];
   for (const path of paths) {
     const absolute = resolve(catalog, path);
-    for (const match of read(absolute).matchAll(/\]\(([^)]+)\)/g)) {
+    for (const match of read(absolute).replace(/`[^`\n]*`/g, "").matchAll(/\]\(([^)]+)\)/g)) {
       const link = match[1];
       if (/^https?:|^#/.test(link)) continue;
       assert.ok(existsSync(resolve(dirname(absolute), link.split("#")[0])), `${path}: ${link}`);

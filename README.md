@@ -12,8 +12,8 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default, on the Mac and on the iPhone (Rex for iOS beta). Ghostty is the fallback terminal; Herdr and Termius remain the fallback phone path into `agentbox`. |
 | Editor / IDE | Neovim | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Zed and Cursor are retired and archived under `old/`. |
 | Shell | Homebrew Bash 5 + Starship | FZF, zoxide, and mise on top. Fish/Zsh configs under `old/` are rollback-only. |
-| Primary agent harness | Claude Code | Settings, hooks, status line, and local mods in `stow/claude/.claude/`. |
-| Every other model | Pi | OpenAI, xAI, and the rest run through Pi (`stow/pi/.pi/agent/`). It can also reach Claude models via `pi-claude-bridge`. |
+| Primary agent harness | OpenCode 2 | Every model in one harness, including Claude through the built-in Claude Agent provider (`stow/opencode/.config/opencode/`). |
+| Other harnesses | Claude Code, Pi | Claude Code keeps its settings, hooks, and mods in `stow/claude/.claude/`; Pi stays configured in `stow/pi/.pi/agent/`. |
 | Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `codex exec` in a read-only sandbox; `code-review` adds standards and intent axes before it. |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
@@ -32,10 +32,11 @@ cd ~/code/personal/dotfiles
 ./scripts/bootstrap.sh
 ```
 
-Bootstrap installs Homebrew and the `Brewfile`, installs Claude Code with its native installer, backs up conflicting live files (`.backup.YYYYMMDDhhmmss`), applies all Stow packages, syncs Herdr plugins, selects Homebrew Bash as the login shell, restores Neovim plugins from `lazy-lock.json`, installs the global npm packages, sets up the global `anti-slop` runtime and Plannotator, and runs `rex skill setup --session-naming` when Rex is present.
+Bootstrap installs Homebrew and the `Brewfile`, installs OpenCode 2 and Claude Code with their native installers, backs up conflicting live files (`.backup.YYYYMMDDhhmmss`), applies all Stow packages, syncs Herdr plugins, selects Homebrew Bash as the login shell, restores Neovim plugins from `lazy-lock.json`, installs the global npm packages, sets up the global `anti-slop` runtime and Plannotator, and runs `rex skill setup --session-naming` when Rex is present.
 
 Rex itself installs from its DMG and updates itself, so install it separately.
 Then quit and reopen your terminal (or `exec /opt/homebrew/bin/bash --login`) and sign in to each harness (`claude`, `pi` with `/login`, `codex`).
+In OpenCode, run `/connect` and pick **Claude Agent** to use your Claude Code login, and connect any other providers you use.
 
 Machine-local secrets go in `~/.config/bash/local.bash`, which is never tracked:
 
@@ -60,7 +61,7 @@ git pull
 If validation fails, nothing changes.
 Use `./scripts/stow.sh delete` to remove all managed symlinks, and `./scripts/bootstrap.sh` only when you also want packages, plugins, and tooling refreshed.
 
-The default profile is the `STOW_PACKAGES` list in `scripts/stow.sh`: `bash git ghostty herdr rex nvim bin claude codex pi agents`.
+The default profile is the `STOW_PACKAGES` list in `scripts/stow.sh`: `bash git ghostty herdr rex nvim bin opencode claude codex pi agents`.
 To restow a single package by hand:
 
 ```bash
@@ -89,9 +90,10 @@ stow/                  Stow packages, each mirroring $HOME
   herdr/               Herdr config, plugin list, Plannotator TUI config
   nvim/                Neovim config (see stow/nvim/AGENTS.md)
   bin/                 ~/.local/bin tools
-  claude/              Claude Code settings, theme, status line, mods/, and the shared AGENTS.md, skills/, and guardrail hooks/
-  codex/               Codex config and theme; links AGENTS.md and hooks to claude/
-  pi/                  Pi settings, MCP config, models, themes, extensions/; links AGENTS.md to claude/
+  opencode/            OpenCode config, CLI settings, MCP servers, and the shared global AGENTS.md and skills/
+  claude/              Claude Code settings, theme, status line, mods/, and the shared guardrail hooks/; links AGENTS.md to opencode/
+  codex/               Codex config and theme; links AGENTS.md to opencode/ and hooks to claude/
+  pi/                  Pi settings, MCP config, models, themes, extensions/; links AGENTS.md to opencode/
 scripts/
   bootstrap.sh         Full machine setup
   stow.sh              apply / dry-run / delete, with isolated preflight
@@ -110,8 +112,6 @@ old/                   Archived Fish, Zsh, tmux, Karabiner, Zed, and Cursor conf
 Brewfile               Homebrew packages and casks
 npm-global-packages.txt Global npm packages (@openai/codex, vercel, tree-sitter-cli)
 ```
-
-`stow/opencode/` exists but is not in the default profile and is not maintained.
 
 ## Rex
 
@@ -295,8 +295,10 @@ Generated init scripts for FZF, Starship, and zoxide are cached under `~/.cache/
 
 ## Agents
 
-Claude Code is the primary harness.
-Pi is the harness for every other model (its default is an OpenAI model, set in `stow/pi/.pi/agent/settings.json`; select others with `/model`).
+OpenCode 2 is the primary harness, for Claude and every other model; switch models with `/models`.
+Claude runs through the Claude Agent provider, which drives your local `claude` login through the Agent SDK.
+Until [anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074) is fixed, SDK use draws the 5-hour limit about twice as fast as the interactive Claude Code UI, so heavy Claude-only sessions are cheaper in Claude Code.
+Claude Code and Pi stay configured.
 Codex stays configured, and cross-provider review goes through `sol-loop`: Sol reviews, the agent fixes, and the loop repeats until Sol approves.
 
 ### Autonomous workflow
@@ -311,10 +313,10 @@ These adapt Theo Browne's [tstack](https://github.com/t3dotgg/tstack) (MIT).
 ### Shared rules and skills
 
 Claude Code is the canonical home for everything the harnesses share.
-One global rules file, `stow/claude/.claude/AGENTS.md`, is symlinked into Codex and Pi by their Stow packages, so all three harnesses follow the same instructions.
+One global rules file, `stow/opencode/.config/opencode/AGENTS.md`, is symlinked into Claude Code, Codex, and Pi by their Stow packages, so all four harnesses follow the same instructions.
 Reload or restart sessions after changing it.
 
-Skills live once in `stow/claude/skills/`; `scripts/stow.sh` links each skill folder into `~/.claude/skills/` and `~/.agents/skills/`, which Codex and Pi read.
+Skills live once in `stow/opencode/skills/`; `scripts/stow.sh` links each skill folder into `~/.claude/skills/` and `~/.agents/skills/`, which Codex and Pi read.
 Ownership (upstream baseline, personalization layer, or local) is recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
 [docs/skills.md](docs/skills.md) lists every skill, who can invoke it, its owner, and what it does; it is generated from each `SKILL.md`, so run `./scripts/skill_catalog.sh` after adding, renaming, or editing a skill.
 
