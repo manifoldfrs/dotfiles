@@ -11,6 +11,9 @@
   "tabs": {
     "enabled": false
   },
+  "plugins": [
+    "./tui-plugins/session-relaunch"
+  ],
   "keybinds": {
     "model.dialog.provider": "ctrl+shift+p",
     "model.list": [

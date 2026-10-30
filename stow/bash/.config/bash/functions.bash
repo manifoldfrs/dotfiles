@@ -167,6 +167,26 @@ claude() {
     return "$status"
 }
 
+# The session-relaunch TUI plugin's /upgrade and /relaunch write a session id, or a blank line for none, to OPENCODE_RELAUNCH_FILE before exiting.
+opencode() {
+    local relaunch_file session_id status
+    relaunch_file=$(mktemp "${TMPDIR:-/tmp}/opencode-relaunch.XXXXXX") || return
+    OPENCODE_RELAUNCH_FILE=$relaunch_file command opencode "$@"
+    status=$?
+    while [[ -s $relaunch_file ]]; do
+        session_id=$(<"$relaunch_file")
+        : >"$relaunch_file"
+        if [[ -n $session_id ]]; then
+            OPENCODE_RELAUNCH_FILE=$relaunch_file command opencode -s "$session_id"
+        else
+            OPENCODE_RELAUNCH_FILE=$relaunch_file command opencode
+        fi
+        status=$?
+    done
+    rm -f "$relaunch_file"
+    return "$status"
+}
+
 claude-log() {
     ANTHROPIC_BASE_URL=http://127.0.0.1:8787 command claude "$@"
 }
