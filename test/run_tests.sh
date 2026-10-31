@@ -98,6 +98,7 @@ grep -Fq 'endpoint = "http://100.82.139.102:7297"' stow/rex/.config/rex/init.lua
 grep -Fq '"pankrashin/vim-rex-navigator"' stow/nvim/.config/nvim/lua/plugins/vim-rex-navigator.lua
 grep -Fq '"frshbb": { "principals": ["tailscale:manifoldfrs@github"] }' server/rex/accounts.jsonc
 grep -Eq '^ExecStart=/usr/bin/rex login-server .* --extra-listen tailnet://:7297$' server/rex/rex-login-server.service.d/override.conf
+grep -Fqx 'Pin-Priority: 1001' server/rex/apt-preferences.d/rex
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
 jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agent/claude-bridge.json >/dev/null

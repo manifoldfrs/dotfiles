@@ -13,6 +13,8 @@ ACCOUNTS_SOURCE="$SOURCE_DIR/accounts.jsonc"
 ACCOUNTS_TARGET="/etc/rex/accounts.jsonc"
 OVERRIDE_SOURCE="$SOURCE_DIR/rex-login-server.service.d/override.conf"
 OVERRIDE_TARGET="/etc/systemd/system/rex-login-server.service.d/override.conf"
+APT_PIN_SOURCE="$SOURCE_DIR/apt-preferences.d/rex"
+APT_PIN_TARGET="/etc/apt/preferences.d/rex"
 LISTENER="--extra-listen tailnet://:7297"
 
 RED='\033[0;31m'
@@ -32,6 +34,11 @@ exec_start() {
         | sed 's/ $//'
 }
 
+# Ubuntu's unrelated Perl rex package has no config command.
+is_superlogical_rex() {
+    command -v rex >/dev/null 2>&1 && rex config --help >/dev/null 2>&1
+}
+
 # Install a tracked file, keeping a timestamped backup of a different existing file.
 # Prints "changed" when the target was replaced.
 install_file() {
@@ -49,7 +56,19 @@ install_file() {
 }
 
 [ "$(id -u)" -eq 0 ] || error "Run as root: sudo $0"
-command -v rex >/dev/null 2>&1 || error "Install the rex package first: https://www.superlogical.com/rex/docs/linux/installation"
+
+# Below priority 1001, apt can still replace Superlogical's rex with Ubuntu's higher-versioned Perl rex.
+# Written without a backup because apt warns about every extra file in preferences.d.
+if ! cmp -s "$APT_PIN_SOURCE" "$APT_PIN_TARGET"; then
+    install -D -m 0644 "$APT_PIN_SOURCE" "$APT_PIN_TARGET"
+    info "Pinned the rex package to Superlogical"
+fi
+if ! is_superlogical_rex && command -v apt-get >/dev/null 2>&1; then
+    info "Installing Superlogical's rex package"
+    apt-get update -qq
+    apt-get install -y --allow-downgrades rex || true
+fi
+is_superlogical_rex || error "Install the rex package first: https://www.superlogical.com/rex/docs/linux/installation"
 command -v systemctl >/dev/null 2>&1 || error "systemd is required"
 
 packaged_unit="$(systemctl show -p FragmentPath --value "$SERVICE")"

@@ -189,6 +189,8 @@ sudo -u frshbb git -C /home/frshbb/code/personal/dotfiles pull
 ```
 
 The setup script installs `server/rex/accounts.jsonc` (only `tailscale:manifoldfrs@github` gets in, as `frshbb`) and a systemd drop-in that listens on the tailnet at port 7297.
+It also pins the `rex` package to Superlogical's repository with `server/rex/apt-preferences.d/rex`.
+Ubuntu ships an unrelated Perl tool named `rex` with a higher version number, and without that pin apt can install it over Superlogical's package; the script reinstalls the right one if that already happened.
 It refuses to run if the packaged `ExecStart` no longer matches the tracked one; copy the new line from `systemctl cat rex-login-server` into the drop-in, keep `--extra-listen tailnet://:7297` at the end, and rerun.
 The login server starts on boot; your account's server starts when you connect and exits once its last session ends.
 

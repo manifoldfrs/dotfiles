@@ -1,0 +1,7 @@
+Package: rex
+Pin: origin pkgs.superlogical.com
+Pin-Priority: 1001
+
+Package: rex
+Pin: release o=Ubuntu
+Pin-Priority: -1

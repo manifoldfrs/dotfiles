@@ -37,10 +37,13 @@ rex_bin=$(command -v rex || true)
 if [[ -z $rex_bin && -n ${REX_BIN_DIR:-} && -x "$REX_BIN_DIR/rex" ]]; then
     rex_bin="$REX_BIN_DIR/rex"
 fi
-if [[ -n $rex_bin ]]; then
-    "$rex_bin" config check "$STOW_DIR/rex/.config/rex/init.lua" >/dev/null
-else
+if [[ -z $rex_bin ]]; then
     printf 'WARN: rex is not installed; skipped the Rex config check\n' >&2
+elif ! "$rex_bin" config --help >/dev/null 2>&1; then
+    # Ubuntu's unrelated Perl rex package can take over the rex name; rex_server_setup.sh pins it away.
+    printf 'WARN: %s is not Superlogical Rex; skipped the Rex config check\n' "$rex_bin" >&2
+else
+    "$rex_bin" config check "$STOW_DIR/rex/.config/rex/init.lua" >/dev/null
 fi
 
 validation_home=$(mktemp -d)
