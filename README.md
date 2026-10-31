@@ -328,6 +328,13 @@ The same script writes one OpenCode command per skill under `stow/opencode/.conf
 ./scripts/skill_catalog.sh                 # regenerate docs/skills.md and OpenCode skill commands (validate-dotfiles.sh checks both)
 ```
 
+The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` screens web results, audits edit scope, and fact-checks answers in OpenCode.
+OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.
+
+```bash
+(cd stow/opencode/.config/opencode/plugins/jev && bun install && bun test && bun run check)
+```
+
 `local` skills are never overwritten by sync, and `excluded` skills are never restored.
 Plannotator's own skills are excluded on purpose because its installer owns them (bootstrap runs it).
 A new machine gets the tracked snapshot from `./scripts/stow.sh apply` with no upstream fetch.
