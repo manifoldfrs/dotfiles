@@ -16,6 +16,8 @@ BASH_LINK="$HOME/.local/bin/bash"
 CODEX_CONFIG_TARGET="$HOME/.codex/config.toml"
 AGENT_SKILLS_DIR="$STOW_DIR/opencode/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
+OPENCODE_PLUGINS_DIR="$STOW_DIR/opencode/.config/opencode/plugins"
+OPENCODE_PLUGINS_TARGET="$HOME/.config/opencode/plugins"
 SHARED_BACKUP_TARGETS=(
     "$HOME/.config/herdr/plugins.txt"
     "$HOME/.config/plannotator-tui/config.toml"
@@ -404,6 +406,79 @@ remove_shared_skill_folder_links() {
     done
 }
 
+# Earlier applies stowed plugin files one by one; clear a directory that holds only those links.
+remove_stowed_plugin_files() {
+    local dest=$1
+    local entry
+
+    for entry in "$dest"/* "$dest"/.[!.]*; do
+        if [ ! -e "$entry" ] && [ ! -L "$entry" ]; then
+            continue
+        fi
+        if ! is_stow_managed_link "$entry"; then
+            return 1
+        fi
+    done
+
+    find "$dest" -mindepth 1 -maxdepth 1 -type l -delete
+    rmdir "$dest"
+}
+
+ensure_opencode_plugin_links() {
+    local plugin_dir
+    local src
+    local dest
+
+    if ! has_stow_package opencode || [ ! -d "$OPENCODE_PLUGINS_DIR" ]; then
+        return
+    fi
+
+    mkdir -p "$OPENCODE_PLUGINS_TARGET"
+    for plugin_dir in "$OPENCODE_PLUGINS_DIR"/*/; do
+        src="${plugin_dir%/}"
+        dest="$OPENCODE_PLUGINS_TARGET/$(basename "$src")"
+
+        if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+            continue
+        fi
+        if [ -L "$dest" ] && is_stow_managed_link "$dest"; then
+            ln -sfn "$src" "$dest"
+            info "Repointed OpenCode plugin folder: $dest -> $src"
+            continue
+        fi
+        if [ -d "$dest" ] && [ ! -L "$dest" ] && ! remove_stowed_plugin_files "$dest"; then
+            warn "Skipping non-Stow OpenCode plugin target: $dest"
+            continue
+        fi
+        if [ -e "$dest" ] || [ -L "$dest" ]; then
+            warn "Skipping non-Stow OpenCode plugin target: $dest"
+            continue
+        fi
+
+        ln -s "$src" "$dest"
+        info "Linked OpenCode plugin folder: $dest -> $src"
+    done
+}
+
+remove_opencode_plugin_links() {
+    local plugin_dir
+    local src
+    local dest
+
+    if ! has_stow_package opencode || [ ! -d "$OPENCODE_PLUGINS_DIR" ]; then
+        return
+    fi
+
+    for plugin_dir in "$OPENCODE_PLUGINS_DIR"/*/; do
+        src="${plugin_dir%/}"
+        dest="$OPENCODE_PLUGINS_TARGET/$(basename "$src")"
+        if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+            rm "$dest"
+            info "Removed OpenCode plugin folder link: $dest"
+        fi
+    done
+}
+
 apply_dotfiles() {
     info "Running isolated preflight before changing $HOME"
     "$DOTFILES_DIR/scripts/validate-dotfiles.sh" "$DOTFILES_DIR" "${STOW_PACKAGES[@]}"
@@ -421,6 +496,7 @@ apply_dotfiles() {
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
     stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
     ensure_shared_skill_folder_links
+    ensure_opencode_plugin_links
     ensure_bash_link
 }
 
@@ -431,6 +507,7 @@ dry_run_dotfiles() {
 
 delete_dotfiles() {
     remove_shared_skill_folder_links
+    remove_opencode_plugin_links
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
 }

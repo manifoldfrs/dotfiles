@@ -2,3 +2,5 @@ node_modules
 # scripts/stow.sh links complete skill directories into ~/.claude/skills and ~/.agents/skills,
 # so references, scripts, and metadata stay together and updates replace atomically.
 ^/skills
+# OpenCode skips symlinked plugin files, so scripts/stow.sh links each server plugin directory whole.
+^/\.config/opencode/plugins

@@ -24,7 +24,7 @@ Agent behavior:
 - `scripts/bootstrap.sh` - full machine bootstrap for non-Stow setup
 - `scripts/backup.sh` - backup current machine config into tracked sources
 - `scripts/stow.sh` - apply/delete/dry-run GNU Stow dotfile symlinks
-- `scripts/skill_catalog.sh` - generate `docs/skills.md` from skill frontmatter (`--check` fails when stale)
+- `scripts/skill_catalog.sh` - generate `docs/skills.md` and OpenCode `/<skill>` commands from skill frontmatter (`--check` fails when stale)
 - `scripts/rex_server_setup.sh` - root-only Rex login server setup on Linux hosts (agentbox)
 - `mcp_setup.sh` - MCP config install + backup script
 - `stow/` - GNU Stow packages that mirror `$HOME`

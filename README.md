@@ -90,7 +90,7 @@ stow/                  Stow packages, each mirroring $HOME
   herdr/               Herdr config, plugin list, Plannotator TUI config
   nvim/                Neovim config (see stow/nvim/AGENTS.md)
   bin/                 ~/.local/bin tools
-  opencode/            OpenCode config, CLI settings, MCP servers, and the shared global AGENTS.md and skills/
+  opencode/            OpenCode config, CLI settings, MCP servers, plugins/ (Jev checks), tui-plugins/, generated commands/ for /<skill>, and the shared global AGENTS.md and skills/
   claude/              Claude Code settings, theme, status line, mods/, and the shared guardrail hooks/; links AGENTS.md to opencode/
   codex/               Codex config and theme; links AGENTS.md to opencode/ and hooks to claude/
   pi/                  Pi settings, MCP config, models, themes, extensions/; links AGENTS.md to opencode/
@@ -319,12 +319,13 @@ Reload or restart sessions after changing it.
 Skills live once in `stow/opencode/skills/`; `scripts/stow.sh` links each skill folder into `~/.claude/skills/` and `~/.agents/skills/`, which Codex and Pi read.
 Ownership (upstream baseline, personalization layer, or local) is recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
 [docs/skills.md](docs/skills.md) lists every skill, who can invoke it, its owner, and what it does; it is generated from each `SKILL.md`, so run `./scripts/skill_catalog.sh` after adding, renaming, or editing a skill.
+The same script writes one OpenCode command per skill under `stow/opencode/.config/opencode/commands/`, because OpenCode loads skills with `@skill-id` rather than `/skill-id`.
 
 ```bash
 ./scripts/update_agent_skills.sh --check   # report drift from upstream catalogs
 ./scripts/update_agent_skills.sh --review  # open a Plannotator review of the diff
 ./scripts/update_agent_skills.sh --sync    # update the tracked snapshot (uncommitted)
-./scripts/skill_catalog.sh                 # regenerate docs/skills.md (validate-dotfiles.sh checks it)
+./scripts/skill_catalog.sh                 # regenerate docs/skills.md and OpenCode skill commands (validate-dotfiles.sh checks both)
 ```
 
 `local` skills are never overwritten by sync, and `excluded` skills are never restored.
