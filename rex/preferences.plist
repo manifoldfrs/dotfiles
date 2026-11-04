@@ -2,10 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>Workspace.animationStyle</key>
+	<string>snappy</string>
 	<key>Workspace.appIcon</key>
 	<string>dark</string>
 	<key>Workspace.appearance</key>
-	<string>system</string>
+	<string>dark</string>
 	<key>Workspace.customThemes</key>
 	<data>
 	W3sicGFsZXR0ZSI6eyJhbnNpIjpbeyJibHVlIjowLjExNzY0NzA1ODgyMzUyOTQxLCJh
@@ -71,7 +73,7 @@
 	<key>Workspace.inactivePaneFadeMode</key>
 	<string>both</string>
 	<key>Workspace.interfaceStyle</key>
-	<string>blendTheme</string>
+	<string>useTheme</string>
 	<key>Workspace.lightThemeID</key>
 	<string>merino-light</string>
 	<key>Workspace.shellIconTheme</key>
@@ -105,7 +107,7 @@
 	<key>Workspace.terminalUsesDisplayP3</key>
 	<true/>
 	<key>Workspace.usesPaneGlass</key>
-	<true/>
+	<false/>
 	<key>Workspace.usesStandardInactiveWindowPaneStyles</key>
 	<true/>
 	<key>rex.developer-mode-enabled</key>
