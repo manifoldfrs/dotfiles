@@ -1,5 +1,3 @@
 node_modules
-# Compatibility link to stow/claude/skills: live skill links resolve through it until the next apply.
-^/skills
 # OpenCode skips symlinked plugin files, so scripts/stow.sh links each server plugin directory whole.
 ^/\.config/opencode/plugins
