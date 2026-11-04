@@ -11,7 +11,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | --- | --- | --- |
 | Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default, on the Mac and on the iPhone (Rex for iOS beta). Ghostty is the fallback terminal; Herdr and Termius remain the fallback phone path into `agentbox`. |
 | Editor / IDE | Neovim | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Zed and Cursor are retired and archived under `old/`. |
-| Shell | Homebrew Bash 5 + Starship | FZF, zoxide, and mise on top. Fish/Zsh configs under `old/` are rollback-only. |
+| Shell | Homebrew Bash 5 + Starship | FZF and zoxide on top. Fish/Zsh configs under `old/` are rollback-only. |
 | Primary agent harness | Claude Code | Settings, hooks, mods, keybindings, the shared global rules (`stow/claude/.claude/`), the shared skills (`stow/claude/skills/`), and MCP servers (`stow/claude/mcp.json`). |
 | Second harness | OpenCode 2 | Every non-Claude model in one harness (`stow/opencode/.config/opencode/`). |
 | Other harnesses | Codex, Pi | Codex runs Sol reviews; Pi stays configured in `stow/pi/.pi/agent/`. |
@@ -293,7 +293,7 @@ bash test/nvim_plugin_safety.sh --base-ref HEAD
 
 Homebrew Bash 5 is the login shell, and Rex, Ghostty, and Herdr all launch `/opt/homebrew/bin/bash` explicitly.
 Layout: environment and `PATH` in `~/.config/bash/environment.bash`, aliases in `aliases.bash`, functions in `functions.bash`, secrets and machine overrides in the untracked `local.bash`.
-Starship renders the prompt, FZF provides completion and `Ctrl-F` fuzzy history, zoxide provides `z`, and mise shims pick per-project runtimes.
+Starship renders the prompt, FZF provides completion and `Ctrl-F` fuzzy history, and zoxide provides `z`.
 Generated init scripts for FZF, Starship, and zoxide are cached under `~/.cache/bash/init/` and regenerated when their binaries change.
 
 ## Agents

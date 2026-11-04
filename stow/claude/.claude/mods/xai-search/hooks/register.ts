@@ -5,7 +5,7 @@ const TOOL_NAME = 'xai_search'
 // The Pi extension owns the xAI auth guards and request bounds; this mod only adapts its runner.
 const RUNNER = '../../../../pi/.pi/agent/extensions/xai-search/run-xai-search.ts'
 
-// Pinned so a project's mise Node version cannot pick a runtime without native TypeScript.
+// Pinned so a project's Node version cannot pick a runtime without native TypeScript.
 const NODE = '/opt/homebrew/bin/node'
 
 // The runner's own request timeout is 300 s.

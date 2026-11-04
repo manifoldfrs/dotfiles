@@ -36,13 +36,6 @@ source_cached_init() {
 }
 
 source_cached_init fzf-bash fzf --bash
-# Shims pick each project's tool version when called, so mise needs no per-prompt hook.
-if command -v mise &> /dev/null; then
-    case ":$PATH:" in
-        *":$HOME/.local/share/mise/shims:"*) ;;
-        *) export PATH="$HOME/.local/share/mise/shims:$PATH" ;;
-    esac
-fi
 source_cached_init zoxide-init zoxide init bash
 source_cached_init starship-full-init starship init bash --print-full-init
 unset -f source_cached_init
