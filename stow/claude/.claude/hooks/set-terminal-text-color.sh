@@ -8,7 +8,7 @@ pid=$PPID
 tty=""
 while [ -n "$pid" ] && [ "$pid" -gt 1 ]; do
   tty=$(ps -o tty= -p "$pid" | tr -d ' ')
-  if [ -n "$tty" ] && [ "$tty" != "??" ]; then
+  if [ -n "$tty" ] && [ "${tty#\?}" = "$tty" ]; then
     break
   fi
   tty=""
