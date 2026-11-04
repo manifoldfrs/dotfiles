@@ -1,25 +1,31 @@
 return {
   {
-    "folke/tokyonight.nvim",
+    "Shatur/neovim-ayu",
     lazy = false,
     priority = 1000,
     config = function()
-      require("tokyonight").setup({
-        style = "night",
-        transparent = true,
-        styles = {
-          sidebars = "transparent",
-          floats = "transparent",
+      vim.o.background = "dark"
+
+      local colors = require("ayu.colors")
+      colors.generate()
+
+      require("ayu").setup({
+        overrides = {
+          Normal = { bg = "None" },
+          NormalFloat = { bg = "None" },
+          SignColumn = { bg = "None" },
+          FoldColumn = { bg = "None" },
+          Folded = { bg = "None" },
+          StatusLine = { bg = "None" },
+          StatusLineNC = { bg = "None" },
+          TabLineFill = { bg = "None" },
+          WinSeparator = { fg = colors.guide_active, bg = "None" },
+          -- Upstream uses a guide color for line numbers, which is nearly invisible on the dark background.
+          LineNr = { fg = colors.gutter_normal },
         },
-        on_colors = function(colors)
-          colors.bg_statusline = colors.none
-        end,
-        on_highlights = function(hl, colors)
-          hl.TabLineFill = { bg = colors.none }
-        end,
       })
 
-      vim.cmd.colorscheme("tokyonight")
+      vim.cmd.colorscheme("ayu-dark")
 
       local diagnostic_underline_colors = {
         Error = "DiagnosticError",

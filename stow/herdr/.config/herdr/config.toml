@@ -6,7 +6,7 @@ shell_mode = "auto"
 new_cwd = "follow"
 
 [theme]
-name = "tokyo-night"
+name = "terminal"
 
 [keys]
 prefix = "ctrl+a"

@@ -1,6 +1,6 @@
 {
   "lastChangelogVersion": "1.4.0",
-  "theme": "tokyonight-frsh",
+  "theme": "ayu-frsh",
   "defaultProvider": "openai",
   "defaultModel": "gpt-6.1-sol-ultrafast",
   "defaultThinkingLevel": "medium",

@@ -17,7 +17,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Other harnesses | Codex, Pi | Codex runs Sol reviews; Pi stays configured in `stow/pi/.pi/agent/`. |
 | Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `codex exec` in a read-only sandbox; `code-review` adds standards and intent axes before it. |
 
-Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
+Everything uses **Ayu Dark** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception: its theme and font are app settings, not files (see [Rex app settings](#rex-app-settings-one-time-per-machine)).
 
 Vocabulary like *tracked source*, *live configuration*, and *apply* is defined in [CONTEXT.md](CONTEXT.md).

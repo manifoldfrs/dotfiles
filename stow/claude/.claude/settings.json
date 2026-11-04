@@ -126,7 +126,7 @@
   "channelsEnabled": false,
   "timeFormat": "24-hour-utc",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "custom:tokyonight-night",
+  "theme": "custom:ayu-dark",
   "editorMode": "normal",
   "verbose": false,
   "preferredNotifChannel": "ghostty",
