@@ -3,6 +3,7 @@
 alias c='clear'
 alias code='vim'
 alias grep='grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox}'
+alias ls='ls --color=auto'
 alias pbc='pbcopy'
 alias pbp='pbpaste'
 alias pn='pnpm'
