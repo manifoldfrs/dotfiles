@@ -155,6 +155,8 @@ grt() {
 claude() {
     local relaunch_file session_id status
     relaunch_file=$(mktemp "${TMPDIR:-/tmp}/claude-relaunch.XXXXXX") || return
+    # Claude Code draws its first frame before hooks run, so the text color has to be set before it starts.
+    [[ -t 1 ]] && printf '\033]10;#FFB454\007'
     CLAUDE_RELAUNCH_FILE=$relaunch_file command claude "$@"
     status=$?
     while [[ -s $relaunch_file ]]; do
@@ -163,6 +165,7 @@ claude() {
         CLAUDE_RELAUNCH_FILE=$relaunch_file command claude --resume "$session_id"
         status=$?
     done
+    [[ -t 1 ]] && printf '\033]110\007'
     rm -f "$relaunch_file"
     return "$status"
 }

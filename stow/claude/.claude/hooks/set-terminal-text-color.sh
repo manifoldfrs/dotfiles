@@ -4,6 +4,11 @@
 
 set -uo pipefail
 
+# The shell's claude wrapper already owns the color, and resetting here would flash it on /restart.
+if [ -n "${CLAUDE_RELAUNCH_FILE:-}" ]; then
+  exit 0
+fi
+
 pid=$PPID
 tty=""
 while [ -n "$pid" ] && [ "$pid" -gt 1 ]; do

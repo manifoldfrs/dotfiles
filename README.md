@@ -293,7 +293,7 @@ bash test/nvim_plugin_safety.sh --base-ref HEAD
 
 Homebrew Bash 5 is the login shell, and Rex, Ghostty, and Herdr all launch `/opt/homebrew/bin/bash` explicitly.
 Layout: environment and `PATH` in `~/.config/bash/environment.bash`, aliases in `aliases.bash`, functions in `functions.bash`, secrets and machine overrides in the untracked `local.bash`.
-Starship renders the prompt, FZF provides completion and `Ctrl-F` fuzzy history, zoxide provides `z`, and mise activates per-project runtimes.
+Starship renders the prompt, FZF provides completion and `Ctrl-F` fuzzy history, zoxide provides `z`, and mise shims pick per-project runtimes.
 Generated init scripts for FZF, Starship, and zoxide are cached under `~/.cache/bash/init/` and regenerated when their binaries change.
 
 ## Agents
@@ -333,6 +333,7 @@ The same script writes one OpenCode command per skill under `stow/opencode/.conf
 
 Claude Code's `jev-*` mods in `stow/claude/.claude/mods/` screen web results, audit edit scope, and fact-check answers; test one with `claude plugin test <mod folder>`.
 The `bold-color` mod draws bold reply text in Ayu blue, and `hooks/set-terminal-text-color.sh` makes prose amber in Claude Code panes only.
+The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
 The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` does the same in OpenCode.
 OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.
 

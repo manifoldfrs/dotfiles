@@ -11,15 +11,7 @@ return {
 
       require("ayu").setup({
         overrides = {
-          Normal = { bg = "None" },
-          NormalFloat = { bg = "None" },
-          SignColumn = { bg = "None" },
-          FoldColumn = { bg = "None" },
-          Folded = { bg = "None" },
-          StatusLine = { bg = "None" },
-          StatusLineNC = { bg = "None" },
-          TabLineFill = { bg = "None" },
-          WinSeparator = { fg = colors.guide_active, bg = "None" },
+          WinSeparator = { fg = colors.guide_active },
           -- Upstream uses a guide color for line numbers, which is nearly invisible on the dark background.
           LineNr = { fg = colors.gutter_normal },
         },

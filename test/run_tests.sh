@@ -110,9 +110,9 @@ jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agen
 grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
-grep -Fq 'eval "$(mise activate bash)"' stow/bash/.bashrc
-if grep -q 'source_cached_init mise-activate' stow/bash/.bashrc; then
-    fail "mise activation is cached and would restore a stale PATH"
+grep -Fq '.local/share/mise/shims' stow/bash/.bashrc
+if grep -q 'mise activate' stow/bash/.bashrc; then
+    fail "mise activate adds a hook to every prompt; use shims"
 fi
 grep -q '^source_cached_init zoxide-init zoxide init bash$' stow/bash/.bashrc
 grep -q '^source_cached_init starship-full-init starship init bash --print-full-init$' stow/bash/.bashrc
