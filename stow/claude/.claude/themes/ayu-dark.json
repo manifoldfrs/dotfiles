@@ -4,7 +4,7 @@
   "overrides": {
     "autoAccept": "#AAD94C",
     "bashBorder": "#FF8F40",
-    "claude": "#E6B450",
+    "claude": "#FFB454",
     "claudeShimmer": "#FFD580",
     "claudeBlue_FOR_SYSTEM_SPINNER": "#59C2FF",
     "claudeBlueShimmer_FOR_SYSTEM_SPINNER": "#9AD9FF",
@@ -56,7 +56,7 @@
     "rainbow_blue_shimmer": "#9AD9FF",
     "rainbow_indigo_shimmer": "#B0C2FF",
     "rainbow_violet_shimmer": "#E6CCFF",
-    "clawd_body": "#E6B450",
+    "clawd_body": "#FFB454",
     "clawd_background": "#0B0E14",
     "userMessageBackground": "#1A1F29",
     "bashMessageBackgroundColor": "#0F131A",
