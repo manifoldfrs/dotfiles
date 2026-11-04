@@ -13,7 +13,7 @@
     "GIT_EDITOR": "true",
     "GIT_SEQUENCE_EDITOR": "true",
     "GIT_MERGE_AUTOEDIT": "no",
-    "CLAUDE_CODE_PLUGIN_DIRS": "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-pipeline:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-screen:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-coding:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
+    "CLAUDE_CODE_PLUGIN_DIRS": "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-pipeline:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-screen:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-coding:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills:~/code/personal/dotfiles/stow/claude/.claude/mods/bold-color"
   },
   "attribution": {
     "commit": "",
@@ -59,6 +59,22 @@
           {
             "type": "command",
             "command": "/bin/sh -c 'rex __internal session-start --agent claude --feature-session-naming=false 2>/dev/null || true'",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/set-terminal-text-color.sh \"#FFB454\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/set-terminal-text-color.sh reset",
             "timeout": 5
           }
         ]

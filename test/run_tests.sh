@@ -91,7 +91,7 @@ fi
 
 # Test 4: selected theme and prompt invariants
 echo "[TEST 4] Checking theme and prompt configuration..."
-grep -q '^theme = Ayu$' stow/ghostty/.config/ghostty/config
+grep -q '^theme = ayu-frsh$' stow/ghostty/.config/ghostty/config
 grep -q '^command = /opt/homebrew/bin/bash --login$' stow/ghostty/.config/ghostty/config
 grep -q '^shell-integration = bash$' stow/ghostty/.config/ghostty/config
 grep -q '^font-family = MonoLisaCode$' stow/ghostty/.config/ghostty/config
