@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
-  "name": "ayu-frsh",
+  "name": "ayu-farish",
   "vars": {
     "bg": "#0b0e14",
     "bgDark": "#05070a",

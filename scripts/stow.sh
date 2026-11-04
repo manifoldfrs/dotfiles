@@ -8,7 +8,7 @@ set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
-CODEX_THEME_FILE="ayu-frsh.tmTheme"
+CODEX_THEME_FILE="ayu-farish.tmTheme"
 STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude opencode codex pi)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"

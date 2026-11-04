@@ -29,4 +29,9 @@ describe('parseInline', () => {
       { kind: 'plain', text: ' g' },
     ])
   })
+
+  test('keeps links with other schemes as plain text', () => {
+    expect(parseInline('[a](javascript:b)')).toEqual([{ kind: 'plain', text: '[a](javascript:b)' }])
+    expect(parseInline('[a](file:///b)')).toEqual([{ kind: 'link', text: 'a', href: 'file:///b' }])
+  })
 })

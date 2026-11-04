@@ -5,6 +5,7 @@ const CODE_COLOR = '#B1B9F9'
 const BOLD_SPAN = /\*\*(?=\S).+?(?<=\S)\*\*/
 const INLINE_TOKEN = /(\*\*(?=\S).+?(?<=\S)\*\*|`[^`\n]+`|\[[^\]\n]+\]\([^)\s]+\))/
 const LINK = /^\[([^\]]+)\]\(([^)]+)\)$/
+const SAFE_LINK_TARGET = /^(https?|file):/i
 const LIST_ITEM = /^(\s*)([-*]|\d+\.)\s+(.*)$/
 const FENCE = /^\s*(```|~~~)/
 const MARKDOWN_ONLY_LINE = /^\s*(\||#{1,6}\s|>|```|~~~)/
@@ -63,7 +64,7 @@ export const parseInline = (line: string): Token[] =>
     .filter(part => part !== '')
     .map((part): Token => {
       const link = LINK.exec(part)
-      if (link !== null) {
+      if (link !== null && SAFE_LINK_TARGET.test(link[2] ?? '')) {
         return { kind: 'link', text: link[1] ?? '', href: link[2] ?? '' }
       }
       if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
