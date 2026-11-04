@@ -21,10 +21,12 @@ describe('register', () => {
     on('process.run', ($, e) => (e.argv[1] === '--version' ? ran('2.1.290 (Claude Code)\n') : ran('Updated\n')))
     on('fs.write', ($, e) => {
       writes.push({ path: e.path, text: e.text })
+
       return { value: undefined }
     })
     on('command.run', ($, e) => {
       commands.push(e.command)
+
       return {}
     })
 
@@ -45,6 +47,7 @@ describe('register', () => {
     on('process.run', ($, e) => (e.argv[1] === '--version' ? ran('2.1.287 (Claude Code)\n') : ran('Up to date\n')))
     on('fs.write', ($, e) => {
       writes.push(e.path)
+
       return { value: undefined }
     })
 
@@ -63,6 +66,7 @@ describe('register', () => {
     mock.env(on, {})
     on('fs.write', ($, e) => {
       writes.push(e.path)
+
       return { value: undefined }
     })
 

@@ -5,6 +5,7 @@ describe('register', () => {
     const toasts: string[] = []
     on('ui.toast', ($, e) => {
       toasts.push(e.text)
+
       return { value: undefined }
     })
     on('skill.prompt', ($, e) => ({ text: e.text }))

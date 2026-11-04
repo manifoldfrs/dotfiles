@@ -9,6 +9,7 @@ import {
   listAt,
   mapLimit,
   mcpJson,
+  parsePipelineInput,
   textOf,
   toItem,
   type Classify,
@@ -16,8 +17,10 @@ import {
   type PipelineInput,
   type Rerank,
 } from './pipeline.ts'
+import { listOf, numberOf, objectOf, parseJson, textOf as stringOf, type Json, type JsonObject } from './json.ts'
 
 const TOOL_NAME = 'run'
+
 // Matches Pi's codemode demo: four concurrent per-item fetches keep MCP servers from rate limiting.
 const ENRICH_CONCURRENCY = 4
 
@@ -84,26 +87,28 @@ const inputSchema = {
   },
 }
 
-type Verdict = { classification: string; top_probability: number; decision: string }
-
 function failed(text: string) {
   return { isError: true as const, result: text, text }
 }
 
-async function callJson($: EngineInterface, step: { server: string; tool: string }, args: unknown) {
+async function callJson($: EngineInterface, step: { server: string; tool: string }, args: Json | undefined) {
   // A JSON round trip drops undefined optional fields before they reach the server.
-  return mcpJson(await $.mcp.call(step.server, step.tool, JSON.parse(JSON.stringify(args ?? {}))))
+  const cleaned = objectOf(parseJson(JSON.stringify(args ?? {}))) ?? {}
+
+  return mcpJson(await $.mcp.call(step.server, step.tool, cleaned))
 }
 
-async function enrich($: EngineInterface, input: PipelineInput, raws: unknown[], items: Item[]) {
+async function enrich($: EngineInterface, input: PipelineInput, raws: readonly Json[], items: Item[]) {
   const step = input.enrich
+
   if (!step) return items
 
   return mapLimit(items, ENRICH_CONCURRENCY, async item => {
     const raw = raws[Number(item.key)]
     const result = await callJson($, step, fillArgs(step.args, raw))
     const entries = step.items ? listAt(result, step.items) : [result]
-    const extra = entries.map(entry => textOf(entry, step.text)).filter(Boolean)
+    const extra = entries.flatMap(entry => textOf(entry, step.text) || [])
+
     return { ...item, text: [item.text, ...extra].join('\n') }
   })
 }
@@ -113,26 +118,33 @@ function jevItems(items: Item[]) {
 }
 
 async function classify($: EngineInterface, judge: Classify, items: Item[], limit: number) {
-  const verdicts = new Map<string, Verdict>()
+  const verdicts = new Map<string, JsonObject>()
+
   for (const batch of chunks(items, CLASSIFY_BATCH)) {
-    const { kind: _, ...options } = judge
-    const result = (await callJson($, { server: 'jev', tool: 'jev_classify' }, { ...options, items: jevItems(batch) })) as {
-      results?: (Verdict & { id: string })[]
+    const result = await callJson($, { server: 'jev', tool: 'jev_classify' }, { ...judge.options, items: jevItems(batch) })
+
+    for (const entry of listOf(objectOf(result)?.results)) {
+      const verdict = objectOf(entry)
+      const id = stringOf(verdict?.id)
+
+      if (verdict && id !== undefined) verdicts.set(id, verdict)
     }
-    for (const verdict of result.results ?? []) verdicts.set(verdict.id, verdict)
   }
 
   const judged = items.map(item => ({ ...item, verdict: verdicts.get(item.key) }))
   const byClass: Record<string, { count: number; review: number; top: string[] }> = {}
-  const ranked = [...judged].sort((a, b) => (b.verdict?.top_probability ?? 0) - (a.verdict?.top_probability ?? 0))
+  const ranked = [...judged].sort((a, b) => (numberOf(b.verdict?.top_probability) ?? 0) - (numberOf(a.verdict?.top_probability) ?? 0))
+
   for (const item of ranked) {
-    const name = item.verdict?.classification ?? 'unjudged'
+    const name = stringOf(item.verdict?.classification) ?? 'unjudged'
     const group = (byClass[name] ??= { count: 0, review: 0, top: [] })
     group.count++
+
     if (item.verdict?.decision === 'review') group.review++
+
     if (group.top.length < limit) {
       const review = item.verdict?.decision === 'review' ? ', review' : ''
-      group.top.push(`${item.id} ${item.title} (p=${item.verdict?.top_probability ?? '?'}${review})`)
+      group.top.push(`${item.id} ${item.title} (p=${numberOf(item.verdict?.top_probability) ?? '?'}${review})`)
     }
   }
 
@@ -141,44 +153,58 @@ async function classify($: EngineInterface, judge: Classify, items: Item[], limi
 
 async function rerank($: EngineInterface, judge: Rerank, items: Item[], limit: number) {
   const scores = new Map<string, number>()
+
   for (const batch of chunks(items, RERANK_BATCH)) {
-    const result = (await callJson($, { server: 'jev', tool: 'jev_rerank' }, { query: judge.query, candidates: jevItems(batch) })) as {
-      ranked?: { id: string; relevance: number }[]
+    const result = await callJson($, { server: 'jev', tool: 'jev_rerank' }, { query: judge.query, candidates: jevItems(batch) })
+
+    for (const item of listOf(objectOf(result)?.ranked)) {
+      const entry = objectOf(item)
+      const id = stringOf(entry?.id)
+      const relevance = numberOf(entry?.relevance)
+
+      if (id !== undefined && relevance !== undefined) scores.set(id, relevance)
     }
-    for (const entry of result.ranked ?? []) scores.set(entry.id, entry.relevance)
   }
 
   // Jev scores each candidate independently, so scores from separate batches compare directly.
   const judged = items
     .map(item => ({ ...item, verdict: { relevance: scores.get(item.key) } }))
     .sort((a, b) => (b.verdict.relevance ?? 0) - (a.verdict.relevance ?? 0))
+
   const top = judged.slice(0, Math.min(limit, judge.top_k ?? limit))
+
   return { judged, summary: { top: top.map(item => `${item.id} ${item.title} (relevance=${item.verdict.relevance ?? '?'})`) } }
 }
 
 async function resultsFile($: EngineInterface) {
   const dir = (await $.env.get('TMPDIR')) || '/tmp/'
+
   return `${dir.replace(/\/?$/, '/')}jev-pipeline-${await $.session.id()}-${await $.clock.now()}.json`
 }
 
 function judgeProblem(judge: Classify | Rerank) {
-  if (judge.kind === 'classify' && !(judge.classes?.length >= 2)) return 'judge.classes needs at least two classes'
+  if (judge.kind === 'classify' && judge.classes.length < 2) return 'judge.classes needs at least two classes'
+
   if (judge.kind === 'rerank' && !judge.query) return 'judge.query is required for rerank'
+
   return undefined
 }
 
 async function run($: EngineInterface, input: PipelineInput) {
   const problem = judgeProblem(input.judge)
+
   if (problem) throw new Error(problem)
 
   const raws = listAt(await callJson($, input.source, input.source.args), input.source.items)
   const items = await enrich($, input, raws, raws.map((raw, index) => toItem(raw, index, input.fields)))
+
   const judged = input.judge.kind === 'classify'
     ? await classify($, input.judge, items, input.limit)
     : await rerank($, input.judge, items, input.limit)
 
   const path = await resultsFile($)
   await $.fs.write(path, JSON.stringify(judged.judged.map(({ key: _, ...item }) => item), null, 2))
+
   return { total: items.length, results_file: path, ...judged.summary }
 }
 
@@ -198,9 +224,8 @@ export const register: Register = on => {
   })
 
   on('tool.call', { tool: 'mcp__jev-pipeline__run' }, async ($, e) => {
-    const { tool: _, ...input } = e as unknown as PipelineInput & { tool: string }
     try {
-      return { result: await run($, input) }
+      return { result: JSON.stringify(await run($, parsePipelineInput(parseJson(JSON.stringify(e))))) }
     } catch (error) {
       return failed(`jev-pipeline failed: ${error instanceof Error ? error.message : String(error)}`)
     }

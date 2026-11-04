@@ -13,6 +13,7 @@ describe('register', () => {
     on('tool.register', ($, e) => ({ value: { tool: `mcp__xai-search__${e.name}` } }))
     on('process.run', ($, e) => {
       runs.push({ argv: e.argv, stdin: e.init?.stdin })
+
       return processResult(0, JSON.stringify({ text: 'Top posts', details: { x_search_calls: 2 } }))
     })
 
@@ -34,10 +35,12 @@ describe('register', () => {
     on('session.start', ($, e) => ({ cwd: e.cwd }))
     on('tool.register', ($, e) => {
       schema = e.inputSchema
+
       return { value: { tool: `mcp__xai-search__${e.name}` } }
     })
     on('process.run', ($, e) => {
       params = JSON.parse(e.init?.stdin ?? '{}')
+
       return processResult(0, JSON.stringify({ text: 'Posts' }))
     })
 

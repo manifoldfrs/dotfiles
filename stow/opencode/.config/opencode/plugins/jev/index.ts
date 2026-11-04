@@ -1,10 +1,10 @@
 import { Plugin } from "@opencode/plugin"
 import { Option } from "effect"
-import { MIN_ANSWER_CHARS, hasJson, reviewAnswer, type Evidence } from "./answer.ts"
+import { MIN_ANSWER_CHARS, evidenceSource, hasJson, reviewAnswer, type Evidence } from "./answer.ts"
 import { decodeToolInput, errorMessage, isJevTool, logFailure, resultText, toolCaller, type CallIdentity, type Context, type Generate, type Json } from "./jev.ts"
 import { PIPELINE_DESCRIPTION, PIPELINE_INPUT, PIPELINE_TOOL, decodePipelineInput, runPipeline } from "./pipeline-tool.ts"
 import { DECISION_REMINDER, editOf, reviewScope, type CodeEdit } from "./scope.ts"
-import { isScreened, screenResult, withWarning } from "./screen.ts"
+import { isScreened, isSentLink, screenResult, withWarning } from "./screen.ts"
 
 // Send-backs start with this marker so the prompt hook does not treat them as a new user turn.
 const SEND_BACK = "[jev]"
@@ -47,10 +47,11 @@ function turnOf(sessionID: string) {
 // The call's input is evidence too: answers report which command ran or which file was read.
 function evidenceOf(turn: Turn, tool: string, input: Json, output: string): Evidence {
   const args = JSON.stringify(input).slice(0, INPUT_CHARS)
+  const source = evidenceSource(tool, input)
 
   turn.seq += 1
 
-  return { id: `${turn.seq}:${tool}`, text: `${tool} input: ${args}\n${output}` }
+  return { id: `${turn.seq}:${tool}`, text: `${tool} input: ${args}\n${output}`, ...(source && { source }) }
 }
 
 function requestEvidence(turn: Turn): Evidence[] {
@@ -69,6 +70,13 @@ async function failure(check: string, cause: unknown, instruction: string) {
   await logFailure(check, cause)
 
   return `Automatic Jev ${check} failed (${errorMessage(cause)}). ${instruction}`
+}
+
+// A subagent's prompt comes from the agent, so its links are not the user's.
+async function isMainSession(ctx: Context, sessionID: string) {
+  const session = await ctx.session.get({ sessionID }).catch(() => undefined)
+
+  return session !== undefined && session.parentID === undefined
 }
 
 function sessionGenerate(ctx: Context, sessionID: string): Generate {
@@ -132,7 +140,11 @@ export default Plugin.define({
         return
       }
 
-      if (isScreened(e.tool, input)) e.result = await screenResult(toolCaller(ctx, identity), e.result)
+      if (isScreened(e.tool, input)) {
+        const sentByUser = isSentLink(e.tool, input, turn.prompts) && await isMainSession(ctx, e.sessionID)
+
+        e.result = await screenResult(toolCaller(ctx, identity), e.result, sentByUser)
+      }
 
       turn.evidence = [...turn.evidence, evidenceOf(turn, e.tool, input, resultText(e.result))].slice(-MAX_EVIDENCE)
 

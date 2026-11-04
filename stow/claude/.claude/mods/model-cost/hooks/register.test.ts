@@ -6,6 +6,7 @@ function step(model: string, index: number) {
 
 async function drain<R>(stream: AsyncGenerator<unknown, R> & { result: Promise<R> }) {
   for await (const _ of stream);
+
   return stream.result
 }
 
@@ -23,15 +24,19 @@ describe('register', () => {
     on('session.usage', () => ({ value: { startedAt: 0, context: { window: 1_000_000 }, rateLimits: [], cost: { usd } } }))
     on('fs.read', ($, e) => {
       const text = files.get(e.path)
+
       if (text === undefined) throw new Error('ENOENT')
+
       return { value: text }
     })
     on('fs.write', ($, e) => {
       files.set(e.path, e.text)
+
       return { value: undefined }
     })
     on('turn.step', async function* ($, e) {
       usd += e.model.includes('opus') ? 1 : 0.25
+
       return { turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'end_turn' as const, usage: usage(e.model) }
     })
 
@@ -56,11 +61,13 @@ describe('register', () => {
     on('fs.read', ($, e) => ({ value: files.get(e.path) ?? '' }))
     on('fs.write', ($, e) => {
       files.set(e.path, e.text)
+
       return { value: undefined }
     })
     on('turn.step', async function* ($, e) {
       usd += 1
-      return { turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'end_turn' as const, usage: e.index === 0 ? usage('claude-opus-5-5') : undefined }
+
+      return { turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'end_turn' as const, usage: e.index === 0 ? usage('claude-opus-5-5') : null }
     })
 
     await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
@@ -80,6 +87,7 @@ describe('register', () => {
     on('fs.read', ($, e) => ({ value: files.get(e.path) ?? '' }))
     on('fs.write', ($, e) => {
       files.set(e.path, e.text)
+
       return { value: undefined }
     })
     on('turn.step', async function* ($, e) {

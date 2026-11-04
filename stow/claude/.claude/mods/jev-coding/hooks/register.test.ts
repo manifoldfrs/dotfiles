@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
+import type { Json } from './json.ts'
+
 type Verdict = { classification: string; decision?: string }
 
 function engine(on: On, verdicts: (text: string) => Verdict, isEditFailing = false) {
@@ -9,14 +11,19 @@ function engine(on: On, verdicts: (text: string) => Verdict, isEditFailing = fal
   on('tool.call', () => (isEditFailing ? { result: 'old_string not found', isError: true as const } : { result: { ok: true } }))
   on('classic.Stop', () => ({}))
   on('mcp.call', ($, e) => {
+    // SAFETY: the only Jev call this helper answers is the mod's jev_classify, which always sends this shape.
     const items = e.args.items as { id: string; text: string }[]
     requests.push({ context: e.args.context, texts: items.map(item => item.text) })
+
     const results = items.map(item => {
       const verdict = verdicts(item.text)
+
       return { id: item.id, top_probability: 0.9, decision: 'auto', ...verdict }
     })
+
     return { value: { content: [{ type: 'text' as const, text: JSON.stringify({ results }) }], isError: false } }
   })
+
   return requests
 }
 
@@ -106,7 +113,7 @@ describe('register', () => {
     on('turn.start', ($, e) => ({ turnId: e.turnId }))
     on('tool.call', () => ({ result: { ok: true } }))
     on('classic.Stop', () => ({}))
-    on('mcp.call', () => ({ value: { content: [{ type: 'text' as const, text: '{"results":[]}' }] } }))
+    on('mcp.call', () => ({ value: { content: [{ type: 'text' as const, text: '{"results":[]}' }], isError: false } }))
     await $.turn.start({ text: 'add the endpoint', turnId: 't1' })
     await $.tool.call(edit('/w/api.ts', 'a', 'b'))
 
@@ -123,5 +130,168 @@ describe('register', () => {
     await $.classic.Stop({ stop_hook_active: false })
 
     expect(requests).toEqual([])
+  })
+})
+
+type Fakes = { extraction: Json; verify?: () => Json; audit?: Json; failing?: boolean; output?: string }
+
+const LONG_ANSWER = 'x'.repeat(500)
+const usage = { input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 }
+
+function checker(on: On, fakes: Fakes) {
+  const calls: { tool: string; args: string }[] = []
+  const logs: string[] = []
+  on('turn.start', ($, e) => ({ turnId: e.turnId }))
+  on('tool.call', () => {
+    const output = fakes.output ?? 'opencode v2.2.5'
+
+    return { result: output, text: output }
+  })
+  on('classic.Stop', () => ({}))
+  on('ui.log', ($, e) => {
+    logs.push(e.text)
+
+    return { value: undefined }
+  })
+  on('model.complete', () => ({ value: { isAnswered: true as const, text: JSON.stringify(fakes.extraction), usage } }))
+  on('mcp.call', ($, e) => {
+    calls.push({ tool: e.tool, args: JSON.stringify(e.args) })
+
+    if (fakes.failing) return { value: { content: [], isError: true } }
+    const answer = e.tool === 'jev_verify' ? fakes.verify?.() : fakes.audit
+
+    return { value: { content: [{ type: 'text' as const, text: JSON.stringify(answer) }], isError: false } }
+  })
+
+  return { calls, logs }
+}
+
+const contradicted = () => ({ results: [{ verdict: 'contradicted', confidence: 0.95 }] })
+const claim = { claims: [{ text: 'OpenCode 2.3.0 is installed', source: 'tool' }], values: [] }
+const stop = { stop_hook_active: false, last_assistant_message: LONG_ANSWER }
+
+describe('answer check', () => {
+  test('sends the agent back on a confident contradiction, once, and shows the person why', async ($, on) => {
+    const { calls, logs } = checker(on, { extraction: claim, verify: contradicted })
+
+    await $.turn.start({ text: 'which version?', turnId: 't1' })
+    await $.tool.call({ tool: 'Bash', command: 'opencode --version' })
+    const stopped = await $.classic.Stop(stop)
+    const again = await $.classic.Stop({ ...stop, stop_hook_active: true })
+
+    expect(stopped.block).toContain('- Contradicted by the tool output (confidence 0.95): OpenCode 2.3.0 is installed')
+    expect(stopped.block).toContain('write it for someone who has not read this message')
+    expect(again.block).toBeUndefined()
+    expect(logs[0]).toContain('OpenCode 2.3.0 is installed')
+    expect(calls[0]?.args).toContain('opencode v2.2.5')
+    expect(calls[0]?.args).toContain('opencode --version')
+  })
+
+  test('stays quiet when the evidence supports the answer', async ($, on) => {
+    checker(on, { extraction: claim, verify: () => ({ results: [{ verdict: 'verified', confidence: 0.99 }] }) })
+
+    await $.turn.start({ text: 'which version?', turnId: 't1' })
+    await $.tool.call({ tool: 'Bash', command: 'opencode --version' })
+
+    expect((await $.classic.Stop(stop)).block).toBeUndefined()
+  })
+
+  test('does not send the agent back when a check fails, and tells the person', async ($, on) => {
+    const { logs } = checker(on, { extraction: claim, failing: true })
+
+    await $.turn.start({ text: 'which version?', turnId: 't1' })
+    await $.tool.call({ tool: 'Bash', command: 'opencode --version' })
+
+    expect((await $.classic.Stop(stop)).block).toBeUndefined()
+    expect(logs).toEqual(['Jev answer check did not run: jev_verify failed'])
+  })
+
+  test('skips a turn that ran no tools and a short answer', async ($, on) => {
+    const { calls } = checker(on, { extraction: claim, verify: contradicted })
+
+    await $.turn.start({ text: 'hello', turnId: 't1' })
+    await $.classic.Stop(stop)
+    await $.turn.start({ text: 'which version?', turnId: 't2' })
+    await $.tool.call({ tool: 'Bash', command: 'opencode --version' })
+    await $.classic.Stop({ ...stop, last_assistant_message: 'short' })
+
+    expect(calls).toEqual([])
+  })
+
+  test('skips when the reply text is absent', async ($, on) => {
+    const { calls } = checker(on, { extraction: claim, verify: contradicted })
+
+    await $.turn.start({ text: 'which version?', turnId: 't1' })
+    await $.tool.call({ tool: 'Bash', command: 'opencode --version' })
+    await $.classic.Stop({ stop_hook_active: false })
+
+    expect(calls).toEqual([])
+  })
+
+  test('does not count Jev results or subagent tool calls as evidence', async ($, on) => {
+    const { calls } = checker(on, { extraction: claim, verify: contradicted })
+
+    await $.turn.start({ text: 'which version?', turnId: 't1' })
+    await $.tool.call({ tool: 'mcp__jev__jev_verify', claims: ['x'] })
+    await $.tool.call({ tool: 'Bash', command: 'opencode --version', agentId: 'a1' })
+    await $.classic.Stop(stop)
+
+    expect(calls).toEqual([])
+  })
+
+  test('a flagged value the evidence says nothing about only warns', async ($, on) => {
+    checker(on, {
+      extraction: { claims: [], values: [{ request: 'the port', value: '1234', source: 'tool' }] },
+      audit: { records: [{ id: 'v1', action: 'wrong', p_wrong: 0.9 }] },
+      verify: () => ({ results: [{ verdict: 'unsupported', confidence: 0.9 }] }),
+    })
+
+    await $.turn.start({ text: 'which port?', turnId: 't1' })
+    await $.tool.call({ tool: 'Bash', command: 'cat .env' })
+
+    expect((await $.classic.Stop(stop)).block).toBeUndefined()
+  })
+
+  test('a flagged value the evidence contradicts sends the agent back', async ($, on) => {
+    checker(on, {
+      extraction: { claims: [], values: [{ request: 'the port', value: '1234', source: 'tool' }] },
+      audit: { records: [{ id: 'v1', action: 'wrong', p_wrong: 0.9 }] },
+      verify: contradicted,
+    })
+
+    await $.turn.start({ text: 'which port?', turnId: 't1' })
+    await $.tool.call({ tool: 'Bash', command: 'cat .env' })
+
+    expect((await $.classic.Stop(stop)).block).toContain('Contradicted by the tool output (confidence 0.95): the port = 1234')
+  })
+
+  test('a timed claim is never a send-back', async ($, on) => {
+    checker(on, { extraction: { claims: [{ text: 'No error since the reload', source: 'tool', timed: true }], values: [] }, verify: contradicted })
+
+    await $.turn.start({ text: 'any errors?', turnId: 't1' })
+    await $.tool.call({ tool: 'Bash', command: 'tail log' })
+
+    expect((await $.classic.Stop(stop)).block).toBeUndefined()
+  })
+
+  test('batches that disagree are not a send-back', async ($, on) => {
+    let call = 0
+
+    const { calls } = checker(on, {
+      extraction: claim,
+      output: 'y'.repeat(5_000),
+      verify: () => {
+        call += 1
+
+        return call === 1 ? contradicted() : { results: [{ verdict: 'verified', confidence: 0.99 }] }
+      },
+    })
+
+    await $.turn.start({ text: 'which version?', turnId: 't1' })
+
+    for (let index = 0; index < 8; index += 1) await $.tool.call({ tool: 'Read', file_path: `/w/${index}` })
+
+    expect((await $.classic.Stop(stop)).block).toBeUndefined()
+    expect(calls.length).toBeGreaterThan(1)
   })
 })

@@ -1,9 +1,11 @@
 import { describe, expect, mock, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
+import type { Json } from './json.ts'
+
 const TOOL = 'mcp__jev-pipeline__run'
 
-function mcpText(value: unknown) {
+function mcpText(value: Json | undefined) {
   return { value: { content: [{ type: 'text' as const, text: JSON.stringify(value) }], isError: false } }
 }
 
@@ -15,11 +17,11 @@ const ISSUES = {
   ],
 }
 
-const COMMENTS: Record<string, unknown> = {
-  'PI-1': { comments: [{ body: 'this is infuriating' }] },
-  'PI-2': { comments: [] },
-  'PI-3': { comments: [{ body: 'please fix' }, { body: 'still broken' }] },
-}
+const COMMENTS = new Map<string, Json>([
+  ['PI-1', { comments: [{ body: 'this is infuriating' }] }],
+  ['PI-2', { comments: [] }],
+  ['PI-3', { comments: [{ body: 'please fix' }, { body: 'still broken' }] }],
+])
 
 function engine(on: On, files: Map<string, string>, calls: { tool: string; args: any }[]) {
   on('session.start', ($, e) => ({ cwd: e.cwd }))
@@ -29,14 +31,20 @@ function engine(on: On, files: Map<string, string>, calls: { tool: string; args:
   mock.clock(on, { now: 42 })
   on('fs.write', ($, e) => {
     files.set(e.path, e.text)
+
     return { value: undefined }
   })
   on('mcp.call', ($, e) => {
     calls.push({ tool: `${e.server}/${e.tool}`, args: e.args })
+
     if (e.tool === 'list_issues') return mcpText(ISSUES)
-    if (e.tool === 'list_comments') return mcpText(COMMENTS[e.args.issueId as string])
+
+    if (e.tool === 'list_comments') return mcpText(COMMENTS.get(String(e.args.issueId)))
+
     if (e.tool === 'jev_classify') {
+      // SAFETY: the mod always sends jev_classify its items in this shape.
       const items = e.args.items as { id: string; text: string }[]
+
       return mcpText({
         results: items.map(item => ({
           id: item.id,
@@ -46,10 +54,14 @@ function engine(on: On, files: Map<string, string>, calls: { tool: string; args:
         })),
       })
     }
+
     if (e.tool === 'jev_rerank') {
+      // SAFETY: the mod always sends jev_rerank its candidates in this shape.
       const candidates = e.args.candidates as { id: string; text: string }[]
+
       return mcpText({ ranked: candidates.map(item => ({ id: item.id, relevance: item.text.includes('CPU') ? 0.9 : 0.1 })) })
     }
+
     return { value: { content: [{ type: 'text' as const, text: 'unknown tool' }], isError: true } }
   })
 }
@@ -61,6 +73,7 @@ describe('register', () => {
     engine(on, files, calls)
 
     await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
+
     const ran = await $.tool.call({
       tool: TOOL,
       source: { server: 'linear', tool: 'list_issues', args: { state: 'open' }, items: 'issues' },
@@ -71,7 +84,7 @@ describe('register', () => {
     })
 
     expect(ran.isError).toBeUndefined()
-    expect(ran.result).toEqual({
+    expect(JSON.parse(String(ran.result))).toEqual({
       total: 3,
       results_file: '/tmp/x/jev-pipeline-s1-42.json',
       by_class: {
@@ -79,7 +92,7 @@ describe('register', () => {
         none: { count: 2, review: 1, top: ['PI-2 README (p=0.95)'] },
       },
     })
-    expect(calls.filter(call => call.tool === 'linear/list_comments').map(call => call.args)).toEqual([
+    expect(calls.flatMap(call => (call.tool === 'linear/list_comments' ? [call.args] : []))).toEqual([
       { issueId: 'PI-1' },
       { issueId: 'PI-2' },
       { issueId: 'PI-3' },
@@ -94,6 +107,7 @@ describe('register', () => {
     engine(on, files, calls)
 
     await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
+
     const ran = await $.tool.call({
       tool: TOOL,
       source: { server: 'linear', tool: 'list_issues', items: 'issues' },
@@ -102,7 +116,7 @@ describe('register', () => {
       limit: 1,
     })
 
-    expect((ran.result as { top: string[] }).top).toEqual(['PI-1 CPU spikes (relevance=0.9)'])
+    expect(JSON.parse(String(ran.result)).top).toEqual(['PI-1 CPU spikes (relevance=0.9)'])
   })
 
   test('reports a source that is not a list', async ($, on) => {
@@ -110,6 +124,7 @@ describe('register', () => {
     engine(on, new Map(), calls)
 
     await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
+
     const ran = await $.tool.call({
       tool: TOOL,
       source: { server: 'linear', tool: 'list_issues', items: 'nodes' },

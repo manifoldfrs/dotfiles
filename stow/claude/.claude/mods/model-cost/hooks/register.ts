@@ -10,11 +10,13 @@ let lastUsd = 0
 // statusline.sh reads this file by session id.
 async function costFile($: EngineInterface) {
   const dir = (await $.env.get('TMPDIR')) || '/tmp/'
+
   return `${dir.replace(/\/?$/, '/')}claude-model-cost-${await $.session.id()}.json`
 }
 
 async function sessionUsd($: EngineInterface) {
   const { cost } = await $.session.usage()
+
   return cost?.usd ?? 0
 }
 
@@ -32,6 +34,7 @@ export const register: Register = on => {
     const result = yield* next(e)
 
     const usd = await sessionUsd($)
+
     // A smaller total means /clear restarted the ledger.
     if (usd < lastUsd) {
       costs = {}

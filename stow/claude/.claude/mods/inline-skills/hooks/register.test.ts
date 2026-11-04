@@ -2,25 +2,29 @@ import { describe, expect, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 import { findMentions } from './register'
 
-const SKILLS: Record<string, string> = {
-  '/repo/.claude/skills/prove/SKILL.md': '---\nname: prove\n---\n\nProject prove body\n',
-  '/home/.claude/skills/prove/SKILL.md': '---\nname: prove\n---\n\nUser prove body\n',
-  '/home/.claude/skills/testing/SKILL.md': '---\nname: testing\n---\n\nTesting body\n',
-}
+const SKILLS = new Map([
+  ['/repo/.claude/skills/prove/SKILL.md', '---\nname: prove\n---\n\nProject prove body\n'],
+  ['/home/.claude/skills/prove/SKILL.md', '---\nname: prove\n---\n\nUser prove body\n'],
+  ['/home/.claude/skills/testing/SKILL.md', '---\nname: testing\n---\n\nTesting body\n'],
+])
 
 function engine(on: On) {
   const entered: { text: string; context?: readonly string[] }[] = []
   on('env.get', () => ({ value: '/home' }))
   on('session.root', () => ({ value: '/repo' }))
   on('fs.read', ($, e) => {
-    const text = SKILLS[String(e.path)]
+    const text = SKILLS.get(String(e.path))
+
     if (text === undefined) throw new Error('ENOENT')
+
     return { value: text }
   })
   on('prompt.submit', ($, e) => {
     entered.push({ text: e.text, context: e.context })
+
     return { text: e.text, context: e.context }
   })
+
   return entered
 }
 

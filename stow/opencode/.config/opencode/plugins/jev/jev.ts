@@ -48,17 +48,22 @@ export function failureLogPath() {
   return join(process.env.XDG_DATA_HOME || join(homedir(), ".local", "share"), "opencode", "log", "jev-plugin.log")
 }
 
-// Records the check and the error's name and message only, never tool payloads or arguments.
-export async function logFailure(what: string, cause: unknown) {
-  const detail = cause instanceof Error ? `${cause.name}: ${cause.message}` : errorMessage(cause)
+export async function logNote(text: string) {
   const path = failureLogPath()
 
   try {
     await mkdir(dirname(path), { recursive: true })
-    await appendFile(path, `${new Date().toISOString()} ${what} failed: ${detail}\n`)
+    await appendFile(path, `${new Date().toISOString()} ${text}\n`)
   } catch {
     // Logging is best effort: the caller already reports the failure to the agent, and a log error must not replace it.
   }
+}
+
+// Records the check and the error's name and message only, never tool payloads or arguments.
+export async function logFailure(what: string, cause: unknown) {
+  const detail = cause instanceof Error ? `${cause.name}: ${cause.message}` : errorMessage(cause)
+
+  await logNote(`${what} failed: ${detail}`)
 }
 
 // MCP tools are named <server>_<tool> with every other character replaced by "_".
@@ -114,6 +119,12 @@ export function toolCaller(ctx: Context, identity: CallIdentity): ToolCaller {
   }
 }
 
-export function callJev<T>(tools: ToolCaller, tool: string, args: Json, schema: Schema.ConstraintDecoder<T>) {
-  return tools.call(mcpToolName(JEV_SERVER, tool), args, schema)
+export async function callJev<T>(tools: ToolCaller, tool: string, args: Json, schema: Schema.ConstraintDecoder<T>) {
+  try {
+    return await tools.call(mcpToolName(JEV_SERVER, tool), args, schema)
+  } catch (cause) {
+    await logFailure(`${tool} (${JSON.stringify(args).length} chars)`, cause)
+
+    throw cause
+  }
 }

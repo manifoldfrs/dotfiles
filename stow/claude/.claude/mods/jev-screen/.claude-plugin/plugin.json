@@ -1,1 +1,1 @@
-{ "name": "jev-screen", "version": "0.1.0", "description": "Screen fetched web content with Jev: withhold block, skip, and failed screens; pass review through with a model warning, including when Jev omits the injection score" }
+{ "name": "jev-screen", "version": "0.1.0", "description": "Screen fetched web content with Jev: withhold block and failed screens, except links the user sent, which pass with a warning; pass skip through untouched and review through with a model warning, including when Jev omits the injection score" }
