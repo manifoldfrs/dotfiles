@@ -1,6 +1,7 @@
 import type { EngineInterface, Register, ToolCallInput } from 'claude-code'
 
 import { MIN_ANSWER_CHARS, hasJson, reviewAnswer, type Evidence } from './answer.ts'
+import { isSecretFile, withoutSecrets } from './secrets.ts'
 import { listOf, numberOf, objectOf, parseJson, textOf, type Json, type JsonObject } from './json.ts'
 
 const CLASSES = [
@@ -59,7 +60,7 @@ function parseVerdict(item: Json, expected: Set<string>): Verdict {
 function itemText(edit: CodeEdit) {
   const before = edit.before ? `--- before\n${edit.before}\n` : ''
 
-  return `${edit.file}\n${before}+++ after\n${edit.after}`.slice(0, ITEM_CHARS)
+  return withoutSecrets(`${edit.file}\n${before}+++ after\n${edit.after}`).slice(0, ITEM_CHARS)
 }
 
 async function classify($: EngineInterface, batch: CodeEdit[], offset: number) {
@@ -115,19 +116,25 @@ async function review($: EngineInterface) {
 }
 
 // The call's input is evidence too: answers report which command ran or which file was read.
+function argsOf(e: ToolCallInput) {
+  const { tool: _tool, tool_use_id: _id, agentId: _agent, requestMeta: _meta, ...input } = e
+
+  return JSON.stringify(input)
+}
+
 function evidenceOf(e: ToolCallInput, output: string): Evidence {
-  const { tool, tool_use_id: _id, agentId: _agent, requestMeta: _meta, ...input } = e
-  const args = JSON.stringify(input)
+  const { tool } = e
+  const args = argsOf(e)
 
   evidenceCount += 1
 
-  return { id: `${evidenceCount}:${tool}`, text: `${tool} input: ${args.slice(0, INPUT_CHARS)}\n${output}`, source: `${tool} ${args}` }
+  return { id: `${evidenceCount}:${tool}`, text: withoutSecrets(`${tool} input: ${args.slice(0, INPUT_CHARS)}\n${output}`), source: `${tool} ${args}` }
 }
 
 function requestEvidence(): Evidence[] {
   const request = prompts.at(-1)
 
-  return request ? [{ id: 'user-request', text: `The user's request. It shows what was asked, not what is true:\n${request}` }] : []
+  return request ? [{ id: 'user-request', text: `The user's request. It shows what was asked, not what is true:\n${withoutSecrets(request)}` }] : []
 }
 
 async function callJev($: EngineInterface, tool: string, args: JsonObject) {
@@ -175,7 +182,7 @@ export const register: Register = on => {
   on('tool.call', async ($, e, next) => {
     const result = await next(e)
 
-    if (e.agentId !== undefined || UNCHECKED_TOOLS.test(e.tool) || result.deny !== undefined) return result
+    if (e.agentId !== undefined || UNCHECKED_TOOLS.test(e.tool) || result.deny !== undefined || isSecretFile(argsOf(e))) return result
 
     const output = result.text ?? ''
     ranTool = true
@@ -188,7 +195,7 @@ export const register: Register = on => {
     const result = await next(e)
     const edit = editOf(e)
 
-    if (result.deny !== undefined || result.isError || !edit) return result
+    if (result.deny !== undefined || result.isError || !edit || isSecretFile(edit.file)) return result
 
     edits.push(edit)
 

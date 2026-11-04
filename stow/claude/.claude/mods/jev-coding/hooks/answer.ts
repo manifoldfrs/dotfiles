@@ -1,3 +1,4 @@
+import { withoutSecrets } from './secrets.ts'
 import { listOf, numberOf, objectOf, parseJson, textOf, type Json, type JsonObject } from './json.ts'
 
 export type Evidence = { id: string; text: string; source?: string }
@@ -267,7 +268,7 @@ async function checkValues(callJev: CallJev, reported: readonly ReportedValue[],
 
 /** Fact-checks an answer against tool output; returns what to send the agent back with, or undefined when nothing hard was found. */
 export async function reviewAnswer(callJev: CallJev, generate: Generate, answer: string, evidence: readonly Evidence[]) {
-  const { claims, values } = parseExtraction(await generate(EXTRACT_PROMPT + answer))
+  const { claims, values } = parseExtraction(await generate(EXTRACT_PROMPT + withoutSecrets(answer)))
   const chunks = chunkEvidence(latestPerSource(evidence))
   const needles = [...values.map(entry => entry.value), ...claims.flatMap(claim => distinctiveTerms(claim.text))]
   const selected = selectEvidence(chunks, EVIDENCE_CHARS, needles)

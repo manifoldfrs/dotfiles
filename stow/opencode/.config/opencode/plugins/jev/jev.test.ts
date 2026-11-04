@@ -72,12 +72,15 @@ describe("screening", () => {
 
     expect(isSentLink("webfetch", { url: "https://docs.google.com/document/d/abc/edit" }, prompts)).toBe(true)
     expect(isSentLink("webfetch", { url: "https://docs.google.com/document/d/abc/export?format=txt" }, prompts)).toBe(true)
-    expect(isSentLink("execute", { code: "await fetch('https://docs.google.com/document/d/abc/edit')" }, prompts)).toBe(true)
+    expect(isSentLink("execute", { code: "await fetch('https://docs.google.com/document/d/abc/edit')" }, prompts)).toBe(false)
     expect(isSentLink("webfetch", { url: "https://docs.google.com/document/d/other/edit" }, prompts)).toBe(false)
     expect(isSentLink("webfetch", { url: "https://evil.test/document/d/abc/edit" }, prompts)).toBe(false)
     expect(isSentLink("execute", { code: "fetch('https://docs.google.com/document/d/abc/edit'); fetch('https://evil.test')" }, prompts)).toBe(false)
     expect(isSentLink("websearch", { query: "https://docs.google.com/document/d/abc/edit" }, prompts)).toBe(false)
     expect(isSentLink("webfetch", { url: "https://x.test" }, [])).toBe(false)
+    expect(isSentLink("webfetch", { url: "https://x.test/other" }, ["read https://x.test/"])).toBe(false)
+    expect(isSentLink("webfetch", { url: "https://x.test/a/other" }, ["read https://x.test/a/page"])).toBe(false)
+    expect(isSentLink("webfetch", { url: "https://x.test/a/page?b=1" }, ["read https://x.test/a/page"])).toBe(true)
   })
 
   test("keeps a blocked link the user sent and appends a warning", async () => {

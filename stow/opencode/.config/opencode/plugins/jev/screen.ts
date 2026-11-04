@@ -34,14 +34,23 @@ function urlsIn(text: string) {
   return found.map(url => url.replace(/[.,;:!?]+$/, "")).filter(url => URL.canParse(url)).map(url => new URL(url))
 }
 
+// Deep enough for Google's /document/d/<id>/, so a link near the top of a site can't exempt the rest of it.
+const MIN_SHARED_FOLDERS = 3
+
 // Agents rewrite links, such as a Google Doc's /edit to /export, so a page beside the sent link counts as sent.
 function isBeside(sent: URL, target: URL) {
-  return target.origin === sent.origin && target.pathname.startsWith(sent.pathname.replace(/[^/]*$/, ""))
+  if (target.origin !== sent.origin) return false
+
+  if (target.pathname === sent.pathname) return true
+
+  const folder = sent.pathname.replace(/[^/]*$/, "")
+
+  return folder.split("/").filter(Boolean).length >= MIN_SHARED_FOLDERS && target.pathname.startsWith(folder)
 }
 
-// A search returns pages the user never chose, even when its query is a link they sent.
+// A search returns pages the user never chose, and code can fetch somewhere other than the links it mentions.
 export function isSentLink(tool: string, input: Schema.Json, prompts: readonly string[]) {
-  if (tool.includes("search")) return false
+  if (tool.includes("search") || tool === "execute") return false
 
   const sent = prompts.flatMap(urlsIn)
   const targets = urlsIn(JSON.stringify(input))

@@ -98,6 +98,13 @@ test("a withheld link the user sent comes through with a warning", async () => {
   });
 });
 
+test("a link near the top of a site does not exempt the rest of it", async () => {
+  const h = harness(["withhold"]);
+  await h.dispatch("before_agent_start", { messageType: "user", prompt: "read https://docs.google.com/" });
+  const [result] = await h.dispatch("tool_result", sentLink);
+  assert.match(JSON.stringify(result), /withheld/);
+});
+
 test("a link the user sent comes through with a warning when screening fails", async () => {
   const h = harness([], true);
   await h.dispatch("before_agent_start", { messageType: "user", prompt: "read https://docs.google.com/document/d/abc/edit please" });

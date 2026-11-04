@@ -141,6 +141,7 @@ const usage = { input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 
 function checker(on: On, fakes: Fakes) {
   const calls: { tool: string; args: string }[] = []
   const logs: string[] = []
+  const extractions: string[] = []
   on('turn.start', ($, e) => ({ turnId: e.turnId }))
   on('tool.call', () => {
     const output = fakes.output ?? 'opencode v2.2.5'
@@ -153,7 +154,11 @@ function checker(on: On, fakes: Fakes) {
 
     return { value: undefined }
   })
-  on('model.complete', () => ({ value: { isAnswered: true as const, text: JSON.stringify(fakes.extraction), usage } }))
+  on('model.complete', ($, e) => {
+    extractions.push(String(e.prompt))
+
+    return { value: { isAnswered: true as const, text: JSON.stringify(fakes.extraction), usage } }
+  })
   on('mcp.call', ($, e) => {
     calls.push({ tool: e.tool, args: JSON.stringify(e.args) })
 
@@ -163,7 +168,7 @@ function checker(on: On, fakes: Fakes) {
     return { value: { content: [{ type: 'text' as const, text: JSON.stringify(answer) }], isError: false } }
   })
 
-  return { calls, logs }
+  return { calls, logs, extractions }
 }
 
 const contradicted = () => ({ results: [{ verdict: 'contradicted', confidence: 0.95 }] })
@@ -247,7 +252,7 @@ describe('answer check', () => {
     })
 
     await $.turn.start({ text: 'which port?', turnId: 't1' })
-    await $.tool.call({ tool: 'Bash', command: 'cat .env' })
+    await $.tool.call({ tool: 'Bash', command: 'cat config.txt' })
 
     expect((await $.classic.Stop(stop)).block).toBeUndefined()
   })
@@ -260,7 +265,7 @@ describe('answer check', () => {
     })
 
     await $.turn.start({ text: 'which port?', turnId: 't1' })
-    await $.tool.call({ tool: 'Bash', command: 'cat .env' })
+    await $.tool.call({ tool: 'Bash', command: 'cat config.txt' })
 
     expect((await $.classic.Stop(stop)).block).toContain('Contradicted by the tool output (confidence 0.95): the port = 1234')
   })
@@ -293,5 +298,94 @@ describe('answer check', () => {
 
     expect((await $.classic.Stop(stop)).block).toBeUndefined()
     expect(calls.length).toBeGreaterThan(1)
+  })
+})
+
+describe('secrets', () => {
+  const bash = (command: string) => ({ tool: 'Bash' as const, command })
+
+  test('sends nothing from a secret file, and skips the check when nothing else ran', async ($, on) => {
+    const { calls } = checker(on, { extraction: claim, verify: contradicted, output: 'lower_key=abc123' })
+
+    await $.turn.start({ text: 'check it', turnId: 't1' })
+    await $.tool.call(bash('cat .env.local'))
+    await $.tool.call({ tool: 'Read', file_path: '/home/me/.ssh/config' })
+    await $.classic.Stop(stop)
+
+    expect(calls).toEqual([])
+  })
+
+  test('keeps other tool output when a secret file was also read', async ($, on) => {
+    const { calls } = checker(on, { extraction: claim, verify: contradicted, output: 'safe output' })
+
+    await $.turn.start({ text: 'check it', turnId: 't1' })
+    await $.tool.call(bash('cat .env'))
+    await $.tool.call(bash('opencode --version'))
+    await $.classic.Stop(stop)
+
+    expect(calls[0]?.args).toContain('opencode --version')
+    expect(calls[0]?.args).not.toContain('cat .env')
+  })
+
+  test('removes lines holding secrets and keeps the rest', async ($, on) => {
+    const output = [
+      '{',
+      '  "access_token": "abc123",',
+      '  "port": 49374',
+      '}',
+      'API_KEY=def456',
+      'password: ghi789',
+      'Authorization: Bearer jkl012',
+      'found sk-ant-mno345mno345mno345',
+      '-----BEGIN RSA PRIVATE KEY-----',
+      'pqr678',
+      '-----END RSA PRIVATE KEY-----',
+      'PORT=49374',
+      'app-version=1.2.3',
+    ].join('\n')
+
+    const { calls } = checker(on, { extraction: claim, verify: contradicted, output })
+
+    await $.turn.start({ text: 'check it', turnId: 't1' })
+    await $.tool.call(bash('some-command'))
+    await $.classic.Stop(stop)
+
+    for (const secret of ['abc123', 'def456', 'ghi789', 'jkl012', 'mno345', 'pqr678']) expect(calls[0]?.args).not.toContain(secret)
+
+    expect(calls[0]?.args).toContain('PORT=49374')
+    expect(calls[0]?.args).toContain('app-version=1.2.3')
+    expect(calls[0]?.args).toContain('\\"port\\": 49374')
+  })
+
+  test('keeps a secret the person pasted out of the evidence', async ($, on) => {
+    const { calls } = checker(on, { extraction: claim, verify: contradicted })
+
+    await $.turn.start({ text: 'use token=abc123 please', turnId: 't1' })
+    await $.tool.call(bash('opencode --version'))
+    await $.classic.Stop(stop)
+
+    expect(calls[0]?.args).not.toContain('abc123')
+  })
+
+  test('removes a secret Claude repeats in its reply before claims are extracted', async ($, on) => {
+    const { extractions } = checker(on, { extraction: claim, verify: contradicted })
+
+    await $.turn.start({ text: 'check it', turnId: 't1' })
+    await $.tool.call(bash('opencode --version'))
+    await $.classic.Stop({ ...stop, last_assistant_message: `${LONG_ANSWER}\napi_key: abc123\nthe rest` })
+
+    expect(extractions[0]).toContain('the rest')
+    expect(extractions[0]).not.toContain('abc123')
+  })
+
+  test('sends edits to secret files nowhere, and removes secrets from other edits', async ($, on) => {
+    const requests = engine(on, () => ({ classification: 'requested' }))
+
+    await $.turn.start({ text: 'add the key', turnId: 't1' })
+    await $.tool.call({ tool: 'Write', file_path: '/w/.env', content: 'lower_key=abc123' })
+    await $.tool.call({ tool: 'Write', file_path: '/w/config.ts', content: 'const apiKey = "def456"\nexport {}' })
+    await $.classic.Stop({ stop_hook_active: false })
+
+    expect(requests[0]?.texts).toEqual(['/w/config.ts\n+++ after\nexport {}'])
   })
 })
