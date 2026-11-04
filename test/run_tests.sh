@@ -45,6 +45,7 @@ mkdir -p "$STOW_TEST_HOME/.agents/skills/show-me" "$STOW_TEST_HOME/.claude/skill
 touch "$STOW_TEST_HOME/.agents/skills/show-me/SKILL.md"
 ln -s "$DOTFILES_DIR/stow/agents/.agents/skills/sol-loop" "$STOW_TEST_HOME/.claude/skills/sol-loop"
 printf '%s\n' '# existing Bash config' >"$STOW_TEST_HOME/.bashrc"
+printf '%s\n' '{}' >"$STOW_TEST_HOME/.claude/settings.json"
 mkdir -p "$STOW_TEST_HOME/.pi/agent"
 printf '%s\n' '{"startupNoticeShown": "2026-01-01"}' >"$STOW_TEST_HOME/.pi/agent/claude-bridge.json"
 ln -s "$(command -v stow)" "$STOW_TEST_BIN/stow"
@@ -61,9 +62,9 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.config/rex/init.lua" ] \
-    && [ ! -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
-    && [ -f "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
-    && [ -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
+    && [ ! -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
+    && [ -f "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
+    && [ -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
     && cmp "$STOW_TEST_HOME/.claude/AGENTS.md" "$STOW_TEST_HOME/.pi/agent/AGENTS.md" \
@@ -72,11 +73,15 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/hooks/block-dangerous-bash.sh" ] \
     && cmp "$STOW_TEST_HOME/.claude/hooks/block-dangerous-bash.sh" "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" \
     && [ ! -L "$STOW_TEST_HOME/.claude/skills/herdr/SKILL.md" ] \
+    && [ -L "$STOW_TEST_HOME/.claude/keybindings.json" ] \
+    && [ ! -e "$STOW_TEST_HOME/.claude/mcp.json" ] \
+    && [ ! -e "$STOW_TEST_HOME/mcp.json" ] \
+    && find "$STOW_TEST_HOME/.claude" -maxdepth 1 -name 'settings.json.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
-    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/sol-loop")" = "$DOTFILES_DIR/stow/opencode/skills/sol-loop" ] \
+    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/sol-loop")" = "$DOTFILES_DIR/stow/claude/skills/sol-loop" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Bash Stow profile is idempotent"
 else

@@ -93,6 +93,17 @@ describe('register', () => {
     expect(ran.context).toHaveLength(1)
   })
 
+  test('screens the claude.ai Exa connector', async ($, on) => {
+    const screens: string[] = []
+    engine(on, 'page', screens, () => screened('block', 0.9))
+
+    for (const tool of ['web_fetch_exa', 'web_search_exa', 'agent_run']) {
+      expect((await $.tool.call({ tool: `mcp__claude_ai_Exa__${tool}`, query: 'docs' })).isError).toBe(true)
+    }
+
+    expect(screens).toHaveLength(3)
+  })
+
   test('withholds malformed judgments', async ($, on) => {
     engine(on, 'page', [], () => screened('invalid-action', 0.1))
     const malformed = await $.tool.call({ tool: FETCH, urls: ['https://example.com'] })

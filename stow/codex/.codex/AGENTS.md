@@ -1,1 +1,1 @@
-../../opencode/.config/opencode/AGENTS.md
+../../claude/.claude/AGENTS.md

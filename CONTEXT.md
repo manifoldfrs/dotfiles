@@ -38,8 +38,13 @@ _Avoid_: Package, live configuration
 
 ## Agent configuration
 
+**Primary harness**:
+Claude Code, which owns the canonical global agent rules, shared skill catalog, and MCP definitions.
+OpenCode is the second harness, kept for non-Claude models.
+_Avoid_: Default agent
+
 **Shared skill catalog**:
-The tracked set of agent skills made available to supported harnesses from one canonical source tree, `stow/opencode/skills/`.
+The tracked set of agent skills made available to supported harnesses from one canonical source tree, `stow/claude/skills/`.
 _Avoid_: Claude skills, Pi skills
 
 **Baseline catalog**:
@@ -66,7 +71,7 @@ _Avoid_: Skill copy
 
 **Global agent rules**:
 User-scoped instructions shared across repositories and imported by supported coding-agent harnesses.
-The canonical tracked file is `stow/opencode/.config/opencode/AGENTS.md`; the Claude, Codex, and Pi Stow packages expose it through relative symlinks.
+The canonical tracked file is `stow/claude/.claude/AGENTS.md`; the OpenCode, Codex, and Pi Stow packages expose it through relative symlinks.
 _Avoid_: Project rules
 
 **Project rules**:

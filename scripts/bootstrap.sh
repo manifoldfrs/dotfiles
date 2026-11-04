@@ -280,10 +280,11 @@ main() {
     info "Bootstrapping development environment..."
     install_homebrew
     install_brewfile
-    install_opencode
     install_claude_code
     install_claude_chrome_host_for_helium
+    install_opencode
     apply_dotfiles
+    bash "$DOTFILES_DIR/mcp_setup.sh" install-claude || warn "Claude Code MCP setup failed; rerun: ./mcp_setup.sh install-claude"
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
     configure_bash_login_shell
     sync_neovim_plugins

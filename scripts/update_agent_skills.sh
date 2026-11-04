@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Compare or sync the tracked global Pi skills with Matt Pocock and dmmulroy.
+# Compare or sync the tracked global skills with Matt Pocock and dmmulroy.
 # Usage: ./scripts/update_agent_skills.sh [--check|--review|--sync]
 
 set -euo pipefail
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-DEST="$DOTFILES_DIR/stow/opencode/skills"
+DEST="$DOTFILES_DIR/stow/claude/skills"
 MANIFEST_NAME=".skill-sources.tsv"
 MATT_REPO="https://github.com/mattpocock/skills.git"
 DMMULROY_REPO="https://github.com/dmmulroy/.dotfiles.git"

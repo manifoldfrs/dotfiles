@@ -6,7 +6,7 @@ Model Context Protocol (MCP) server configurations for AI coding assistants.
 
 | Tool | Config File |
 |------|-------------|
-| **Claude Code** | `~/.claude.json` (machine-local registrations imported from Pi) |
+| **Claude Code** | `~/.claude.json` (machine-local registrations imported from `stow/claude/mcp.json`) |
 | **Codex** | `~/.codex/config.toml` → `stow/codex/.codex/config.toml` |
 | **Pi** | `~/.pi/agent/mcp.json` → `stow/pi/.pi/agent/mcp.json` |
 
@@ -25,14 +25,13 @@ cd ~/dotfiles
 
 ### Claude Code
 
-After approving the live configuration change, register the seven servers from Pi's tracked MCP config:
+After approving the live configuration change, register the seven servers from `stow/claude/mcp.json`:
 
 ```bash
 ./mcp_setup.sh install-claude
 claude mcp list
 ```
 
-The import removes Pi-only `exposure` and `timeout` fields and sets `type: "stdio"` for command servers.
 It preserves `${ENV_VAR}` placeholders; real credentials stay in the shell environment, not in tracked files.
 Registrations are user-scoped and unrelated Claude account connectors are left alone.
 Re-running skips identical registrations.

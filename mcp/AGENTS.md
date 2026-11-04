@@ -41,7 +41,7 @@ rg 'command' mcp/*.example
 
 ## Common Gotchas
 - Restart Codex after `./mcp_setup.sh install`
-- `install-claude` imports Pi's definitions into user-scoped Claude registrations, skips identical entries, and refuses conflicting entries.
+- `install-claude` imports `stow/claude/mcp.json` into user-scoped Claude registrations, skips identical entries, and refuses conflicting entries.
 - Restart Claude Code after importing MCP definitions.
 - Run `/reload` or restart Pi after Stowing `stow/pi/.pi/agent/mcp.json`
 - TOML syntax is strict; keep `command` arrays

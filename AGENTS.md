@@ -31,7 +31,8 @@ Agent behavior:
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
-- `stow/opencode/` - OpenCode 2 config, the primary agent harness, and the canonical global AGENTS.md
+- `stow/claude/` - Claude Code config, the primary agent harness, with the canonical global AGENTS.md, shared skills (`skills/`), and MCP servers (`mcp.json`)
+- `stow/opencode/` - OpenCode 2 config, the second harness, for non-Claude models
 - `stow/rex/` - Rex config (`init.lua` and the Lua files it requires); Rex is the default terminal and Ghostty the fallback
 - `server/rex/` - files the Rex login server setup installs under `/etc` (not stowed)
 - `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files

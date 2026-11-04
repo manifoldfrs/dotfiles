@@ -213,7 +213,11 @@ export const register: Register = on => {
 
     const sections = await Promise.all([
       edits.length
-        ? review($).catch(() => 'Automatic Jev edit-scope audit failed. Do not claim it passed; perform the normal final review and completion gate.')
+        ? review($).catch(cause => {
+            $.ui.log(`Jev edit-scope audit failed: ${cause instanceof Error ? cause.message : String(cause)}`)
+
+            return 'Automatic Jev edit-scope audit failed. Do not claim it passed; perform the normal final review and completion gate.'
+          })
         : undefined,
       checksAnswer ? checkAnswer($, answer) : undefined,
     ])
