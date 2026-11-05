@@ -77,7 +77,16 @@ LOCK_BEFORE="$(checksum_file "$LOCKFILE")"
 SANDBOX_DIR="$(mktemp -d "${TMPDIR:-/tmp}/nvim-sandbox.XXXXXX")"
 SNAPSHOT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/nvim-snapshot.XXXXXX")"
 SNAPSHOT_FILE="$SNAPSHOT_DIR/nvim-config-snapshot.tgz"
-trap 'rm -rf "$SANDBOX_DIR" "$SNAPSHOT_DIR"' EXIT
+# Background parser installs can outlive nvim and keep writing here, so retry without failing a passed run.
+cleanup() {
+  local attempt
+  for attempt in 1 2 3 4 5; do
+    rm -rf "$SANDBOX_DIR" "$SNAPSHOT_DIR" 2>/dev/null && return 0
+    sleep 1
+  done
+  return 0
+}
+trap cleanup EXIT
 
 tar -czf "$SNAPSHOT_FILE" -C "$ROOT_DIR/stow/nvim/.config" nvim
 

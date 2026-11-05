@@ -1,1 +1,5 @@
-{ "name": "bold-color", "version": "0.1.0", "description": "Draw bold reply text in Ayu blue" }
+{
+  "name": "bold-color",
+  "version": "0.1.0",
+  "description": "Draw bold reply text in Ayu blue"
+}

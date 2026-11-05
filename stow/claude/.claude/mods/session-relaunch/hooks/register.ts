@@ -27,13 +27,6 @@ async function relaunch($: EngineInterface, summary?: string) {
 }
 
 export const register: Register = on => {
-  on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'update', description: 'Update Claude Code, then resume this session on the new version' })
-    await $.command.register({ name: 'restart', description: 'Restart Claude Code and resume this session' })
-
-    return next(e)
-  })
-
   on('command.run', { command: 'update' }, async $ => {
     const { version: running } = await $.session.version()
     const update = await $.process.run(['claude', 'update'], { timeoutMs: 180_000 })
