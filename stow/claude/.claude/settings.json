@@ -123,6 +123,7 @@
     }
   },
   "autoUpdatesChannel": "latest",
+  "tui": "fullscreen",
   "channelsEnabled": false,
   "timeFormat": "24-hour-utc",
   "skipDangerousModePermissionPrompt": true,
@@ -166,6 +167,5 @@
       "**Org-specific CLIs**: None configured",
       "routine under joinopto/opto2 prefix: git and bundle/rails operations scoped to this trusted repo and its origin remote"
     ]
-  },
-  "tui": "fullscreen"
+  }
 }
