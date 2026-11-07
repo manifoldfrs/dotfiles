@@ -42,6 +42,9 @@
     "../stow/pi/.pi/agent/extensions/skills-manual/*.ts",
     "../stow/pi/.pi/agent/extensions/claude-style-ui/*.ts",
     "../stow/pi/.pi/agent/extensions/inline-skills/*.ts",
-    "../stow/pi/.pi/agent/extensions/skill-toast/*.ts"
+    "../stow/pi/.pi/agent/extensions/skill-toast/*.ts",
+    "../stow/pi/.pi/agent/extensions/pi-cloak/*.ts",
+    "../stow/pi/.pi/agent/extensions/save-md/index.ts",
+    "./pi_save_md_test.mts"
   ]
 }

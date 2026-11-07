@@ -1,0 +1,45 @@
+{
+  "enabled": true,
+  "cloakCharacter": "*",
+  "cloakLength": null,
+  "tryAllPatterns": true,
+  "patterns": [
+    {
+      "filePattern": [
+        "**/*.env*",
+        "**/*.vars*"
+      ],
+      "cloakPattern": "(=).+",
+      "replace": "$1"
+    },
+    {
+      "filePattern": [
+        "**/.config/bash/local.bash",
+        "**/secrets.bash"
+      ],
+      "cloakPattern": "((?:export\\s+)?[A-Za-z_][A-Za-z0-9_]*=).+",
+      "replace": "$1"
+    },
+    {
+      "filePattern": "**/config.toml",
+      "cloakPattern": "(token\\s*=\\s*).+",
+      "replace": "$1"
+    },
+    {
+      "filePattern": [
+        "**/.pi/agent/auth.json",
+        "**/.pi/agent/mcp-auth.json",
+        "**/hey-cli/credentials.json",
+        "**/.codex/auth.json",
+        "**/auth.json",
+        "**/credentials.json"
+      ],
+      "cloakPattern": [
+        {
+          "pattern": "(\\\"(?:token|access|refresh|accessToken|refreshToken|access_token|refresh_token|apiKey|api_key|secret|password|clientSecret|client_secret|idToken|id_token|sessionToken|authorization)\\\"\\s*:\\s*\\\")[^\\\"]+",
+          "replace": "$1"
+        }
+      ]
+    }
+  ]
+}

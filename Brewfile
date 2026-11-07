@@ -73,6 +73,7 @@ cask "font-jetbrains-mono-nerd-font"
 cask "font-meslo-lg-nerd-font"
 cask "ghostty"
 cask "basecamp/tap/hey"
+cask "cuadriver"
 cask "notunes"
 
 # ngrok - install separately with: brew install ngrok/ngrok/ngrok

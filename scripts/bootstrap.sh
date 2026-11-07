@@ -213,6 +213,16 @@ install_pi() {
     bun add -g @earendil-works/pi-coding-agent || warn "Pi installation failed"
 }
 
+# cua-driver installs its version-matched skill itself and links it into ~/.agents/skills and ~/.claude/skills.
+install_cua_driver_skill() {
+    if ! command -v cua-driver &> /dev/null; then
+        return
+    fi
+
+    cua-driver telemetry disable > /dev/null 2>&1 || warn "Could not disable cua-driver telemetry"
+    cua-driver skills install || warn "cua-driver skill installation failed; rerun: cua-driver skills install"
+}
+
 install_opencode() {
     local version
 
@@ -307,6 +317,7 @@ main() {
     install_npm_globals
     install_global_anti_slop
     install_plannotator
+    install_cua_driver_skill
     setup_rex_agents
 
     echo ""

@@ -357,6 +357,9 @@ Claude Code only loads mod files whose real path is inside the mod, so the mod's
 The `bold-color` mod draws bold reply text in Tokyo Night blue.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
 Pi's `claude-style-ui` extension does both, shows known skills typed as `/name` in blue with a menu of matching skills anywhere in the prompt, and its footer shows session cost per model like Claude Code's `model-cost` status line.
+Pi's `pi-cloak` extension masks secret values (`.env`, `.vars`, `local.bash`, auth and credential files) in files Pi's `read` tool returns, using the rules in `stow/pi/.pi/agent/cloak.json`; `/cloak-status` shows them, and a shell `cat` is not covered.
+`/save-md name` saves the last reply as `name.md`; both extensions are adapted from Dillon Mulroy's dotfiles.
+`cua-driver` (Brewfile cask) lets Pi drive native Mac apps through its own skill; grant it Accessibility and Screen Recording with `cua-driver permissions grant`.
 Pi's `skill-toast` and `inline-skills` extensions notify when a skill loads, and `/update` and `/restart` resume the session through the `pi` shell function, as Claude Code's `session-relaunch` mod does.
 The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` is the thin OpenCode side of the same checks.
 OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.

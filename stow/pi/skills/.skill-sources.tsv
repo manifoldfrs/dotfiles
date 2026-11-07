@@ -40,6 +40,7 @@ plain-english	local
 plannotator-annotate	excluded
 plannotator-last	excluded
 plannotator-review	excluded
+plannotator-tui	dmmulroy
 pr	local
 prototype	excluded
 prove	local
