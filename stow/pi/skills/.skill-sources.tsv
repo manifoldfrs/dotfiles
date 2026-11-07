@@ -16,10 +16,11 @@ coding-standards-swift	local
 coding-standards-ts	local
 correct	local
 council	excluded
+cua-driver	excluded
 decision-models	dmmulroy
 diagnosing-bugs	local
 dig	local
-domain-modeling	matt
+domain-modeling	local
 explain-diff	local
 explain-video	local
 frontend-design	local
@@ -32,6 +33,7 @@ grilling	excluded
 handoff	local
 herdr	local
 implement	excluded
+implement-spec	excluded
 improve-codebase-architecture	excluded
 jev	local
 learn-visually	excluded
@@ -48,6 +50,8 @@ prove	local
 quiz-me	local
 recipe-diagrams	excluded
 research	local
+retro	matt
+rex	excluded
 setup-matt-pocock-skills	excluded
 show-me	local
 sketch	local
