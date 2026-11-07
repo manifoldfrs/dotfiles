@@ -1,8 +1,8 @@
 {
   "lastChangelogVersion": "1.5.0",
   "theme": "tokyonight-frsh",
-  "defaultProvider": "openai",
-  "defaultModel": "gpt-6.1-sol-ultrafast",
+  "defaultProvider": "pi-claude-cli",
+  "defaultModel": "claude-opus-5-5",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": true,
   "quietStartup": "header",
