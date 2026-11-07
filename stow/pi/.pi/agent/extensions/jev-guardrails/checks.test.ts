@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { registerJevChecks } from "./index.ts";
+import { registerJevChecks } from "./checks.ts";
 import { listOf, objectOf, parseJson, textOf, type Json, type JsonObject } from "./shared.ts";
 
 type JevCall = { tool: string; args: JsonObject };
