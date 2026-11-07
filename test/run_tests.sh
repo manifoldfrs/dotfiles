@@ -18,6 +18,7 @@ for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh scripts/rex
     stow/bash/.config/bash/environment.bash \
     stow/bash/.config/bash/functions.bash \
     stow/bin/.local/bin/rex-annotate \
+    stow/bin/.local/bin/agentbox-auth \
     stow/pi/.pi/agent/guardrails/block-dangerous-bash.sh \
     stow/pi/.pi/agent/guardrails/block-generated-edits.sh mcp_setup.sh scripts/harness_sync.sh; do
     bash -n "$script"

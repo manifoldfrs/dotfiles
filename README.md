@@ -89,7 +89,7 @@ stow/                  Stow packages, each mirroring $HOME
   ghostty/             Fallback terminal config
   herdr/               Herdr config, plugin list, Plannotator TUI config
   nvim/                Neovim config (see stow/nvim/AGENTS.md)
-  bin/                 ~/.local/bin tools
+  bin/                 ~/.local/bin tools, including agentbox-auth for finishing agentbox sign-ins from the Mac
   pi/                  Pi settings, MCP servers, models, themes, extensions/, the shared guardrail scripts in guardrails/, and the shared global AGENTS.md and skills/
   claude/              Claude Code settings, keybindings, theme, status line, mods/; links AGENTS.md and hooks to pi/
   opencode/            OpenCode config, CLI settings, MCP servers, plugins/ (Jev checks, xai_search, guardrails), tui-plugins/, and generated commands/ for /<skill>; links AGENTS.md to pi/
@@ -208,6 +208,12 @@ In the Rex app, choose **Add Remote Host…** with URL `http://100.82.139.102:72
 - Use agentbox's Tailscale IPv4 address, not its `ts.net` name: the name also resolves to IPv6, and panes then hang on "Opening terminal…" ([Rex bug](https://discord.com/channels/1546797889009881158/1564343288335564820)).
 - The app needs Rex for Mac preview.21 or newer to connect to a plain-HTTP tailnet address; older builds show the host as Disconnected.
 - If agentbox is ever removed from and re-added to the tailnet, its IP can change; update `init.lua` and the app's host to match.
+
+#### Signing in from agentbox
+
+Logins on agentbox (Pi's `/login` and `pi mcp login`, `hey auth login`, Codex, Claude Code, OpenCode's MCP sign-in) send the browser back to `http://127.0.0.1:<port>/...`, which on the Mac reaches nothing.
+Approve in the Mac browser as usual, copy the failed address from its address bar, and run `agentbox-auth`: it reads the clipboard and requests that address on agentbox, where the login is waiting.
+It works with any tool and port, so no SSH tunnel is needed; Pi also accepts the address pasted into its own sign-in prompt.
 
 #### Daily use (on the Mac)
 

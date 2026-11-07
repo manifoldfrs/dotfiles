@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+# Finish an OAuth sign-in started on a remote host whose callback went to this Mac's localhost.
+# After approving in the browser, copy the failed http://127.0.0.1:<port>/... address and run this;
+# it requests that address on the remote host, where the waiting login listens.
+# Usage: agentbox-auth [callback-url] [host]   (url defaults to the clipboard, host to agentbox)
+
+url="${1:-$(pbpaste 2>/dev/null)}"
+host="${2:-agentbox}"
+url="${url//[$'\t\r\n ']/}"
+
+if [[ ! $url =~ ^http://(127\.0\.0\.1|localhost|\[::1\]):[0-9]+/ ]]; then
+    printf 'agentbox-auth: expected a http://127.0.0.1:<port>/... callback address, from the argument or the clipboard\n' >&2
+    exit 1
+fi
+
+# The address carries a one-time code, so it travels on stdin rather than in the remote command line.
+if ! status="$(printf '%s\n' "$url" | ssh "$host" 'read -r url; curl -sS -o /dev/null -w "%{http_code}" "$url"' 2>&1)"; then
+    printf 'agentbox-auth: could not reach the login on %s: %s\n' "$host" "$status" >&2
+    exit 1
+fi
+
+if [[ $status != 2* && $status != 3* ]]; then
+    printf 'agentbox-auth: the login on %s answered HTTP %s; it may have timed out, so start it again\n' "$host" "$status" >&2
+    exit 1
+fi
+
+printf 'Delivered the sign-in to %s (HTTP %s).\n' "$host" "$status"
