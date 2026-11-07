@@ -1,9 +1,9 @@
 import { describe, expect, mock, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
-import type { Json } from './json.ts'
+import type { Json } from './jev-shared.ts'
 
-const TOOL = 'mcp__jev-pipeline__run'
+const TOOL = 'mcp__jev-checks__run'
 
 function mcpText(value: Json | undefined) {
   return { value: { content: [{ type: 'text' as const, text: JSON.stringify(value) }], isError: false } }
@@ -25,7 +25,7 @@ const COMMENTS = new Map<string, Json>([
 
 function engine(on: On, files: Map<string, string>, calls: { tool: string; args: any }[]) {
   on('session.start', ($, e) => ({ cwd: e.cwd }))
-  on('tool.register', ($, e) => ({ value: { tool: `mcp__jev-pipeline__${e.name}` } }))
+  on('tool.register', ($, e) => ({ value: { tool: `mcp__jev-checks__${e.name}` } }))
   on('session.id', () => ({ value: 's1' }))
   mock.env(on, { TMPDIR: '/tmp/x/' })
   mock.clock(on, { now: 42 })

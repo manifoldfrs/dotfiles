@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
-import type { Json } from './json.ts'
+import type { Json } from './jev-shared.ts'
 
 type Verdict = { classification: string; decision?: string }
 
@@ -54,7 +54,7 @@ describe('register', () => {
       [
         'Jev classified edits from this turn as outside the request:',
         '- /w/debug.ts (leftover, p=0.9): console.log("here")',
-        'For each one, revert it or tell the user why it was needed, then finish.',
+        'For each one, revert it or tell the user why it was needed, then finish. Write your reply for someone who has not read this message.',
       ].join('\n'),
     )
     expect(again.block).toBeUndefined()

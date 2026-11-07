@@ -50,7 +50,7 @@ Use normal shell commands for validation, tests, package commands, and write-sid
   Routine choices fixed by existing conventions do not need another judgment.
 - When choosing, ranking, or labeling items by meaning, use `jev_find`, `jev_rerank`, or `jev_classify` instead of judging by eye; use rg when an exact pattern decides it.
 - Reuse completed judgments while their evidence, questions, and scope remain unchanged; rerun when those inputs change.
-- Judge many records from an MCP tool with the Jev pipeline so the records stay out of context: `mcp__jev-pipeline__run` in Claude Code, `jev_pipeline` in OpenCode.
+- Judge many records from an MCP tool with the Jev pipeline so the records stay out of context: `mcp__jev-checks__run` in Claude Code, `jev_pipeline` in OpenCode.
 
 ## Implementation Rules
 

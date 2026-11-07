@@ -1,63 +1,71 @@
 import { Plugin } from "@opencode/plugin"
 import { Option } from "effect"
-import { MIN_ANSWER_CHARS, evidenceSource, hasJson, reviewAnswer, type Evidence } from "./answer.ts"
-import { decodeToolInput, errorMessage, isJevTool, logFailure, resultText, toolCaller, type CallIdentity, type Context, type Generate, type Json } from "./jev.ts"
-import { PIPELINE_DESCRIPTION, PIPELINE_INPUT, PIPELINE_TOOL, decodePipelineInput, runPipeline } from "./pipeline-tool.ts"
-import { DECISION_REMINDER, editOf, reviewScope, type CodeEdit } from "./scope.ts"
+import { decodeToolInput, isJevTool, jevCaller, logFailure, logNote, resultText, toolCaller, type CallIdentity, type Context } from "./jev.ts"
+import { PIPELINE_INPUT, PIPELINE_TOOL, runPipelineTool } from "./pipeline-tool.ts"
+import { editOf } from "./scope.ts"
 import { isScreened, isSentLink, screenResult, withWarning } from "./screen.ts"
+import { DECISION_REMINDER, MAX_EVIDENCE, PIPELINE_DESCRIPTION, RECENT_PROMPTS, errorText, isSecretFile, reviewTurn, toolEvidence, type CodeEdit, type Evidence, type Generate, type Json, type TurnReview } from "./shared.ts"
 
 // Send-backs start with this marker so the prompt hook does not treat them as a new user turn.
 const SEND_BACK = "[jev]"
 
-const RECENT_PROMPTS = 3
+// The model reads text and the person reads description, so a note for the person needs placeholder text the model can pass over.
+const PERSON_ONLY = `${SEND_BACK} A note was shown to the user. It needs no reply.`
 
-const MAX_EVIDENCE = 40
+// OpenCode runs anything sent during the idle hook, even with resume false, so a note must arrive after the session is idle.
+const NOTE_DELAY_MS = 250
 
-const INPUT_CHARS = 500
+const MAX_SESSIONS = 50
 
-// earlier holds recent turns' tool output, since answers often recap work from before the latest prompt.
+type SessionMessage = Awaited<ReturnType<Context["session"]["context"]>>[number]
+
+type SessionID = Parameters<Context["session"]["get"]>[0]["sessionID"]
+
 type Turn = {
+  mainSession: SessionID | undefined
   prompts: string[]
   edits: CodeEdit[]
   evidence: Evidence[]
-  earlier: Evidence[]
+  notes: string[]
   seq: number
   lastCall: CallIdentity | undefined
+  ranTool: boolean
   reminded: boolean
   checked: boolean
 }
 
-type SessionMessage = Awaited<ReturnType<Context["session"]["context"]>>[number]
-
-// One server hosts every session, so turn state is keyed by session. It resets on plugin reload, losing at most a turn in flight.
+// One server hosts every session for days, so turn state is keyed by session and only the most recently used are kept.
 const turns = new Map<string, Turn>()
+
+function forgetOldestSession() {
+  const oldest = turns.keys().next()
+
+  if (!oldest.done) turns.delete(oldest.value)
+}
 
 function turnOf(sessionID: string) {
   const existing = turns.get(sessionID)
 
-  if (existing) return existing
+  if (existing) {
+    turns.delete(sessionID)
+    turns.set(sessionID, existing)
 
-  const turn: Turn = { prompts: [], edits: [], evidence: [], earlier: [], seq: 0, lastCall: undefined, reminded: false, checked: false }
+    return existing
+  }
+
+  const turn: Turn = { mainSession: undefined, prompts: [], edits: [], evidence: [], notes: [], seq: 0, lastCall: undefined, ranTool: false, reminded: false, checked: false }
 
   turns.set(sessionID, turn)
+
+  if (turns.size > MAX_SESSIONS) forgetOldestSession()
 
   return turn
 }
 
-// The call's input is evidence too: answers report which command ran or which file was read.
-function evidenceOf(turn: Turn, tool: string, input: Json, output: string): Evidence {
-  const args = JSON.stringify(input).slice(0, INPUT_CHARS)
-  const source = evidenceSource(tool, input)
-
+function recordEvidence(turn: Turn, tool: string, input: Json, output: string) {
   turn.seq += 1
-
-  return { id: `${turn.seq}:${tool}`, text: `${tool} input: ${args}\n${output}`, ...(source && { source }) }
-}
-
-function requestEvidence(turn: Turn): Evidence[] {
-  const request = turn.prompts.at(-1)
-
-  return request ? [{ id: "user-request", text: `The user's request. It shows what was asked, not what is true:\n${request}` }] : []
+  turn.ranTool = true
+  turn.evidence = [...turn.evidence, toolEvidence(turn.seq, tool, JSON.stringify(input), output)].slice(-MAX_EVIDENCE)
 }
 
 function answerText(message: SessionMessage) {
@@ -66,47 +74,56 @@ function answerText(message: SessionMessage) {
   return message.content.flatMap(part => (part.type === "text" ? [part.text] : [])).join("\n")
 }
 
-async function failure(check: string, cause: unknown, instruction: string) {
-  await logFailure(check, cause)
+// A subagent runs in a child session: its prompt and output are the agent's, but its edits belong to the main turn.
+async function mainSessionOf(ctx: Context, sessionID: SessionID): Promise<SessionID | undefined> {
+  const turn = turnOf(sessionID)
 
-  return `Automatic Jev ${check} failed (${errorMessage(cause)}). ${instruction}`
+  if (turn.mainSession) return turn.mainSession
+
+  try {
+    const { parentID } = await ctx.session.get({ sessionID })
+
+    turn.mainSession = parentID === undefined ? sessionID : await mainSessionOf(ctx, parentID)
+
+    return turn.mainSession
+  } catch (cause) {
+    await logFailure("session lookup", cause)
+
+    return undefined
+  }
 }
 
-// A subagent's prompt comes from the agent, so its links are not the user's.
-async function isMainSession(ctx: Context, sessionID: string) {
-  const session = await ctx.session.get({ sessionID }).catch(() => undefined)
-
-  return session !== undefined && session.parentID === undefined
+// Stateless like Claude Code's model call: with the session in view, a claim the user asked for reads as coming from them and goes unchecked.
+function statelessGenerate(ctx: Context): Generate {
+  return async prompt => (await ctx.experimental.generate.text({ prompt })).text
 }
 
-function sessionGenerate(ctx: Context, sessionID: string): Generate {
-  return async prompt => (await ctx.session.generate({ sessionID, prompt })).text
-}
-
-async function checkTurn(ctx: Context, sessionID: string, turn: Turn, identity: CallIdentity) {
+async function reviewFinishedTurn(ctx: Context, sessionID: SessionID, turn: Turn, identity: CallIdentity): Promise<TurnReview> {
   const messages = await ctx.session.context({ sessionID })
   const last = messages.findLast(message => message.type === "assistant")
 
-  if (!last) return undefined
+  if (!last) return { agent: undefined, person: [] }
 
-  const answer = answerText(last)
-  const tools = toolCaller(ctx, identity)
-  const checkAnswer = turn.evidence.length > 0 && (answer.length >= MIN_ANSWER_CHARS || hasJson(answer))
+  const { prompts, edits, evidence, ranTool } = turn
+  const callJev = jevCaller(toolCaller(ctx, identity))
 
-  const sections = await Promise.all([
-    turn.edits.length
-      ? reviewScope(tools, turn.prompts, turn.edits).catch(cause =>
-          failure("edit-scope audit", cause, "Do not claim it passed; perform the normal final review and completion gate."))
-      : undefined,
-    checkAnswer
-      ? reviewAnswer(tools, sessionGenerate(ctx, sessionID), answer, [...requestEvidence(turn), ...turn.earlier, ...turn.evidence]).catch(cause =>
-          failure("answer check", cause, "Do not claim your answer was verified; check its claims against the tool output yourself."))
-      : undefined,
-  ])
+  return reviewTurn(callJev, statelessGenerate(ctx), { prompts, edits, answer: answerText(last), evidence, ranTool })
+}
 
-  const flagged = sections.flatMap(section => (section ? [section] : []))
+async function deliver(ctx: Context, sessionID: SessionID, review: TurnReview) {
+  const description = review.person.join("\n\n")
 
-  return flagged.length ? flagged.join("\n\n") : undefined
+  if (review.agent) {
+    await ctx.session.synthetic({ sessionID, text: `${SEND_BACK} ${review.agent}`, ...(description && { description }) })
+
+    return
+  }
+
+  if (!description) return
+
+  setTimeout(() => {
+    ctx.session.synthetic({ sessionID, text: PERSON_ONLY, description, resume: false }).catch(cause => logFailure("showing a note", cause))
+  }, NOTE_DELAY_MS)
 }
 
 export default Plugin.define({
@@ -119,8 +136,7 @@ export default Plugin.define({
 
       turn.prompts = [...turn.prompts, e.prompt.text].slice(-RECENT_PROMPTS)
       turn.edits = []
-      turn.earlier = [...turn.earlier, ...turn.evidence].slice(-MAX_EVIDENCE)
-      turn.evidence = []
+      turn.ranTool = false
       turn.reminded = false
       turn.checked = false
     })
@@ -131,32 +147,42 @@ export default Plugin.define({
       const turn = turnOf(e.sessionID)
       const identity: CallIdentity = { sessionID: e.sessionID, agent: e.agent, messageID: e.messageID, id: e.id }
       const input = Option.getOrElse(decodeToolInput(e.input), (): Json => null)
+      const secret = input === null || isSecretFile(JSON.stringify(input))
+      const main = await mainSessionOf(ctx, e.sessionID)
+      const inChildSession = main !== undefined && main !== e.sessionID
+      const mainTurn = main === undefined ? turn : turnOf(main)
 
       turn.lastCall = identity
 
       if (e.status === "error") {
-        turn.evidence = [...turn.evidence, evidenceOf(turn, e.tool, input, `Error: ${e.error.message}`)].slice(-MAX_EVIDENCE)
+        if (!secret && !inChildSession) recordEvidence(turn, e.tool, input, `Error: ${e.error.message}`)
 
         return
       }
 
       if (isScreened(e.tool, input)) {
-        const sentByUser = isSentLink(e.tool, input, turn.prompts) && await isMainSession(ctx, e.sessionID)
+        const sentByUser = main === e.sessionID && isSentLink(e.tool, input, turn.prompts)
 
-        e.result = await screenResult(toolCaller(ctx, identity), e.result, sentByUser)
+        const showNote = async (note: string) => {
+          await logNote(note)
+          mainTurn.notes.push(note)
+        }
+
+        e.result = await screenResult(jevCaller(toolCaller(ctx, identity)), showNote, e.result, { sentByUser, secret })
       }
 
-      turn.evidence = [...turn.evidence, evidenceOf(turn, e.tool, input, resultText(e.result))].slice(-MAX_EVIDENCE)
+      if (!secret && !inChildSession) recordEvidence(turn, e.tool, input, resultText(e.result))
 
       const edit = editOf(e.tool, input)
 
-      if (!edit) return
+      // A patch can touch any file, and only its input names them.
+      if (!edit || isSecretFile(edit.file) || (e.tool === "patch" && secret)) return
 
-      turn.edits.push(edit)
+      mainTurn.edits.push(edit)
 
-      if (turn.reminded) return
+      if (mainTurn.reminded) return
 
-      turn.reminded = true
+      mainTurn.reminded = true
       e.result = withWarning(e.result, DECISION_REMINDER)
     })
 
@@ -166,14 +192,24 @@ export default Plugin.define({
 
       const turn = turns.get(e.sessionID)
 
-      // A turn with edits or evidence ran a tool, so lastCall carries the IDs the check's own tool calls report under.
-      if (!turn?.lastCall || turn.checked || (!turn.edits.length && !turn.evidence.length)) return
+      // lastCall carries the IDs the check's own tool calls report under, so a turn without one ran no tool to check.
+      if (!turn?.lastCall || turn.checked) return
+
+      const main = await mainSessionOf(ctx, e.sessionID)
+
+      // A failed lookup proves nothing about the session, so the turn is still checked.
+      if (main !== undefined && main !== e.sessionID) return
 
       turn.checked = true
 
-      const text = await checkTurn(ctx, e.sessionID, turn, turn.lastCall)
+      const review = await reviewFinishedTurn(ctx, e.sessionID, turn, turn.lastCall).catch((cause): TurnReview => ({
+        agent: undefined,
+        person: [`Jev answer check did not run: ${errorText(cause)}`],
+      }))
 
-      if (text) await ctx.session.synthetic({ sessionID: e.sessionID, text: `${SEND_BACK} ${text}` })
+      await deliver(ctx, e.sessionID, { agent: review.agent, person: [...review.person, ...turn.notes] })
+
+      turn.notes = []
     })
 
     await ctx.tool.transform(editor => {
@@ -186,9 +222,11 @@ export default Plugin.define({
           const identity: CallIdentity = { sessionID: context.sessionID, agent: context.agent, messageID: context.messageID, id: context.id }
 
           try {
-            return { content: JSON.stringify(await runPipeline(toolCaller(ctx, identity), context.sessionID, decodePipelineInput(input))) }
+            const json = Option.getOrElse(decodeToolInput(input), (): Json => null)
+
+            return { content: JSON.stringify(await runPipelineTool(toolCaller(ctx, identity), context.sessionID, json)) }
           } catch (cause) {
-            throw new Error(`jev-pipeline failed: ${errorMessage(cause)}`)
+            throw new Error(`jev-pipeline failed: ${errorText(cause)}`)
           }
         },
       })

@@ -331,10 +331,11 @@ The same script writes one OpenCode command per skill under `stow/opencode/.conf
 ./scripts/skill_catalog.sh                 # regenerate docs/skills.md and OpenCode skill commands (validate-dotfiles.sh checks both)
 ```
 
-Claude Code's `jev-*` mods in `stow/claude/.claude/mods/` screen web results, audit edit scope, and fact-check answers; test one with `claude plugin test <mod folder>`.
+Claude Code's `jev-checks` mod in `stow/claude/.claude/mods/` screens web results, audits edit scope, and fact-checks answers; test it with `claude plugin test <mod folder>`.
+Its `hooks/jev-shared.ts` holds the Jev logic for Claude Code and OpenCode, and the OpenCode plugin imports that file directly, because Claude Code refuses imports from outside a mod's folder.
 The `bold-color` mod draws bold reply text in Ayu blue against the amber default text from the `ayu-farish` terminal theme.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
-The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` does the same in OpenCode.
+The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` is the thin OpenCode side of the same checks.
 OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.
 
 ```bash
@@ -374,7 +375,7 @@ Two things worth knowing:
 Claude Code's hooks in `stow/claude/.claude/hooks/` block dangerous shell commands and hand edits to generated files.
 Codex runs the same scripts through symlinks in `stow/codex/.codex/hooks/`, and Pi runs them from `~/.claude/hooks/` through its `agent-guardrails` extension.
 Rails extras: schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
-Pi also screens fetched web content and audits edit scope with Jev (`jev-guardrails` extension), and Claude Code does the equivalent through its `jev-*` mods.
+Pi also screens fetched web content and audits edit scope with Jev (`jev-guardrails` extension), and Claude Code does the equivalent through its `jev-checks` mod.
 Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.
 
 ### Planning and review

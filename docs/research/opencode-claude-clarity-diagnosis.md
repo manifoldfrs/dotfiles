@@ -77,3 +77,10 @@ Fix the send-back whichever harness stays.
 Stop sending failed-check notices to the model, and write them to the log instead.
 Give real flags a `description` so the user sees them, and tell the model to answer for a reader who has not seen the flags.
 Compare the complaint rate over the next few sessions.
+
+## Follow-up
+
+On 2026-11-06 Claude Code and OpenCode moved onto one copy of the Jev logic, `stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts`.
+That replaced the `jev-coding`, `jev-screen`, and `jev-pipeline` mods named in older notes.
+OpenCode now shows flagged items through `description`, tells the model to write for a reader who never saw the flags, and keeps failed answer-check notices away from the model; a failed edit audit still tells the model, so it cannot claim the audit passed.
+Claim extraction there also became stateless, because with the conversation in view a claim the user asked for went unchecked.

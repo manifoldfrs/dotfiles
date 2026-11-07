@@ -88,6 +88,9 @@ trust_level = "trusted"
 [projects."/Users/frshbb/Library/Application Support/Claude/scratch-workspaces/5d32a2d2-d041-4e7b-8d26-4be353c4e2e2/4bfe39c1-b53c-4472-b724-f0319168b2dd/scratch-2026-10-24-9f1543"]
 trust_level = "trusted"
 
+[projects."/Users/frshbb/Library/Application Support/Claude/scratch-workspaces/5d32a2d2-d041-4e7b-8d26-4be353c4e2e2/4bfe39c1-b53c-4472-b724-f0319168b2dd/scratch-2026-11-03-440964"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 
@@ -181,8 +184,8 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.1023.50603"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.1023.50603/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.1103.32239"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.1103.32239/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/frshbb/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 
@@ -261,7 +264,6 @@ js_repl = false
 memories = true
 
 [desktop]
-followUpQueueMode = "queue"
 conversationDetailMode = "STEPS_PROSE"
 show-context-window-usage = true
 notifications-turn-mode = "off"
@@ -275,6 +277,7 @@ external-agent-import-sync-enabled = true
 external-agent-import-sync-item-types = "all"
 selected-avatar-id = "null-signal"
 "browser-family-enabled:chrome" = false
+migratedFollowUpQueueToSteer = true
 
 [desktop.open-in-target-preferences]
 global = "fileManager"
@@ -346,7 +349,7 @@ CLAUDE_CODE_MAX_OUTPUT_TOKENS = "128000"
 ENABLE_TOOL_SEARCH = "true"
 MAX_MCP_OUTPUT_TOKENS = "30000"
 MCP_TIMEOUT = "60000"
-CLAUDE_CODE_PLUGIN_DIRS = "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-pipeline:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-screen:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-coding:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
+CLAUDE_CODE_PLUGIN_DIRS = "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-checks:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
 
 [memories]
 generate_memories = true

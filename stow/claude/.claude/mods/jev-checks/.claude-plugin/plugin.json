@@ -1,0 +1,1 @@
+{ "name": "jev-checks", "version": "0.1.0", "description": "Screen fetched web content, classify edits against the request, fact-check answers against tool output, and judge MCP items without passing them through context" }

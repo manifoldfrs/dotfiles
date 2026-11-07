@@ -3,6 +3,7 @@ import { homedir } from "node:os"
 import { dirname, join } from "node:path"
 import type { Plugin } from "@opencode/plugin"
 import { Option, Schema } from "effect"
+import { errorText, type CallJev, type Json, type JsonObject } from "./shared.ts"
 
 export type Context = Plugin.Context
 
@@ -16,15 +17,8 @@ type ToolInput = Parameters<ToolInfo["execute"]>[0]
 
 export type CallIdentity = Pick<ToolCallContext, "sessionID" | "agent" | "messageID" | "id">
 
-export type Json = Schema.Json
-
-/** Calls a registered tool by name and decodes its result; the checks depend on this port rather than the whole plugin context. */
-export interface ToolCaller {
-  readonly call: <T>(name: string, args: Json, schema: Schema.ConstraintDecoder<T>) => Promise<T>
-}
-
-/** Asks the session's own model for text without adding to the transcript. */
-export type Generate = (prompt: string) => Promise<string>
+/** Calls a registered tool by name for its JSON result. */
+export type ToolCaller = (name: string, args: JsonObject) => Promise<Json>
 
 export const JEV_SERVER = "jev"
 
@@ -34,13 +28,11 @@ const decodeString = Schema.decodeUnknownOption(Schema.String)
 
 const decodeJsonText = Schema.decodeUnknownOption(Schema.fromJsonString(Schema.Json))
 
+const decodeJson = Schema.decodeUnknownPromise(Schema.fromJsonString(Schema.Json))
+
 /** Decodes a hook's tool input as JSON, serializing first so absent optional fields drop out instead of failing the decode. */
 export function decodeToolInput(input: ToolInput) {
   return decodeJsonText(JSON.stringify(input))
-}
-
-export function errorMessage(cause: unknown) {
-  return cause instanceof Error ? cause.message : String(cause)
 }
 
 // The background service discards plugin stderr and plugins get no logger, so failures go to a file beside opencode.log.
@@ -55,13 +47,13 @@ export async function logNote(text: string) {
     await mkdir(dirname(path), { recursive: true })
     await appendFile(path, `${new Date().toISOString()} ${text}\n`)
   } catch {
-    // Logging is best effort: the caller already reports the failure to the agent, and a log error must not replace it.
+    // Logging is best effort: a log error must not replace the failure it was recording.
   }
 }
 
 // Records the check and the error's name and message only, never tool payloads or arguments.
 export async function logFailure(what: string, cause: unknown) {
-  const detail = cause instanceof Error ? `${cause.name}: ${cause.message}` : errorMessage(cause)
+  const detail = cause instanceof Error ? `${cause.name}: ${cause.message}` : errorText(cause)
 
   await logNote(`${what} failed: ${detail}`)
 }
@@ -97,34 +89,34 @@ export function resultText(result: ToolResult) {
 
 // Tools answer with JSON text in output or content, or with structured output that may hold undefined fields;
 // serializing the structured form gives both the same JSON boundary.
-function decodeResult<T>(result: ToolResult, schema: Schema.ConstraintDecoder<T>) {
+function decodeResult(result: ToolResult) {
   const text = result.output === undefined
     ? contentText(result.content)
     : Option.getOrElse(decodeString(result.output), () => JSON.stringify(result.output))
 
-  return Schema.decodeUnknownPromise(Schema.fromJsonString(schema))(text)
+  return decodeJson(text)
 }
 
 export function toolCaller(ctx: Context, identity: CallIdentity): ToolCaller {
-  return {
-    call: async (name, args, schema) => {
-      const tool = (await ctx.tool.list()).find(entry => entry.id === name)
+  return async (name, args) => {
+    const tool = (await ctx.tool.list()).find(entry => entry.id === name)
 
-      if (!tool) throw new Error(`Tool ${name} is not available`)
+    if (!tool) throw new Error(`Tool ${name} is not available`)
 
-      const context: ToolCallContext = { ...identity, signal: AbortSignal.timeout(TOOL_TIMEOUT_MS), progress: async () => {} }
+    const context: ToolCallContext = { ...identity, signal: AbortSignal.timeout(TOOL_TIMEOUT_MS), progress: async () => {} }
 
-      return decodeResult(await tool.execute(args, context), schema)
-    },
+    return decodeResult(await tool.execute(args, context))
   }
 }
 
-export async function callJev<T>(tools: ToolCaller, tool: string, args: Json, schema: Schema.ConstraintDecoder<T>) {
-  try {
-    return await tools.call(mcpToolName(JEV_SERVER, tool), args, schema)
-  } catch (cause) {
-    await logFailure(`${tool} (${JSON.stringify(args).length} chars)`, cause)
+export function jevCaller(call: ToolCaller): CallJev {
+  return async (tool, args) => {
+    try {
+      return await call(mcpToolName(JEV_SERVER, tool), args)
+    } catch (cause) {
+      await logFailure(`${tool} (${JSON.stringify(args).length} chars)`, cause)
 
-    throw cause
+      throw cause
+    }
   }
 }
