@@ -34,6 +34,13 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - For general web search, use Exa: `web_search_exa`, or `web_search_advanced_exa` for domain, date, or category filters.
 - To read a specific non-docs URL, use `web_fetch_exa`.
 
+### Browser Automation
+
+- To test pages without a sign-in, use the Chrome DevTools MCP server, which runs an isolated browser.
+- For pages that need the user's sign-in, use the `cua-driver` MCP server in one session: `browser_prepare` with `allow_launch: true` and `profile: {mode: "isolated_named", name: "agent"}`, then bind and act with its browser tools.
+  That launches Google Chrome on the agent profile, where the user signs in to sites once.
+- Never attach to the user's own Chrome or Helium profile; cua-driver does not support Helium's page tools.
+
 ### Throwaway Artifacts
 
 - Write one-off HTML pages, diagrams, images, and films to the agent artifacts directory, `${TMPDIR:-/tmp}/agent-artifacts/`, then open them for the user.

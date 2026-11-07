@@ -398,8 +398,8 @@ The legacy template flow in `mcp/` is documented in `mcp/README.md`.
 Two things worth knowing:
 
 - Chrome DevTools drives an isolated browser with no sign-ins, on the Mac and agentbox.
-  For your signed-in Helium and other Mac apps, agents use `cua-driver` (see its skill), which reads and clicks windows through macOS accessibility.
-  Its page-level browser tools only recognize Chrome, Edge, and Brave, and attaching them to a signed-in profile needs `cua-driver serve --grant existing-profile`; Helium does not need that grant.
+  For sites that need a sign-in, agents launch Google Chrome on a dedicated `agent` profile through `cua-driver`, which Pi registers as an MCP server on the Mac (`extensions/cua-driver-mcp.ts`); sign in to sites in that profile once and it keeps them.
+  cua-driver's page tools don't support Helium, and agents never attach to your own browser profile.
 - HEY has read/write access to mail, calendars, todos, and contacts.
   Change its args to `["mcp", "--read-only"]` in each harness's config to limit it to reads.
 
