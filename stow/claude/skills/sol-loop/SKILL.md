@@ -98,7 +98,7 @@ cd <repo> && perl -e 'alarm 900; exec @ARGV' pi -p --no-session --no-mcp --no-sk
 Check every finding and its severity yourself; another path, a rare case, or a small cost is a nit whatever its label.
 
 - **Agree:** make the smallest fix, preferring to delete or narrow over adding a lock, cache, helper, or option, and add one focused test that fails without the fix when the intent needs it.
-- **Disagree:** say why, with `file:line`, a test, or output.
+- **Disagree:** settle a blocker or should with a test or repro aimed at its claim, and record the result in the ledger. Red means the finding stands, so fix it; green is your rebuttal. When nothing can exercise the claim, say why and cite `file:line` or output.
 - **Out of scope or nit:** decline in one line and list it as a follow-up.
 
 Update the ledger, rerun the checks, and rerun `behavior-lines`; when review grew the diff, cut first.
@@ -113,7 +113,7 @@ Each round is a fresh, ephemeral run with no memory, so its brief carries the ro
 
 - **Agreed:** APPROVE on the current behavior diff, no blocker or should open, and no concern of your own.
 - **Stuck:** a finding stays disputed after two replies, or the budget ends; budget end is not approval.
-  Inside an autonomous workflow, take the side your evidence supports, record both sides in two or three lines each, and keep going; otherwise put the dispute to the user.
+  Inside an autonomous workflow, take the side your test or repro supports, record both sides in two or three lines each, and keep going; otherwise put the dispute to the user.
 
 When the work ends in a pushed PR, add `Reviewed with sol-loop: <N> rounds with GPT-6.1 Sol. Verdict: <approved|stuck>.` to the description, naming any Grok fallback round.
 

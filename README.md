@@ -17,7 +17,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Other harnesses | Codex, Pi | Codex runs Sol reviews; Pi stays configured in `stow/pi/.pi/agent/`. |
 | Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `codex exec` in a read-only sandbox; `code-review` adds standards and intent axes before it. |
 
-Everything uses **Ayu Dark** with **MonoLisaCode 14 pt** where the app allows it.
+Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception: its theme and font are app settings, not files (see [Rex app settings](#rex-app-settings-one-time-per-machine)).
 
 Vocabulary like *tracked source*, *live configuration*, and *apply* is defined in [CONTEXT.md](CONTEXT.md).
@@ -92,7 +92,7 @@ stow/                  Stow packages, each mirroring $HOME
   nvim/                Neovim config (see stow/nvim/AGENTS.md)
   bin/                 ~/.local/bin tools
   claude/              Claude Code settings, keybindings, theme, status line, mods/, MCP servers, the shared guardrail hooks/, and the shared global AGENTS.md and skills/
-  opencode/            OpenCode config, CLI settings, MCP servers, plugins/ (Jev checks), tui-plugins/, and generated commands/ for /<skill>; links AGENTS.md to claude/
+  opencode/            OpenCode config, CLI settings, MCP servers, plugins/ (Jev checks, xai_search, guardrails), tui-plugins/, and generated commands/ for /<skill>; links AGENTS.md to claude/
   codex/               Codex config and theme; links AGENTS.md and hooks to claude/
   pi/                  Pi settings, MCP config, models, themes, extensions/; links AGENTS.md to claude/
 scripts/
@@ -333,13 +333,20 @@ The same script writes one OpenCode command per skill under `stow/opencode/.conf
 
 Claude Code's `jev-checks` mod in `stow/claude/.claude/mods/` screens web results, audits edit scope, and fact-checks answers; test it with `claude plugin test <mod folder>`.
 Its `hooks/jev-shared.ts` holds the Jev logic for Claude Code and OpenCode, and the OpenCode plugin imports that file directly, because Claude Code refuses imports from outside a mod's folder.
-The `bold-color` mod draws bold reply text in Ayu blue against the amber default text from the `ayu-farish` terminal theme.
+The `bold-color` mod draws bold reply text in Tokyo Night blue.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
 The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` is the thin OpenCode side of the same checks.
 OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.
 
 ```bash
 (cd stow/opencode/.config/opencode/plugins/jev && bun install && bun test && bun run check)
+```
+
+The `xai-search` mod and the OpenCode plugin in `stow/opencode/.config/opencode/plugins/xai-search/` both give agents the `xai_search` tool through Pi's guarded runner.
+The mod's `hooks/xai-shared.ts` holds the tool definition for both, the same way `jev-shared.ts` does.
+
+```bash
+(cd stow/opencode/.config/opencode/plugins/xai-search && bun install && bun test && bun run check)
 ```
 
 `local` skills are never overwritten by sync, and `excluded` skills are never restored.
@@ -374,6 +381,7 @@ Two things worth knowing:
 
 Claude Code's hooks in `stow/claude/.claude/hooks/` block dangerous shell commands and hand edits to generated files.
 Codex runs the same scripts through symlinks in `stow/codex/.codex/hooks/`, and Pi runs them from `~/.claude/hooks/` through its `agent-guardrails` extension.
+OpenCode's `guardrails` plugin runs the shell rules from `~/.claude/hooks/` on every model, including Opus through Claude Agent, but it does not run the generated-file rules.
 Rails extras: schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
 Pi also screens fetched web content and audits edit scope with Jev (`jev-guardrails` extension), and Claude Code does the equivalent through its `jev-checks` mod.
 Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.
