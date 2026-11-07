@@ -398,7 +398,8 @@ The legacy template flow in `mcp/` is documented in `mcp/README.md`.
 Two things worth knowing:
 
 - Chrome DevTools drives an isolated browser with no sign-ins, on the Mac and agentbox.
-  For your signed-in Chrome and other Mac apps, agents use `cua-driver` (see its skill), which attaches to your Chrome profile only through its own explicit grant.
+  For your signed-in Helium and other Mac apps, agents use `cua-driver` (see its skill), which reads and clicks windows through macOS accessibility.
+  Its page-level browser tools only recognize Chrome, Edge, and Brave, and attaching them to a signed-in profile needs `cua-driver serve --grant existing-profile`; Helium does not need that grant.
 - HEY has read/write access to mail, calendars, todos, and contacts.
   Change its args to `["mcp", "--read-only"]` in each harness's config to limit it to reads.
 
