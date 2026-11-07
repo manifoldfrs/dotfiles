@@ -5,7 +5,7 @@
 	<key>Workspace.animationStyle</key>
 	<string>snappy</string>
 	<key>Workspace.appIcon</key>
-	<string>dark</string>
+	<string>default</string>
 	<key>Workspace.appearance</key>
 	<string>dark</string>
 	<key>Workspace.customThemes</key>
@@ -1655,19 +1655,19 @@
 	<key>Workspace.inactivePaneFadeMode</key>
 	<string>both</string>
 	<key>Workspace.interfaceStyle</key>
-	<string>blendTheme</string>
+	<string>useTheme</string>
 	<key>Workspace.lightThemeID</key>
 	<string>merino-light</string>
 	<key>Workspace.shellIconTheme</key>
 	<string>themedAlt</string>
 	<key>Workspace.sidebarPosition</key>
-	<string>right</string>
+	<string>left</string>
 	<key>Workspace.tabIconCount</key>
 	<integer>3</integer>
 	<key>Workspace.tabIconTintMode</key>
 	<string>off</string>
 	<key>Workspace.tabStyle</key>
-	<string>horizontal</string>
+	<string>vertical</string>
 	<key>Workspace.tabsFillAvailableSpace</key>
 	<true/>
 	<key>Workspace.terminalCopyOnSelect</key>
