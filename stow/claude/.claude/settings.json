@@ -106,7 +106,7 @@
       "effortLevel": "high"
     },
     "claude-opus-5-5": {
-      "effortLevel": "medium"
+      "effortLevel": "high"
     }
   },
   "dialogExpiry": "never",
@@ -127,7 +127,7 @@
   "channelsEnabled": false,
   "timeFormat": "24-hour-utc",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "custom:ayu-dark",
+  "theme": "custom:tokyonight-night",
   "editorMode": "normal",
   "verbose": false,
   "preferredNotifChannel": "ghostty",

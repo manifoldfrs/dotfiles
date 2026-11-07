@@ -3,7 +3,7 @@ return {
   config = function()
     require("lualine").setup({
       options = {
-        theme = "ayu",
+        theme = "tokyonight",
         component_separators = { left = "", right = "" },
         section_separators = { left = "", right = "" },
         disabled_filetypes = { "alpha", "snacks_layout_box" },

@@ -77,7 +77,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ ! -e "$STOW_TEST_HOME/.claude/mcp.json" ] \
     && [ ! -e "$STOW_TEST_HOME/mcp.json" ] \
     && find "$STOW_TEST_HOME/.claude" -maxdepth 1 -name 'settings.json.backup.*' | grep -q . \
-    && [ -L "$STOW_TEST_HOME/.pi/agent/themes/ayu-farish.json" ] \
+    && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
@@ -91,7 +91,7 @@ fi
 
 # Test 4: selected theme and prompt invariants
 echo "[TEST 4] Checking theme and prompt configuration..."
-grep -q '^theme = ayu-farish$' stow/ghostty/.config/ghostty/config
+grep -q '^theme = TokyoNight Night$' stow/ghostty/.config/ghostty/config
 grep -q '^command = /opt/homebrew/bin/bash --login$' stow/ghostty/.config/ghostty/config
 grep -q '^shell-integration = bash$' stow/ghostty/.config/ghostty/config
 grep -q '^font-family = MonoLisaCode$' stow/ghostty/.config/ghostty/config
@@ -104,8 +104,8 @@ grep -Fq '"pankrashin/vim-rex-navigator"' stow/nvim/.config/nvim/lua/plugins/vim
 grep -Fq '"frshbb": { "principals": ["tailscale:manifoldfrs@github"] }' server/rex/accounts.jsonc
 grep -Eq '^ExecStart=/usr/bin/rex login-server .* --extra-listen tailnet://:7297$' server/rex/rex-login-server.service.d/override.conf
 grep -Fqx 'Pin-Priority: 1001' server/rex/apt-preferences.d/rex
-grep -q 'vim.cmd.colorscheme("ayu-dark")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
-grep -q '"theme": "ayu-farish"' stow/pi/.pi/agent/settings.json
+grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
+grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
 jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agent/claude-bridge.json >/dev/null
 grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
@@ -117,7 +117,7 @@ for glyph in '󰘧' '' '' '' '' ''; do
     grep -Fq "$glyph" stow/bash/.config/starship.toml \
         || fail "Starship is missing intended glyph: $glyph"
 done
-pass "Ayu Dark, MonoLisa, Nerd Font glyphs, FZF integration, and bounded Starship detection are configured"
+pass "Tokyo Night, MonoLisa, Nerd Font glyphs, FZF integration, and bounded Starship detection are configured"
 
 # Test 5: Neovim plugin safety (best effort)
 echo "[TEST 5] Running Neovim plugin safety checks..."

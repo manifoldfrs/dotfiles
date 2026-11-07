@@ -36,7 +36,7 @@ jobs:
           test -L "$tmp_home/.config/starship.toml"
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"
-          test -L "$tmp_home/.pi/agent/themes/ayu-farish.json"
+          test -L "$tmp_home/.pi/agent/themes/tokyonight-frsh.json"
           test -L "$tmp_home/.claude/settings.json"
           test -L "$tmp_home/.claude/AGENTS.md"
           test -L "$tmp_home/.config/opencode/opencode.jsonc"
@@ -46,7 +46,7 @@ jobs:
           test ! -e "$tmp_home/AGENTS.md"
 
       - name: Require Neovim theme startup
-        run: nvim --headless '+Lazy! restore' '+colorscheme ayu-dark' +qa
+        run: nvim --headless '+Lazy! restore' '+colorscheme tokyonight' +qa
 
       - name: Run repository tests
         run: bash test/run_tests.sh
