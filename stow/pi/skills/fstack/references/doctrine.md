@@ -35,11 +35,9 @@ Each pack stands on its own ecosystem's conventions, not on differences from ano
 | Rust | `coding-standards-rust` |
 | Swift | `coding-standards-swift` |
 | Kotlin | `coding-standards-kotlin` |
-| Ruby on Rails | `coding-standards-rails` |
-| Plain browser JavaScript in a Rails/Hotwire or import-map application | `coding-standards-javascript` |
 
 Keep concrete application architecture, error contracts, and deployment decisions in the project's own documents.
-Do not transfer Rails model patterns into Go, Effect Layers into ordinary TypeScript, or one application's UI stack into another.
+Do not transfer Effect Layers into ordinary TypeScript, or one application's UI stack into another.
 For a requested new language pack, use the [language pack template](language-pack-template.md).
 
 ## Sources and adaptations

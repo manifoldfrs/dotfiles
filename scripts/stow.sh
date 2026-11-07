@@ -389,6 +389,14 @@ ensure_shared_skill_folder_links() {
             ln -s "$src" "$dest"
             info "Linked agent skill folder: $dest -> $src"
         done
+
+        # A skill deleted from the repo leaves its link behind, so drop dangling links into the repo's skills.
+        for dest in "$target_dir"/*; do
+            if [ -L "$dest" ] && [ ! -e "$dest" ] && is_stow_managed_link "$dest"; then
+                rm "$dest"
+                info "Removed link to deleted agent skill: $dest"
+            fi
+        done
     done
 }
 

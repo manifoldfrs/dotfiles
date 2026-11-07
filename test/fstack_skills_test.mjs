@@ -14,7 +14,7 @@ const skillNames = readdirSync(catalog, { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && existsSync(resolve(catalog, entry.name, "SKILL.md")))
   .map((entry) => entry.name);
 const workflows = ["dig", "prove", "sketch", "code-review", "fstack", "full-send", "full-stop", "babysit-pr", "sol-loop", "pr"];
-const languages = ["ts", "go", "rust", "swift", "kotlin", "rails", "javascript"];
+const languages = ["ts", "go", "rust", "swift", "kotlin"];
 
 test("every skill is model-invoked with a trigger description", () => {
   for (const name of skillNames) {
@@ -73,11 +73,10 @@ test("language guidance remains available without a Ruby baseline", () => {
   for (const content of [doctrine, template, ...["rust", "swift", "kotlin"].map((name) => skill(`coding-standards-${name}`))]) {
     assert.doesNotMatch(content, /Ruby default|Rails is the default taste|Hotwire Native first/);
   }
-  assert.match(description(skill("coding-standards-javascript")), /not as universal guidance for Node/);
 });
 
 test("changed skill documents retain valid local reference links", () => {
-  const paths = ["fstack/references/doctrine.md", ...workflows.map((name) => `${name}/SKILL.md`), "testing/SKILL.md", ...["rust", "swift", "kotlin", "javascript"].map((name) => `coding-standards-${name}/SKILL.md`)];
+  const paths = ["fstack/references/doctrine.md", ...workflows.map((name) => `${name}/SKILL.md`), "testing/SKILL.md", ...["rust", "swift", "kotlin"].map((name) => `coding-standards-${name}/SKILL.md`)];
   for (const path of paths) {
     const absolute = resolve(catalog, path);
     for (const match of read(absolute).replace(/`[^`\n]*`/g, "").matchAll(/\]\(([^)]+)\)/g)) {

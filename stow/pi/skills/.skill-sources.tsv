@@ -10,9 +10,7 @@ code-review	local
 codebase-design	local
 coding-standards	local
 coding-standards-go	local
-coding-standards-javascript	local
 coding-standards-kotlin	local
-coding-standards-rails	local
 coding-standards-rust	local
 coding-standards-swift	local
 coding-standards-ts	local

@@ -51,5 +51,14 @@
   "extensionChangelogVersions": {
     "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.86.0",
     "{\"source\":\"npm:pi-prompt-template-model\",\"scope\":\"user\"}": "0.12.3"
-  }
+  },
+  "skills": [
+    "!**/synced/**/built-in-browser/**",
+    "!**/synced/**/chrome-browser/**",
+    "!**/synced/**/computer-use/**",
+    "!**/synced/**/docs/**",
+    "!**/synced/**/google-workspace/**",
+    "!**/synced/**/import-memory/**",
+    "!**/synced/**/morning/**"
+  ]
 }

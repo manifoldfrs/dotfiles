@@ -46,6 +46,7 @@ STOW_TEST_BIN="$(mktemp -d)"
 mkdir -p "$STOW_TEST_HOME/.agents/skills/show-me" "$STOW_TEST_HOME/.claude/skills/show-me" "$STOW_TEST_HOME/.local/bin"
 touch "$STOW_TEST_HOME/.agents/skills/show-me/SKILL.md"
 ln -s "$DOTFILES_DIR/stow/agents/.agents/skills/sol-loop" "$STOW_TEST_HOME/.claude/skills/sol-loop"
+ln -s "$DOTFILES_DIR/stow/pi/skills/deleted-skill" "$STOW_TEST_HOME/.agents/skills/deleted-skill"
 printf '%s\n' '# existing Bash config' >"$STOW_TEST_HOME/.bashrc"
 printf '%s\n' '{}' >"$STOW_TEST_HOME/.claude/settings.json"
 mkdir -p "$STOW_TEST_HOME/.pi/agent"
@@ -90,6 +91,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
     && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/sol-loop")" = "$DOTFILES_DIR/stow/pi/skills/sol-loop" ] \
+    && [ ! -L "$STOW_TEST_HOME/.agents/skills/deleted-skill" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Bash Stow profile is idempotent"
 else
