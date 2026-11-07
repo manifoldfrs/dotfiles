@@ -56,6 +56,7 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - For a material unresolved choice between viable approaches, use `jev_decide` with evidence and the user's priorities, and report its verdict.
   Routine choices fixed by existing conventions do not need another judgment.
 - When choosing, ranking, or labeling items by meaning, use `jev_find`, `jev_rerank`, or `jev_classify` instead of judging by eye; use rg when an exact pattern decides it.
+- For ad-hoc typed questions inside a codemode script, use `models.classify` with Jev and follow the `decision-models` skill.
 - Reuse completed judgments while their evidence, questions, and scope remain unchanged; rerun when those inputs change.
 - Judge many records from an MCP tool with the Jev pipeline so the records stay out of context: `jev_pipeline` in Pi and OpenCode, `mcp__jev-checks__run` in Claude Code.
 

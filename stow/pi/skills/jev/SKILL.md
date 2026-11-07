@@ -63,5 +63,6 @@ Use deterministic search, parsing, arithmetic, and tests for exact facts, and re
 ## See also
 
 - [`reference/tools.md`](reference/tools.md) — per-tool arguments, output shapes, verdict enums, defaults, limits, failure modes, and the classification-catalog checklist. Read a tool's block before first use.
+- The `decision-models` skill — writing state and questions for `jev_classify`, `jev_noul`, and codemode's `models.classify`.
 - The package README — server setup, provider configuration, and how to copy this skill into your client.
 - Need the judgments to drive a real browser instead? [Jev Browser](https://github.com/jkudish/jev-browser) (`@jkudish/jev-browser`) exposes `jev_navigate` and ships its own skill.
