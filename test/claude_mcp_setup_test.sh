@@ -14,8 +14,8 @@ chmod +x "$TEST_DIR/bin/claude"
 
 HOME="$TEST_DIR/home" PATH="$TEST_DIR/bin:$PATH" bash "$DOTFILES_DIR/mcp_setup.sh" install-claude
 jq -s -e '
-    length == 7 and
-    (map(.name) | sort) == ["Ref", "chrome-devtools", "codex-chrome", "exa", "hey", "jev", "superlogical"] and
+    length == 6 and
+    (map(.name) | sort) == ["Ref", "chrome-devtools", "exa", "hey", "jev", "superlogical"] and
     all(.[]; (.config | (has("exposure") | not) and (has("timeout") | not))) and
     all(.[] | select(.config | has("command")); .config.type == "stdio") and
     (map(select(.name == "Ref"))[0].config.headers["x-ref-api-key"] == "${REF_API_KEY}")

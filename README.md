@@ -381,7 +381,7 @@ A new machine gets the tracked snapshot from `./scripts/stow.sh apply` with no u
 
 ### MCP servers
 
-`stow/pi/.pi/agent/mcp.json` defines seven servers: Ref (library docs), Exa (web search), Jev (TypeSafe judgments), Chrome DevTools (isolated browser), codex-chrome (your real Chrome profile), HEY (mail/calendar via `hey mcp`), and superlogical (Rex docs and feedback).
+`stow/pi/.pi/agent/mcp.json` defines six servers: Ref (library docs), Exa (web search), Jev (TypeSafe judgments), Chrome DevTools (isolated browser), HEY (mail/calendar via `hey mcp`), and superlogical (Rex docs and feedback).
 Keys come from the environment (`REF_API_KEY`, `EXA_API_KEY`, `TYPESAFE_API_KEY`), never from tracked files.
 Run `claude mcp list` to check connections.
 
@@ -397,10 +397,8 @@ The legacy template flow in `mcp/` is documented in `mcp/README.md`.
 
 Two things worth knowing:
 
-- codex-chrome uses the community `codex-control-chrome-mcp` bridge to drive your signed-in Chrome through the Codex extension.
-  It has full page access and no per-site permissions.
-  Install with `npm install -g codex-control-chrome-mcp` and `codex-control-chrome-mcp install-native-host --browser chrome`; `uninstall-native-host` undoes it.
-  Chrome DevTools is the isolated alternative.
+- Chrome DevTools drives an isolated browser with no sign-ins, on the Mac and agentbox.
+  For your signed-in Chrome and other Mac apps, agents use `cua-driver` (see its skill), which attaches to your Chrome profile only through its own explicit grant.
 - HEY has read/write access to mail, calendars, todos, and contacts.
   Change its args to `["mcp", "--read-only"]` in each harness's config to limit it to reads.
 

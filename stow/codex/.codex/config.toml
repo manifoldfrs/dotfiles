@@ -172,10 +172,6 @@ command = "npx"
 args = ["-y","chrome-devtools-mcp@latest","--isolated","--no-usage-statistics"]
 tool_timeout_sec = 60
 
-[mcp_servers.codex-chrome]
-command = "codex-control-chrome-mcp"
-args = ["--stdio"]
-
 [mcp_servers.hey]
 command = "hey"
 args = ["mcp"]

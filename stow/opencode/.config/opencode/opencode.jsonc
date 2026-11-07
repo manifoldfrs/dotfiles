@@ -79,18 +79,6 @@
           "execution": 60000
         }
       },
-      "codex-chrome": {
-        "type": "local",
-        "command": [
-          "codex-control-chrome-mcp",
-          "--stdio"
-        ],
-        "codemode": true,
-        "timeout": {
-          "catalog": 30000,
-          "execution": 60000
-        }
-      },
       "hey": {
         "type": "local",
         "command": [

@@ -26,7 +26,7 @@ cd ~/dotfiles
 
 ### Claude Code
 
-After approving the live configuration change, register the seven servers from Pi's tracked MCP config:
+After approving the live configuration change, register the six servers from Pi's tracked MCP config:
 
 ```bash
 ./mcp_setup.sh install-claude
@@ -54,13 +54,12 @@ pi
 ```
 
 `stow/pi/.pi/agent/settings.json` leaves Pi's built-in MCP support enabled.
-`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, codex-chrome, HEY, and Superlogical.
+`stow/pi/.pi/agent/mcp.json` uses Pi's native `mcpServers` schema for Ref, exa, Jev, Chrome DevTools, HEY, and Superlogical.
 Ref and exa remain directly exposed; the other servers use Codemode exposure.
 The settings explicitly enable Codemode alongside the ordinary coding tools.
 Jev reads `TYPESAFE_API_KEY` from the environment.
 HEY runs `hey mcp` and needs no key in the config; it uses the keychain credentials from `hey auth login`.
 Chrome DevTools launches isolated Chrome with usage statistics disabled.
-The codex-chrome bridge uses the existing Chrome profile and requires the binary and native-host setup described in the root README.
 Adding these entries does not install their packages or configure the browser bridge.
 
 ### API keys
@@ -93,6 +92,5 @@ Pi MCP HTTP servers should use built-in header interpolation with `${REF_API_KEY
 - **Exa** - Web search
 - **Jev** - Typed judgments from TypeSafe's Jev model (Pi)
 - **Chrome DevTools** - Browser testing, screenshots, console, and network inspection (Pi)
-- **codex-chrome** - Existing-profile Chrome control (Pi)
 - **Superlogical** - Rex Beta docs, changelog, and community feedback; OAuth via `/mcp` after registering (Claude Code and Pi)
 - **Context7** - Library documentation

@@ -30,11 +30,6 @@
       "timeout": 60,
       "exposure": "codemode"
     },
-    "codex-chrome": {
-      "command": "codex-control-chrome-mcp",
-      "args": ["--stdio"],
-      "exposure": "codemode"
-    },
     "hey": {
       "command": "hey",
       "args": ["mcp"],
