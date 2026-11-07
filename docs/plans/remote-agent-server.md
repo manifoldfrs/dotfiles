@@ -197,7 +197,7 @@ Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy p
 ## Phase 8: Harnesses and auth
 
 Pi is the primary harness on the server.
-Claude Code is required too, because Pi's default provider, `claude-bridge`, runs through Claude Code's Agent SDK and its login.
+Claude Code is required too, because Pi's Claude models, from `pi-claude-cli`, run through the `claude` CLI and its login.
 Codex and OpenCode are optional; skip their install and login steps if you do not need them on the server.
 
 - [x] Install Pi with the official installer: `curl -fsSL https://pi.dev/install.sh | sh`.
@@ -215,9 +215,7 @@ Codex and OpenCode are optional; skip their install and login steps if you do no
   done
   ```
 
-- [x] `claude-bridge` settings (`provider.plan = "max"` for Opus's 1M context, `askClaude.enabled = false`) are tracked in `stow/pi/.pi/agent/claude-bridge.json`.
-  The extension only writes its `startupNoticeShown` marker when one of those two settings is unset, so the tracked file stays clean.
-- [x] Log in to Claude Code first, because Pi's default provider is `claude-bridge`: run `claude`, then `/login`, and paste the code from the browser on the Mac.
+- [x] Log in to Claude Code first, because `pi-claude-cli` uses its login: run `claude`, then `/login`, and paste the code from the browser on the Mac.
 - [x] Log in to Codex: `ssh -t agentbox codex login --device-auth`, then open the printed URL on the Mac and enter the code.
   Without it, `codex exec` fails with `401 Unauthorized` after a few retries.
 - [x] Make Codex's Linux sandbox work (Ubuntu 24.04 restricts unprivileged user namespaces, so `bwrap` fails with `loopback: Failed RTM_NEWADDR`), as root:

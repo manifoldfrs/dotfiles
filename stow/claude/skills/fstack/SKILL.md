@@ -1,6 +1,6 @@
 ---
 name: fstack
-description: Route a code task through investigate, fix, build, or reshape, with proof and review built in. Use for any non-trivial code task: explaining how code works, fixing a defect, building or changing behavior, or restructuring code.
+description: "Route a code task through investigate, fix, build, or reshape, with proof and review built in. Use for any non-trivial code task: explaining how code works, fixing a defect, building or changing behavior, or restructuring code."
 argument-hint: "task in plain words"
 ---
 

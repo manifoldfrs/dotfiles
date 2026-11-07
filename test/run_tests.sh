@@ -47,7 +47,7 @@ ln -s "$DOTFILES_DIR/stow/agents/.agents/skills/sol-loop" "$STOW_TEST_HOME/.clau
 printf '%s\n' '# existing Bash config' >"$STOW_TEST_HOME/.bashrc"
 printf '%s\n' '{}' >"$STOW_TEST_HOME/.claude/settings.json"
 mkdir -p "$STOW_TEST_HOME/.pi/agent"
-printf '%s\n' '{"startupNoticeShown": "2026-01-01"}' >"$STOW_TEST_HOME/.pi/agent/claude-bridge.json"
+printf '%s\n' '{}' >"$STOW_TEST_HOME/.pi/agent/mcp.json"
 ln -s "$(command -v stow)" "$STOW_TEST_BIN/stow"
 if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >/tmp/stow-default.log 2>&1 \
     && HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./scripts/stow.sh apply >>/tmp/stow-default.log 2>&1 \
@@ -55,7 +55,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.bashrc" ] \
     && [ -L "$STOW_TEST_HOME/.inputrc" ] \
     && find "$STOW_TEST_HOME" -maxdepth 1 -name '.bashrc.backup.*' | grep -q . \
-    && find "$STOW_TEST_HOME/.pi/agent" -maxdepth 1 -name 'claude-bridge.json.backup.*' | grep -q . \
+    && find "$STOW_TEST_HOME/.pi/agent" -maxdepth 1 -name 'mcp.json.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.config/bash/environment.bash" ] \
     && [ -L "$STOW_TEST_HOME/.config/starship.toml" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
@@ -78,7 +78,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ ! -e "$STOW_TEST_HOME/mcp.json" ] \
     && find "$STOW_TEST_HOME/.claude" -maxdepth 1 -name 'settings.json.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
-    && [ -L "$STOW_TEST_HOME/.pi/agent/claude-bridge.json" ] \
+    && [ -L "$STOW_TEST_HOME/.pi/agent/mcp.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
     && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/sol-loop")" = "$DOTFILES_DIR/stow/claude/skills/sol-loop" ] \
@@ -106,7 +106,7 @@ grep -Eq '^ExecStart=/usr/bin/rex login-server .* --extra-listen tailnet://:7297
 grep -Fqx 'Pin-Priority: 1001' server/rex/apt-preferences.d/rex
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
 grep -q '"theme": "tokyonight-frsh"' stow/pi/.pi/agent/settings.json
-jq -e '.provider.plan == "max" and .askClaude.enabled == false' stow/pi/.pi/agent/claude-bridge.json >/dev/null
+jq -e '.packages | any(type == "string" and startswith("git:github.com/dmmulroy/pi-claude-cli@"))' stow/pi/.pi/agent/settings.json >/dev/null
 grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc

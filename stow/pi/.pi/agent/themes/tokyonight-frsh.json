@@ -30,12 +30,12 @@
     "text": "fg",
     "thinkingText": "fgDark",
     "selectedBg": "bgHighlight",
-    "userMessageBg": "#24283b",
+    "userMessageBg": "bgHighlight",
     "userMessageText": "fg",
-    "customMessageBg": "#1f2335",
+    "customMessageBg": "bgDark",
     "customMessageText": "fg",
     "customMessageLabel": "magenta",
-    "toolPendingBg": "#1f2335",
+    "toolPendingBg": "bgDark",
     "toolSuccessBg": "#1f2d24",
     "toolErrorBg": "#2d202f",
     "toolTitle": "cyan",
@@ -73,6 +73,6 @@
   "export": {
     "pageBg": "#16161e",
     "cardBg": "#1a1b26",
-    "infoBg": "#24283b"
+    "infoBg": "#292e42"
   }
 }

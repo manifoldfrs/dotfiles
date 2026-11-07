@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.0",
   "theme": "tokyonight-frsh",
   "defaultProvider": "openai",
   "defaultModel": "gpt-6.1-sol-ultrafast",
@@ -25,18 +25,18 @@
       "source": "npm:@plannotator/pi-extension",
       "skills": []
     },
-    "npm:pi-claude-bridge@0.9.3"
+    "git:github.com/dmmulroy/pi-claude-cli@bf61ec2cf5fde13b03ff67300d269c801862fda7"
   ],
   "subagents": {
     "agentOverridesByProvider": {
-      "claude-bridge": {
+      "pi-claude-cli": {
         "reviewer": {
           "model": "openai/gpt-6.1-sol"
         }
       },
       "openai": {
         "reviewer": {
-          "model": "claude-bridge/claude-opus-5-5"
+          "model": "pi-claude-cli/claude-opus-5-5"
         }
       }
     }
@@ -47,5 +47,9 @@
   },
   "compaction": {
     "enabled": true
+  },
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.86.0",
+    "{\"source\":\"npm:pi-prompt-template-model\",\"scope\":\"user\"}": "0.12.3"
   }
 }
