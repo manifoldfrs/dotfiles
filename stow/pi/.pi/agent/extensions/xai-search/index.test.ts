@@ -71,7 +71,7 @@ test("execute without a config file sends one request to the fixed endpoint", as
   await withFetchSpy(async (fetchCalls) => {
     const result = await registered.tools[0]!.execute("call-1", { query: "pi" }, undefined, undefined, ctx);
     assert.deepEqual(fetchCalls, ["https://api.x.ai/v1/responses"]);
-    assert.match(result.content[0]?.text ?? "", /X search usage: not reported by xAI/);
+    assert.match(result.content[0]?.text ?? "", /Search usage: not reported by xAI/);
   });
   assert.equal(calls.getProviderAuth, 1);
 });

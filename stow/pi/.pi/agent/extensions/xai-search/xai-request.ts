@@ -1,9 +1,18 @@
 const MAX_X_HANDLES = 20;
+const MAX_DOMAINS = 5;
+const DOMAIN_PATTERN = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
+
+/** Where Grok searches: posts on X, the public web, or both. */
+export type XaiSearchSource = "x" | "web";
+const SOURCES: readonly XaiSearchSource[] = ["x", "web"];
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const X_HANDLE_PATTERN = /^[A-Za-z0-9_]{1,15}$/;
 
 export interface XaiSearchParams {
   query: string;
+  sources?: string[];
+  allowed_domains?: string[];
+  excluded_domains?: string[];
   model?: string;
   from_date?: string;
   to_date?: string;
@@ -18,7 +27,8 @@ export interface XaiSearchParams {
 export interface XaiSearchRequest {
   model: string;
   query: string;
-  xSearchTool: Record<string, unknown>;
+  sources: XaiSearchSource[];
+  tools: Record<string, unknown>[];
   maxTurns?: number;
   maxOutputTokens?: number;
 }
@@ -68,6 +78,39 @@ function normalizeHandles(
   });
 }
 
+function normalizeSources(values: string[] | undefined): XaiSearchSource[] {
+  if (values === undefined) return ["x"];
+  if (values.length === 0) throw new Error("sources must contain x, web, or both");
+
+  const sources = SOURCES.filter((source) => values.includes(source));
+  const unknown = values.filter((value) => !SOURCES.some((source) => source === value));
+  if (unknown.length > 0) throw new Error(`sources may contain only x and web, got ${unknown.join(", ")}`);
+  if (sources.length !== values.length) throw new Error("sources must not contain duplicates");
+  return sources;
+}
+
+function normalizeDomains(values: string[] | undefined, field: "allowed_domains" | "excluded_domains"): string[] | undefined {
+  if (values === undefined) return undefined;
+  if (values.length === 0 || values.length > MAX_DOMAINS) {
+    throw new Error(`${field} must contain between 1 and ${MAX_DOMAINS} domains`);
+  }
+
+  const domains = values.map((value, index) => {
+    const domain = value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    if (!DOMAIN_PATTERN.test(domain)) throw new Error(`${field}[${index}] must be a domain such as example.com`);
+    return domain;
+  });
+  if (new Set(domains).size !== domains.length) throw new Error(`${field} must not contain duplicate domains`);
+  return domains;
+}
+
+// Options for one source are refused when that source is not searched, so a filter never silently does nothing.
+function requireSource(sources: readonly XaiSearchSource[], source: XaiSearchSource, fields: Record<string, unknown>): void {
+  if (sources.includes(source)) return;
+  const used = Object.entries(fields).filter(([, value]) => value !== undefined).map(([field]) => field);
+  if (used.length > 0) throw new Error(`${used.join(", ")} need "${source}" in sources`);
+}
+
 // xAI applies from_date from 00:00 UTC and treats to_date as exclusive, so dates pass through unchanged.
 export function buildXaiSearchRequest(params: XaiSearchParams, defaultModel: string): XaiSearchRequest {
   const query = params.query.trim();
@@ -90,6 +133,22 @@ export function buildXaiSearchRequest(params: XaiSearchParams, defaultModel: str
     throw new Error("allowed_x_handles and excluded_x_handles cannot be used together");
   }
 
+  const sources = normalizeSources(params.sources);
+  const allowedDomains = normalizeDomains(params.allowed_domains, "allowed_domains");
+  const excludedDomains = normalizeDomains(params.excluded_domains, "excluded_domains");
+  if (allowedDomains && excludedDomains) {
+    throw new Error("allowed_domains and excluded_domains cannot be used together");
+  }
+
+  requireSource(sources, "x", {
+    from_date: fromDate,
+    to_date: toDate,
+    allowed_x_handles: allowedHandles,
+    excluded_x_handles: excludedHandles,
+    enable_video_understanding: params.enable_video_understanding,
+  });
+  requireSource(sources, "web", { allowed_domains: allowedDomains, excluded_domains: excludedDomains });
+
   const xSearchTool: Record<string, unknown> = { type: "x_search" };
   if (fromDate) xSearchTool.from_date = fromDate;
   if (toDate) xSearchTool.to_date = toDate;
@@ -102,13 +161,23 @@ export function buildXaiSearchRequest(params: XaiSearchParams, defaultModel: str
     xSearchTool.enable_video_understanding = params.enable_video_understanding;
   }
 
+  const webSearchTool: Record<string, unknown> = { type: "web_search" };
+  if (allowedDomains) webSearchTool.filters = { allowed_domains: allowedDomains };
+  if (excludedDomains) webSearchTool.filters = { excluded_domains: excludedDomains };
+  if (params.enable_image_understanding !== undefined) {
+    webSearchTool.enable_image_understanding = params.enable_image_understanding;
+  }
+
+  const tools = sources.map((source) => (source === "x" ? xSearchTool : webSearchTool));
+
   const maxTurns = normalizePositiveInteger(params.max_turns, "max_turns");
   const maxOutputTokens = normalizePositiveInteger(params.max_output_tokens, "max_output_tokens");
 
   return {
     model,
     query,
-    xSearchTool,
+    sources,
+    tools,
     ...(maxTurns !== undefined ? { maxTurns } : {}),
     ...(maxOutputTokens !== undefined ? { maxOutputTokens } : {}),
   };

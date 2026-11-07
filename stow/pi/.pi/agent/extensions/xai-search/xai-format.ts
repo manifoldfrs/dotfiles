@@ -1,4 +1,4 @@
-const X_SEARCH_USAGE_KEYS = ["x_search_calls", "x_posts_fetched", "x_users_fetched"] as const;
+const X_SEARCH_USAGE_KEYS = ["x_search_calls", "x_posts_fetched", "x_users_fetched", "web_search_calls"] as const;
 const X_SEARCH_FUNCTIONS = new Set(["x_keyword_search", "x_semantic_search", "x_user_search", "x_thread_fetch"]);
 
 export type XSearchUsage = Partial<Record<(typeof X_SEARCH_USAGE_KEYS)[number], number>>;
@@ -50,10 +50,11 @@ function describeSearchCall(item: UnknownRecord): string | undefined {
     const status = nonEmptyString(item.status);
     return `- ${name}${status ? ` [${status}]` : ""}`;
   }
-  if (item.type === "x_search_call") {
+  if (item.type === "x_search_call" || item.type === "web_search_call") {
     const query = isRecord(item.action) ? nonEmptyString(item.action.query) : undefined;
     const status = nonEmptyString(item.status);
-    return `- x_search${query ? `: “${query}”` : ""}${status ? ` [${status}]` : ""}`;
+    const name = item.type === "x_search_call" ? "x_search" : "web_search";
+    return `- ${name}${query ? `: “${query}”` : ""}${status ? ` [${status}]` : ""}`;
   }
   return undefined;
 }
@@ -89,11 +90,16 @@ function formatTokenUsage(response: UnknownRecord): string | undefined {
 
 function formatXSearchUsage(usage: XSearchUsage): string {
   const entries = Object.entries(usage);
-  if (entries.length === 0) return "X search usage: not reported by xAI";
-  return `X search usage: ${entries.map(([key, count]) => `${key}=${count}`).join(", ")}`;
+  if (entries.length === 0) return "Search usage: not reported by xAI";
+  return `Search usage: ${entries.map(([key, count]) => `${key}=${count}`).join(", ")}`;
 }
 
-export function formatXaiSearchResponse(response: UnknownRecord, requestedModel: string): FormattedXaiSearch {
+const SOURCE_TITLES = { x: "xAI X Search", web: "xAI Web Search", both: "xAI X + Web Search" } as const;
+
+/** Which sources a search covered, for the result's title. */
+export type SearchedSources = keyof typeof SOURCE_TITLES;
+
+export function formatXaiSearchResponse(response: UnknownRecord, requestedModel: string, searched: SearchedSources = "x"): FormattedXaiSearch {
   const output = Array.isArray(response.output) ? response.output : [];
   const textParts: string[] = [];
   const searches: string[] = [];
@@ -116,7 +122,7 @@ export function formatXaiSearchResponse(response: UnknownRecord, requestedModel:
   const xSearchUsage = readXSearchUsage(response);
   const tokenUsage = formatTokenUsage(response);
 
-  const sections = [`**xAI X Search** (${model})`, textParts.join("\n").trim() || "(no text output)"];
+  const sections = [`**${SOURCE_TITLES[searched]}** (${model})`, textParts.join("\n").trim() || "(no text output)"];
   if (searches.length > 0) sections.push(`**Searches performed**\n${searches.join("\n")}`);
   if (tokenUsage) sections.push(tokenUsage);
   sections.push(formatXSearchUsage(xSearchUsage));

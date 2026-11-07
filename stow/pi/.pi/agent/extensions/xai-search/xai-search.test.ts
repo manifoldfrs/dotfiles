@@ -253,13 +253,13 @@ test("cancellation and timeouts are reported by category", async () => {
 
 test("to_date is exclusive and passes through unchanged", () => {
   const oneDay = buildXaiSearchRequest({ query: "q", from_date: "2026-10-14", to_date: "2026-10-15" }, "m");
-  assert.deepEqual(oneDay.xSearchTool, { type: "x_search", from_date: "2026-10-14", to_date: "2026-10-15" });
+  assert.deepEqual(oneDay.tools[0], { type: "x_search", from_date: "2026-10-14", to_date: "2026-10-15" });
 
   const monthEnd = buildXaiSearchRequest({ query: "q", from_date: "2026-09-30", to_date: "2026-10-01" }, "m");
-  assert.equal(monthEnd.xSearchTool.to_date, "2026-10-01");
+  assert.equal(monthEnd.tools[0]?.to_date, "2026-10-01");
 
   const openEnded = buildXaiSearchRequest({ query: "q", to_date: " 2026-10-15 " }, "m");
-  assert.deepEqual(openEnded.xSearchTool, { type: "x_search", to_date: "2026-10-15" });
+  assert.deepEqual(openEnded.tools[0], { type: "x_search", to_date: "2026-10-15" });
 
   assert.throws(
     () => buildXaiSearchRequest({ query: "q", from_date: "2026-10-14", to_date: "2026-10-14" }, "m"),
@@ -287,7 +287,7 @@ test("nested X search usage counters are reported only when present", () => {
   assert.deepEqual(readXSearchUsage({ usage: { server_side_tool_usage_details: { x_posts_fetched: "5" } } }), {});
 
   const formatted = formatXaiSearchResponse({ usage: { input_tokens: 10 } }, "grok-4.5");
-  assert.match(formatted.text, /X search usage: not reported by xAI/);
+  assert.match(formatted.text, /Search usage: not reported by xAI/);
   assert.match(formatted.text, /Tokens: 10 in \/ not reported out/);
   assert.deepEqual(formatted.details.xSearchUsage, {});
 });
@@ -312,7 +312,7 @@ test("responses format text, search calls, citations, and usage", () => {
   assert.equal(formatted.details.searchCount, 1);
   assert.deepEqual(formatted.details.citations, ["https://x.com/a/status/1"]);
   assert.match(formatted.text, /- x_keyword_search \[completed\]/);
-  assert.match(formatted.text, /X search usage: x_posts_fetched=4/);
+  assert.match(formatted.text, /Search usage: x_posts_fetched=4/);
 });
 
 test("no fetch happens when validation or auth guards fail", async () => {
@@ -391,4 +391,60 @@ test("config only selects the model and ignores legacy keys", async () => {
   const loaded = await loadXaiSearchConfig(broken);
   assert.equal(loaded.model, "grok-4.5");
   assert.match(loaded.warnings[0] ?? "", /Could not parse/);
+});
+
+test("sources default to X and can add or switch to the web", () => {
+  assert.deepEqual(buildXaiSearchRequest({ query: "q" }, "m").tools, [{ type: "x_search" }]);
+  assert.deepEqual(buildXaiSearchRequest({ query: "q", sources: ["web"] }, "m").tools, [{ type: "web_search" }]);
+
+  const both = buildXaiSearchRequest(
+    { query: "q", sources: ["web", "x"], allowed_domains: ["https://Docs.x.ai/guides"], enable_image_understanding: true },
+    "m",
+  );
+  assert.deepEqual(both.sources, ["x", "web"]);
+  assert.deepEqual(both.tools, [
+    { type: "x_search", enable_image_understanding: true },
+    { type: "web_search", filters: { allowed_domains: ["docs.x.ai"] }, enable_image_understanding: true },
+  ]);
+  assert.deepEqual(
+    buildXaiSearchRequest({ query: "q", sources: ["web"], excluded_domains: ["reddit.com"] }, "m").tools,
+    [{ type: "web_search", filters: { excluded_domains: ["reddit.com"] } }],
+  );
+});
+
+test("source options are refused when their source is not searched", () => {
+  assert.throws(() => buildXaiSearchRequest({ query: "q", allowed_domains: ["a.com"] }, "m"), /allowed_domains need "web" in sources/);
+  assert.throws(
+    () => buildXaiSearchRequest({ query: "q", sources: ["web"], allowed_x_handles: ["SpaceX"], from_date: "2026-10-01" }, "m"),
+    /from_date, allowed_x_handles need "x" in sources/,
+  );
+  assert.throws(() => buildXaiSearchRequest({ query: "q", sources: [] }, "m"), /x, web, or both/);
+  assert.throws(() => buildXaiSearchRequest({ query: "q", sources: ["x", "x"] }, "m"), /duplicates/);
+  assert.throws(() => buildXaiSearchRequest({ query: "q", sources: ["bing"] }, "m"), /only x and web, got bing/);
+  assert.throws(
+    () => buildXaiSearchRequest({ query: "q", sources: ["web"], allowed_domains: ["a.com"], excluded_domains: ["b.com"] }, "m"),
+    /cannot be used together/,
+  );
+  assert.throws(
+    () => buildXaiSearchRequest({ query: "q", sources: ["web"], allowed_domains: ["a.com", "b.com", "c.com", "d.com", "e.com", "f.com"] }, "m"),
+    /between 1 and 5/,
+  );
+  assert.throws(() => buildXaiSearchRequest({ query: "q", sources: ["web"], allowed_domains: ["not a domain"] }, "m"), /must be a domain/);
+});
+
+test("web searches are listed and titled by the sources searched", () => {
+  const formatted = formatXaiSearchResponse(
+    {
+      output: [
+        { type: "web_search_call", status: "completed", action: { query: "pi coding agent" } },
+        { type: "message", content: [{ type: "output_text", text: "Answer" }] },
+      ],
+      usage: { server_side_tool_usage_details: { web_search_calls: 1 } },
+    },
+    "grok-4.7",
+    "web",
+  );
+  assert.match(formatted.text, /^\*\*xAI Web Search\*\* \(grok-4\.7\)/);
+  assert.match(formatted.text, /- web_search: “pi coding agent” \[completed\]/);
+  assert.match(formatted.text, /Search usage: web_search_calls=1/);
 });

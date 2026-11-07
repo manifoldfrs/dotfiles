@@ -20,5 +20,6 @@ export async function runXaiSearch(options: RunXaiSearchOptions): Promise<Format
     fetch: options.fetch,
     ...(options.signal ? { signal: options.signal } : {}),
   });
-  return formatXaiSearchResponse(response, request.model);
+  const searched = request.sources.length === 2 ? "both" : request.sources[0] ?? "x";
+  return formatXaiSearchResponse(response, request.model, searched);
 }

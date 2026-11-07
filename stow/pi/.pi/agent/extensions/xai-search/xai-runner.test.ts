@@ -128,7 +128,7 @@ test("run sends the same bounded body once through the registered execute", asyn
   assert.equal(calls.getProviderAuth, 1);
   const output = JSON.parse(state.output);
   assert.deepEqual(output.details.xSearchUsage, { x_search_calls: 2, x_posts_fetched: 9 });
-  assert.match(output.text, /X search usage: x_search_calls=2, x_posts_fetched=9/);
+  assert.match(output.text, /Search usage: x_search_calls=2, x_posts_fetched=9/);
   assert.equal(state.output.includes(FAKE_TOKEN), false);
 });
 

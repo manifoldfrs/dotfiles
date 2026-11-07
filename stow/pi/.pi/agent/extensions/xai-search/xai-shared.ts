@@ -4,7 +4,7 @@
 export const TOOL_NAME = 'xai_search'
 
 export const TOOL_DESCRIPTION =
-  "Search live X (Twitter) posts with xAI's x_search over Pi's SuperGrok/X Premium sign-in. Supports date ranges (to_date is exclusive), handle filters, image/video understanding, and turn/output limits."
+  "Search live X (Twitter) posts, the public web, or both with Grok over Pi's SuperGrok/X Premium sign-in. sources picks x (default), web, or both. Supports X date ranges (to_date is exclusive) and handle filters, web domain filters, image/video understanding, and turn/output limits."
 
 // The Pi extension owns the xAI auth guards and request bounds; other harnesses only adapt its runner.
 const RUNNER = 'run-xai-search.ts'
@@ -25,12 +25,31 @@ const handleList = (description: string) => ({
   description,
 })
 
+const domainList = (description: string) => ({
+  type: 'array',
+  items: { type: 'string', minLength: 1, description: 'Domain such as example.com' },
+  minItems: 1,
+  maxItems: 5,
+  uniqueItems: true,
+  description,
+})
+
 export const inputSchema = {
   type: 'object',
   additionalProperties: false,
   required: ['query'],
   properties: {
-    query: { type: 'string', minLength: 1, description: 'What to search for on X (Twitter)' },
+    query: { type: 'string', minLength: 1, description: 'What to search for' },
+    sources: {
+      type: 'array',
+      items: { enum: ['x', 'web'] },
+      minItems: 1,
+      maxItems: 2,
+      uniqueItems: true,
+      description: 'Where to search: ["x"] (default), ["web"], or ["x", "web"]',
+    },
+    allowed_domains: domainList('Web search only within these domains (maximum 5); needs web in sources'),
+    excluded_domains: domainList('Leave these domains out of web search (maximum 5); needs web in sources'),
     model: { type: 'string', minLength: 1, description: 'xAI model override; uses the configured model when omitted' },
     from_date: { type: 'string', description: 'Inclusive start date, YYYY-MM-DD, from 00:00 UTC' },
     to_date: {

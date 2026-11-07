@@ -22,7 +22,7 @@ export function buildXaiResponsesBody(request: XaiSearchRequest): Record<string,
   return {
     model: request.model,
     input: [{ role: "user", content: request.query }],
-    tools: [request.xSearchTool],
+    tools: request.tools,
     store: false,
     ...(request.maxTurns !== undefined ? { max_turns: request.maxTurns } : {}),
     ...(request.maxOutputTokens !== undefined ? { max_output_tokens: request.maxOutputTokens } : {}),

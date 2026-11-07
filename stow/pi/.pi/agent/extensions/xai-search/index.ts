@@ -18,7 +18,31 @@ const handleList = (description: string) =>
 
 const xaiSearchSchema = Type.Object(
   {
-    query: Type.String({ description: "What to search for on X (Twitter)", minLength: 1 }),
+    query: Type.String({ description: "What to search for", minLength: 1 }),
+    sources: Type.Optional(
+      Type.Array(Type.Union([Type.Literal("x"), Type.Literal("web")]), {
+        description: 'Where to search: ["x"] (default), ["web"], or ["x", "web"]',
+        minItems: 1,
+        maxItems: 2,
+        uniqueItems: true,
+      }),
+    ),
+    allowed_domains: Type.Optional(
+      Type.Array(Type.String({ description: "Domain such as example.com", minLength: 1 }), {
+        description: "Web search only within these domains (maximum 5); needs web in sources",
+        minItems: 1,
+        maxItems: 5,
+        uniqueItems: true,
+      }),
+    ),
+    excluded_domains: Type.Optional(
+      Type.Array(Type.String({ description: "Domain such as example.com", minLength: 1 }), {
+        description: "Leave these domains out of web search (maximum 5); needs web in sources",
+        minItems: 1,
+        maxItems: 5,
+        uniqueItems: true,
+      }),
+    ),
     model: Type.Optional(Type.String({ description: "xAI model override; uses the configured model when omitted", minLength: 1 })),
     from_date: Type.Optional(Type.String({ description: "Inclusive start date, YYYY-MM-DD, from 00:00 UTC" })),
     to_date: Type.Optional(
@@ -65,10 +89,11 @@ export default function registerXaiSearch(pi: ExtensionAPI): void {
     name: "xai_search",
     label: "xAI X Search",
     description:
-      "Search live X (Twitter) posts with xAI's x_search over Pi's SuperGrok/X Premium sign-in. Supports date ranges (to_date is exclusive), handle filters, image/video understanding, and turn/output limits.",
-    promptSnippet: "Search live X posts through xAI",
+      "Search live X (Twitter) posts, the public web, or both with Grok over Pi's SuperGrok/X Premium sign-in. sources picks x (default), web, or both. Supports X date ranges (to_date is exclusive) and handle filters, web domain filters, image/video understanding, and turn/output limits.",
+    promptSnippet: "Search live X posts and the web through xAI",
     promptGuidelines: [
       "Use xai_search when the user needs current posts, discussions, reactions, profiles, or threads from X (Twitter).",
+      'Set sources to ["web"] or ["x", "web"] when Grok should also search the public web, for example to pair X reactions with the source they react to.',
     ],
     parameters: xaiSearchSchema,
     async execute(_toolCallId, params, signal, _onUpdate, ctx) {
