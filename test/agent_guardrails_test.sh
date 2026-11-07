@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_dir=${1:?Pass the dotfiles repository directory}
-guardrails="$repo_dir/stow/claude/.claude/hooks"
+guardrails="$repo_dir/stow/pi/.pi/agent/guardrails"
 app_dir=$(mktemp -d)
 trap 'rm -rf "$app_dir"' EXIT
 failures=0

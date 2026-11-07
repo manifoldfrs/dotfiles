@@ -39,9 +39,15 @@ test("appends each mentioned skill's instructions to the message", async () => {
   const dir = mkdtempSync(join(tmpdir(), "inline-skills-"));
   const path = join(dir, "SKILL.md");
   writeFileSync(path, "---\nname: bro\ndescription: Restate.\n---\n\nRestate your last message.\n");
-  let handler: ((event: Record<string, unknown>) => unknown) | undefined;
+  const notes: string[] = [];
+
+  const ctx = { hasUI: true, ui: { notify: (note: string) => notes.push(note) } };
+
+  type Handler = (event: Readonly<Record<string, string>>, context: typeof ctx) => { action: string; text?: string } | undefined;
+
+  let handler: Handler | undefined;
   const api = {
-    on(_name: string, registered: (event: Record<string, unknown>) => unknown) { handler = registered; },
+    on(_name: string, registered: Handler) { handler = registered; },
     getCommands() {
       return [
         { name: "skill:bro", source: "skill", sourceInfo: { path } },
@@ -52,11 +58,11 @@ test("appends each mentioned skill's instructions to the message", async () => {
   // SAFETY: the harness supplies only the runtime methods this extension uses.
   inlineSkills(api as unknown as ExtensionAPI);
 
-  const result = await handler?.({ type: "input", text: "use the /bro skill", source: "interactive" });
+  const result = await handler?.({ type: "input", text: "use the /bro skill", source: "interactive" }, ctx);
   assert.deepEqual(result, {
     action: "transform",
     text: `use the /bro skill\n\n<skill name="bro" location="${path}">\nReferences are relative to ${dir}.\n\nRestate your last message.\n</skill>`,
-    images: undefined,
   });
-  assert.deepEqual(await handler?.({ type: "input", text: "no skills here", source: "interactive" }), { action: "continue" });
+  assert.deepEqual(await handler?.({ type: "input", text: "no skills here", source: "interactive" }, ctx), { action: "continue" });
+  assert.deepEqual(notes, ["Skills loaded: /bro"]);
 });

@@ -1,8 +1,8 @@
 import { execFile } from "node:child_process"
 import { fileURLToPath } from "node:url"
-import { RUNNER_FAILED, RUNNER_TIMEOUT_MS, TOOL_DESCRIPTION, TOOL_NAME, inputSchema, runnerArgv, runnerOutcome, runnerStdin, type RunnerRun } from "../../../../../claude/.claude/mods/xai-search/hooks/xai-shared.ts"
+import { RUNNER_FAILED, RUNNER_TIMEOUT_MS, TOOL_DESCRIPTION, TOOL_NAME, inputSchema, runnerArgv, runnerOutcome, runnerStdin, type RunnerRun } from "../../../../../pi/.pi/agent/extensions/xai-search/xai-shared.ts"
 
-const MOD_ROOT = fileURLToPath(new URL("../../../../../claude/.claude/mods/xai-search", import.meta.url))
+const PI_XAI_SEARCH = fileURLToPath(new URL("../../../../../pi/.pi/agent/extensions/xai-search", import.meta.url))
 
 export type RunProcess = (argv: readonly [string, ...string[]], stdin: string, signal: AbortSignal) => Promise<RunnerRun | undefined>
 
@@ -27,7 +27,7 @@ export function xaiSearchTool(run: RunProcess) {
     input: inputSchema,
     options: { codemode: false },
     execute: async (input: unknown, context: { readonly signal: AbortSignal }) => {
-      const finished = await run(runnerArgv(MOD_ROOT), runnerStdin(Object(input)), context.signal)
+      const finished = await run(runnerArgv(PI_XAI_SEARCH), runnerStdin(Object(input)), context.signal)
 
       if (!finished) throw new Error(RUNNER_FAILED)
 

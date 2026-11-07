@@ -24,6 +24,7 @@ Agent behavior:
 - `scripts/bootstrap.sh` - full machine bootstrap for non-Stow setup
 - `scripts/backup.sh` - backup current machine config into tracked sources
 - `scripts/stow.sh` - apply/delete/dry-run GNU Stow dotfile symlinks
+- `scripts/harness_sync.sh` - generate OpenCode and Codex MCP servers and Claude Code mod copies of shared TypeScript from Pi (`--check` fails when stale)
 - `scripts/skill_catalog.sh` - generate `docs/skills.md` and OpenCode `/<skill>` commands from skill frontmatter (`--check` fails when stale)
 - `scripts/rex_server_setup.sh` - root-only Rex login server setup on Linux hosts (agentbox)
 - `mcp_setup.sh` - MCP config install + backup script
@@ -31,8 +32,9 @@ Agent behavior:
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
-- `stow/claude/` - Claude Code config, the primary agent harness, with the canonical global AGENTS.md, shared skills (`skills/`), and MCP servers (`mcp.json`)
-- `stow/opencode/` - OpenCode 2 config, the second harness, for non-Claude models
+- `stow/pi/` - Pi config, the primary agent harness, with the canonical global AGENTS.md, guardrail hooks, and MCP servers (`.pi/agent/`), and shared skills (`skills/`)
+- `stow/claude/` - Claude Code config and mods; links AGENTS.md and hooks to `stow/pi/`
+- `stow/opencode/` - OpenCode 2 config, for non-Claude models
 - `stow/rex/` - Rex config (`init.lua` and the Lua files it requires); Rex is the default terminal and Ghostty the fallback
 - `server/rex/` - files the Rex login server setup installs under `/etc` (not stowed)
 - `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files

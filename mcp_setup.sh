@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # MCP Configuration Setup Script
-# Handles: Codex config and Claude Code MCP registrations.
+# Handles: Codex config and Claude Code MCP registrations from Pi.
 # Usage: ./mcp_setup.sh [backup|install|install-claude]
 
 set -e
@@ -88,10 +88,10 @@ install_claude() {
     local name
     local config
     local existing
-    entries="$(jq -ce '.mcpServers | to_entries[]' "$DOTFILES_DIR/stow/claude/mcp.json")"
+    entries="$(jq -ce '.mcpServers | to_entries[]' "$DOTFILES_DIR/stow/pi/.pi/agent/mcp.json")"
     while IFS= read -r entry; do
         name="$(printf '%s' "$entry" | jq -r '.key')"
-        config="$(printf '%s' "$entry" | jq -c '.value')"
+        config="$(printf '%s' "$entry" | jq -c '.value | del(.exposure, .timeout) | if has("command") then .type = "stdio" else . end')"
         if [ -f "$HOME/.claude.json" ]; then
             existing="$(jq -c --arg name "$name" '.mcpServers[$name]' "$HOME/.claude.json")"
             if [ "$existing" != "null" ]; then
@@ -104,7 +104,7 @@ install_claude() {
         fi
         claude mcp add-json --scope user "$name" "$config"
     done <<< "$entries"
-    info "Registered the tracked MCP servers in Claude Code; restart Claude to load them"
+    info "Registered Pi's MCP servers in Claude Code; restart Claude to load them"
 }
 
 usage() {
@@ -113,7 +113,7 @@ usage() {
     echo "Commands:"
     echo "  backup   Copy MCP configs from system to dotfiles/mcp/"
     echo "  install  Copy MCP configs from dotfiles/mcp/ to system locations"
-    echo "  install-claude  Register stow/claude/mcp.json in Claude Code's user config"
+    echo "  install-claude  Register Pi's MCP servers in Claude Code's user config"
     echo ""
     echo "Config locations:"
     echo "  Codex:          ~/.codex/config.toml"

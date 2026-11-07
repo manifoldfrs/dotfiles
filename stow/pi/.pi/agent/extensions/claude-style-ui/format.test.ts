@@ -5,8 +5,10 @@ import {
   countLines,
   countUnstaged,
   diffStats,
+  formatCosts,
   formatDuration,
   formatTokens,
+  modelCosts,
   primaryArgument,
   statBarCells,
   toolDisplayName,
@@ -63,4 +65,22 @@ test("formats token counts and flags a filling context window", () => {
   assert.equal(contextPercentLevel(74), "ok");
   assert.equal(contextPercentLevel(75), "warning");
   assert.equal(contextPercentLevel(90), "error");
+});
+
+test("sums spend per model and labels models only when there are several", () => {
+  const reply = (model: string, total: number) => ({ type: "message", message: { role: "assistant", model, usage: { cost: { total } } } });
+
+  const entries = [
+    reply("claude-opus-5-5", 0.5),
+    { type: "message", message: { role: "user" } },
+    reply("gpt-6.1-sol", 1.25),
+    reply("claude-opus-5-5", 0.25),
+    reply("free-model", 0),
+    { type: "label" },
+  ];
+
+  assert.deepEqual(modelCosts(entries), [["gpt-6.1-sol", 1.25], ["claude-opus-5-5", 0.75]]);
+  assert.equal(formatCosts(modelCosts(entries)), "gpt-6.1-sol $1.25 · opus-5-5 $0.75");
+  assert.equal(formatCosts([["claude-opus-5-5", 0.123]]), "$0.12");
+  assert.equal(formatCosts([]), undefined);
 });

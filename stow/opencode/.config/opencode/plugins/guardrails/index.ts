@@ -6,7 +6,7 @@ import { Plugin } from "@opencode/plugin"
 const SHELL_TOOL = "shell"
 const BLOCK_EXIT_CODE = 2
 const HOOK_TIMEOUT_MS = 5_000
-const BASH_GUARD = join(homedir(), ".claude/hooks/block-dangerous-bash.sh")
+const BASH_GUARD = join(homedir(), ".pi/agent/guardrails/block-dangerous-bash.sh")
 
 type ToolCall = { readonly tool: string; readonly input: unknown }
 

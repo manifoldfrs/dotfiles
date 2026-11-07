@@ -3,7 +3,7 @@ import type { TUI } from "@earendil-works/pi-tui";
 import { truncateToWidth } from "@earendil-works/pi-tui";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { contextPercentLevel, countUnstaged, formatTokens, shortenPath } from "./format.ts";
+import { contextPercentLevel, countUnstaged, formatCosts, formatTokens, modelCosts, shortenPath } from "./format.ts";
 
 const execFileAsync = promisify(execFile);
 const GIT_REFRESH_MS = 2_000;
@@ -51,10 +51,26 @@ function contextSegment(ctx: ExtensionContext, theme: Theme): string | undefined
   return level === "ok" ? theme.fg("dim", text) : theme.fg(level, text);
 }
 
+type CostCache = { readonly count: number; readonly text: string | undefined };
+
+let costCache: CostCache = { count: -1, text: undefined };
+
+// Spend counts every branch, since abandoned branches were paid for too.
+function costSegment(ctx: ExtensionContext): string | undefined {
+  const entries = ctx.sessionManager.getEntries();
+
+  if (entries.length !== costCache.count) costCache = { count: entries.length, text: formatCosts(modelCosts(entries)) };
+
+  return costCache.text;
+}
+
 function statusLine(pi: ExtensionAPI, ctx: ExtensionContext, theme: Theme, git: GitState | undefined): string {
+  const cost = costSegment(ctx);
+
   const dim = [locationSegment(ctx.cwd, git), ...modelSegments(pi, ctx)].map((part) => theme.fg("dim", part));
   const context = contextSegment(ctx, theme);
-  return [...dim, ...(context ? [context] : [])].join(theme.fg("dim", " · "));
+
+  return [...dim, ...(context ? [context] : []), ...(cost ? [theme.fg("dim", cost)] : [])].join(theme.fg("dim", " · "));
 }
 
 export function registerFooter(pi: ExtensionAPI): void {

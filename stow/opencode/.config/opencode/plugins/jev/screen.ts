@@ -2,7 +2,7 @@ import { Option, Schema } from "effect"
 import { resultText, type ToolResult } from "./jev.ts"
 import { isSentLink as isSharedSentLink, screenText, withoutSecrets, type CallJev, type Json } from "./shared.ts"
 
-const SCREENED_TOOLS = /^(webfetch|websearch|exa_web_fetch_exa|exa_web_search_exa|exa_web_search_advanced_exa|ref_ref_read_url|ref_ref_search_documentation)$/
+const SCREENED_TOOLS = /^(webfetch|websearch|exa_web_fetch_exa|exa_web_search_exa|exa_web_search_advanced_exa|Ref_ref_read_url|Ref_ref_search_documentation)$/
 
 const decodeExecuteInput = Schema.decodeUnknownOption(Schema.Struct({ code: Schema.String }))
 

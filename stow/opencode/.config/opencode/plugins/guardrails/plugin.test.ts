@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { join } from "node:path"
 import plugin, { rejectDangerousShell } from "./index.ts"
 
-const BASH_GUARD = join(import.meta.dir, "../../../../../claude/.claude/hooks/block-dangerous-bash.sh")
+const BASH_GUARD = join(import.meta.dir, "../../../../../pi/.pi/agent/guardrails/block-dangerous-bash.sh")
 
 const shell = (command: string) => ({ tool: "shell", input: { command } })
 

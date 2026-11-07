@@ -12,9 +12,8 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default, on the Mac and on the iPhone (Rex for iOS beta). Ghostty is the fallback terminal; Herdr and Termius remain the fallback phone path into `agentbox`. |
 | Editor / IDE | Neovim | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Zed and Cursor are retired and archived under `old/`. |
 | Shell | Homebrew Bash 5 + Starship | FZF and zoxide on top. Fish/Zsh configs under `old/` are rollback-only. |
-| Primary agent harness | Claude Code | Settings, hooks, mods, keybindings, the shared global rules (`stow/claude/.claude/`), the shared skills (`stow/claude/skills/`), and MCP servers (`stow/claude/mcp.json`). |
-| Second harness | OpenCode 2 | Every non-Claude model in one harness (`stow/opencode/.config/opencode/`). |
-| Other harnesses | Codex, Pi | Codex runs Sol reviews; Pi stays configured in `stow/pi/.pi/agent/`. |
+| Primary agent harness | Pi | Settings, models, extensions, keybindings, the shared global rules and guardrail hooks (`stow/pi/.pi/agent/`), the shared skills (`stow/pi/skills/`), and MCP servers (`stow/pi/.pi/agent/mcp.json`). |
+| Other harnesses | Claude Code, OpenCode 2, Codex | Claude Code keeps its mods in `stow/claude/.claude/`; OpenCode covers non-Claude models; Codex runs Sol reviews. |
 | Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `codex exec` in a read-only sandbox; `code-review` adds standards and intent axes before it. |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
@@ -62,7 +61,7 @@ git pull
 If validation fails, nothing changes.
 Use `./scripts/stow.sh delete` to remove all managed symlinks, and `./scripts/bootstrap.sh` only when you also want packages, plugins, and tooling refreshed.
 
-The default profile is the `STOW_PACKAGES` list in `scripts/stow.sh`: `bash git ghostty herdr rex nvim bin claude opencode codex pi`.
+The default profile is the `STOW_PACKAGES` list in `scripts/stow.sh`: `bash git ghostty herdr rex nvim bin pi claude opencode codex`.
 To restow a single package by hand:
 
 ```bash
@@ -91,10 +90,10 @@ stow/                  Stow packages, each mirroring $HOME
   herdr/               Herdr config, plugin list, Plannotator TUI config
   nvim/                Neovim config (see stow/nvim/AGENTS.md)
   bin/                 ~/.local/bin tools
-  claude/              Claude Code settings, keybindings, theme, status line, mods/, MCP servers, the shared guardrail hooks/, and the shared global AGENTS.md and skills/
-  opencode/            OpenCode config, CLI settings, MCP servers, plugins/ (Jev checks, xai_search, guardrails), tui-plugins/, and generated commands/ for /<skill>; links AGENTS.md to claude/
-  codex/               Codex config and theme; links AGENTS.md and hooks to claude/
-  pi/                  Pi settings, MCP config, models, themes, extensions/; links AGENTS.md to claude/
+  pi/                  Pi settings, MCP servers, models, themes, extensions/, the shared guardrail scripts in guardrails/, and the shared global AGENTS.md and skills/
+  claude/              Claude Code settings, keybindings, theme, status line, mods/; links AGENTS.md and hooks to pi/
+  opencode/            OpenCode config, CLI settings, MCP servers, plugins/ (Jev checks, xai_search, guardrails), tui-plugins/, and generated commands/ for /<skill>; links AGENTS.md to pi/
+  codex/               Codex config and theme; links AGENTS.md and hooks to pi/
 scripts/
   bootstrap.sh         Full machine setup
   stow.sh              apply / dry-run / delete, with isolated preflight
@@ -102,6 +101,7 @@ scripts/
   backup.sh            Capture live config into tracked sources
   sync_herdr_plugins.sh Install/update declared Herdr plugins
   update_agent_skills.sh Check or sync the shared skill catalog
+  harness_sync.sh      Generate OpenCode and Codex MCP servers and Claude mod copies from Pi
   rex_server_setup.sh  Root-only Rex login server setup for agentbox
   rex_prefs.sh         Save / load / auto-save Rex app settings
 rex/                   Tracked Rex app settings (not stowed)
@@ -298,10 +298,10 @@ Generated init scripts for FZF, Starship, and zoxide are cached under `~/.cache/
 
 ## Agents
 
-Claude Code is the primary harness.
-OpenCode 2 comes second, for every non-Claude model; switch models with `/models`.
-Its Claude Agent provider drives your local `claude` login through the Agent SDK, but until [anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074) is fixed that draws the 5-hour limit about twice as fast as Claude Code itself, so run Claude in Claude Code.
-Pi stays configured.
+Pi is the primary harness.
+Claude Code stays configured with its mods.
+OpenCode 2 stays configured for non-Claude models; switch models with `/models`.
+Its Claude Agent provider drives your local `claude` login through the Agent SDK, but until [anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074) is fixed that draws the 5-hour limit about twice as fast as Claude Code itself, so don't run Claude through OpenCode.
 Codex stays configured, and cross-provider review goes through `sol-loop`: Sol reviews, the agent fixes, and the loop repeats until Sol approves.
 
 ### Autonomous workflow
@@ -315,11 +315,11 @@ These adapt Theo Browne's [tstack](https://github.com/t3dotgg/tstack) (MIT).
 
 ### Shared rules and skills
 
-Claude Code is the canonical home for everything the harnesses share.
-One global rules file, `stow/claude/.claude/AGENTS.md`, is symlinked into OpenCode, Codex, and Pi by their Stow packages, so all four harnesses follow the same instructions.
+Pi is the canonical home for everything the harnesses share.
+One global rules file, `stow/pi/.pi/agent/AGENTS.md`, is symlinked into Claude Code, OpenCode, and Codex by their Stow packages, so all four harnesses follow the same instructions.
 Reload or restart sessions after changing it.
 
-Skills live once in `stow/claude/skills/`, outside `.claude/` so Claude Code doesn't load them twice in this repo; `scripts/stow.sh` links each skill folder into `~/.claude/skills/` and `~/.agents/skills/`, which Codex, OpenCode, and Pi read.
+Skills live once in `stow/pi/skills/`; `scripts/stow.sh` links each skill folder into `~/.agents/skills/`, which Pi, Codex, and OpenCode read, and `~/.claude/skills/` for Claude Code.
 Ownership (upstream baseline, personalization layer, or local) is recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
 [docs/skills.md](docs/skills.md) lists every skill, who can invoke it, its owner, and what it does; it is generated from each `SKILL.md`, so run `./scripts/skill_catalog.sh` after adding, renaming, or editing a skill.
 The same script writes one OpenCode command per skill under `stow/opencode/.config/opencode/commands/`, because OpenCode loads skills with `@skill-id` rather than `/skill-id`.
@@ -332,9 +332,13 @@ The same script writes one OpenCode command per skill under `stow/opencode/.conf
 ```
 
 Claude Code's `jev-checks` mod in `stow/claude/.claude/mods/` screens web results, audits edit scope, and fact-checks answers; test it with `claude plugin test <mod folder>`.
-Its `hooks/jev-shared.ts` holds the Jev logic for Claude Code and OpenCode, and the OpenCode plugin imports that file directly, because Claude Code refuses imports from outside a mod's folder.
+Pi's `jev-guardrails` extension runs the same checks and adds the same `jev_pipeline` tool from that shared file, calling the `jev` server in Pi's `mcp.json` over stdio because Pi's extension loader does not expose its MCP client.
+The Jev logic lives once in Pi, in `stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts`, and the OpenCode plugin imports it directly.
+Claude Code only loads mod files whose real path is inside the mod, so the mod's `hooks/jev-shared.ts` is a copy that `./scripts/harness_sync.sh` generates; edit Pi's file, then run the script.
 The `bold-color` mod draws bold reply text in Tokyo Night blue.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
+Pi's `claude-style-ui` extension does both, and its footer shows session cost per model like Claude Code's `model-cost` status line.
+Pi's `skill-toast` and `inline-skills` extensions notify when a skill loads, and `/update` and `/restart` resume the session through the `pi` shell function, as Claude Code's `session-relaunch` mod does.
 The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` is the thin OpenCode side of the same checks.
 OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.
 
@@ -343,7 +347,7 @@ OpenCode bundles the `effect` package it uses at runtime; its `package.json` pin
 ```
 
 The `xai-search` mod and the OpenCode plugin in `stow/opencode/.config/opencode/plugins/xai-search/` both give agents the `xai_search` tool through Pi's guarded runner.
-The mod's `hooks/xai-shared.ts` holds the tool definition for both, the same way `jev-shared.ts` does.
+Their shared tool definition lives in `stow/pi/.pi/agent/extensions/xai-search/xai-shared.ts`, and the mod gets a generated copy the same way.
 
 ```bash
 (cd stow/opencode/.config/opencode/plugins/xai-search && bun install && bun test && bun run check)
@@ -355,17 +359,18 @@ A new machine gets the tracked snapshot from `./scripts/stow.sh apply` with no u
 
 ### MCP servers
 
-`stow/claude/mcp.json` defines seven servers: Ref (library docs), Exa (web search), Jev (TypeSafe judgments), Chrome DevTools (isolated browser), codex-chrome (your real Chrome profile), HEY (mail/calendar via `hey mcp`), and superlogical (Rex docs and feedback).
+`stow/pi/.pi/agent/mcp.json` defines seven servers: Ref (library docs), Exa (web search), Jev (TypeSafe judgments), Chrome DevTools (isolated browser), codex-chrome (your real Chrome profile), HEY (mail/calendar via `hey mcp`), and superlogical (Rex docs and feedback).
 Keys come from the environment (`REF_API_KEY`, `EXA_API_KEY`, `TYPESAFE_API_KEY`), never from tracked files.
 Run `claude mcp list` to check connections.
 
-Claude Code keeps registrations in machine-local `~/.claude.json`, so bootstrap imports the tracked file; rerun the import after changing it:
+Claude Code keeps registrations in machine-local `~/.claude.json`, so bootstrap imports Pi's file, dropping Pi-only `exposure` and `timeout` fields; rerun the import after changing it:
 
 ```bash
 ./mcp_setup.sh install-claude
 ```
 
-OpenCode, Pi, and Codex declare the same servers in `opencode.jsonc`, `stow/pi/.pi/agent/mcp.json`, and `stow/codex/.codex/config.toml`.
+`./scripts/harness_sync.sh` writes the same servers into OpenCode's `opencode.jsonc` and Codex's `stow/codex/.codex/config.toml`, so change servers only in Pi's file, then run it; `validate-dotfiles.sh` fails when they drift.
+Codex keeps the `node_repl` and `computer-use` servers the ChatGPT app installs for its browser and computer use.
 The legacy template flow in `mcp/` is documented in `mcp/README.md`.
 
 Two things worth knowing:
@@ -379,11 +384,12 @@ Two things worth knowing:
 
 ### Guardrails
 
-Claude Code's hooks in `stow/claude/.claude/hooks/` block dangerous shell commands and hand edits to generated files.
-Codex runs the same scripts through symlinks in `stow/codex/.codex/hooks/`, and Pi runs them from `~/.claude/hooks/` through its `agent-guardrails` extension.
-OpenCode's `guardrails` plugin runs the shell rules from `~/.claude/hooks/` on every model, including Opus through Claude Agent, but it does not run the generated-file rules.
+The hooks in `stow/pi/.pi/agent/guardrails/` block dangerous shell commands and hand edits to generated files; Pi runs them from `~/.pi/agent/guardrails/` through its `agent-guardrails` extension.
+They live in `guardrails/`, not `hooks/`, because Pi stops at a deprecation prompt on every start when `~/.pi/agent/hooks/` exists.
+Claude Code and Codex run the same scripts through symlinks in `stow/claude/.claude/hooks/` and `stow/codex/.codex/hooks/`.
+OpenCode's `guardrails` plugin runs the shell rules from `~/.pi/agent/guardrails/` on every model, including Opus through Claude Agent, but it does not run the generated-file rules.
 Rails extras: schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
-Pi also screens fetched web content and audits edit scope with Jev (`jev-guardrails` extension), and Claude Code does the equivalent through its `jev-checks` mod.
+Pi screens fetched web content, audits edit scope, and fact-checks answers with Jev (`jev-guardrails` extension), and Claude Code does the same through its `jev-checks` mod.
 Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.
 
 ### Planning and review

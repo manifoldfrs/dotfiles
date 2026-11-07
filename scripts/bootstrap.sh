@@ -198,6 +198,21 @@ install_global_anti_slop() {
     npm install --prefix "$runtime" --omit=dev --ignore-scripts --no-package-lock --no-audit --no-fund || warn "Global anti-slop dependency installation failed"
 }
 
+install_pi() {
+    if command -v pi &> /dev/null; then
+        info "Pi already installed"
+        return
+    fi
+
+    if ! command -v bun &> /dev/null; then
+        warn "Bun not found, skipping Pi"
+        return
+    fi
+
+    info "Installing Pi..."
+    bun add -g @earendil-works/pi-coding-agent || warn "Pi installation failed"
+}
+
 install_opencode() {
     local version
 
@@ -280,6 +295,7 @@ main() {
     info "Bootstrapping development environment..."
     install_homebrew
     install_brewfile
+    install_pi
     install_claude_code
     install_claude_chrome_host_for_helium
     install_opencode

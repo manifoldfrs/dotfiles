@@ -1,1 +1,1 @@
-../../../claude/.claude/hooks/block-dangerous-bash.sh
+../../../pi/.pi/agent/guardrails/block-dangerous-bash.sh

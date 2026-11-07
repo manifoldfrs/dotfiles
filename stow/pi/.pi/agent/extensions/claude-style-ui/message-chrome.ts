@@ -45,6 +45,7 @@ type MarkdownInternals = {
   defaultStylePrefix?: unknown;
   theme?: MarkdownTheme;
   renderToken?: (token: CodeToken, width: number, nextTokenType?: string, styleContext?: unknown) => string[];
+  renderInlineTokens?: (tokens: readonly InlineToken[] | undefined, styleContext?: unknown) => string;
 };
 
 function dropUserBackground(component: { children?: unknown[] }): void {
@@ -75,6 +76,11 @@ function patchUserMessages(): void {
   proto[PATCHED] = true;
 }
 
+interface InlineToken {
+  type?: string;
+  tokens?: readonly InlineToken[];
+}
+
 interface CodeToken {
   type: string;
   text?: string;
@@ -97,7 +103,36 @@ function decorateReply(markdown: Markdown): void {
   if (internals[DECORATED] || !internals.theme || typeof internals.renderToken !== "function") return;
   const theme = internals.theme;
   const renderToken = internals.renderToken;
-  internals.theme = { ...theme, listBullet: (marker: string) => theme.listBullet(unorderedBulletToDisc(marker)) };
+  const renderInline = internals.renderInlineTokens;
+  // Headings and table headers bold through the same theme call, so only the call that follows rendering a **strong** token's children takes the accent.
+  const strongChildren = new WeakSet<object>();
+  let strongJustRendered = false;
+  internals.theme = {
+    ...theme,
+    listBullet: (marker: string) => theme.listBullet(unorderedBulletToDisc(marker)),
+    bold: (text: string) => {
+      const accentTheme = strongJustRendered ? currentTheme : undefined;
+
+      strongJustRendered = false;
+
+      return theme.bold(accentTheme ? accentTheme.fg("accent", text) : text);
+    },
+  };
+
+  if (renderInline) {
+    internals.renderInlineTokens = function renderAccentBold(tokens, styleContext) {
+      for (const token of tokens ?? []) {
+        if (token.type === "strong" && token.tokens) strongChildren.add(token.tokens);
+      }
+
+      const rendered = renderInline.call(this, tokens, styleContext);
+
+      strongJustRendered = tokens !== undefined && strongChildren.has(tokens);
+
+      return rendered;
+    };
+  }
+
   internals.renderToken = function renderFramedCode(token, width, nextTokenType, styleContext) {
     if (token.type !== "code" || width < 8) return renderToken.call(this, token, width, nextTokenType, styleContext);
     const lines = framedCode(token, theme, width);

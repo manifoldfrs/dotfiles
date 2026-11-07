@@ -7,7 +7,7 @@ STOW_DIR="$DOTFILES_DIR/stow"
 STOW_PACKAGES=("$@")
 
 if [[ ${#STOW_PACKAGES[@]} -eq 0 ]]; then
-    STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude opencode codex pi)
+    STOW_PACKAGES=(bash git ghostty herdr rex nvim bin pi claude opencode codex)
 fi
 
 if ! command -v stow &>/dev/null; then
@@ -22,6 +22,7 @@ for script in \
     "$DOTFILES_DIR/scripts/validate-dotfiles.sh" \
     "$DOTFILES_DIR/scripts/rex_server_setup.sh" \
     "$DOTFILES_DIR/scripts/skill_catalog.sh" \
+    "$DOTFILES_DIR/scripts/harness_sync.sh" \
     "$DOTFILES_DIR/stow/bash/.bash_profile" \
     "$DOTFILES_DIR/stow/bash/.bashrc" \
     "$DOTFILES_DIR/stow/bash/.config/bash/aliases.bash" \
@@ -32,6 +33,7 @@ done
 
 bash "$DOTFILES_DIR/test/bash_path_test.sh" "$DOTFILES_DIR"
 bash "$DOTFILES_DIR/scripts/skill_catalog.sh" --check
+bash "$DOTFILES_DIR/scripts/harness_sync.sh" --check
 
 rex_bin=$(command -v rex || true)
 if [[ -z $rex_bin && -n ${REX_BIN_DIR:-} && -x "$REX_BIN_DIR/rex" ]]; then

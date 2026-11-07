@@ -37,8 +37,9 @@ function pad(context: Context): string {
 
 function statusDot(theme: Theme, context: Context): string {
   if (context.isError) return theme.fg("error", "●");
+  // A running row keeps the text color, so it does not read as finished or disabled.
   if (!context.executionStarted || context.isPartial || context.durationMs === undefined) {
-    return theme.fg("dim", "●");
+    return theme.fg("text", "●");
   }
   return theme.fg("success", "●");
 }

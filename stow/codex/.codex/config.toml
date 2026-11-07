@@ -151,20 +151,37 @@ screen_reader_detection_done = true
 "gpt-6.1-sol" = 3
 
 [mcp_servers.Ref]
-type = "http"
 url = "https://api.ref.tools/mcp"
-enabled = true
 
 [mcp_servers.Ref.env_http_headers]
 x-ref-api-key = "REF_API_KEY"
 
 [mcp_servers.exa]
-type = "http"
 url = "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
-enabled = true
 
 [mcp_servers.exa.env_http_headers]
 x-api-key = "EXA_API_KEY"
+
+[mcp_servers.jev]
+command = "npx"
+args = ["-y","@jkudish/jev-mcp"]
+env_vars = ["TYPESAFE_API_KEY"]
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y","chrome-devtools-mcp@latest","--isolated","--no-usage-statistics"]
+tool_timeout_sec = 60
+
+[mcp_servers.codex-chrome]
+command = "codex-control-chrome-mcp"
+args = ["--stdio"]
+
+[mcp_servers.hey]
+command = "hey"
+args = ["mcp"]
+
+[mcp_servers.superlogical]
+url = "https://www.superlogical.com/rex/community-mcp"
 
 [mcp_servers.node_repl]
 args = []
@@ -194,35 +211,6 @@ command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.
 args = ["mcp"]
 cwd = "."
 enabled = false
-
-[mcp_servers.jev]
-command = "npx"
-args = [
-    "-y",
-    "@jkudish/jev-mcp",
-]
-env_vars = ["TYPESAFE_API_KEY"]
-
-[mcp_servers.chrome-devtools]
-command = "npx"
-args = [
-    "-y",
-    "chrome-devtools-mcp@latest",
-    "--isolated",
-    "--no-usage-statistics",
-]
-
-[mcp_servers.codex-chrome]
-command = "codex-control-chrome-mcp"
-args = ["--stdio"]
-
-[mcp_servers.hey]
-command = "hey"
-args = ["mcp"]
-
-[mcp_servers.superlogical]
-url = "https://www.superlogical.com/rex/community-mcp"
-
 [hooks.state]
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:0:0"]

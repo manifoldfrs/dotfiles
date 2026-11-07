@@ -151,6 +151,22 @@ grt() {
     cd "$root" || return
 }
 
+# Pi's update extension writes a session path to PI_RELAUNCH_FILE before /update or /restart exits.
+pi() {
+    local relaunch_file session_file status
+    relaunch_file=$(mktemp "${TMPDIR:-/tmp}/pi-relaunch.XXXXXX") || return
+    PI_RELAUNCH_FILE=$relaunch_file command pi "$@"
+    status=$?
+    while [[ -s $relaunch_file ]]; do
+        session_file=$(<"$relaunch_file")
+        : >"$relaunch_file"
+        PI_RELAUNCH_FILE=$relaunch_file command pi --session "$session_file"
+        status=$?
+    done
+    rm -f "$relaunch_file"
+    return "$status"
+}
+
 # The session-relaunch mod's /update and /restart write a session id to CLAUDE_RELAUNCH_FILE before exiting.
 claude() {
     local relaunch_file session_id status

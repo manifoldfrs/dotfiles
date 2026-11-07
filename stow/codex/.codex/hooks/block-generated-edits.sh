@@ -1,1 +1,1 @@
-../../../claude/.claude/hooks/block-generated-edits.sh
+../../../pi/.pi/agent/guardrails/block-generated-edits.sh

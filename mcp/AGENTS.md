@@ -41,8 +41,9 @@ rg 'command' mcp/*.example
 
 ## Common Gotchas
 - Restart Codex after `./mcp_setup.sh install`
-- `install-claude` imports `stow/claude/mcp.json` into user-scoped Claude registrations, skips identical entries, and refuses conflicting entries.
+- `install-claude` imports Pi's definitions (`stow/pi/.pi/agent/mcp.json`) into user-scoped Claude registrations, skips identical entries, and refuses conflicting entries.
 - Restart Claude Code after importing MCP definitions.
+- Pi's `stow/pi/.pi/agent/mcp.json` is the only hand-edited server list; run `./scripts/harness_sync.sh` to regenerate OpenCode's and Codex's servers, and `./mcp_setup.sh install-claude` for Claude Code.
 - Run `/reload` or restart Pi after Stowing `stow/pi/.pi/agent/mcp.json`
 - TOML syntax is strict; keep `command` arrays
 - Templates must keep `.example` suffix to avoid commits

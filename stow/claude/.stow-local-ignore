@@ -1,7 +1,1 @@
 ^/\.claude/mods
-# scripts/stow.sh links complete skill directories into ~/.claude/skills and ~/.agents/skills,
-# so references, scripts, and metadata stay together and updates replace atomically.
-# They live outside .claude/ because Claude Code would load them twice while working in this repo.
-^/skills
-# mcp_setup.sh install-claude registers these in ~/.claude.json, which holds machine-local state.
-^/mcp\.json

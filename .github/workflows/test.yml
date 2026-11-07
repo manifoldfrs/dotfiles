@@ -29,7 +29,7 @@ jobs:
       - name: Verify Bash Stow layout
         run: |
           tmp_home="$(mktemp -d)"
-          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin claude opencode codex pi
+          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin pi claude opencode codex
           test -L "$tmp_home/.bashrc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"
@@ -37,6 +37,10 @@ jobs:
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"
           test -L "$tmp_home/.pi/agent/themes/tokyonight-frsh.json"
+          test -L "$tmp_home/.pi/agent/AGENTS.md"
+          test -L "$tmp_home/.pi/agent/guardrails/block-dangerous-bash.sh"
+          test ! -e "$tmp_home/.pi/skills"
+          test ! -e "$tmp_home/.pi/agent/hooks"
           test -L "$tmp_home/.claude/settings.json"
           test -L "$tmp_home/.claude/AGENTS.md"
           test -L "$tmp_home/.config/opencode/opencode.jsonc"

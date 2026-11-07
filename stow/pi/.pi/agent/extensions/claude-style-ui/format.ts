@@ -93,3 +93,32 @@ export function contextPercentLevel(percent: number): "ok" | "warning" | "error"
   if (percent >= 75) return "warning";
   return "ok";
 }
+
+type CostEntry = { type: string; message?: { role: string; model?: string; usage?: { cost?: { total?: number } } } };
+
+/** Session spend per model, from every assistant message, most expensive first. */
+export function modelCosts(entries: readonly CostEntry[]): [string, number][] {
+  const costs = new Map<string, number>();
+
+  for (const entry of entries) {
+    const message = entry.type === "message" ? entry.message : undefined;
+    const usd = message?.role === "assistant" ? message.usage?.cost?.total : undefined;
+
+    if (!message?.model || !usd) continue;
+
+    costs.set(message.model, (costs.get(message.model) ?? 0) + usd);
+  }
+
+  return [...costs].sort((a, b) => b[1] - a[1]);
+}
+
+// The footer already names the active model, so a single cost stays unlabeled; labels only tell several apart.
+export function formatCosts(costs: readonly [string, number][]): string | undefined {
+  if (costs.length === 0) return undefined;
+
+  const [only] = costs;
+
+  if (costs.length === 1 && only) return `$${only[1].toFixed(2)}`;
+
+  return costs.map(([model, usd]) => `${model.replace(/^claude-/, "")} $${usd.toFixed(2)}`).join(" · ");
+}

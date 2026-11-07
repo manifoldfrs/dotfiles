@@ -40,7 +40,8 @@ export function registerAgentGuardrails(pi: ExtensionAPI, guardrailsDir: string)
 
   pi.on("tool_call", (event, ctx) => {
     if (event.toolName === "bash") {
-      const { command } = event.input;
+      // SAFETY: tool_call runs after Pi validates bash arguments against the bash tool's schema, which requires a string command.
+      const command = event.input.command as string;
       if (scriptsInstalled(ctx)) {
         const verdict = runGuardrailScript(bashScript, { cwd: ctx.cwd, tool_input: { command } });
         if (verdict) return verdict;
@@ -55,5 +56,5 @@ export function registerAgentGuardrails(pi: ExtensionAPI, guardrailsDir: string)
 }
 
 export default function (pi: ExtensionAPI) {
-  registerAgentGuardrails(pi, join(homedir(), ".claude/hooks"));
+  registerAgentGuardrails(pi, join(homedir(), ".pi/agent/guardrails"));
 }
