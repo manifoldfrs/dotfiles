@@ -5,7 +5,7 @@ description: Investigate questions against primary sources; cite answers and cap
 
 Handle small lookups directly.
 For broad research with independent questions or substantial context, use bounded background agents when delegation is authorized.
-Use the current harness's orchestration API and return source-backed findings, not raw browsing logs.
+Use Pi's `subagent` tool and return source-backed findings, not raw browsing logs.
 
 The research must:
 

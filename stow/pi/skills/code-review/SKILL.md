@@ -66,7 +66,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 ### 4. Review both axes
 
 Perform each brief below directly, or hand it to a separate read-only reviewer when the change is broad enough to warrant it.
-For delegated work, discover available agents and follow the current harness's orchestration and isolation rules rather than assuming Claude's tool names.
+For delegated work, use Pi's `subagent` tool with the `reviewer` agent and follow its isolation rules.
 Give both reviewers the same pinned scope and return findings with file and requirement citations.
 
 **Standards brief** — include:

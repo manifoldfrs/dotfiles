@@ -50,7 +50,7 @@ Parse the new pane ID from `result.pane.pane_id` in the split response. Prefer `
 
 ```bash
 herdr agent list
-herdr agent start codex --cwd /path/to/project --split right --no-focus -- codex
+herdr agent start pi --cwd /path/to/project --split right --no-focus -- pi
 herdr agent focus <agent-target>
 herdr agent read <agent-target> --source recent-unwrapped --lines 100
 herdr agent send <agent-target> "review the current changes"

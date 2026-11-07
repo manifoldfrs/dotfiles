@@ -30,8 +30,7 @@ It exits 0 when the `--until` condition is met or the PR merges, 1 when it needs
 - `green`: required checks only; use it when the repository has no Greptile or Macroscope.
 - `any-change`: exit on the first event.
 
-In Claude Code, run it with the Monitor tool (`timeout_ms: 3600000`) so each line wakes you.
-In Pi, Codex, or any harness without a monitor, run it as one long background command and wait for it to exit.
+Run it as one long background command and wait for it to exit.
 
 Start it again after you push, after you handle an exit 1, and after a resume.
 It remembers what it already reported in `~/.local/state/pr-wait/`, so nothing that arrived in between is lost.

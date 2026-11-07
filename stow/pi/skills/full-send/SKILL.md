@@ -69,7 +69,7 @@ An automated "needs human review" request may be ignored when your proof covers 
 ## Asking the user
 
 A question in a normal message goes unseen and the thread looks done.
-Ask with the harness's question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex), carrying the PR link, the blocker, and the options with your recommendation first.
+Ask through the Plannotator Inbox with the `plannotator_inbox` tool, as a `:::question` block carrying the PR link, the blocker, and the options with your recommendation, then end your turn; the `plannotator` skill covers the format.
 
 Ask only when you cannot continue alone:
 

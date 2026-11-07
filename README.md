@@ -14,7 +14,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Shell | Homebrew Bash 5 + Starship | FZF and zoxide on top. Fish/Zsh configs under `old/` are rollback-only. |
 | Primary agent harness | Pi | Settings, models, extensions, keybindings, the shared global rules and guardrail hooks (`stow/pi/.pi/agent/`), the shared skills (`stow/pi/skills/`), and MCP servers (`stow/pi/.pi/agent/mcp.json`). |
 | Other harnesses | Claude Code, OpenCode 2, Codex | Claude Code keeps its mods in `stow/claude/.claude/`; OpenCode covers non-Claude models; Codex runs Sol reviews. |
-| Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `codex exec` in a read-only sandbox; `code-review` adds standards and intent axes before it. |
+| Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `pi -p` with only read-only tools; `code-review` adds standards and intent axes before it. |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception: its theme and font are app settings, not files (see [Rex app settings](#rex-app-settings-one-time-per-machine)).
@@ -302,7 +302,7 @@ Pi is the primary harness.
 Claude Code stays configured with its mods.
 OpenCode 2 stays configured for non-Claude models; switch models with `/models`.
 Its Claude Agent provider drives your local `claude` login through the Agent SDK, but until [anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074) is fixed that draws the 5-hour limit about twice as fast as Claude Code itself, so don't run Claude through OpenCode.
-Codex stays configured, and cross-provider review goes through `sol-loop`: Sol reviews, the agent fixes, and the loop repeats until Sol approves.
+Codex stays configured. Every model runs through Pi, including cross-provider review in `sol-loop`: Sol reviews through `pi -p`, the agent fixes, and the loop repeats until Sol approves.
 
 ### Autonomous workflow
 

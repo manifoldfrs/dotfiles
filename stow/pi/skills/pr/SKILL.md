@@ -50,8 +50,7 @@ For a UI change:
 1. Run the app locally with seeded test data; the project's own rules name the command and the seed.
 2. Screenshot every changed screen from the running app, at the widths users see.
 3. Record each changed flow as a GIF.
-   Use Claude in Chrome's `gif_creator` when it is available.
-   Otherwise record with Playwright WebKit's `recordVideo`, convert with Homebrew `ffmpeg`, and trim the blank opening frames, because GitHub shows the first frame until the GIF plays.
+   Record with Playwright WebKit's `recordVideo`, convert with Homebrew `ffmpeg`, and trim the blank opening frames, because GitHub shows the first frame until the GIF plays.
 4. Move every file into the evidence folder under a descriptive name.
 
 For a change without UI, the evidence is failing-then-passing test output, command output, or a request and response.

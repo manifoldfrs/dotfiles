@@ -44,8 +44,11 @@ test("each PR addresses one goal and the loop reviews with Sol", () => {
   assert.ok(!existsSync(resolve(catalog, "codebase-design/DESIGN-IT-TWICE.md")));
   assert.match(skill("pr"), /A pull request addresses one goal/);
   assert.match(skill("full-send"), /One PR addresses one goal/);
-  assert.match(skill("sol-loop"), /codex exec .*-s read-only/);
-  assert.match(skill("sol-loop"), /-m gpt-6\.1-sol -c model_reasoning_effort=.*xhigh/);
+  assert.match(skill("sol-loop"), /pi -p --no-session --no-extensions --no-mcp --no-skills/);
+  assert.match(skill("sol-loop"), /--tools read,grep,find,ls/);
+  assert.match(skill("sol-loop"), /--model openai\/gpt-6\.1-sol --thinking xhigh/);
+  assert.doesNotMatch(skill("sol-loop"), /codex exec|~\/\.claude/);
+  assert.ok(existsSync(resolve(catalog, "sol-loop/reviewer.md")));
   assert.ok(existsSync(resolve(catalog, "sol-loop/scripts/behavior-lines")));
   for (const name of ["sol-loop"]) {
     for (const line of skill(name).split("\n").filter((l) => /follow it\." > /.test(l))) assert.fail(`${name}: reviewer command leaves stdin open: ${line}`);

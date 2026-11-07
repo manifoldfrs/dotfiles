@@ -4,8 +4,8 @@
   pr-wait <pr> [--repo owner/name] [--until green|ready|any-change] [--interval 20]
 
 <pr> is a PR number or PR URL. Without --repo, the repo comes from the URL or
-from the current checkout. Stdout carries only events, one line each, so a
-monitor (Claude Code's Monitor tool) wakes the agent once per real event.
+from the current checkout. Stdout carries only events, one line each, so the
+agent can stop at the first one, or a monitor can wake it once per event.
 Progress and errors that do not end the run go to stderr.
 
 --until

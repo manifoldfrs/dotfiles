@@ -66,32 +66,26 @@ VERDICT: APPROVE or CHANGES
 S1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion>   (stable ids)
 ```
 
-Run it through Codex as one background command, in Codex's read-only sandbox, at `xhigh` reasoning:
+Run it through Pi as one background command, at `xhigh` reasoning, with only Pi's read-only tools and nothing else loaded.
+`<skill dir>` is this skill's directory, by absolute path; `reviewer.md` there is the reviewer's system prompt.
 
 ```bash
-perl -e 'alarm 900; exec @ARGV' codex exec --ephemeral --ignore-user-config -s read-only \
-  -m gpt-6.1-sol -c model_reasoning_effort='"xhigh"' -c project_doc_max_bytes=0 -C <repo> \
-  -o "$dir/sol-<round>.md" \
-  "$(sed '1,/^---$/d' ~/.claude/agents/reviewer.md)
-
-Read $dir/brief-<round>.md and follow it." < /dev/null > "$dir/sol-<round>.log" 2>&1
+cd <repo> && perl -e 'alarm 900; exec @ARGV' pi -p --no-session --no-extensions --no-mcp --no-skills \
+  --no-prompt-templates --no-context-files --tools read,grep,find,ls \
+  --model openai/gpt-6.1-sol --thinking xhigh \
+  --append-system-prompt "$(cat <skill dir>/reviewer.md)" \
+  "Read $dir/brief-<round>.md and follow it." < /dev/null > "$dir/sol-<round>.md" 2> "$dir/sol-<round>.log"
 ```
 
-`-o` writes only Sol's final reply; the log holds the run, including harmless `xcrun` cache warnings from the sandbox.
-`--ignore-user-config` and `project_doc_max_bytes=0` keep your Codex settings, MCP servers, and `AGENTS.md` out of the reviewer.
+Standard output is only Sol's final reply; the log holds errors.
+The `--no-*` flags keep your extensions, MCP servers, skills, and `AGENTS.md` out of the reviewer, and `--tools` leaves it no shell or edit tool.
 
 Wait for the completion notification; do not edit scoped files while it runs.
-`< /dev/null` matters: both CLIs read stdin when it is open, and a background shell can leave it open forever.
+`< /dev/null` matters: Pi reads stdin when it is open, and a background shell can leave it open forever.
 The `perl` alarm kills a hung run after 15 minutes, since macOS has no `timeout`.
 Judge the round by its output, not the exit code: a reply without a `VERDICT` line is a failure, so retry once.
-After a second failure, run the round on Grok through Pi and mark it as a Grok fallback in the ledger and the report:
-
-```bash
-cd <repo> && perl -e 'alarm 900; exec @ARGV' pi -p --no-session --no-mcp --no-skills --tools read,grep,find,ls \
-  --model xai/grok-4.7:high \
-  --append-system-prompt "$(sed '1,/^---$/d' ~/.claude/agents/reviewer.md)" \
-  "Read $dir/brief-<round>.md and follow it." < /dev/null > "$dir/grok-<round>.md" 2>&1
-```
+When the log shows an expired sign-in, such as `OAuth refresh failed for openai`, ask the user to run `/login openai` in Pi instead of retrying.
+After a second failure, rerun the same command with `--model xai/grok-4.7 --thinking high`, writing `grok-<round>.md` and `grok-<round>.log`, and mark the round as a Grok fallback in the ledger and the report.
 
 ## 3. Answer findings
 
@@ -121,5 +115,5 @@ When the work ends in a pushed PR, add `Reviewed with sol-loop: <N> rounds with 
 
 ## Sources and adaptations
 
-Adapted from Theo Browne's tstack `sol-loop` skill (MIT), with Codex running Sol and Pi running the Grok fallback.
+Adapted from Theo Browne's tstack `sol-loop` skill (MIT), with Pi running both Sol and the Grok fallback.
 The size cutoff follows reviews degrading with diff size: Bjørn Johansen's five-model review test and SWE-PRBench (2026).
