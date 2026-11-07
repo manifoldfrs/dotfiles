@@ -356,7 +356,7 @@ The Jev logic lives once in Pi, in `stow/pi/.pi/agent/extensions/jev-guardrails/
 Claude Code only loads mod files whose real path is inside the mod, so the mod's `hooks/jev-shared.ts` is a copy that `./scripts/harness_sync.sh` generates; edit Pi's file, then run the script.
 The `bold-color` mod draws bold reply text in Tokyo Night blue.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
-Pi's `claude-style-ui` extension does both, and its footer shows session cost per model like Claude Code's `model-cost` status line.
+Pi's `claude-style-ui` extension does both, shows known skills typed as `/name` in blue with a menu of matching skills anywhere in the prompt, and its footer shows session cost per model like Claude Code's `model-cost` status line.
 Pi's `skill-toast` and `inline-skills` extensions notify when a skill loads, and `/update` and `/restart` resume the session through the `pi` shell function, as Claude Code's `session-relaunch` mod does.
 The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` is the thin OpenCode side of the same checks.
 OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.
