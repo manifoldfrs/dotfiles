@@ -226,6 +226,8 @@ Finish it from the Mac with `agentbox-auth`:
 
 It reads the address from the clipboard and requests it on agentbox, where the waiting sign-in receives it and finishes.
 Pass the address as an argument instead of copying it, or a host other than agentbox as the second argument: `agentbox-auth '<address>' <host>`.
+Keep the single quotes: unquoted, the shell cuts the address at the first `&`.
+Run on agentbox itself, which has no clipboard, it takes the address as an argument and requests it there directly.
 The address works once and only while the sign-in is waiting; if `agentbox-auth` reports it could not connect, start the sign-in again.
 
 #### Daily use (on the Mac)
