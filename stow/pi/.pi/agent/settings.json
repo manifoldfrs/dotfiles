@@ -4,7 +4,7 @@
   "defaultProvider": "pi-claude-cli",
   "defaultModel": "claude-opus-5-5",
   "defaultThinkingLevel": "medium",
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "quietStartup": "header",
   "enableSkillCommands": true,
   "shellPath": "~/.local/bin/bash",
@@ -49,7 +49,7 @@
     "enabled": true
   },
   "extensionChangelogVersions": {
-    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.86.0",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.87.0",
     "{\"source\":\"npm:pi-prompt-template-model\",\"scope\":\"user\"}": "0.12.3"
   },
   "skills": [
