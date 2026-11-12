@@ -79,7 +79,7 @@
     "frontend-design@claude-plugins-official": true,
     "plannotator@plannotator": true,
     "swift-lsp@claude-plugins-official": true,
-    "vercel@claude-plugins-official": true
+    "vercel@claude-plugins-official": false
   },
   "extraKnownMarketplaces": {
     "typesafe-ai": {
@@ -97,6 +97,7 @@
   },
   "feedbackDrafts": "notify",
   "alwaysThinkingEnabled": true,
+  "disableClaudeAiConnectors": true,
   "effortLevel": "high",
   "modelSettings": {
     "claude-opus-5": {
