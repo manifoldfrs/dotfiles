@@ -131,9 +131,21 @@ describe('register', () => {
 
     expect(requests).toEqual([])
   })
+
+  test("a subagent's turn neither clears the main turn's edits nor joins the request", async ($, on) => {
+    const requests = engine(on, () => ({ classification: 'leftover' }))
+
+    await $.turn.start({ text: 'add the endpoint', turnId: 't1' })
+    await $.tool.call(edit('/w/debug.ts', '', 'console.log("here")'))
+    await $.turn.start({ text: 'review the diff', turnId: 't2', agentId: 'a1' })
+    const stopped = await $.classic.Stop({ stop_hook_active: false })
+
+    expect(stopped.block).toContain('/w/debug.ts')
+    expect(requests[0]?.context).toEqual({ request: 'add the endpoint' })
+  })
 })
 
-type Fakes = { extraction: Json; verify?: () => Json; audit?: Json; failing?: boolean; output?: string }
+type Fakes = { extraction: Json; verify?: () => Json; audit?: Json; failing?: boolean; output?: string; structured?: Json }
 
 const LONG_ANSWER = 'x'.repeat(500)
 const usage = { input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 }
@@ -142,8 +154,12 @@ function checker(on: On, fakes: Fakes) {
   const calls: { tool: string; args: string }[] = []
   const logs: string[] = []
   const extractions: string[] = []
+  const models: string[] = []
   on('turn.start', ($, e) => ({ turnId: e.turnId }))
+  on('session.model', () => ({ value: 'claude-fable-5-2' }))
   on('tool.call', () => {
+    if (fakes.structured !== undefined) return { result: fakes.structured }
+
     const output = fakes.output ?? 'opencode v2.2.5'
 
     return { result: output, text: output }
@@ -156,6 +172,7 @@ function checker(on: On, fakes: Fakes) {
   })
   on('model.complete', ($, e) => {
     extractions.push(String(e.prompt))
+    models.push(e.model)
 
     return { value: { isAnswered: true as const, text: JSON.stringify(fakes.extraction), usage } }
   })
@@ -168,7 +185,7 @@ function checker(on: On, fakes: Fakes) {
     return { value: { content: [{ type: 'text' as const, text: JSON.stringify(answer) }], isError: false } }
   })
 
-  return { calls, logs, extractions }
+  return { calls, logs, extractions, models }
 }
 
 const contradicted = () => ({ results: [{ verdict: 'contradicted', confidence: 0.95 }] })
@@ -187,9 +204,30 @@ describe('answer check', () => {
     expect(stopped.block).toContain('- Contradicted by the tool output (confidence 0.95): OpenCode 2.3.0 is installed')
     expect(stopped.block).toContain('write it for someone who has not read this message')
     expect(again.block).toBeUndefined()
-    expect(logs[0]).toContain('OpenCode 2.3.0 is installed')
+    expect(logs).toContain('- Contradicted by the tool output (confidence 0.95): OpenCode 2.3.0 is installed')
+    expect(logs.filter(line => line.includes('\n'))).toEqual([])
     expect(calls[0]?.args).toContain('opencode v2.2.5')
     expect(calls[0]?.args).toContain('opencode --version')
+  })
+
+  test("extracts claims with the session's own model", async ($, on) => {
+    const { models } = checker(on, { extraction: claim, verify: contradicted })
+
+    await $.turn.start({ text: 'which version?', turnId: 't1' })
+    await $.tool.call({ tool: 'Bash', command: 'opencode --version' })
+    await $.classic.Stop(stop)
+
+    expect(models).toEqual(['claude-fable-5-2'])
+  })
+
+  test("counts an MCP tool's structured result as evidence", async ($, on) => {
+    const { calls } = checker(on, { extraction: claim, verify: contradicted, structured: { version: 'opencode v2.2.5' } })
+
+    await $.turn.start({ text: 'which version?', turnId: 't1' })
+    await $.tool.call({ tool: 'mcp__chrome-devtools__list_pages' })
+    await $.classic.Stop(stop)
+
+    expect(calls[0]?.args).toContain('opencode v2.2.5')
   })
 
   test('stays quiet when the evidence supports the answer', async ($, on) => {

@@ -202,6 +202,20 @@ test("a long answer after tool use is fact-checked against the tool output", asy
   assert.match(JSON.stringify(result), /Contradicted by the tool output \(confidence 0\.95\)/);
 });
 
+test("the whole of a written file counts as evidence, not just its start", async () => {
+  const answer: JevAnswer = (call) => (call.tool === "jev_verify"
+    ? { results: [{ verdict: "verified", confidence: 0.95 }] }
+    : { records: [] });
+
+  const h = harness(answer, '{"claims": [{"text": "The prompt caps the Gradle heap at 2 GB.", "source": "tool", "timed": false}], "values": []}');
+  await h.dispatch("before_agent_start", { messageType: "user", prompt: "Update the prompt" });
+  const content = `${"Review each PR in order.\n".repeat(80)}Use -Dorg.gradle.jvmargs=-Xmx2g for Android builds.\n`;
+  await h.dispatch("tool_result", { toolName: "write", isError: false, input: { path: "prompt.md", content }, content: [{ type: "text", text: "Wrote prompt.md" }] });
+  await h.dispatch("agent_before_settle", settle(longAnswer));
+  const verify = h.calls.find((call) => call.tool === "jev_verify");
+  assert.match(JSON.stringify(verify?.args.evidence), /Xmx2g/);
+});
+
 test("short answers, and answers without tool use, are not fact-checked", async () => {
   const h = harness();
   await h.dispatch("before_agent_start", { messageType: "user", prompt: "hi" });

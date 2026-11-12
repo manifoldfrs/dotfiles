@@ -356,7 +356,6 @@ const EDIT_CLASSES = [
 const FLAGGED_CLASSES = new Set(['scope_creep', 'speculative', 'leftover'])
 const CLASSIFY_BATCH = 64
 const EDIT_CHARS = 2_000
-const TOOL_INPUT_CHARS = 500
 
 export const RECENT_PROMPTS = 3
 export const MAX_EVIDENCE = 80
@@ -438,7 +437,7 @@ export function errorText(cause: unknown) {
 
 /** Builds the evidence for one tool call from its input as JSON text and its output. */
 export function toolEvidence(sequence: number, tool: string, args: string, output: string): Evidence {
-  return { id: `${sequence}:${tool}`, text: withoutSecrets(`${tool} input: ${args.slice(0, TOOL_INPUT_CHARS)}\n${output}`), source: `${tool} ${args}` }
+  return { id: `${sequence}:${tool}`, text: withoutSecrets(`${tool} input: ${args}\n${output}`), source: `${tool} ${args}` }
 }
 
 function requestEvidence(prompts: readonly string[]): Evidence[] {

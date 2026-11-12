@@ -1,15 +1,13 @@
-import type { EngineInterface, Register, ToolCallInput } from 'claude-code'
+import type { EngineInterface, Register, ToolCallInput, ToolCallResult } from 'claude-code'
 
 import { jevCaller } from './mcp.ts'
 import { DECISION_REMINDER, MAX_EVIDENCE, RECENT_PROMPTS, isSecretFile, reviewTurn, toolEvidence, type CodeEdit, type Evidence } from './jev-shared.ts'
 
-const EXTRACT_MODEL = 'opus'
 const EXTRACT_TIMEOUT_MS = 60_000
 const UNCHECKED_TOOLS = /^mcp__jev/
 
 // Module state resets on hot reload; that only loses the edits of a turn in flight.
 let prompts: string[] = []
-let userPrompts: string[] = []
 let edits: CodeEdit[] = []
 let evidence: Evidence[] = []
 let evidenceCount = 0
@@ -25,7 +23,21 @@ function editOf(e: ToolCallInput): CodeEdit | undefined {
 
 /** The person's recent prompts, leaving out the prompts agents write for subagents. A mod gets one turn.start hook, so screening reads this. */
 export function recentUserPrompts() {
-  return userPrompts
+  return prompts
+}
+
+// $.ui.log draws one line, so a multi-line note is logged line by line.
+export function showNote($: EngineInterface, note: string) {
+  for (const line of note.split('\n')) $.ui.log(line)
+}
+
+// An MCP tool can answer with structured content and no text.
+function resultText(result: ToolCallResult) {
+  if (result.text?.trim()) return result.text
+
+  if (typeof result.result === 'string') return result.result
+
+  return JSON.stringify(result.result) ?? ''
 }
 
 // The call's input is evidence too: answers report which command ran or which file was read.
@@ -36,7 +48,7 @@ function argsOf(e: ToolCallInput) {
 }
 
 async function generate($: EngineInterface, prompt: string) {
-  const reply = await $.model.complete({ model: EXTRACT_MODEL, prompt, timeoutMs: EXTRACT_TIMEOUT_MS })
+  const reply = await $.model.complete({ model: await $.session.model(), prompt, timeoutMs: EXTRACT_TIMEOUT_MS })
 
   if (!reply.isAnswered) throw new Error(`claim extraction failed: ${reply.reason}`)
 
@@ -45,13 +57,12 @@ async function generate($: EngineInterface, prompt: string) {
 
 export const registerCoding: Register = on => {
   on('turn.start', async ($, e, next) => {
+    if (e.agentId !== undefined) return next(e)
+
     if (e.text) prompts = [...prompts, e.text].slice(-RECENT_PROMPTS)
 
-    if (e.text && e.agentId === undefined) userPrompts = [...userPrompts, e.text].slice(-RECENT_PROMPTS)
-
     edits = []
-
-    if (e.agentId === undefined) ranTool = false
+    ranTool = false
 
     return next(e)
   })
@@ -63,7 +74,7 @@ export const registerCoding: Register = on => {
 
     if (e.agentId !== undefined || UNCHECKED_TOOLS.test(e.tool) || result.deny !== undefined || isSecretFile(args)) return result
 
-    const output = result.text ?? ''
+    const output = resultText(result)
     ranTool = true
     evidenceCount += 1
     evidence = [...evidence, toolEvidence(evidenceCount, e.tool, args, result.isError ? `Error: ${output}` : output)].slice(-MAX_EVIDENCE)
@@ -91,7 +102,7 @@ export const registerCoding: Register = on => {
     const turn = { prompts, edits, answer: e.last_assistant_message, evidence, ranTool }
     const review = await reviewTurn(jevCaller($), prompt => generate($, prompt), turn)
 
-    for (const note of review.person) $.ui.log(note)
+    for (const note of review.person) showNote($, note)
 
     edits = []
     ranTool = false
