@@ -241,3 +241,10 @@ rexbox() {
 
     rex -S agentbox -C "$client" do session.select session_id="$id"
 }
+
+# Over SSH there is no local clipboard, so OSC 52 asks the terminal to set its own.
+if ! command -v pbcopy &> /dev/null; then
+    pbcopy() {
+        printf '\e]52;c;%s\a' "$(base64 | tr -d '\n')"
+    }
+fi
