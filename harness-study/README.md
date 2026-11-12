@@ -130,6 +130,22 @@ All four arms interleaved; differences are paired by task and rep.
 - Claude Code makes the 96 MCP calls on `mcp-orders` as tool-call batches of up to 17 per message, so its mean wall time (104 s) is close to plain `pi` (98 s); it has no way to batch them into one script.
 - No run touched `keys/`, `hidden/`, `expected.mjs`, `datasets.mjs`, or the server source.
 
+## Results: complex2 (2026-11-12, 256 runs, 8 reps per cell, trimmed Claude Code)
+
+Same complex suite after setting `disableClaudeAiConnectors: true` and turning the Vercel plugin off, which took Claude Code from 815 tools to 97.
+See [results/complex2/summary.md](results/complex2/summary.md).
+
+| Comparison (paired, `cc` minus `pi`) | complex1 | complex2 |
+|---|---|---|
+| All 8 tasks | +11.9 s (+25%) | +4.4 s (+10%), CI +2.3 to +6.5 |
+| Six non-MCP tasks | +13.5 s (+33%) | +6.9 s (+18%) |
+| Two MCP tasks | +7.3 s (+11%) | -3.1 s (-5%) |
+
+- Every arm again passed every task.
+- Claude Code's mean input fell from 250k to 108k tokens on non-MCP tasks, now level with Pi's 114k, and its mean cost from $0.49 to $0.21 (Pi $0.20).
+- Claude Code is still slower on most non-MCP tasks, by 6.9 s on average; its median non-model time is 19.9 s against 15.3 s for Pi, so the rest of the gap is harness overhead rather than context size.
+- Without codemode, the two harnesses now tie on MCP tasks; `pi-codemode` stays 30.6 s faster than Claude Code there.
+
 ## Limits
 
 - In `run1`, all tasks act on local files, where `bash` already covers fan-out and filtering; `complex1` adds two MCP tasks against a local server with no network latency, so remote MCP servers would likely widen the codemode gap.
