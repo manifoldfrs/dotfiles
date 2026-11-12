@@ -10,6 +10,9 @@ Compares Claude Code and Pi on response time, accuracy, tokens, and cost with th
 | `pi` | `pi -p --mode json --thinking medium --exclude-tools codemode` |
 | `pi-codemode` | `pi -p --mode json --thinking medium` with codemode available (`codemode.mode: on`, the live default) |
 | `pi-codemode-only` | Same, plus a fixture `.pi/settings.json` with `codemode.mode: only` and `--approve`, so every tool call goes through a codemode script |
+| `cc-codemode` | `cc` plus the [codemode mod](../stow/claude/.claude/mods/codemode/), Claude Code's port of Pi's codemode |
+
+Both Claude Code arms pin their mod list with `--settings`, so `cc` runs without the codemode mod even when it is enabled live.
 
 Every arm runs with the user's live configuration: mods, hooks, extensions, guardrails, and MCP servers.
 Pi's provider is `pi-claude-cli`, so Pi's model calls also go through a `claude` subprocess; the comparison isolates system prompt, tool surface, and harness loop, not transport.
@@ -129,6 +132,22 @@ All four arms interleaved; differences are paired by task and rep.
 - Pi stays faster than Claude Code on every task: 13.5 s (25%) on non-MCP tasks and 7.3 s without codemode on MCP tasks.
 - Claude Code makes the 96 MCP calls on `mcp-orders` as tool-call batches of up to 17 per message, so its mean wall time (104 s) is close to plain `pi` (98 s); it has no way to batch them into one script.
 - No run touched `keys/`, `hidden/`, `expected.mjs`, `datasets.mjs`, or the server source.
+
+## Results: complex2 (2026-11-12, 256 runs, 8 reps per cell, trimmed Claude Code)
+
+Same complex suite after setting `disableClaudeAiConnectors: true` and turning the Vercel plugin off, which took Claude Code from 815 tools to 97.
+See [results/complex2/summary.md](results/complex2/summary.md).
+
+| Comparison (paired, `cc` minus `pi`) | complex1 | complex2 |
+|---|---|---|
+| All 8 tasks | +11.9 s (+25%) | +4.4 s (+10%), CI +2.3 to +6.5 |
+| Six non-MCP tasks | +13.5 s (+33%) | +6.9 s (+18%) |
+| Two MCP tasks | +7.3 s (+11%) | -3.1 s (-5%) |
+
+- Every arm again passed every task.
+- Claude Code's mean input fell from 250k to 108k tokens on non-MCP tasks, now level with Pi's 114k, and its mean cost from $0.49 to $0.21 (Pi $0.20).
+- Claude Code is still slower on most non-MCP tasks, by 6.9 s on average; its median non-model time is 19.9 s against 15.3 s for Pi, so the rest of the gap is harness overhead rather than context size.
+- Without codemode, the two harnesses now tie on MCP tasks; `pi-codemode` stays 30.6 s faster than Claude Code there.
 
 ## Limits
 

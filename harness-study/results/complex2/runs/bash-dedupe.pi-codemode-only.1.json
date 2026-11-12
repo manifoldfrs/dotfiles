@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "bash-dedupe",
+  "arm": "pi-codemode-only",
+  "rep": 1,
+  "wall_s": 48.875,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.bash-dedupe.pi-codemode-only.1.ID6g0M/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 5,
+  "tool_calls": 4,
+  "tools": {
+    "codemode": 4
+  },
+  "codemode_inner_calls": 5,
+  "input_tokens": 98117,
+  "output_tokens": 3165,
+  "cost_usd": 0.2196642,
+  "api_ms": 34514
+}

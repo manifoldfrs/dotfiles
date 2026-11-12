@@ -1,0 +1,25 @@
+{
+  "suite": "tasks-complex",
+  "task": "ttl-cache",
+  "arm": "pi-codemode",
+  "rep": 3,
+  "wall_s": 29.568,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.ttl-cache.pi-codemode.3.egKf7t/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 4,
+  "tool_calls": 3,
+  "tools": {
+    "bash": 2,
+    "write": 1
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 110680,
+  "output_tokens": 1802,
+  "cost_usd": 0.1882558,
+  "api_ms": 18069
+}

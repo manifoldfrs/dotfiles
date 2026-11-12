@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "ledger-reconcile",
+  "arm": "pi",
+  "rep": 6,
+  "wall_s": 43.948,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "LDG-10111,LDG-10148,LDG-10555,LDG-10740,LDG-10925,LDG-10999,LDG-11036,LDG-11221,LDG-11369,LDG-11406,LDG-11702,LDG-11850,LDG-11961,LDG-12035,LDG-12405,LDG-12442,LDG-12479,LDG-12516,LDG-12590",
+  "expected": "LDG-10111,LDG-10148,LDG-10555,LDG-10740,LDG-10925,LDG-10999,LDG-11036,LDG-11221,LDG-11369,LDG-11406,LDG-11702,LDG-11850,LDG-11961,LDG-12035,LDG-12405,LDG-12442,LDG-12479,LDG-12516,LDG-12590",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.ledger-reconcile.pi.6.TLijLv/fixture",
+  "followups": 1,
+  "harness_error": false,
+  "model_turns": 7,
+  "tool_calls": 6,
+  "tools": {
+    "bash": 6
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 190708,
+  "output_tokens": 2033,
+  "cost_usd": 0.22159459999999997,
+  "api_ms": 26083
+}

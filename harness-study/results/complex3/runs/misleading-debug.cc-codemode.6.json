@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "misleading-debug",
+  "arm": "cc-codemode",
+  "rep": 6,
+  "wall_s": 44.389,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.misleading-debug.cc-codemode.6.z1pjGN/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 3,
+  "tool_calls": 2,
+  "tools": {
+    "Bash": 2
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 86505,
+  "output_tokens": 2308,
+  "cost_usd": 0.2089538,
+  "api_ms": 20669
+}

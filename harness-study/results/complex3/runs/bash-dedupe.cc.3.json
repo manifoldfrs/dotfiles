@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "bash-dedupe",
+  "arm": "cc",
+  "rep": 3,
+  "wall_s": 52.209,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.bash-dedupe.cc.3.N5Ti81/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 5,
+  "tool_calls": 4,
+  "tools": {
+    "Bash": 4
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 141346,
+  "output_tokens": 3226,
+  "cost_usd": 0.2371974,
+  "api_ms": 32433
+}

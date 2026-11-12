@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "misleading-debug",
+  "arm": "pi-codemode",
+  "rep": 5,
+  "wall_s": 34.091,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.misleading-debug.pi-codemode.5.tAHUni/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 3,
+  "tool_calls": 2,
+  "tools": {
+    "bash": 2
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 84330,
+  "output_tokens": 1820,
+  "cost_usd": 0.1908418,
+  "api_ms": 17071
+}

@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "mcp-orders",
+  "arm": "pi-codemode",
+  "rep": 1,
+  "wall_s": 22.664,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "5832.77",
+  "expected": "5832.77",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.mcp-orders.pi-codemode.1.JOB2Ah/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 3,
+  "tool_calls": 2,
+  "tools": {
+    "codemode": 2
+  },
+  "codemode_inner_calls": 2,
+  "input_tokens": 82954,
+  "output_tokens": 990,
+  "cost_usd": 0.1614398,
+  "api_ms": 9728
+}

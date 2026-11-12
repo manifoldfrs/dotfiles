@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "map-limit",
+  "arm": "cc-codemode",
+  "rep": 2,
+  "wall_s": 37.918,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.map-limit.cc-codemode.2.hz8Gff/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 3,
+  "tool_calls": 2,
+  "tools": {
+    "Bash": 2
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 83972,
+  "output_tokens": 2152,
+  "cost_usd": 0.1951794,
+  "api_ms": 19858
+}

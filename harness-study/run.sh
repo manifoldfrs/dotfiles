@@ -8,6 +8,7 @@ STUDY_DIR="$(cd "$(dirname "$0")" && pwd)"
 MODEL="claude-opus-5-5"
 EFFORT="medium"
 RUN_TIMEOUT=900
+CLAUDE_SETTINGS="$STUDY_DIR/../stow/claude/.claude/settings.json"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -30,6 +31,17 @@ clean_env() {
     unset_args+=(-u "$var")
   done
   env "${unset_args[@]}" "$@"
+}
+
+# Claude Code settings that pin the mod list, with or without the codemode mod, whatever the live default is.
+cc_mod_settings() {
+  local with_codemode="$1"
+  local dirs
+  dirs="$(jq -r '.env.CLAUDE_CODE_PLUGIN_DIRS' "$CLAUDE_SETTINGS" | tr ':' '\n' | grep -v '/mods/codemode$' | paste -sd: -)"
+  if [ "$with_codemode" = "yes" ]; then
+    dirs="$dirs:$(cd "$STUDY_DIR/../stow/claude/.claude/mods/codemode" && pwd)"
+  fi
+  jq -nc --arg dirs "$dirs" '{env: {CLAUDE_CODE_PLUGIN_DIRS: $dirs}}'
 }
 
 # Writes the MCP server config a task needs; the server stays outside the fixture.
@@ -61,7 +73,13 @@ run_arm() {
   case "$arm" in
     cc)
       clean_env timeout "$RUN_TIMEOUT" claude -p --output-format stream-json --verbose \
+        --model "$MODEL" --effort "$EFFORT" --dangerously-skip-permissions --settings "$(cc_mod_settings no)" \
+        --no-session-persistence ${cc_mcp[@]+"${cc_mcp[@]}"} -- "$prompt" < /dev/null > "$raw" 2> "$raw.err"
+      ;;
+    cc-codemode)
+      clean_env timeout "$RUN_TIMEOUT" claude -p --output-format stream-json --verbose \
         --model "$MODEL" --effort "$EFFORT" --dangerously-skip-permissions \
+        --settings "$(cc_mod_settings yes)" \
         --no-session-persistence ${cc_mcp[@]+"${cc_mcp[@]}"} -- "$prompt" < /dev/null > "$raw" 2> "$raw.err"
       ;;
     pi)
@@ -92,7 +110,7 @@ extract_metrics() {
   local arm="$1"
   local raw="$2"
   case "$arm" in
-    cc)
+    cc | cc-codemode)
       jq -s '
         (map(select(.type == "result")) | last) as $r
         | [ .[] | select(.type == "assistant") | .message.content[]? | select(.type == "tool_use") | .name ] as $tools
@@ -102,7 +120,8 @@ extract_metrics() {
             harness_error: (($r == null) or ($r.is_error // false)),
             model_turns: ($r.num_turns // null),
             tool_calls: ($tools | length),
-            tools: ($tools | group_by(.) | map({key: .[0], value: length}) | from_entries),
+            tools: ($tools | map(if . == "mcp__codemode__codemode" then "codemode" else . end) | group_by(.) | map({key: .[0], value: length}) | from_entries),
+            codemode_inner_calls: ([ .[] | select(.type == "assistant") | .message.content[]? | select(.type == "tool_use" and .name == "mcp__codemode__codemode") | .input.code // "" | [scan("tools\\.[A-Za-z_]+\\(")] | length ] | add // 0),
             input_tokens: (($r.usage.input_tokens // 0) + ($r.usage.cache_read_input_tokens // 0) + ($r.usage.cache_creation_input_tokens // 0)),
             output_tokens: ($r.usage.output_tokens // null),
             cost_usd: ($r.total_cost_usd // null),
