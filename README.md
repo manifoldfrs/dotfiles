@@ -353,6 +353,7 @@ The same script writes one OpenCode command per skill under `stow/opencode/.conf
 ```
 
 Claude Code's `jev-checks` mod in `stow/claude/.claude/mods/` screens web results, audits edit scope, and fact-checks answers; test it with `claude plugin test <mod folder>`.
+The `codemode` mod ports Pi's codemode: scripts run in a Node child under `--permission` and call tools through `$.tool.call`, so hooks and permission checks still apply; test it with `claude plugin test` and `node --test runner/runner.test.mjs` in its folder.
 Pi's `jev-guardrails` extension runs the same checks and adds the same `jev_pipeline` tool from that shared file, calling the `jev` server in Pi's `mcp.json` over stdio because Pi's extension loader does not expose its MCP client.
 The Jev logic lives once in Pi, in `stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts`, and the OpenCode plugin imports it directly.
 Claude Code only loads mod files whose real path is inside the mod, so the mod's `hooks/jev-shared.ts` is a copy that `./scripts/harness_sync.sh` generates; edit Pi's file, then run the script.
