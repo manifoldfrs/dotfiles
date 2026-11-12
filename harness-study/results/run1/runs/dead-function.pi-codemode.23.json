@@ -1,0 +1,23 @@
+{
+  "task": "dead-function",
+  "arm": "pi-codemode",
+  "rep": 23,
+  "wall_s": 20.639,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "normalizeLegacy13",
+  "expected": "normalizeLegacy13",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.dead-function.pi-codemode.23.i07R36/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 5,
+  "tool_calls": 4,
+  "tools": {
+    "bash": 4
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 135056,
+  "output_tokens": 1075,
+  "cost_usd": 0.1699562,
+  "api_ms": 18608
+}

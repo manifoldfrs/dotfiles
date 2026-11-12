@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "map-limit",
+  "arm": "pi-codemode-only",
+  "rep": 7,
+  "wall_s": 40.915,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.map-limit.pi-codemode-only.7.hCPNHc/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 4,
+  "tool_calls": 3,
+  "tools": {
+    "codemode": 3
+  },
+  "codemode_inner_calls": 6,
+  "input_tokens": 76174,
+  "output_tokens": 2690,
+  "cost_usd": 0.20175100000000004,
+  "api_ms": 26771
+}

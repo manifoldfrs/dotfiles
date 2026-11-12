@@ -1,0 +1,23 @@
+{
+  "task": "org-chart",
+  "arm": "pi",
+  "rep": 23,
+  "wall_s": 29.623,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "e002",
+  "expected": "e002",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.org-chart.pi.23.mK2hEr/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 4,
+  "tool_calls": 3,
+  "tools": {
+    "bash": 3
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 101715,
+  "output_tokens": 861,
+  "cost_usd": 0.15661360000000002,
+  "api_ms": 14594
+}

@@ -1,0 +1,23 @@
+{
+  "task": "fanout-ports",
+  "arm": "pi",
+  "rep": 15,
+  "wall_s": 11.431,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "142909",
+  "expected": "142909",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.fanout-ports.pi.15.hTv74p/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 3,
+  "tool_calls": 2,
+  "tools": {
+    "bash": 2
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 80372,
+  "output_tokens": 453,
+  "cost_usd": 0.1603156,
+  "api_ms": 9609
+}

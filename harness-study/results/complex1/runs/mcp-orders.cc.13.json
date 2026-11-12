@@ -1,0 +1,26 @@
+{
+  "suite": "tasks-complex",
+  "task": "mcp-orders",
+  "arm": "cc",
+  "rep": 13,
+  "wall_s": 104.118,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "5832.77",
+  "expected": "5832.77",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.mcp-orders.cc.13.2ZElNV/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 99,
+  "tool_calls": 98,
+  "tools": {
+    "Bash": 1,
+    "ToolSearch": 1,
+    "mcp__orders__get_order": 90,
+    "mcp__orders__list_orders": 6
+  },
+  "input_tokens": 1427106,
+  "output_tokens": 6792,
+  "cost_usd": 1.2186591999999998,
+  "api_ms": 87509
+}

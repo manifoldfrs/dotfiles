@@ -1,0 +1,21 @@
+{
+  "task": "qa-baseline",
+  "arm": "pi-codemode-only",
+  "rep": 4,
+  "wall_s": 4.989,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "O(log n)",
+  "expected": "O(log n)",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.qa-baseline.pi-codemode-only.4.NkPTTW/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 1,
+  "tool_calls": 0,
+  "tools": {},
+  "codemode_inner_calls": 0,
+  "input_tokens": 17455,
+  "output_tokens": 86,
+  "cost_usd": 0.113662,
+  "api_ms": 3678
+}

@@ -1,0 +1,22 @@
+{
+  "task": "fanout-ports",
+  "arm": "cc",
+  "rep": 7,
+  "wall_s": 19.987,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "142909",
+  "expected": "142909",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.fanout-ports.cc.7.0kgNsz/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 3,
+  "tool_calls": 2,
+  "tools": {
+    "Bash": 2
+  },
+  "input_tokens": 179300,
+  "output_tokens": 535,
+  "cost_usd": 0.4330884,
+  "api_ms": 6449
+}

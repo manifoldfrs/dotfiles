@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "mcp-tickets",
+  "arm": "pi-codemode-only",
+  "rep": 11,
+  "wall_s": 30.238,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "cus_007,cus_018,cus_022,cus_031,cus_033",
+  "expected": "cus_007,cus_018,cus_022,cus_031,cus_033",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.mcp-tickets.pi-codemode-only.11.VPXGp4/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 6,
+  "tool_calls": 5,
+  "tools": {
+    "codemode": 5
+  },
+  "codemode_inner_calls": 4,
+  "input_tokens": 120244,
+  "output_tokens": 1145,
+  "cost_usd": 0.1966842,
+  "api_ms": 17684
+}

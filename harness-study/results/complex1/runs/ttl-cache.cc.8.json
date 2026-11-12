@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "ttl-cache",
+  "arm": "cc",
+  "rep": 8,
+  "wall_s": 43.537,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.ttl-cache.cc.8.27Nbuj/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 4,
+  "tool_calls": 3,
+  "tools": {
+    "Bash": 2,
+    "Write": 1
+  },
+  "input_tokens": 237696,
+  "output_tokens": 2084,
+  "cost_usd": 0.4749362,
+  "api_ms": 26405
+}

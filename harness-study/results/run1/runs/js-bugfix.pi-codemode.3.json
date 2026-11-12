@@ -1,0 +1,22 @@
+{
+  "task": "js-bugfix",
+  "arm": "pi-codemode",
+  "rep": 3,
+  "wall_s": 25.211,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.js-bugfix.pi-codemode.3.akRPWU/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 5,
+  "tool_calls": 4,
+  "tools": {
+    "bash": 4
+  },
+  "input_tokens": 138740,
+  "output_tokens": 789,
+  "cost_usd": 0.17344379999999998,
+  "api_ms": 9884
+}

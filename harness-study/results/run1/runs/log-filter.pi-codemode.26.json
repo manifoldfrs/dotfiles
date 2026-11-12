@@ -1,0 +1,23 @@
+{
+  "task": "log-filter",
+  "arm": "pi-codemode",
+  "rep": 26,
+  "wall_s": 34.737,
+  "exit_code": 0,
+  "correct": false,
+  "answer": "2075",
+  "expected": "1500",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.log-filter.pi-codemode.26.k7AfH4/fixture",
+  "followups": 1,
+  "harness_error": false,
+  "model_turns": 5,
+  "tool_calls": 3,
+  "tools": {
+    "bash": 3
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 134689,
+  "output_tokens": 930,
+  "cost_usd": 0.1660622,
+  "api_ms": 23213
+}

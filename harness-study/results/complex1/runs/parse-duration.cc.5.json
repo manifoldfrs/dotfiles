@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "parse-duration",
+  "arm": "cc",
+  "rep": 5,
+  "wall_s": 53.621,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.parse-duration.cc.5.yLhrMU/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 4,
+  "tool_calls": 3,
+  "tools": {
+    "Bash": 2,
+    "Write": 1
+  },
+  "input_tokens": 237963,
+  "output_tokens": 2507,
+  "cost_usd": 0.4861016,
+  "api_ms": 30700
+}

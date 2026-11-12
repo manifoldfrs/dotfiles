@@ -1,0 +1,26 @@
+{
+  "suite": "tasks-complex",
+  "task": "misleading-debug",
+  "arm": "pi",
+  "rep": 1,
+  "wall_s": 45.566,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.misleading-debug.pi.1.S8Urjv/fixture",
+  "followups": 1,
+  "harness_error": false,
+  "model_turns": 5,
+  "tool_calls": 4,
+  "tools": {
+    "bash": 2,
+    "edit": 1,
+    "write": 1
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 137387,
+  "output_tokens": 2454,
+  "cost_usd": 0.2207392,
+  "api_ms": 31372
+}

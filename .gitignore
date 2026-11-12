@@ -17,3 +17,6 @@ stow/claude/.claude/mods/*/tsconfig.json
 
 # Archived custom Zed build: checkout and build output (patches and scripts are tracked)
 old/zed/custom/source/
+
+# Harness study raw transcripts (large; contain full system prompts)
+harness-study/results/*/raw/

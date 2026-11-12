@@ -1,0 +1,22 @@
+{
+  "task": "dead-function",
+  "arm": "cc",
+  "rep": 14,
+  "wall_s": 30.827,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "normalizeLegacy13",
+  "expected": "normalizeLegacy13",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.dead-function.cc.14.WAqe8F/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 4,
+  "tool_calls": 3,
+  "tools": {
+    "Bash": 3
+  },
+  "input_tokens": 238158,
+  "output_tokens": 990,
+  "cost_usd": 0.4529848,
+  "api_ms": 16846
+}

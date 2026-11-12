@@ -1,0 +1,22 @@
+{
+  "task": "bash-bugfix",
+  "arm": "cc",
+  "rep": 14,
+  "wall_s": 32.549,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.bash-bugfix.cc.14.Jos1sv/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 3,
+  "tool_calls": 2,
+  "tools": {
+    "Bash": 2
+  },
+  "input_tokens": 175060,
+  "output_tokens": 478,
+  "cost_usd": 0.41468140000000003,
+  "api_ms": 14118
+}

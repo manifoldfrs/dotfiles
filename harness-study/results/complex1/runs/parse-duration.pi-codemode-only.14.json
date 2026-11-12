@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "parse-duration",
+  "arm": "pi-codemode-only",
+  "rep": 14,
+  "wall_s": 39.311,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.parse-duration.pi-codemode-only.14.mUcpnF/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 4,
+  "tool_calls": 3,
+  "tools": {
+    "codemode": 3
+  },
+  "codemode_inner_calls": 6,
+  "input_tokens": 76546,
+  "output_tokens": 2359,
+  "cost_usd": 0.19490900000000003,
+  "api_ms": 24901
+}

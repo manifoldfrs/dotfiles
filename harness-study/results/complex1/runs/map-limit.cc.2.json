@@ -1,0 +1,24 @@
+{
+  "suite": "tasks-complex",
+  "task": "map-limit",
+  "arm": "cc",
+  "rep": 2,
+  "wall_s": 49.894,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.map-limit.cc.2.Op3hec/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 4,
+  "tool_calls": 3,
+  "tools": {
+    "Bash": 2,
+    "Write": 1
+  },
+  "input_tokens": 237506,
+  "output_tokens": 2749,
+  "cost_usd": 0.4901248,
+  "api_ms": 30333
+}

@@ -1,0 +1,20 @@
+{
+  "task": "qa-baseline",
+  "arm": "cc",
+  "rep": 22,
+  "wall_s": 10.881,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "O(log n)",
+  "expected": "O(log n)",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.qa-baseline.cc.22.5c5Dm4/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 1,
+  "tool_calls": 0,
+  "tools": {},
+  "input_tokens": 61177,
+  "output_tokens": 103,
+  "cost_usd": 0.40359320000000004,
+  "api_ms": 7382
+}

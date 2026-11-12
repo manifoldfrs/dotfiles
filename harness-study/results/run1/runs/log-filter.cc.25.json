@@ -1,0 +1,22 @@
+{
+  "task": "log-filter",
+  "arm": "cc",
+  "rep": 25,
+  "wall_s": 36.422,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "1500",
+  "expected": "1500",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.log-filter.cc.25.pPELm8/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 5,
+  "tool_calls": 3,
+  "tools": {
+    "Bash": 3
+  },
+  "input_tokens": 293094,
+  "output_tokens": 1294,
+  "cost_usd": 0.45922519999999994,
+  "api_ms": 22902
+}

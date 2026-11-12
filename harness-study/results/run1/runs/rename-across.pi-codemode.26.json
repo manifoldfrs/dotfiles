@@ -1,0 +1,23 @@
+{
+  "task": "rename-across",
+  "arm": "pi-codemode",
+  "rep": 26,
+  "wall_s": 28.919,
+  "exit_code": 0,
+  "correct": true,
+  "answer": "done",
+  "expected": "done",
+  "fixture": "/var/folders/7n/wm_y_lw91392bqm5lxr5wndc0000gn/T//harness-study.rename-across.pi-codemode.26.bfDUuc/fixture",
+  "followups": 0,
+  "harness_error": false,
+  "model_turns": 3,
+  "tool_calls": 2,
+  "tools": {
+    "bash": 2
+  },
+  "codemode_inner_calls": 0,
+  "input_tokens": 82968,
+  "output_tokens": 386,
+  "cost_usd": 0.1520536,
+  "api_ms": 11857
+}
