@@ -23,7 +23,7 @@ Searchable vocabulary keeps code discoverable across both modes.
   `diffUserObjects`, not `diff`. `queueEventForDispatch`, not `queue`.
   Measured on a ~700k-line monorepo: 1-word exported names are globally unique 61% of
   the time; 3-word names 96%; 4+ words 98%. Three words is the knee of the curve.
-  Use the shortest name that greps uniquely; put the rest in the doc comment.
+  Use the shortest name that greps uniquely.
 - **Ruby and Rails exception.** Follow Rails naming instead: a model method such as
   `Card#close` carries its context in the class, and conventions such as
   `*_controller.rb` and namespaced concerns like `Card::Closeable` carry it in the path.
@@ -67,15 +67,13 @@ Searchable vocabulary keeps code discoverable across both modes.
 
 ## 3. Say it where the search lands
 
-- **Add a short doc comment when an export has a constraint the type or name cannot show** (units, timezone, "source time, not insert time", ownership).
+- **Add a one-line doc comment only when an export has a constraint the type or name cannot show** (units, timezone, "source time, not insert time", ownership).
   The definition is where a name search lands; that line is your whole message.
-- **Write the plain-words phrase in the doc comment.** Searches arrive as natural language
-  ("rate limit", "retry delay"), and camelCase identifiers don't match phrase greps —
-  `RateLimiter` is invisible to a search for "rate limit".
-  When a doc comment is needed, include the ordinary spaced-out phrase someone would search for: a `SessionExpiryChecker` should say /\*_ Checks whether the user session has
-  expired. _/ so that a grep for "session expired" or "session has expired" lands here.
-- **A module should make sense with its imports unread.** Each imported name plus its
-  doc line should say enough that the reader never has to open the source module. If
+  Doc comments follow the global comment rules and the length cap; they are not a place to add search keywords.
+- **When a doc comment is already warranted, phrase it in plain words.** Searches arrive as natural language
+  ("rate limit", "retry delay"), so `/** Delay before the next retry, in ms. */` beats `/** retryDelayMs */`.
+- **A module should make sense with its imports unread.** Each imported name and its
+  type should say enough that the reader never has to open the source module. If
   they do, the import's name is failing, not the reader.
 - **Keep strings whole.** Never build event names, flags, or error codes with template
   interpolation (`` `github.${entity}.${action}` `` makes `github.pr.merged` unsearchable).

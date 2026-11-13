@@ -91,6 +91,7 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - Default to no code comment.
 - Add a comment only when it explains a non-obvious reason, hidden constraint, workaround, or deliberate tradeoff.
 - A comment is one line, two at most. If the reason needs more, link the issue or doc instead.
+- Doc comments such as JSDoc and docstrings are comments and follow the same rules.
 - Before keeping a comment, ask whether the next reader would waste real effort without it. If not, delete it.
 - Never leave comments about the task, the conversation, or what changed.
 - Do not restate what the next line of code already says.
