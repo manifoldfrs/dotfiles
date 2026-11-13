@@ -13,11 +13,19 @@ const description = (text) => frontmatter(text).split(/\n(?=[a-z-]+:)/).find((fi
 const skillNames = readdirSync(catalog, { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && existsSync(resolve(catalog, entry.name, "SKILL.md")))
   .map((entry) => entry.name);
+// Upstream skills keep the invocation mode their authors chose, since a sync would restore it anyway.
+const localSkills = new Set(
+  read(resolve(catalog, ".skill-sources.tsv"))
+    .split("\n")
+    .map((line) => line.split("\t"))
+    .filter(([, source]) => source === "local")
+    .map(([name]) => name),
+);
 const workflows = ["dig", "prove", "sketch", "code-review", "fstack", "full-send", "full-stop", "babysit-pr", "sol-loop", "pr"];
 const languages = ["ts", "go", "rust", "swift", "kotlin"];
 
-test("every skill is model-invoked with a trigger description", () => {
-  for (const name of skillNames) {
+test("every local skill is model-invoked with a trigger description", () => {
+  for (const name of skillNames.filter((name) => localSkills.has(name))) {
     const content = skill(name);
     assert.doesNotMatch(content, /^disable-model-invocation: true$/m, name);
     assert.match(description(content), /\b(Use|Trigger|Apply)\b/, name);
