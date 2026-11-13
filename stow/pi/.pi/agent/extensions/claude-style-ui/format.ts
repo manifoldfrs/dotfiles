@@ -122,3 +122,33 @@ export function formatCosts(costs: readonly [string, number][]): string | undefi
 
   return costs.map(([model, usd]) => `${model.replace(/^claude-/, "")} $${usd.toFixed(2)}`).join(" · ");
 }
+
+const SHIMMER_SPEED_MS = 70;
+const SHIMMER_RADIUS = 2.5;
+const STALL_START_MS = 4_000;
+const STALL_FULL_MS = 14_000;
+
+/** How strongly the shimmer lights the character at `index` at time `elapsedMs`, from 0 to 1. */
+export function shimmerIntensity(index: number, length: number, elapsedMs: number): number {
+  const sweep = length + SHIMMER_RADIUS * 4;
+  const center = ((elapsedMs / SHIMMER_SPEED_MS) % sweep) - SHIMMER_RADIUS * 2;
+  return Math.max(0, 1 - Math.abs(index - center) / SHIMMER_RADIUS);
+}
+
+/** How far the spinner has turned toward the error color after the model went quiet, from 0 to 1. */
+export function stallAmount(quietMs: number): number {
+  if (quietMs <= STALL_START_MS) return 0;
+  return Math.min(1, (quietMs - STALL_START_MS) / (STALL_FULL_MS - STALL_START_MS));
+}
+
+export type BylineParts = { readonly elapsedMs: number; readonly tokens: number; readonly thinking: boolean; readonly interruptKey: string };
+
+export function byline(parts: BylineParts): string {
+  const segments = [
+    ...(parts.elapsedMs >= 1_000 ? [formatDuration(parts.elapsedMs)] : []),
+    ...(parts.tokens > 0 ? [`↓ ${formatTokens(parts.tokens)} tokens`] : []),
+    ...(parts.thinking ? ["thinking"] : []),
+    `${parts.interruptKey} to interrupt`,
+  ];
+  return `(${segments.join(" · ")})`;
+}

@@ -3,7 +3,8 @@ import type { TUI } from "@earendil-works/pi-tui";
 import { truncateToWidth } from "@earendil-works/pi-tui";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { contextPercentLevel, countUnstaged, formatCosts, formatTokens, modelCosts, shortenPath } from "./format.ts";
+import { BackgroundAgents, SUBAGENT_COMPLETE_EVENT, SUBAGENT_STARTED_EVENT } from "./agents.ts";
+import { contextPercentLevel, countUnstaged, formatCosts, formatTokens, modelCosts, plural, shortenPath } from "./format.ts";
 
 const execFileAsync = promisify(execFile);
 const GIT_REFRESH_MS = 2_000;
@@ -77,6 +78,16 @@ export function registerFooter(pi: ExtensionAPI): void {
   let git: GitState | undefined;
   let tui: TUI | undefined;
   let timer: NodeJS.Timeout | undefined;
+  const agents = new BackgroundAgents();
+
+  pi.events.on(SUBAGENT_STARTED_EVENT, (data) => {
+    agents.started(data);
+    tui?.requestRender();
+  });
+  pi.events.on(SUBAGENT_COMPLETE_EVENT, (data) => {
+    agents.completed(data);
+    tui?.requestRender();
+  });
 
   const refreshGit = async (cwd: string) => {
     git = await readGit(cwd);
@@ -97,6 +108,8 @@ export function registerFooter(pi: ExtensionAPI): void {
           const lines = [`  ${statusLine(pi, ctx, theme, git)}`];
           // Other extensions report through setStatus(); keep those visible on their own line.
           const statuses = [...footerData.getExtensionStatuses().values()].filter((status) => status.trim() !== "");
+          const running = agents.count();
+          if (running > 0) statuses.unshift(theme.fg("borderAccent", `← ${plural(running, "agent")}`));
           if (statuses.length > 0) lines.push(`  ${statuses.join(theme.fg("dim", " · "))}`);
           return lines.map((line) => truncateToWidth(line, width, "…"));
         },

@@ -2,28 +2,26 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-c
 import { VERSION } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import { homedir } from "node:os";
+import { ART, ART_WIDTH, artFrame, FINAL_FRAME, isFlashing } from "./art.ts";
 
-const ART = [
-  "       3.141592653589793238462643383279",
-  "      5028841971693993751058209749445923",
-  "     07816406286208998628034825342117067",
-  "     9821    48086         5132",
-  "    823      06647        09384",
-  "   46        09550        58223",
-  "             1725         3594",
-  "            08128        48111",
-  "           74502         84102",
-  "          70193          85211        05",
-  "        5596446           22948954930381",
-  "       9644288             10975665933",
-];
-const ART_WIDTH = Math.max(...ART.map((line) => line.length));
+const FRAME_MS = 60;
 const INFO_GAP = 4;
 
-function colorArt(theme: Theme, line: string, index: number): string {
-  if (index < 3) return theme.fg("accent", line);
-  if (index < 6) return theme.fg("borderAccent", line);
-  return theme.fg("mdCode", line);
+function rowColor(row: number): "accent" | "borderAccent" | "mdCode" {
+  if (row < 3) return "accent";
+  if (row < 6) return "borderAccent";
+  return "mdCode";
+}
+
+function artLines(theme: Theme, frame: number): string[] {
+  const flashing = isFlashing(frame);
+
+  return artFrame(frame).map((cells) =>
+    cells.map((cell) => {
+      if (!cell) return " ";
+      return flashing ? theme.bold(theme.fg("text", cell.char)) : theme.fg(rowColor(cell.row), cell.char);
+    }).join("").trimEnd(),
+  );
 }
 
 function shortCwd(cwd: string): string {
@@ -47,8 +45,8 @@ function infoLines(pi: ExtensionAPI, ctx: ExtensionContext, theme: Theme): strin
   ];
 }
 
-function renderHeader(pi: ExtensionAPI, ctx: ExtensionContext, theme: Theme, width: number): string[] {
-  const art = ART.map((line, index) => colorArt(theme, line, index));
+function renderHeader(pi: ExtensionAPI, ctx: ExtensionContext, theme: Theme, width: number, frame: number): string[] {
+  const art = artLines(theme, frame);
   const info = infoLines(pi, ctx, theme);
 
   // Too narrow for side by side: stack the details under the art.
@@ -73,12 +71,27 @@ export default function (pi: ExtensionAPI) {
       return;
     }
 
-    ctx.ui.setHeader((_tui, theme) => ({
-      render(width: number): string[] {
-        return renderHeader(pi, ctx, theme, width);
-      },
-      invalidate() {},
-    }));
+    // A resumed session already has chat under the header, so it starts finished instead of replaying.
+    const resumed = ctx.sessionManager.getEntries().some((entry) => entry.type === "message");
+
+    ctx.ui.setHeader((tui, theme) => {
+      let frame = resumed ? FINAL_FRAME : 0;
+      const timer = setInterval(() => {
+        frame += 1;
+        if (frame >= FINAL_FRAME) clearInterval(timer);
+        tui.requestRender();
+      }, FRAME_MS);
+      timer.unref();
+      if (resumed) clearInterval(timer);
+
+      return {
+        render(width: number): string[] {
+          return renderHeader(pi, ctx, theme, width, frame);
+        },
+        invalidate() {},
+        dispose: () => clearInterval(timer),
+      };
+    });
   });
 
   pi.registerCommand("builtin-header", {

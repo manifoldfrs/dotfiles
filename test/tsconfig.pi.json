@@ -41,6 +41,7 @@
     "./skill_pages_test.ts",
     "../stow/pi/.pi/agent/extensions/skills-manual/*.ts",
     "../stow/pi/.pi/agent/extensions/claude-style-ui/*.ts",
+    "../stow/pi/.pi/agent/extensions/frsh-header/*.ts",
     "../stow/pi/.pi/agent/extensions/inline-skills/*.ts",
     "../stow/pi/.pi/agent/extensions/skill-toast/*.ts",
     "../stow/pi/.pi/agent/extensions/pi-cloak/*.ts",

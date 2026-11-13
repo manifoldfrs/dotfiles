@@ -360,6 +360,9 @@ Claude Code only loads mod files whose real path is inside the mod, so the mod's
 The `bold-color` mod draws bold reply text in Tokyo Night blue.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
 Pi's `claude-style-ui` extension does both, shows known skills typed as `/name` in blue with a menu of matching skills anywhere in the prompt, and its footer shows session cost per model like Claude Code's `model-cost` status line.
+Its spinner shimmers a random verb with elapsed time and streamed tokens, turns red when the model goes quiet, and rotates tips for your own commands and skills, putting the ones Jev ranks relevant to your prompt first as `Try /name`.
+After each run it adds a `✻ Cooked for 1m 12s` line to the chat that the model never sees, and the footer counts running pi-subagents background agents as `← N agents`.
+Pi's `frsh-header` extension draws the π in its own digits and animates it at startup like pi-cc-header: the left leg, the bar, and the right leg drop in, then it flashes twice; resumed sessions show it finished.
 Pi's `pi-cloak` extension masks secret values (`.env`, `.vars`, `local.bash`, auth and credential files) in files Pi's `read` tool returns, using the rules in `stow/pi/.pi/agent/cloak.json`; `/cloak-status` shows them, and a shell `cat` is not covered.
 `/save-md name` saves the last reply as `name.md`; both extensions are adapted from Dillon Mulroy's dotfiles.
 `cua-driver` (Brewfile cask) lets Pi drive native Mac apps through its own skill; grant it Accessibility and Screen Recording with `cua-driver permissions grant`.
