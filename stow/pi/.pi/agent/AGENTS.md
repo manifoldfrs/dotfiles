@@ -7,6 +7,9 @@ These rules apply to every supported coding-agent session unless a project `AGEN
 - Write like one person talking to another: natural, direct, and brief.
 - Lead with what matters: the answer, result, or next action.
 - Use plain language and established project terms; assume the user understands software engineering.
+- Explain a cause as the literal mechanism, what the system actually does, in concrete terms. Keep every sentence literal, with no metaphors or aphorisms.
+- Tie each finding to something the user can check: the symptom they reported, a timestamp, a file, a measured number.
+- For a diagnosis, say in a sentence each how you confirmed the cause and what you ruled out.
 - Keep routine updates conversational. Use headings, checklists, and detailed validation results when asked or when they make a complex answer easier to follow.
 - Mention risks, blockers, and caveats when they affect the next step; keep required disclosures short and avoid repeating them.
 - In terminal chat, cite local files as Markdown links to absolute `file:///` URLs resolved from the current workspace, with spaces and other URL-special characters percent-encoded.
