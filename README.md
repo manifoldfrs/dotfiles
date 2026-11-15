@@ -10,7 +10,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Layer | Choice | Notes |
 | --- | --- | --- |
 | Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default, on the Mac and on the iPhone (Rex for iOS beta). Ghostty is the fallback terminal; Herdr and Termius remain the fallback phone path into `agentbox`. |
-| Editor / IDE | Neovim | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Zed and Cursor are retired and archived under `old/`. |
+| Editor / IDE | Neovim, Cursor | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Cursor settings, keybindings, and tasks are the `cursor` Stow package. Zed is retired and archived under `old/`. |
 | Shell | Homebrew Bash 5 + Starship | FZF and zoxide on top. Fish/Zsh configs under `old/` are rollback-only. |
 | Primary agent harness | Pi | Settings, models, extensions, keybindings, the shared global rules and guardrail hooks (`stow/pi/.pi/agent/`), the shared skills (`stow/pi/skills/`), and MCP servers (`stow/pi/.pi/agent/mcp.json`). |
 | Other harnesses | Claude Code, OpenCode 2, Codex | Claude Code keeps its mods in `stow/claude/.claude/`; OpenCode covers non-Claude models; Codex runs Sol reviews. |
@@ -61,7 +61,7 @@ git pull
 If validation fails, nothing changes.
 Use `./scripts/stow.sh delete` to remove all managed symlinks, and `./scripts/bootstrap.sh` only when you also want packages, plugins, and tooling refreshed.
 
-The default profile is the `STOW_PACKAGES` list in `scripts/stow.sh`: `bash git ghostty herdr rex nvim bin pi claude opencode codex`.
+The default profile is the `STOW_PACKAGES` list in `scripts/stow.sh`: `bash git ghostty herdr rex nvim bin pi claude opencode codex cursor`.
 To restow a single package by hand:
 
 ```bash
@@ -94,6 +94,8 @@ stow/                  Stow packages, each mirroring $HOME
   claude/              Claude Code settings, keybindings, theme, status line, mods/; links AGENTS.md and hooks to pi/
   opencode/            OpenCode config, CLI settings, MCP servers, plugins/ (Jev checks, xai_search, guardrails), tui-plugins/, and generated commands/ for /<skill>; links AGENTS.md to pi/
   codex/               Codex config and theme; links AGENTS.md and hooks to pi/
+  cursor/              Cursor settings, keybindings, tasks (Library/Application Support/Cursor/User)
+cursor/extensions.txt  Cursor extension IDs; install with the app's bundled CLI
 scripts/
   bootstrap.sh         Full machine setup
   stow.sh              apply / dry-run / delete, with isolated preflight
@@ -109,7 +111,7 @@ server/rex/            Files installed under /etc on agentbox (not stowed)
 mcp/                   MCP templates and notes (see mcp/README.md)
 test/                  Shell and TypeScript tests, Docker harness
 docs/                  Research notes and plans; decisions land here, not in this README
-old/                   Archived Fish, Zsh, tmux, Karabiner, Zed, and Cursor config
+old/                   Archived Fish, Zsh, tmux, Karabiner, Zed, and older Cursor config
 Brewfile               Homebrew packages and casks
 npm-global-packages.txt Global npm packages (@openai/codex, vercel, tree-sitter-cli)
 ```
@@ -308,6 +310,18 @@ Before changing plugins, run the safety harness; it checks startup in an isolate
 
 ```bash
 bash test/nvim_plugin_safety.sh --base-ref HEAD
+```
+
+## Cursor
+
+The `cursor` Stow package links `settings.json`, `keybindings.json`, and `tasks.json` into `~/Library/Application Support/Cursor/User/`, so changes made in Cursor's settings UI show up in `git diff`.
+The extension list lives outside the package in `cursor/extensions.txt`, because Stow would otherwise link it into `$HOME`.
+Cursor does not put its CLI on `PATH`, so install extensions with the bundled binary:
+
+```bash
+CURSOR_BIN="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
+while IFS= read -r ext; do "$CURSOR_BIN" --install-extension "$ext"; done < cursor/extensions.txt
+./scripts/stow.sh apply
 ```
 
 ## Shell

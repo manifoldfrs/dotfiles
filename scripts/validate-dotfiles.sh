@@ -7,7 +7,7 @@ STOW_DIR="$DOTFILES_DIR/stow"
 STOW_PACKAGES=("$@")
 
 if [[ ${#STOW_PACKAGES[@]} -eq 0 ]]; then
-    STOW_PACKAGES=(bash git ghostty herdr rex nvim bin pi claude opencode codex)
+    STOW_PACKAGES=(bash git ghostty herdr rex nvim bin pi claude opencode codex cursor)
 fi
 
 if ! command -v stow &>/dev/null; then

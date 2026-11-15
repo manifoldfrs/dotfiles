@@ -38,7 +38,8 @@ Agent behavior:
 - `stow/rex/` - Rex config (`init.lua` and the Lua files it requires); Rex is the default terminal and Ghostty the fallback
 - `server/rex/` - files the Rex login server setup installs under `/etc` (not stowed)
 - `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files
-- `old/` - archived Fish, Zsh, Cursor, Zed (including the custom Zed build), and other legacy areas (avoid unless explicitly requested)
+- `stow/cursor/` - Cursor user settings, keybindings, and tasks; extension list in `cursor/extensions.txt`
+- `old/` - archived Fish, Zsh, older Cursor iterations, Zed (including the custom Zed build), and other legacy areas (avoid unless explicitly requested)
 
 Subdirectory guides:
 - `stow/nvim/AGENTS.md`
