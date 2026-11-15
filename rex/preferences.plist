@@ -1660,6 +1660,8 @@
 	<string>merino-light</string>
 	<key>Workspace.shellIconTheme</key>
 	<string>themedAlt</string>
+	<key>Workspace.sidebarCollapsed</key>
+	<false/>
 	<key>Workspace.sidebarPosition</key>
 	<string>left</string>
 	<key>Workspace.tabIconCount</key>
