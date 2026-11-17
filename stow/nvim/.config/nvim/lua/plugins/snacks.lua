@@ -7,6 +7,12 @@ return {
     input = { enabled = true },
     picker = {
       enabled = true,
+      icons = {
+        files = {
+          dir = "\u{f0256} ",
+          dir_open = "\u{f0dcf} ",
+        },
+      },
       sources = {
         explorer = {
           hidden = true,
