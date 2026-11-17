@@ -6,22 +6,23 @@ Requires Pi 1.0 or newer.
 ## Current OpenAI provider
 
 For a ChatGPT subscription, run `/login openai` and choose **Sign in with ChatGPT**.
-Select `gpt-6.1-sol-ultrafast` or `gpt-6-astra-ultrafast` under `openai` through `/model`.
+Select `gpt-6.2-sol-ultrafast` under `openai` through `/model`.
+If it is missing, run `pi update --models` and start a new session.
 Ultrafast subscription access requires Pro $500 or an eligible Enterprise or Edu plan.
 Standard and `-fast` variants remain available.
 Press `Ctrl+S` in the picker to save it as the default.
 OpenAI API-key authentication remains available too.
 
 The extension preserves the native provider's authentication, ordinary models, classifiers, and credential-specific classifier filtering.
-It adds `-fast` variants for Sol, Astra, and Luna chat models in the GPT-6 and GPT-6.1 families, without querying the legacy Codex endpoint or parsing the current OAuth token as a Codex JWT.
+It adds `-fast` variants for Sol, Astra, and Luna chat models in the GPT-6, GPT-6.1, and GPT-6.2 families, without querying the legacy Codex endpoint or parsing the current OAuth token as a Codex JWT.
 Pi spells the GPT-6.0 model IDs as `gpt-6-*`.
-Only models present in Pi's built-in chat catalog are added; missing GPT-6.1 models appear automatically when that catalog includes them.
+Variants are added only for models in Pi's built-in chat catalog or its cached OpenAI catalog.
 The separate Luna classifier is unchanged.
 These are opt-in priority requests, not account-specific guarantees of priority availability.
 OpenAI may reject unsupported models or tiers; usage and pricing follow OpenAI's rules.
 
 Each Fast variant sends the real upstream model ID and `service_tier: "priority"` to the OpenAI Responses API.
-Ultrafast variants are limited to GPT-6.1 Sol and GPT-6 Astra and send `service_tier: "ultrafast"` instead.
+Ultrafast variants are available for GPT-6.2 Sol, GPT-6.2 Astra, GPT-6.1 Sol, and GPT-6 Astra when present in the catalog, and send `service_tier: "ultrafast"` instead.
 See [OpenAI’s Ultrafast request configuration](https://developers.openai.com/api/docs/guides/ultrafast-mode).
 Use ChatGPT sign-in for subscription usage; API-key requests are billed separately.
 The wrapper covers ordinary turns, direct streaming, compaction, and branch summaries while preserving caller request hooks and model overrides.

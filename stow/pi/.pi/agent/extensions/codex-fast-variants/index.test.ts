@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { execFileSync } from "node:child_process";
-import { copyFileSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -143,10 +143,19 @@ test("bundled Pi loads Fast and Ultrafast models without a local node_modules di
 				copyFileSync(join(import.meta.dirname, name), join(directory, name));
 			}
 		}
+		const sol = openaiProvider().getModels().find((model) => model.id === "gpt-6.1-sol");
+		assert.ok(sol);
+
+		const configDirectory = join(directory, "config");
+		mkdirSync(configDirectory);
+		writeFileSync(join(configDirectory, "models-store.json"), JSON.stringify({
+			openai: { models: [{ ...sol, id: "gpt-6.2-sol", name: "GPT-6.2 Sol" }] },
+		}));
+
 		const cli = fileURLToPath(new URL("./bundle/cli.js", import.meta.resolve("@earendil-works/pi-coding-agent")));
 		const output = execFileSync(process.execPath, [cli, "--extension", join(directory, "index.ts"), "--list-models", "gpt-6"], {
 			cwd: directory,
-			env: { ...process.env, OPENAI_API_KEY: "sk-inert-test-key", PI_CODING_AGENT_DIR: join(directory, "config"), PI_OFFLINE: "1", PI_SKIP_VERSION_CHECK: "1", PI_TELEMETRY: "0" },
+			env: { ...process.env, OPENAI_API_KEY: "sk-inert-test-key", PI_CODING_AGENT_DIR: configDirectory, PI_OFFLINE: "1", PI_SKIP_VERSION_CHECK: "1", PI_TELEMETRY: "0" },
 			encoding: "utf8",
 			timeout: 20_000,
 		});
@@ -155,6 +164,7 @@ test("bundled Pi loads Fast and Ultrafast models without a local node_modules di
 		assert.match(output, /openai\s+gpt-6-luna-fast\s/);
 		assert.match(output, /openai\s+gpt-6\.1-sol-fast\s/);
 		assert.match(output, /openai\s+gpt-6\.1-sol-ultrafast\s/);
+		assert.match(output, /openai\s+gpt-6\.2-sol-ultrafast\s/);
 		assert.match(output, /openai\s+gpt-6-astra-ultrafast\s/);
 	} finally {
 		rmSync(directory, { recursive: true, force: true });

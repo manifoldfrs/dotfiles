@@ -337,7 +337,8 @@ Generated init scripts for FZF, Starship, zoxide, and Atuin are cached under `~/
 
 ## Agents
 
-Pi is the primary harness.
+Pi is the primary harness and starts new sessions with OpenAI GPT-6.2 Sol Ultrafast at medium thinking.
+If the model is missing after signing in to OpenAI, run `pi update --models` and start a new session.
 Claude Code stays configured with its mods.
 OpenCode 2 stays configured for non-Claude models; switch models with `/models`.
 Its Claude Agent provider drives your local `claude` login through the Agent SDK, but until [anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074) is fixed that draws the 5-hour limit about twice as fast as Claude Code itself, so don't run Claude through OpenCode.

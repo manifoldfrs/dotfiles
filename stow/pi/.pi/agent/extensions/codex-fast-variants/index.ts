@@ -1,4 +1,4 @@
-import type { Api, Model, Provider, StreamOptions } from "@earendil-works/pi-ai";
+import { type Api, isModelType, type Model, type Provider, type StreamOptions } from "@earendil-works/pi-ai";
 import { getModels } from "@earendil-works/pi-ai/compat";
 import { builtinProviders } from "@earendil-works/pi-ai/providers/all";
 import type {
@@ -108,39 +108,65 @@ export function createCodexFastVariantsExtension(
 	};
 }
 
+const OPENAI_FAST_MODEL_PATTERN = /^gpt-6(?:\.[12])?-(?:sol|astra|luna)$/;
+const OPENAI_ULTRAFAST_MODEL_IDS = new Set(["gpt-6.1-sol", "gpt-6-astra", "gpt-6.2-sol", "gpt-6.2-astra"]);
+
+function mergeOpenAICatalog<T extends { readonly id: string }>(builtIn: readonly T[], refreshed: readonly T[]): T[] {
+	const refreshedIds = new Set(refreshed.map((model) => model.id));
+
+	return [...builtIn.filter((model) => !refreshedIds.has(model.id)), ...refreshed];
+}
+
 function createOpenAIFastProvider(): Provider {
 	const provider = builtinProviders().find((candidate) => candidate.id === "openai");
 	if (!provider) throw new Error("OpenAI Fast built-in provider is unavailable");
-	const baseModels = provider.getModels();
+
 	const getAllModels = provider.getAllModels;
+
 	if (!getAllModels) throw new Error("OpenAI Fast provider has no mixed-operation catalog");
-	const fastVariants = createCodexFastVariantModels(
-		baseModels,
-		new Set(baseModels.filter((model) => /^gpt-6(?:\.1)?-(?:sol|astra|luna)$/.test(model.id)).map((model) => model.id)),
+
+	// Replacing the provider drops Pi's remote catalog wrapper, so restore the snapshot `pi update --models` stores.
+	let refreshedModels: ReturnType<typeof getAllModels> = [];
+
+	const baseModels = () => mergeOpenAICatalog(
+		provider.getModels(),
+		refreshedModels.filter((model): model is Model<Api> => isModelType(model, "chat")),
 	);
 
-	const ultrafastVariants = createCodexFastVariantModels(
-		baseModels,
-		new Set(["gpt-6.1-sol", "gpt-6-astra"]),
-		"ultrafast",
-	);
+	function speedVariants(): Model<Api>[] {
+		const models = baseModels();
+
+		return [
+			...createCodexFastVariantModels(models, new Set(models.filter((model) => OPENAI_FAST_MODEL_PATTERN.test(model.id)).map((model) => model.id))),
+			...createCodexFastVariantModels(models, OPENAI_ULTRAFAST_MODEL_IDS, "ultrafast"),
+		];
+	}
 
 	function requestOptions(model: Model<Api>, options?: StreamOptions): StreamOptions | undefined {
 		const mode = model.id.endsWith("-ultrafast") ? "ultrafast" : "fast";
-		if (!resolveCodexFastUpstreamModelId(model.id, baseModels, mode)) return options;
+		const models = baseModels();
+
+		if (!resolveCodexFastUpstreamModelId(model.id, models, mode)) return options;
+
 		return {
 			...options,
 			onPayload: async (payload, requestModel) => {
 				const callerPayload = await options?.onPayload?.(payload, requestModel) ?? payload;
-				return rewriteCodexFastRequestPayload(callerPayload, model.id, baseModels, mode);
+
+				return rewriteCodexFastRequestPayload(callerPayload, model.id, models, mode);
 			},
 		};
 	}
 
 	return {
 		...provider,
-		getModels: () => [...provider.getModels(), ...fastVariants, ...ultrafastVariants],
-		getAllModels: () => [...getAllModels(), ...fastVariants, ...ultrafastVariants],
+		getModels: () => [...baseModels(), ...speedVariants()],
+		getAllModels: () => [...mergeOpenAICatalog(getAllModels(), refreshedModels), ...speedVariants()],
+		refreshModelsAuth: "configured",
+		refreshModels: async (context) => {
+			const restored = (context.stored?.models ?? []).filter((model) => model.provider === provider.id);
+			await context.publish({ update: () => { refreshedModels = restored; } });
+		},
 		stream: (model, context, options) => provider.stream<Api>(model, context, { ...options, ...requestOptions(model, options) }),
 		streamSimple: (model, context, options) => provider.streamSimple(model, context, requestOptions(model, options)),
 	};
