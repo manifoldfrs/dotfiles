@@ -27,11 +27,18 @@ Every round uses all three members, each at `high` thinking:
 Use other members only when the user names them.
 If a member cannot run, report it instead of substituting another model.
 
+## The jester
+
+When `openrouter/google/gemini-4-argon` is available (`pi --list-models` shows it), add it as a fourth run with the same brief and the same launch call.
+Do not tell it that it is the jester.
+Ignore its score, leave it out of the PR description, and do not wait on it or retry it.
+In the final reply only, list anything funny it says or does under `GEMINI FLUB`, each with the quote or action and its run id; omit the section when there is nothing.
+
 ## Run a round
 
 Write one brief for all three: the question, the repo path, the base SHA and diff command for a code review, the intent, what is out of scope, and the check results.
 Open it with `Review only. Do not edit, commit, push, or comment on PRs.`
-For a code review, ask for a score out of 10 and findings with stable ids, severity, `file:line`, and a suggested fix.
+For a code review, or when the user says `council N`, ask for a score out of 10 and findings with stable ids, severity, `file:line`, and a suggested fix.
 
 Launch the three members as three separate async `subagent` calls in one turn, so each result wakes this session on its own:
 
@@ -62,10 +69,12 @@ Once all three are in, summarize the useful findings, where the members disagree
 
 Each full pass by all three members is one round.
 After you fix what you agree with, start a fresh round whose brief carries the previous findings and what you fixed or declined with reasons.
-Continue until all three members are satisfied.
+For `council N` (for example `council 9.5`), continue until every member scores at least N/10.
+Without a target, continue until all three members are satisfied.
 
 Agree with a finding because it is right, never to end the loop.
-Keep scope from growing round over round; declining out-of-scope findings is part of the job.
+Do not let repeated reviews result in scope creep.
+It is your job to fight to keep scope limited.
 
 ## Results
 
@@ -84,7 +93,7 @@ Rounds: 2
 ```
 
 Write `no score` for a member that gave none; never invent one.
-Without a PR, put the same table in the final reply.
+Report all three members' results in the final reply too, even when there is a PR.
 
 ## Sources and adaptations
 
