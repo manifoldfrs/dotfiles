@@ -83,7 +83,7 @@ Bootstrap already does this for known targets.
 
 ```text
 stow/                  Stow packages, each mirroring $HOME
-  bash/                Bash, Readline (.inputrc), Starship, functions and aliases
+  bash/                Bash, Readline (.inputrc), Starship, Atuin, functions and aliases
   git/                 .gitconfig and global gitignore
   rex/                 Rex init.lua and the Lua modules it requires
   ghostty/             Fallback terminal config
@@ -328,8 +328,12 @@ while IFS= read -r ext; do "$CURSOR_BIN" --install-extension "$ext"; done < curs
 
 Homebrew Bash 5 is the login shell, and Rex, Ghostty, and Herdr all launch `/opt/homebrew/bin/bash` explicitly.
 Layout: environment and `PATH` in `~/.config/bash/environment.bash`, aliases in `aliases.bash`, functions in `functions.bash`, secrets and machine overrides in the untracked `local.bash`.
-Starship renders the prompt, FZF provides completion and `Ctrl-F` fuzzy history, and zoxide provides `z`.
-Generated init scripts for FZF, Starship, and zoxide are cached under `~/.cache/bash/init/` and regenerated when their binaries change.
+Starship renders the prompt, FZF provides completion, and zoxide provides `z`.
+Atuin records shell history in SQLite through `bash-preexec`, and `Ctrl-R` and `Ctrl-F` search it in FZF; `Ctrl-D` inside that search limits it to the current directory.
+Atuin's own key bindings are disabled, so Up and `Ctrl-P` keep Readline's prefix search.
+Without Atuin installed, `Ctrl-F` falls back to FZF's search of `~/.bash_history`.
+Run `atuin import bash` once on a new machine to load existing history.
+Generated init scripts for FZF, Starship, zoxide, and Atuin are cached under `~/.cache/bash/init/` and regenerated when their binaries change.
 
 ## Agents
 

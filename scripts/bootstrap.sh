@@ -14,6 +14,7 @@ STOW_TARGETS=(
     "$HOME/.config/bash/environment.bash"
     "$HOME/.config/bash/functions.bash"
     "$HOME/.config/starship.toml"
+    "$HOME/.config/atuin/config.toml"
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"

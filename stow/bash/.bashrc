@@ -35,11 +35,27 @@ source_cached_init() {
     source "$cache_file"
 }
 
+# Starship hooks into bash-preexec only when it is loaded first; Atuin needs it too.
+[[ -r "${HOMEBREW_PREFIX:-}/etc/profile.d/bash-preexec.sh" ]] && source "$HOMEBREW_PREFIX/etc/profile.d/bash-preexec.sh"
+
 source_cached_init fzf-bash fzf --bash
 source_cached_init zoxide-init zoxide init bash
 source_cached_init starship-full-init starship init bash --print-full-init
+source_cached_init atuin-init atuin init bash --disable-ctrl-r --disable-up-arrow
 unset -f source_cached_init
 
-if declare -F __fzf_history__ &> /dev/null; then
+if command -v atuin &> /dev/null; then
+    __atuin_fzf_history() {
+        local selected
+        selected=$(atuin history list --cmd-only --print0 |
+            fzf --read0 --tac --scheme=history --query="$READLINE_LINE" \
+                --bind "ctrl-d:reload(atuin history list --cmd-only --print0 --cwd)")
+        [[ -n $selected ]] || return
+        READLINE_LINE=$selected
+        READLINE_POINT=${#selected}
+    }
+    bind -m emacs-standard -x '"\C-r": __atuin_fzf_history'
+    bind -m emacs-standard -x '"\C-f": __atuin_fzf_history'
+elif declare -F __fzf_history__ &> /dev/null; then
     bind -m emacs-standard -x '"\C-f": __fzf_history__'
 fi
