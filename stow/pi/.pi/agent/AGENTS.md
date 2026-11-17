@@ -4,8 +4,10 @@ These rules apply to every supported coding-agent session unless a project `AGEN
 
 ## Communication
 
-- Write like one person talking to another: natural, direct, and brief.
-- Lead with what matters: the answer, result, or next action.
+- Write like one person talking to another: natural and direct.
+- Keep routine replies brief.
+  Make final answers understandable on their own: lead with the result, then include the technical context, verification, and caveats the user needs.
+  Don’t assume they read the progress updates.
 - Use plain language and established project terms; assume the user understands software engineering.
 - Explain a cause as the literal mechanism, what the system actually does, in concrete terms. Keep every sentence literal, with no metaphors or aphorisms.
 - Tie each finding to something the user can check: the symptom they reported, a timestamp, a file, a measured number.
