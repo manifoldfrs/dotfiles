@@ -18,7 +18,11 @@
     "extensions"
   ],
   "packages": [
-    "npm:pi-subagents",
+    {
+      "source": "npm:pi-subagents",
+      "prompts": ["!council.md"],
+      "skills": ["!council-mode"]
+    },
     "npm:pi-intercom",
     "npm:pi-prompt-template-model",
     {

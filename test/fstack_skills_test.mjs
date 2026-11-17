@@ -48,7 +48,7 @@ test("verification runs without waiting for the user to request it", () => {
 });
 
 test("each PR addresses one goal and the loop reviews with Sol", () => {
-  for (const name of ["council", "learn-visually"]) assert.ok(!existsSync(resolve(catalog, name)), `${name} was removed`);
+  for (const name of ["learn-visually"]) assert.ok(!existsSync(resolve(catalog, name)), `${name} was removed`);
   assert.ok(!existsSync(resolve(catalog, "codebase-design/DESIGN-IT-TWICE.md")));
   assert.match(skill("pr"), /A pull request addresses one goal/);
   assert.match(skill("full-send"), /One PR addresses one goal/);

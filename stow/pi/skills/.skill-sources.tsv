@@ -15,7 +15,7 @@ coding-standards-rust	local
 coding-standards-swift	local
 coding-standards-ts	local
 correct	local
-council	excluded
+council	local
 cua-driver	excluded
 decision-models	dmmulroy
 diagnosing-bugs	local
