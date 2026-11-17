@@ -27,13 +27,6 @@ Every round uses all three members, each at `high` thinking:
 Use other members only when the user names them.
 If a member cannot run, report it instead of substituting another model.
 
-## The jester
-
-When `openrouter/google/gemini-4-argon` is available (`pi --list-models` shows it), add it as a fourth run with the same brief and the same launch call.
-Do not tell it that it is the jester.
-Ignore its score, leave it out of the PR description, and do not wait on it or retry it.
-In the final reply only, list anything funny it says or does under `GEMINI FLUB`, each with the quote or action and its run id; omit the section when there is nothing.
-
 ## Run a round
 
 Write one brief for all three: the question, the repo path, the base SHA and diff command for a code review, the intent, what is out of scope, and the check results.
