@@ -13,7 +13,7 @@ STOW_TARGETS=(
     "$HOME/.config/bash/aliases.bash"
     "$HOME/.config/bash/environment.bash"
     "$HOME/.config/bash/functions.bash"
-    "$HOME/.config/starship.toml"
+    "$HOME/.config/fish/config.fish"
     "$HOME/.config/atuin/config.toml"
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
@@ -114,37 +114,6 @@ backup_existing_stow_targets() {
 apply_dotfiles() {
     backup_existing_stow_targets
     "$DOTFILES_DIR/scripts/stow.sh" apply
-}
-
-configure_bash_login_shell() {
-    local bash_path
-    local current_shell
-
-    if command -v brew &> /dev/null && [ -x "$(brew --prefix bash)/bin/bash" ]; then
-        bash_path="$(brew --prefix bash)/bin/bash"
-    else
-        bash_path="$(command -v bash)"
-    fi
-    current_shell="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
-    if [ "$current_shell" = "$bash_path" ]; then
-        info "Login shell already uses $bash_path"
-        return
-    fi
-
-    if ! grep -Fxq "$bash_path" /etc/shells; then
-        if sudo -n true 2>/dev/null; then
-            printf '%s\n' "$bash_path" | sudo tee -a /etc/shells >/dev/null
-        else
-            warn "Add $bash_path to /etc/shells, then run: chsh -s $bash_path"
-            return
-        fi
-    fi
-
-    if sudo -n chsh -s "$bash_path" "$USER" 2>/dev/null; then
-        info "Changed login shell to $bash_path"
-    else
-        warn "Run this to change the login shell: chsh -s $bash_path"
-    fi
 }
 
 sync_neovim_plugins() {
@@ -293,7 +262,6 @@ main() {
     apply_dotfiles
     bash "$DOTFILES_DIR/mcp_setup.sh" install-claude || warn "Claude Code MCP setup failed; rerun: ./mcp_setup.sh install-claude"
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
-    configure_bash_login_shell
     sync_neovim_plugins
     install_npm_globals
     install_global_anti_slop
@@ -302,7 +270,7 @@ main() {
     setup_rex_agents
 
     echo ""
-    info "Bootstrap complete! Restart Rex or run: exec \"$(brew --prefix bash)/bin/bash\" --login"
+    info "Bootstrap complete! Open a new login pane or run: exec fish --login"
 }
 
 main

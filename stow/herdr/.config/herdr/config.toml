@@ -2,7 +2,7 @@ onboarding = false
 
 [terminal]
 default_shell = "bash"
-shell_mode = "auto"
+shell_mode = "login"
 new_cwd = "follow"
 
 [theme]

@@ -192,7 +192,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 
 ## Known Gotchas
 - Docker tests run on Ubuntu; macOS-only assumptions can break CI parity.
-- Bash, FZF, and Starship are the active shell stack; Fish and Zsh under `old/` are rollback-only.
+- Fish is the interactive shell; Bash remains the login entry point and runs scripts and agent commands. Archived shell configs under `old/` are rollback-only.
 - Legacy references to `cursor_setup.sh` may appear in older test/workflow paths; verify current intended script before changing CI logic.
 
 ## Agent Checklist Before Hand-off

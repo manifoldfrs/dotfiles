@@ -5,6 +5,11 @@
 
 [[ $- != *i* ]] && return
 
+if shopt -q login_shell && [[ -z ${BASH_EXECUTION_STRING+x} && ${DOTFILES_KEEP_BASH:-0} != 1 ]] \
+    && [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish" ]] && command -v fish >/dev/null 2>&1; then
+    exec fish --login --interactive
+fi
+
 shopt -s checkwinsize globstar histappend
 HISTCONTROL=ignoreboth:erasedups
 HISTSIZE=50000
@@ -35,12 +40,11 @@ source_cached_init() {
     source "$cache_file"
 }
 
-# Starship hooks into bash-preexec only when it is loaded first; Atuin needs it too.
+# Atuin uses bash-preexec to record commands.
 [[ -r "${HOMEBREW_PREFIX:-}/etc/profile.d/bash-preexec.sh" ]] && source "$HOMEBREW_PREFIX/etc/profile.d/bash-preexec.sh"
 
 source_cached_init fzf-bash fzf --bash
 source_cached_init zoxide-init zoxide init bash
-source_cached_init starship-full-init starship init bash --print-full-init
 source_cached_init atuin-init atuin init bash --disable-ctrl-r --disable-up-arrow
 unset -f source_cached_init
 

@@ -16,7 +16,7 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@main
 
       - name: Install required validation tools
-        run: brew install bash neovim ripgrep stow
+        run: brew install bash fish fzf atuin zoxide neovim ripgrep stow
 
       - name: Validate shell syntax
         run: bash -n scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh test/run_tests.sh mcp_setup.sh stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash
@@ -33,7 +33,7 @@ jobs:
           test -L "$tmp_home/.bashrc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"
-          test -L "$tmp_home/.config/starship.toml"
+          test -L "$tmp_home/.config/fish/config.fish"
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"
           test -L "$tmp_home/.pi/agent/themes/tokyonight-frsh.json"

@@ -62,7 +62,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && find "$STOW_TEST_HOME" -maxdepth 1 -name '.bashrc.backup.*' | grep -q . \
     && find "$STOW_TEST_HOME/.pi/agent" -maxdepth 1 -name 'mcp.json.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.config/bash/environment.bash" ] \
-    && [ -L "$STOW_TEST_HOME/.config/starship.toml" ] \
+    && [ -L "$STOW_TEST_HOME/.config/fish/config.fish" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
@@ -106,7 +106,7 @@ fi
 echo "[TEST 4] Checking theme and prompt configuration..."
 grep -q '^theme = TokyoNight Night$' stow/ghostty/.config/ghostty/config
 grep -q '^command = /opt/homebrew/bin/bash --login$' stow/ghostty/.config/ghostty/config
-grep -q '^shell-integration = bash$' stow/ghostty/.config/ghostty/config
+grep -q '^shell-integration = none$' stow/ghostty/.config/ghostty/config
 grep -q '^font-family = MonoLisaCode$' stow/ghostty/.config/ghostty/config
 grep -q '^font-size = 14$' stow/ghostty/.config/ghostty/config
 grep -q 'name = "terminal"' stow/herdr/.config/herdr/config.toml
@@ -124,13 +124,11 @@ grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
 grep -q '^source_cached_init zoxide-init zoxide init bash$' stow/bash/.bashrc
-grep -q '^source_cached_init starship-full-init starship init bash --print-full-init$' stow/bash/.bashrc
-grep -q 'detect_extensions = \[\]' stow/bash/.config/starship.toml
-for glyph in '󰘧' '' '' '' '' ''; do
-    grep -Fq "$glyph" stow/bash/.config/starship.toml \
-        || fail "Starship is missing intended glyph: $glyph"
-done
-pass "Tokyo Night, MonoLisa, Nerd Font glyphs, FZF integration, and bounded Starship detection are configured"
+grep -q '^shell_mode = "login"$' stow/herdr/.config/herdr/config.toml
+if command -v fish >/dev/null 2>&1; then
+    bash test/fish_startup_test.sh "$DOTFILES_DIR"
+fi
+pass "Tokyo Night, MonoLisa, and shell integration are configured"
 
 # Test 5: Neovim plugin safety (best effort)
 echo "[TEST 5] Running Neovim plugin safety checks..."

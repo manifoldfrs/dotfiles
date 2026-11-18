@@ -1,7 +1,7 @@
 # Ghostty configuration
 # Shell integration and clipboard
 command = /opt/homebrew/bin/bash --login
-shell-integration = bash
+shell-integration = none
 shell-integration-features = no-cursor
 copy-on-select = clipboard
 selection-clear-on-copy = true

@@ -11,7 +11,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | --- | --- | --- |
 | Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default, on the Mac and on the iPhone (Rex for iOS beta). Ghostty is the fallback terminal; Herdr and Termius remain the fallback phone path into `agentbox`. |
 | Editor / IDE | Neovim, Cursor | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Cursor settings, keybindings, and tasks are the `cursor` Stow package. Zed is retired and archived under `old/`. |
-| Shell | Homebrew Bash 5 + Starship | FZF and zoxide on top. Fish/Zsh configs under `old/` are rollback-only. |
+| Shell | Fish + FZF + Atuin + zoxide | Bash still runs scripts and agent commands. |
 | Primary agent harness | Pi | Settings, models, extensions, keybindings, the shared global rules and guardrail hooks (`stow/pi/.pi/agent/`), the shared skills (`stow/pi/skills/`), and MCP servers (`stow/pi/.pi/agent/mcp.json`). |
 | Other harnesses | Claude Code, OpenCode 2, Codex | Claude Code keeps its mods in `stow/claude/.claude/`; OpenCode covers non-Claude models; Codex runs Sol reviews. |
 | Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `pi -p` with only read-only tools; `code-review` adds standards and intent axes before it. |
@@ -32,13 +32,13 @@ cd ~/code/personal/dotfiles
 ./scripts/bootstrap.sh
 ```
 
-Bootstrap installs Homebrew and the `Brewfile`, installs Claude Code and OpenCode 2 with their native installers, backs up conflicting live files (`.backup.YYYYMMDDhhmmss`), applies all Stow packages, registers Claude Code's MCP servers, syncs Herdr plugins, selects Homebrew Bash as the login shell, restores Neovim plugins from `lazy-lock.json`, installs the global npm packages, sets up the global `anti-slop` runtime and Plannotator, and runs `rex skill setup --session-naming` when Rex is present.
+Bootstrap installs Homebrew and the `Brewfile`, installs Claude Code and OpenCode 2 with their native installers, backs up conflicting live files (`.backup.YYYYMMDDhhmmss`), applies all Stow packages, registers Claude Code's MCP servers, syncs Herdr plugins, restores Neovim plugins from `lazy-lock.json`, installs the global npm packages, sets up the global `anti-slop` runtime and Plannotator, and runs `rex skill setup --session-naming` when Rex is present.
 
 Bootstrap installs pnpm from the Brewfile and uses it to install Pi in `$PNPM_HOME/bin`.
 The Bash profile prefers that Pi and keeps Bun available for other projects.
 
 Rex itself installs from its DMG and updates itself, so install it separately.
-Then quit and reopen your terminal (or `exec /opt/homebrew/bin/bash --login`) and sign in to each harness (`claude`, `pi` with `/login`, `codex`).
+Then open a new terminal pane (or run `exec bash --login`) and sign in to each harness (`claude`, `pi` with `/login`, `codex`).
 In OpenCode, run `/connect` for the providers you use; **Claude Agent** reuses your Claude Code login.
 
 Machine-local secrets go in `~/.config/bash/local.bash`, which is never tracked:
@@ -86,7 +86,7 @@ Bootstrap already does this for known targets.
 
 ```text
 stow/                  Stow packages, each mirroring $HOME
-  bash/                Bash, Readline (.inputrc), Starship, Atuin, functions and aliases
+  bash/                Bash and Fish startup, Readline (.inputrc), Atuin, functions and aliases
   git/                 .gitconfig and global gitignore
   rex/                 Rex init.lua and the Lua modules it requires
   ghostty/             Fallback terminal config
@@ -173,7 +173,7 @@ Theme, font, and GUI settings live in the app (`com.superlogical.rex.plist`), no
 Window positions, sessions, and server/host state stay machine-local.
 Set the rest once:
 
-- [ ] Shell: `/opt/homebrew/bin/bash --login`.
+- [ ] Shell launcher: Bash in login mode, which starts Fish interactively.
 - [ ] Terminal: copy on select, Option as Alt, blinking block cursor, padding color matching the background, fade inactive panes.
 - [ ] Notifications: macOS notifications for blocked and finished programs, sounds off.
 - [ ] Rex Server: Remote Control on (`rex do` and agents need it).
@@ -329,14 +329,21 @@ while IFS= read -r ext; do "$CURSOR_BIN" --install-extension "$ext"; done < curs
 
 ## Shell
 
-Homebrew Bash 5 is the login shell, and Rex, Ghostty, and Herdr all launch `/opt/homebrew/bin/bash` explicitly.
-Layout: environment and `PATH` in `~/.config/bash/environment.bash`, aliases in `aliases.bash`, functions in `functions.bash`, secrets and machine overrides in the untracked `local.bash`.
-Starship renders the prompt, FZF provides completion, and zoxide provides `z`.
-Atuin records shell history in SQLite through `bash-preexec`, and `Ctrl-R` and `Ctrl-F` search it in FZF; `Ctrl-D` inside that search limits it to the current directory.
-Atuin's own key bindings are disabled, so Up and `Ctrl-P` keep Readline's prefix search.
-Without Atuin installed, `Ctrl-F` falls back to FZF's search of `~/.bash_history`.
-Run `atuin import bash` once on a new machine to load existing history.
-Generated init scripts for FZF, Starship, zoxide, and Atuin are cached under `~/.cache/bash/init/` and regenerated when their binaries change.
+An interactive Bash login with the managed config loads the shared PATH and machine-local settings, then starts Fish for suggestions and completions.
+The Fish prompt uses Tokyo Night colors and shows a short path, the Git branch or detached commit, and a clock.
+It shows an exit code only when a command fails and never prints the username or hostname.
+Scripts, Bash command strings, and Pi's configured Bash runner still use Bash.
+To stay in Bash for a pane, run `DOTFILES_KEEP_BASH=1 bash --login` or just `bash` from Fish.
+The migration doesn't change the system login shell.
+
+Fish loads FZF's file picker on `Ctrl-T`, uses Atuin's existing history for the FZF picker on `Ctrl-R` and `Ctrl-F`, and provides zoxide's `z`.
+Press `Ctrl-D` inside the history picker to limit it to the current directory.
+Up Arrow keeps Fish's native history behavior.
+The `pi`, `claude`, and `opencode` commands retain their session-relaunch wrappers, and `rexbox` still uses the shared Bash function.
+
+Install Fish on an existing Mac or Agentbox with `brew install fish`, then restow and open a new login pane.
+Machine-local environment settings still go in the untracked `~/.config/bash/local.bash`.
+Fish-specific settings can go in an untracked `~/.config/fish/conf.d/` file.
 
 ## Agents
 
@@ -523,7 +530,7 @@ Stale parsers in `~/.local/share/nvim/site/parser` (even `markdown.so.disabled`)
 Move them out of that directory and retry.
 
 **Prompt looks plain after an update.**
-Run `brew bundle --file=Brewfile`, then `./scripts/stow.sh apply`, then `exec /opt/homebrew/bin/bash --login`.
+Run `brew bundle --file=Brewfile`, then `./scripts/stow.sh apply`, then `exec bash --login`.
 
 **Herdr config or agent state looks stale.**
 Confirm `readlink ~/.config/herdr/config.toml` points into `stow/herdr/`, run `herdr server reload-config`, and check `herdr integration status`.
