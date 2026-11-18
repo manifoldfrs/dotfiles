@@ -5,6 +5,8 @@ nvim/karabiner/automatic_backups
 *.swp
 .DS_Store
 node_modules/
+# test/package.json links Pi extensions to its dependencies here
+stow/pi/.pi/agent/extensions/node_modules
 
 # Generated MCP configs
 mcp/cursor_mcp.json

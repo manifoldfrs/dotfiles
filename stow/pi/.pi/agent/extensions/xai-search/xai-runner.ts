@@ -142,7 +142,7 @@ async function executeTool(
 }
 
 async function dryRun(tool: RegisteredTool, params: Record<string, unknown>, deps: RunnerDeps) {
-  const captured: { url: string; body: unknown; redirect?: RequestRedirect }[] = [];
+  const captured: { url: string; body: unknown; redirect?: RequestInit["redirect"] }[] = [];
   const capture: FetchLike = async (url, init) => {
     captured.push({ url, body: JSON.parse(String(init.body)), ...(init.redirect ? { redirect: init.redirect } : {}) });
     return new Response(JSON.stringify({ output: [] }), { status: 200 });

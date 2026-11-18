@@ -48,12 +48,35 @@ jobs:
           test ! -e "$tmp_home/.claude/skills"
           test -L "$tmp_home/.codex/hooks/block-dangerous-bash.sh"
           test ! -e "$tmp_home/AGENTS.md"
+          echo "STOW_TEST_HOME=$tmp_home" >> "$GITHUB_ENV"
 
-      - name: Require Neovim theme startup
-        run: nvim --headless '+Lazy! restore' '+colorscheme tokyonight' +qa
+      # Headless Neovim exits 0 after command errors, so the Lua check turns errors into a failing exit.
+      - name: Require Neovim config and theme startup
+        run: |
+          cd "$STOW_TEST_HOME"
+          env -u XDG_CONFIG_HOME -u XDG_DATA_HOME -u XDG_STATE_HOME -u XDG_CACHE_HOME HOME="$STOW_TEST_HOME" \
+            nvim --headless '+Lazy! restore' '+colorscheme tokyonight' \
+            "+lua if vim.v.errmsg ~= '' or not (vim.g.colors_name or ''):match('^tokyonight') then io.stderr:write('Neovim startup failed: ' .. vim.v.errmsg .. '\n') vim.cmd.cquit() end" \
+            +qa
 
       - name: Run repository tests
         run: bash test/run_tests.sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Pi test dependencies
+        working-directory: test
+        run: npm install --no-audit --no-fund
+
+      - name: Run Pi tests
+        working-directory: test
+        run: npm test
+
+      - name: Typecheck Pi extensions
+        working-directory: test
+        run: npm run typecheck
 
   test-docker:
     runs-on: ubuntu-latest

@@ -54,13 +54,26 @@ export_npm_globals() {
     fi
 
     info "Exporting global npm packages..."
+    local manifest="$DOTFILES_DIR/npm-global-packages.txt"
+    local packages
+
+    if ! packages=$(npm list -g --depth=0 --json 2>/dev/null | node -e '
+        const tree = JSON.parse(require("fs").readFileSync(0, "utf8"));
+        const names = Object.keys(tree.dependencies ?? {}).filter((name) => name !== "npm" && name !== "corepack");
+        process.stdout.write(names.map((name) => `${name}\n`).join(""));
+    '); then
+        warn "npm package export failed, keeping existing $manifest"
+        return
+    fi
+
     {
         echo "# Global npm packages to install"
         echo "# Format: package-name (without version to get latest)"
         echo "# Run: ./scripts/bootstrap.sh"
         echo ""
-        npm list -g --depth=0 2>/dev/null | tail -n +2 | awk '{print $2}' | cut -d'@' -f1 | grep -v "^npm$\|^corepack$\|^$" || true
-    } > "$DOTFILES_DIR/npm-global-packages.txt"
+        printf '%s' "$packages"
+    } > "$manifest.tmp"
+    mv "$manifest.tmp" "$manifest"
 }
 
 backup_warp_themes() {

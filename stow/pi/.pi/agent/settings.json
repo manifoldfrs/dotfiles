@@ -20,8 +20,12 @@
   "packages": [
     {
       "source": "npm:pi-subagents",
-      "prompts": ["!council.md"],
-      "skills": ["!council-mode"]
+      "prompts": [
+        "!council.md"
+      ],
+      "skills": [
+        "!council-mode"
+      ]
     },
     "npm:pi-intercom",
     "npm:pi-pstack-adapter",
@@ -53,7 +57,7 @@
     "enabled": true
   },
   "extensionChangelogVersions": {
-    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.88.1"
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.89.0"
   },
   "skills": [
     "!**/synced/**/built-in-browser/**",

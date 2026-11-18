@@ -18,6 +18,8 @@ AGENT_SKILLS_DIR="$STOW_DIR/pi/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
 OPENCODE_PLUGINS_DIR="$STOW_DIR/opencode/.config/opencode/plugins"
 OPENCODE_PLUGINS_TARGET="$HOME/.config/opencode/plugins"
+BACKED_UP_TARGETS=()
+BACKUP_PATHS=()
 SHARED_BACKUP_TARGETS=(
     "$HOME/.config/herdr/plugins.txt"
     "$HOME/.config/plannotator-tui/config.toml"
@@ -93,6 +95,7 @@ require_stow() {
 
 backup_stow_target() {
     local target=$1
+    local backup
 
     if [ ! -e "$target" ] && [ ! -L "$target" ]; then
         return
@@ -102,8 +105,30 @@ backup_stow_target() {
         return
     fi
 
-    mv "$target" "$target.backup.$(date +%Y%m%d%H%M%S)"
+    backup="$target.backup.$(date +%Y%m%d%H%M%S)"
+    mv "$target" "$backup"
+    BACKED_UP_TARGETS+=("$target")
+    BACKUP_PATHS+=("$backup")
     warn "Backed up existing before Stow: $target"
+}
+
+record_moved_backup() {
+    local index
+
+    for index in "${!BACKUP_PATHS[@]}"; do
+        if [ "${BACKUP_PATHS[$index]}" = "$1" ]; then
+            BACKUP_PATHS[$index]=$2
+        fi
+    done
+}
+
+restore_backed_up_targets() {
+    local index
+
+    for ((index = ${#BACKED_UP_TARGETS[@]} - 1; index >= 0; index--)); do
+        mv "${BACKUP_PATHS[$index]}" "${BACKED_UP_TARGETS[$index]}"
+        warn "Restored after failed Stow: ${BACKED_UP_TARGETS[$index]}"
+    done
 }
 
 is_stow_managed_link() {
@@ -330,6 +355,7 @@ backup_shared_skill_targets() {
             fi
 
             mv "$target" "$backup_dir/$backup_name"
+            record_moved_backup "$target" "$backup_dir/$backup_name"
             info "Moved skill backup outside agent discovery: $backup_name"
         done
     done
@@ -545,7 +571,11 @@ apply_dotfiles() {
     remove_codex_config_link_off_macos
 
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
-    stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
+    # Stow aborts before linking anything on conflict, so restoring the moved files returns HOME to its prior state.
+    if ! stow -R "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"; then
+        restore_backed_up_targets
+        error "Stow failed; restored the files this run moved aside."
+    fi
     ensure_shared_skill_folder_links
     ensure_opencode_plugin_links
     ensure_bash_link

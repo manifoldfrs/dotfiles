@@ -122,6 +122,25 @@ fi
 
 printf 'PASS: Stow links ~/.local/bin/bash to Bash 4+ and refuses to replace a regular file\n'
 
+conflict_home="$test_root/conflict-home"
+mkdir -p "$conflict_home/.config/nvim"
+printf 'old bashrc\n' >"$conflict_home/.bashrc"
+printf 'old nvim\n' >"$conflict_home/.config/nvim/init.lua"
+conflict_skill=$(basename "$(dirname "$(find "$repo_dir/stow/pi/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | sort | head -n 1)")")
+mkdir -p "$conflict_home/.agents/skills/$conflict_skill"
+printf 'old skill\n' >"$conflict_home/.agents/skills/$conflict_skill/SKILL.md"
+if apply_into "$conflict_home"; then
+    fail_with_log 'apply succeeded over a conflicting Neovim config'
+fi
+[[ ! -L $conflict_home/.bashrc && $(cat "$conflict_home/.bashrc") == 'old bashrc' ]] \
+    || fail_with_log 'failed apply did not restore the original .bashrc'
+! compgen -G "$conflict_home/.bashrc.backup.*" >/dev/null \
+    || fail_with_log 'failed apply left a .bashrc backup behind'
+[[ $(cat "$conflict_home/.agents/skills/$conflict_skill/SKILL.md") == 'old skill' ]] \
+    || fail_with_log 'failed apply did not restore the original skill folder'
+
+printf 'PASS: Failed Stow apply restores files it moved aside\n'
+
 if [[ $(uname -s) == Darwin ]]; then
     [[ -L $fresh_home/.codex/config.toml ]] || fail_with_log 'macOS apply did not link the Codex config'
     printf 'PASS: macOS links the tracked Codex config\n'

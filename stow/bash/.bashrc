@@ -44,7 +44,7 @@ source_cached_init starship-full-init starship init bash --print-full-init
 source_cached_init atuin-init atuin init bash --disable-ctrl-r --disable-up-arrow
 unset -f source_cached_init
 
-if command -v atuin &> /dev/null; then
+if command -v atuin &> /dev/null && command -v fzf &> /dev/null; then
     __atuin_fzf_history() {
         local selected
         selected=$(atuin history list --cmd-only --print0 |

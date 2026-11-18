@@ -27,6 +27,9 @@ pass "Shell syntax is valid"
 
 bash test/bash_path_test.sh "$DOTFILES_DIR"
 bash test/stow_preflight_test.sh "$DOTFILES_DIR"
+if command -v node >/dev/null 2>&1; then
+    bash test/backup_npm_test.sh "$DOTFILES_DIR"
+fi
 bash test/agent_skills_sync_test.sh "$DOTFILES_DIR"
 bash test/behavior_lines_test.sh "$DOTFILES_DIR"
 bash test/harness_sync_test.sh "$DOTFILES_DIR"
@@ -43,9 +46,9 @@ pass "No active SSH rewrite in .gitconfig"
 echo "[TEST 3] Testing default Bash Stow profile..."
 STOW_TEST_HOME="$(mktemp -d)"
 STOW_TEST_BIN="$(mktemp -d)"
-mkdir -p "$STOW_TEST_HOME/.agents/skills/show-me" "$STOW_TEST_HOME/.claude/skills/show-me" "$STOW_TEST_HOME/.local/bin"
-touch "$STOW_TEST_HOME/.agents/skills/show-me/SKILL.md"
-ln -s "$DOTFILES_DIR/stow/agents/.agents/skills/sol-loop" "$STOW_TEST_HOME/.claude/skills/sol-loop"
+mkdir -p "$STOW_TEST_HOME/.agents/skills/bro" "$STOW_TEST_HOME/.claude/skills/bro" "$STOW_TEST_HOME/.local/bin"
+touch "$STOW_TEST_HOME/.agents/skills/bro/SKILL.md"
+ln -s "$DOTFILES_DIR/stow/agents/.agents/skills/anti-slop" "$STOW_TEST_HOME/.claude/skills/anti-slop"
 ln -s "$DOTFILES_DIR/stow/pi/skills/deleted-skill" "$STOW_TEST_HOME/.agents/skills/deleted-skill"
 printf '%s\n' '# existing Bash config' >"$STOW_TEST_HOME/.bashrc"
 printf '%s\n' '{}' >"$STOW_TEST_HOME/.claude/settings.json"
@@ -78,7 +81,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$DOTFILES_DIR/stow/codex/.codex/hooks/block-dangerous-bash.sh" ] \
     && cmp "$STOW_TEST_HOME/.pi/agent/guardrails/block-dangerous-bash.sh" "$STOW_TEST_HOME/.claude/hooks/block-dangerous-bash.sh" \
     && cmp "$STOW_TEST_HOME/.pi/agent/guardrails/block-dangerous-bash.sh" "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" \
-    && [ ! -L "$STOW_TEST_HOME/.claude/skills/herdr/SKILL.md" ] \
+    && [ ! -L "$STOW_TEST_HOME/.claude/skills/frontend-design/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.claude/keybindings.json" ] \
     && [ ! -e "$STOW_TEST_HOME/.claude/mcp.json" ] \
     && [ ! -e "$STOW_TEST_HOME/.pi/skills" ] \
@@ -88,9 +91,9 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && find "$STOW_TEST_HOME/.claude" -maxdepth 1 -name 'settings.json.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
     && [ -L "$STOW_TEST_HOME/.pi/agent/mcp.json" ] \
-    && [ -L "$STOW_TEST_HOME/.agents/skills/herdr" ] \
-    && [ -L "$STOW_TEST_HOME/.claude/skills/herdr" ] \
-    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/sol-loop")" = "$DOTFILES_DIR/stow/pi/skills/sol-loop" ] \
+    && [ -L "$STOW_TEST_HOME/.agents/skills/frontend-design" ] \
+    && [ -L "$STOW_TEST_HOME/.claude/skills/frontend-design" ] \
+    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/anti-slop")" = "$DOTFILES_DIR/stow/pi/skills/anti-slop" ] \
     && [ ! -L "$STOW_TEST_HOME/.agents/skills/deleted-skill" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Bash Stow profile is idempotent"
