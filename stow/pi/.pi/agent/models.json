@@ -11,6 +11,15 @@
         "gpt-6.1-sol-ultrafast": {
           "contextWindow": 500000
         },
+        "gpt-6.2-sol": {
+          "contextWindow": 500000
+        },
+        "gpt-6.2-sol-fast": {
+          "contextWindow": 500000
+        },
+        "gpt-6.2-sol-ultrafast": {
+          "contextWindow": 500000
+        },
         "gpt-6-astra": {
           "contextWindow": 272000
         },

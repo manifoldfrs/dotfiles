@@ -338,6 +338,8 @@ Generated init scripts for FZF, Starship, zoxide, and Atuin are cached under `~/
 ## Agents
 
 Pi is the primary harness and starts new sessions with OpenAI GPT-6.2 Sol Ultrafast at medium thinking.
+GPT-6.2 Sol and its Fast and Ultrafast variants use a 500k context window in Pi; GPT-6.2 Astra keeps the catalog default of 272k.
+If you use an OpenAI API key, requests with more than 272k input tokens use [long-context pricing](https://developers.openai.com/api/docs/models/gpt-6.2-sol).
 If the model is missing after signing in to OpenAI, run `pi update --models` and start a new session.
 Claude Code stays configured with its mods.
 OpenCode 2 stays configured for non-Claude models; switch models with `/models`.
