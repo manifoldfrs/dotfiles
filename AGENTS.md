@@ -32,7 +32,7 @@ Agent behavior:
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP template configs (`*.example`) and docs
 - `test/` - Docker test harness + shell test runner
-- `stow/pi/` - Pi config, the primary agent harness, with the canonical global AGENTS.md, guardrail hooks, and MCP servers (`.pi/agent/`), and shared skills (`skills/`)
+- `stow/pi/` - Pi config, the primary agent harness, with the canonical global AGENTS.md, guardrail hooks, and MCP servers (`.pi/agent/`), and the retained shared skills (`skills/`); the Pi-only pstack workflow comes from `pi-pstack-adapter`
 - `stow/claude/` - Claude Code config and mods; links AGENTS.md and hooks to `stow/pi/`
 - `stow/opencode/` - OpenCode 2 config, for non-Claude models
 - `stow/rex/` - Rex config (`init.lua` and the Lua files it requires); Rex is the default terminal and Ghostty the fallback

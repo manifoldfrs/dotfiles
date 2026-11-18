@@ -5,3 +5,4 @@
 @openai/codex
 vercel
 tree-sitter-cli
+agent-browser

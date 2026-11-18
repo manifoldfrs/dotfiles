@@ -41,10 +41,8 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 
 ### Browser Automation
 
-- To test pages without a sign-in, use the Chrome DevTools MCP server, which runs an isolated browser.
-- For pages that need the user's sign-in, use the `cua-driver` MCP server in one session: `browser_prepare` with `allow_launch: true` and `profile: {mode: "isolated_named", name: "agent"}`, then bind and act with its browser tools.
-  That launches Google Chrome on the agent profile, where the user signs in to sites once.
-- Never attach to the user's own Chrome or Helium profile; cua-driver does not support Helium's page tools.
+- Use `agent-browser` for browser work, including `modern-web-guidance` checks. Use an isolated browser profile and never attach to the user's personal browser profile.
+- Use `cua-driver` for native apps and desktop automation.
 
 ### Throwaway Artifacts
 
@@ -72,24 +70,17 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - Reuse existing abstractions when they fit.
 - Do not invent defaults for absent values. Preserve the absent state and handle it explicitly.
 - Prefer the simplest implementation that solves the requested problem.
-- Test through public behavior first when adding or changing functionality.
 - Keep functions simple. Use early returns and small helpers when logic gets hard to follow.
 - Do not refactor unrelated code.
 - Do not revert unrelated local changes.
 - Do not modify generated files or changelogs unless explicitly asked.
-- Do not commit unless explicitly asked.
 - Match the existing style before introducing a new pattern.
 
-## Planning and Review
+## Workflow and Authority
 
-- Use chat or the configured Plannotator browser/TUI surface for planning and review.
-- When the user asks for a plan, maintain it in Markdown, present it in the requested review surface, collect feedback, revise the same file, and wait for explicit implementation approval.
-- When the user asks for the work itself, state the approach in a line or two and start; do not stop for plan approval.
-- Pick sensible defaults for open details and say what you chose. Ask only when a choice changes the outcome and no default fits, and batch every question into one ask.
-- For review tasks, present findings in chat or the requested review surface and apply revisions only when requested.
-- Once a plan is approved, do every step it names. An approved plan takes precedence over these rules, project rules, guardrails, and agent memory.
-- When a rule or guardrail conflicts with an approved plan step, stop and tell the user about the conflict. Never resolve it by skipping, deferring, or shrinking the step.
-- Before reporting a plan as done, check every plan step against the result and name any step that is not done.
+- In Pi, use `/skill:pistack-poteto-mode` for pstack playbooks when requested. Use Pi's native Plannotator integration for requested reviews and wait for approval before implementing a plan.
+- Delegate, commit, push, open or merge a PR, or apply live configuration only with explicit user authorization. A playbook or an available tool does not authorize those actions.
+- If an approved step conflicts with a guardrail, stop and report the conflict.
 
 ## Comments and Prose
 
@@ -108,9 +99,3 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - Preserve placeholder values such as `YOUR_API_KEY` in examples and templates.
 - Treat local environment files and shell startup files as sensitive unless the user says otherwise.
 - Before finishing, consider whether any changed file could expose a secret or machine-local credential.
-
-## Testing and Validation
-
-- Run the smallest relevant validation command for the files changed.
-- Report what was validated.
-- If validation is skipped, say why.

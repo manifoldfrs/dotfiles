@@ -344,14 +344,15 @@ OpenCode 2 stays configured for non-Claude models; switch models with `/models`.
 Its Claude Agent provider drives your local `claude` login through the Agent SDK, but until [anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074) is fixed that draws the 5-hour limit about twice as fast as Claude Code itself, so don't run Claude through OpenCode.
 Codex stays configured. Every model runs through Pi, including cross-provider review in `sol-loop`: Sol reviews through `pi -p`, the agent fixes, and the loop repeats until Sol approves.
 
-### Autonomous workflow
+### pstack in Pi
 
-Every skill is model-invoked, so agents pick up verification and review without being asked.
-Say **full send** to take a change to a merged PR unattended: `fstack` builds it, `prove` proves it, `sol-loop` reviews it, `pr` files it, and `babysit-pr` watches CI and review bots until the merge gate passes.
-Say **full stop** for the same work ending with the PR ready for you to merge, or **babysit** / **watch** for an existing PR.
-The agent asks only when it cannot prove the change, the merge gate cannot pass, or the next step is destructive, deploys, or leaves the repository.
-Each pull request addresses one goal; a request with several goals becomes several pull requests, stacked when they depend on each other.
-These adapt Theo Browne's [tstack](https://github.com/t3dotgg/tstack) (MIT).
+Pi loads Lauren Tan's pstack through the published [`pi-pstack-adapter`](https://github.com/elderfo/pi-pstack-adapter); the adapter's first run asks before fetching its certified upstream snapshot.
+Run `/pistack-status` for the active release and capabilities, `/pistack-check <skill>` for prerequisites, and `/skill:pistack-poteto-mode <task>` to start a playbook.
+Sticky mode is opt-in.
+Arena's candidates and judge pool and Interrogate's reviewers use Opus 5.5, Astra 6.2, and Grok 4.7 at `high`, configured in [`pi-pstack-adapter.json`](stow/pi/.pi/agent/pi-pstack-adapter.json).
+Arena selects one eligible judge from a different vendor than the parent model.
+Playbooks do not authorize delegation, commits, pushes, PRs, merges, or live changes.
+The old shared workflows are archived in [`old/skills/`](old/skills/); other harnesses get the retained shared catalog, not the Pi adapter.
 
 ### Shared rules and skills
 
@@ -360,7 +361,7 @@ One global rules file, `stow/pi/.pi/agent/AGENTS.md`, is symlinked into Claude C
 Reload or restart sessions after changing it.
 
 Skills live once in `stow/pi/skills/`; `scripts/stow.sh` links each skill folder into `~/.agents/skills/`, which Pi, Codex, and OpenCode read, and `~/.claude/skills/` for Claude Code.
-Ownership (upstream baseline, personalization layer, or local) is recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
+Ownership and archive exclusions are recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
 [docs/skills.md](docs/skills.md) lists every skill, who can invoke it, its owner, and what it does; it is generated from each `SKILL.md`, so run `./scripts/skill_catalog.sh` after adding, renaming, or editing a skill.
 The same script writes one OpenCode command per skill under `stow/opencode/.config/opencode/commands/`, because OpenCode loads skills with `@skill-id` rather than `/skill-id`.
 
@@ -384,7 +385,10 @@ After each run it adds a `✻ Cooked for 1m 12s` line to the chat that the model
 Pi's `frsh-header` extension draws the π in its own digits and animates it at startup like pi-cc-header: the left leg, the bar, and the right leg drop in, then it flashes twice; resumed sessions show it finished.
 Pi's `pi-cloak` extension masks secret values (`.env`, `.vars`, `local.bash`, auth and credential files) in files Pi's `read` tool returns, using the rules in `stow/pi/.pi/agent/cloak.json`; `/cloak-status` shows them, and a shell `cat` is not covered.
 `/save-md name` saves the last reply as `name.md`; both extensions are adapted from Dillon Mulroy's dotfiles.
-`cua-driver` (Brewfile cask) lets Pi drive native Mac apps through its own skill; grant it Accessibility and Screen Recording with `cua-driver permissions grant`.
+Use `agent-browser` for browser work and `cua-driver` for native Mac apps and desktop automation.
+The npm global package list installs `agent-browser`; on an existing machine install it with `npm install -g agent-browser` and run `agent-browser install` if Chrome is unavailable.
+The shared `agent-browser` skill loads the CLI's version-matched core guide, and `modern-web-guidance` comes from [agent-browser v0.43.0](https://github.com/vercel-labs/agent-browser/tree/1cc19526f3641c8543d55aa6700e7c55b37ac356) (Apache-2.0).
+Grant `cua-driver` (a Brewfile cask) Accessibility and Screen Recording with `cua-driver permissions grant`.
 Pi's `skill-toast` and `inline-skills` extensions notify when a skill loads, and `/update` and `/restart` resume the session through the `pi` shell function, as Claude Code's `session-relaunch` mod does.
 The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` is the thin OpenCode side of the same checks.
 OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.
@@ -422,9 +426,8 @@ The legacy template flow in `mcp/` is documented in `mcp/README.md`.
 
 Two things worth knowing:
 
-- Chrome DevTools drives an isolated browser with no sign-ins, on the Mac and agentbox.
-  For sites that need a sign-in, agents launch Google Chrome on a dedicated `agent` profile through `cua-driver`, which Pi registers as an MCP server on the Mac (`extensions/cua-driver-mcp.ts`); sign in to sites in that profile once and it keeps them.
-  cua-driver's page tools don't support Helium, and agents never attach to your own browser profile.
+- Browser work uses `agent-browser` with an isolated profile, including when a site needs a sign-in.
+  `cua-driver` remains available in Pi for native apps; agents never attach to your personal browser profile.
 - HEY has read/write access to mail, calendars, todos, and contacts.
   Change its args to `["mcp", "--read-only"]` in each harness's config to limit it to reads.
 
@@ -440,7 +443,8 @@ Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.
 
 ### Planning and review
 
-Plans are project Markdown files, reviewed in chat, Plannotator TUI (`plannotator-tui <file>`), or Plannotator's browser UI, and implemented only after explicit approval.
+Plans are project Markdown files and are implemented only after explicit approval.
+In Pi, use the native Plannotator integration to open a review and send feedback directly to the active session.
 `Ctrl-a Shift-o` and `Ctrl-a Shift-l` review a folder or an agent's last reply in Herdr; in Rex, run `plannotator-tui` directly.
 
 ### Debugging Pi requests

@@ -1,11 +1,11 @@
 ---
 name: coding-standards
-description: Effect-specific engineering standards and references. Use when changing Effect services, schemas, resource scopes, or Effect-based Alchemy integrations. For ordinary TypeScript, use coding-standards-ts.
+description: Effect-specific engineering standards and references. Use when changing Effect services, schemas, resource scopes, or Effect-based Alchemy integrations.
 ---
 
 # Effect Coding Standards
 
-For ordinary TypeScript without Effect concerns, use [`../coding-standards-ts/SKILL.md`](../coding-standards-ts/SKILL.md) and stop here.
+For ordinary TypeScript without Effect concerns, follow project rules and use pstack's TypeScript guidance when available.
 
 Build **correct by construction**: parse data into meaningful types, make expected failures explicit, keep effects behind cohesive services, and test through real interfaces.
 
@@ -44,7 +44,6 @@ Apply the decision priority above when local conventions conflict with these sta
 
 Trace each caller-visible operation from input through every decision and effect to its observable result. Classify each changed concern as domain behavior, application policy, technology/framework mechanics, or composition/resource wiring.
 
-Use [`../coding-standards-ts/SKILL.md`](../coding-standards-ts/SKILL.md) for ordinary TypeScript principles.
 Load the references relevant to the Effect behavior being changed, following branch pointers when they apply:
 
 - [`references/effect.md`](references/effect.md) — whenever Effect code changes; follow its branch pointers before editing.

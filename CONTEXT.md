@@ -47,12 +47,15 @@ _Avoid_: Default agent
 The tracked set of agent skills made available to supported harnesses from one canonical source tree, `stow/pi/skills/`.
 _Avoid_: Claude skills, Pi skills
 
+**Pi workflow catalog**:
+Lauren Tan's pstack skills loaded by the community Pi adapter, separate from the tracked shared skill catalog.
+
 **Baseline catalog**:
-The stable Matt Pocock skill set that forms the upstream foundation of the shared skill catalog.
+The stable Matt Pocock source that the shared catalog sync can import from, subject to recorded exclusions.
 _Avoid_: Personalization layer
 
 **Personalization layer**:
-Dillon Mulroy skills that supplement the baseline catalog without replacing skills already supplied by it.
+Dillon Mulroy skills eligible for shared catalog sync when they are not excluded and do not replace baseline or local skills.
 _Avoid_: Baseline catalog, local skill
 
 **Local skill**:
