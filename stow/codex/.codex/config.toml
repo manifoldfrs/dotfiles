@@ -1,4 +1,4 @@
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 model_verbosity = "low"
 tool_output_token_limit = 25000
@@ -8,7 +8,7 @@ notify = [
     "/Users/frshbb/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
     "turn-ended",
 ]
-service_tier = "fast"
+service_tier = "ultrafast"
 
 [projects."/Users/frshbb/code"]
 trust_level = "trusted"
@@ -91,6 +91,12 @@ trust_level = "trusted"
 [projects."/Users/frshbb/Library/Application Support/Claude/scratch-workspaces/5d32a2d2-d041-4e7b-8d26-4be353c4e2e2/4bfe39c1-b53c-4472-b724-f0319168b2dd/scratch-2026-11-03-440964"]
 trust_level = "trusted"
 
+[projects."/Users/frshbb/Library/Application Support/Claude/scratch-workspaces/5d32a2d2-d041-4e7b-8d26-4be353c4e2e2/4bfe39c1-b53c-4472-b724-f0319168b2dd/scratch-2026-11-03-be5be4"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/Library/Application Support/Claude/scratch-workspaces/5d32a2d2-d041-4e7b-8d26-4be353c4e2e2/4bfe39c1-b53c-4472-b724-f0319168b2dd/scratch-2026-11-14-a343ef"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 
@@ -148,7 +154,7 @@ screen_reader_detection_done = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
-"gpt-6.1-sol" = 3
+"gpt-6.1-sol" = 4
 
 [mcp_servers.Ref]
 url = "https://api.ref.tools/mcp"
@@ -179,6 +185,8 @@ args = ["mcp"]
 [mcp_servers.superlogical]
 url = "https://www.superlogical.com/rex/community-mcp"
 
+[mcp_servers.jev.tools.jev_verify]
+approval_mode = "approve"
 [mcp_servers.node_repl]
 args = []
 command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
@@ -197,8 +205,8 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.1103.32239"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.1103.32239/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.1111.21308"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.1111.21308/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/frshbb/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 

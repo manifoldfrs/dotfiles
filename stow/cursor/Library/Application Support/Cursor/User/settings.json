@@ -4,7 +4,7 @@
 // Leader maps live in vspacecode.bindingOverrides below; editor keys in vim.*.
 {
   // Look.
-  "workbench.colorTheme": "Tokyo Night Storm",
+  "workbench.colorTheme": "Cursor Dark",
   "workbench.iconTheme": "catppuccin-macchiato",
   "editor.fontFamily": "MonoLisaCode",
   "editor.fontLigatures": "'cv05', 'cv09'",
@@ -86,148 +86,290 @@
   ],
   "vim.normalModeKeyBindingsNonRecursive": [
     {
-      "before": [";"],
-      "after": [":"],
+      "before": [
+        ";"
+      ],
+      "after": [
+        ":"
+      ]
     },
     {
-      "before": ["<space>"],
-      "commands": ["vspacecode.space"],
+      "before": [
+        "<space>"
+      ],
+      "commands": [
+        "vspacecode.space"
+      ]
     },
     {
-      "before": [","],
+      "before": [
+        ","
+      ],
       "commands": [
         "vspacecode.space",
         {
           "command": "whichkey.triggerKey",
-          "args": "m",
-        },
+          "args": "m"
+        }
+      ]
+    },
+    {
+      "before": [
+        "<C-p>"
       ],
+      "commands": [
+        "workbench.action.quickOpen"
+      ]
     },
     {
-      "before": ["<C-p>"],
-      "commands": ["workbench.action.quickOpen"],
-    },
-    {
-      "before": ["<C-n>"],
+      "before": [
+        "<C-n>"
+      ],
       "commands": [
         "vspacecode.space",
         {
           "command": "whichkey.triggerKey",
-          "args": "f",
+          "args": "f"
         },
         {
           "command": "whichkey.triggerKey",
-          "args": "t",
-        },
+          "args": "t"
+        }
+      ]
+    },
+    {
+      "before": [
+        "<S-h>"
       ],
+      "commands": [
+        "workbench.action.previousEditor"
+      ]
     },
     {
-      "before": ["<S-h>"],
-      "commands": ["workbench.action.previousEditor"],
+      "before": [
+        "<S-l>"
+      ],
+      "commands": [
+        "workbench.action.nextEditor"
+      ]
     },
     {
-      "before": ["<S-l>"],
-      "commands": ["workbench.action.nextEditor"],
+      "before": [
+        "<S-tab>"
+      ],
+      "commands": [
+        "workbench.action.previousEditor"
+      ]
     },
     {
-      "before": ["<S-tab>"],
-      "commands": ["workbench.action.previousEditor"],
+      "before": [
+        "<tab>"
+      ],
+      "commands": [
+        "workbench.action.nextEditor"
+      ]
     },
     {
-      "before": ["<tab>"],
-      "commands": ["workbench.action.nextEditor"],
+      "before": [
+        "<C-j>"
+      ],
+      "commands": [
+        "workbench.action.terminal.focus"
+      ]
     },
     {
-      "before": ["<C-j>"],
-      "commands": ["workbench.action.terminal.focus"],
+      "before": [
+        "<C-t>"
+      ],
+      "commands": [
+        "workbench.action.terminal.toggleTerminal"
+      ]
     },
     {
-      "before": ["<C-t>"],
-      "commands": ["workbench.action.terminal.toggleTerminal"],
-    },
-    // LSP keys from lsp-config.lua and snacks.lua.
-    {
-      "before": ["K"],
-      "commands": ["editor.action.showHover"],
-    },
-    {
-      "before": ["g", "l"],
-      "commands": ["editor.action.showHover"],
+      "before": [
+        "K"
+      ],
+      "commands": [
+        "editor.action.showHover"
+      ]
     },
     {
-      "before": ["g", "D"],
-      "commands": ["editor.action.revealDeclaration"],
+      "before": [
+        "g",
+        "l"
+      ],
+      "commands": [
+        "editor.action.showHover"
+      ]
     },
     {
-      "before": ["g", "r"],
-      "commands": ["editor.action.goToReferences"],
+      "before": [
+        "g",
+        "D"
+      ],
+      "commands": [
+        "editor.action.revealDeclaration"
+      ]
     },
     {
-      "before": ["g", "i"],
-      "commands": ["editor.action.goToImplementation"],
+      "before": [
+        "g",
+        "r"
+      ],
+      "commands": [
+        "editor.action.goToReferences"
+      ]
     },
     {
-      "before": ["g", "I"],
-      "commands": ["editor.action.goToImplementation"],
+      "before": [
+        "g",
+        "i"
+      ],
+      "commands": [
+        "editor.action.goToImplementation"
+      ]
     },
     {
-      "before": ["g", "y"],
-      "commands": ["editor.action.goToTypeDefinition"],
+      "before": [
+        "g",
+        "I"
+      ],
+      "commands": [
+        "editor.action.goToImplementation"
+      ]
     },
     {
-      "before": ["]", "d"],
-      "commands": ["editor.action.marker.next"],
+      "before": [
+        "g",
+        "y"
+      ],
+      "commands": [
+        "editor.action.goToTypeDefinition"
+      ]
     },
     {
-      "before": ["[", "d"],
-      "commands": ["editor.action.marker.prev"],
-    },
-    // gitsigns hunks and snacks.words references.
-    {
-      "before": ["]", "h"],
-      "commands": ["workbench.action.editor.nextChange"],
-    },
-    {
-      "before": ["[", "h"],
-      "commands": ["workbench.action.editor.previousChange"],
+      "before": [
+        "]",
+        "d"
+      ],
+      "commands": [
+        "editor.action.marker.next"
+      ]
     },
     {
-      "before": ["]", "]"],
-      "commands": ["editor.action.wordHighlight.next"],
+      "before": [
+        "[",
+        "d"
+      ],
+      "commands": [
+        "editor.action.marker.prev"
+      ]
     },
     {
-      "before": ["[", "["],
-      "commands": ["editor.action.wordHighlight.prev"],
+      "before": [
+        "]",
+        "h"
+      ],
+      "commands": [
+        "workbench.action.editor.nextChange"
+      ]
     },
+    {
+      "before": [
+        "[",
+        "h"
+      ],
+      "commands": [
+        "workbench.action.editor.previousChange"
+      ]
+    },
+    {
+      "before": [
+        "]",
+        "]"
+      ],
+      "commands": [
+        "editor.action.wordHighlight.next"
+      ]
+    },
+    {
+      "before": [
+        "[",
+        "["
+      ],
+      "commands": [
+        "editor.action.wordHighlight.prev"
+      ]
+    }
   ],
   "vim.visualModeKeyBindingsNonRecursive": [
     {
-      "before": ["<"],
-      "after": ["<", "g", "v"],
+      "before": [
+        "<"
+      ],
+      "after": [
+        "<",
+        "g",
+        "v"
+      ]
     },
     {
-      "before": [">"],
-      "after": [">", "g", "v"],
-    },
-    // Paste without yanking the replaced text.
-    {
-      "before": ["p"],
-      "after": ["\"", "_", "d", "P"],
-    },
-    {
-      "before": ["<space>"],
-      "commands": ["vspacecode.space"],
+      "before": [
+        ">"
+      ],
+      "after": [
+        ">",
+        "g",
+        "v"
+      ]
     },
     {
-      "before": [","],
+      "before": [
+        "p"
+      ],
+      "after": [
+        "\"",
+        "_",
+        "d",
+        "P"
+      ]
+    },
+    {
+      "before": [
+        "<space>"
+      ],
+      "commands": [
+        "vspacecode.space"
+      ]
+    },
+    {
+      "before": [
+        ","
+      ],
       "commands": [
         "vspacecode.space",
         {
           "command": "whichkey.triggerKey",
-          "args": "m",
-        },
-      ],
+          "args": "m"
+        }
+      ]
     },
+    {
+      "before": [
+        ">"
+      ],
+      "commands": [
+        "editor.action.indentLines"
+      ]
+    },
+    {
+      "before": [
+        "<"
+      ],
+      "commands": [
+        "editor.action.outdentLines"
+      ]
+    }
   ],
 
   // Leader menu. VSpaceCode defaults already match most Neovim aliases

@@ -28,12 +28,15 @@ opencode="$test_dir/stow/opencode/.config/opencode/opencode.jsonc"
 
 bash "$sync" --check >/dev/null || fail "the tracked generated files are stale"
 
+printf '\n[mcp_servers.jev.tools.fixture]\napproval_mode = "approve"\n\n[mcp_servers.hey.tools.fixture]\napproval_mode = "approve"\n' >> "$codex"
+
 # Removing a server from Pi removes it everywhere, and Pi's shared files reach Claude's mods.
 jq 'del(.mcpServers.hey) | .mcpServers.docs = {url: "https://docs.test/mcp", headers: {"x-team": "dotfiles"}, exposure: "direct"}' "$pi_mcp" > "$pi_mcp.new"
 mv "$pi_mcp.new" "$pi_mcp"
 printf '\n// changed in Pi\n' >> "$test_dir/stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts"
 bash "$sync" >/dev/null
-grep -q '^\[mcp_servers.hey\]' "$codex" && fail "Codex kept a server Pi removed"
+grep -Eq '^\[mcp_servers\.hey(\.|\])' "$codex" && fail "Codex kept a server Pi removed"
+grep -A1 -F '[mcp_servers.jev.tools.fixture]' "$codex" | grep -qx 'approval_mode = "approve"' || fail "Codex lost a tool approval"
 grep -q '"hey"' "$opencode" && fail "OpenCode kept a server Pi removed"
 grep -q '^\[mcp_servers.docs.http_headers\]' "$codex" || fail "Codex is missing a literal header table"
 grep -q '^\[mcp_servers.node_repl\]' "$codex" || fail "Codex lost a ChatGPT app server"

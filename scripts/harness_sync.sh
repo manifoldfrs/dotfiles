@@ -92,7 +92,14 @@ render_codex() {
     local servers
     servers="$(codex_servers | sed '1{/^$/d;}')"
     SERVERS="$servers" awk -v keep="$CODEX_APP_SERVERS" '
-        BEGIN { servers = ENVIRON["SERVERS"]; split(keep, names, " "); for (i in names) kept[names[i]] = 1 }
+        BEGIN {
+            servers = ENVIRON["SERVERS"]
+            split(keep, names, " ")
+            for (i in names) kept[names[i]] = 1
+            count = split(servers, lines, "\n")
+            for (i = 1; i <= count; i++)
+                if (lines[i] ~ /^\[mcp_servers\.[^.]+\]$/) generated[server_of(lines[i])] = 1
+        }
         function server_of(header,   name) {
             name = header
             sub(/^\[mcp_servers\./, "", name)
@@ -100,7 +107,10 @@ render_codex() {
             return name
         }
         /^\[/ {
-            owned = ($0 ~ /^\[mcp_servers\./) && !(server_of($0) in kept)
+            server = server_of($0)
+            # Codex records tool approvals separately from the server connections Pi owns.
+            tool_policy = ($0 ~ /^\[mcp_servers\.[^.]+\.tools\./) && (server in generated)
+            owned = ($0 ~ /^\[mcp_servers\./) && !(server in kept) && !tool_policy
             if (owned && !placed) { printf "%s", pending; pending = ""; print servers; print ""; placed = 1 }
         }
         owned { pending = ""; next }
