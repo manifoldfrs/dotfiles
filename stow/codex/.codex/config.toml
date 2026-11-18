@@ -184,9 +184,6 @@ args = ["mcp"]
 
 [mcp_servers.superlogical]
 url = "https://www.superlogical.com/rex/community-mcp"
-
-[mcp_servers.jev.tools.jev_verify]
-approval_mode = "approve"
 [mcp_servers.node_repl]
 args = []
 command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
@@ -209,6 +206,9 @@ BROWSER_USE_CODEX_APP_VERSION = "26.1111.21308"
 NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.1111.21308/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/frshbb/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
+
+[mcp_servers.jev.tools.jev_verify]
+approval_mode = "approve"
 
 [mcp_servers.computer-use]
 command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
