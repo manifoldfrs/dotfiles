@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import type { XaiAuthRegistry } from "./xai-auth.ts";
@@ -13,7 +14,7 @@ interface PiCodingAgent {
 const networkFetch = globalThis.fetch as FetchLike;
 
 process.exitCode = await runRunner(process.argv.slice(2), {
-  readFile: (path) => readFile(path, "utf8"),
+  readFile: (path) => path === "/dev/stdin" ? Promise.resolve(readFileSync(0, "utf8")) : readFile(path, "utf8"),
   async writeOutput(text, outPath) {
     if (outPath) await writeFile(outPath, text, { encoding: "utf8", mode: 0o600 });
     else process.stdout.write(text);

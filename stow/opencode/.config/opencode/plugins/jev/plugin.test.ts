@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect, test } from "vitest"
 import { mkdtempSync, readFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -157,7 +157,7 @@ const turn = (text: string) => ({ prompt: { text } })
 const idle = { background: [] }
 
 async function noteArrives(synthetics: readonly Synthetic[]) {
-  for (let attempt = 0; attempt < 200 && !synthetics.length; attempt += 1) await Bun.sleep(10)
+  for (let attempt = 0; attempt < 200 && !synthetics.length; attempt += 1) await new Promise((resolve) => setTimeout(resolve, 10))
 }
 
 describe("a flagged answer", () => {

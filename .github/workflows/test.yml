@@ -66,17 +66,38 @@ jobs:
         with:
           node-version: 24
 
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: test/package.json
+
       - name: Install Pi test dependencies
         working-directory: test
-        run: npm install --no-audit --no-fund
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Pi for the X search runner tests
+        run: |
+          export PNPM_HOME="$RUNNER_TEMP/pnpm-global"
+          export PATH="$PNPM_HOME/bin:$PATH"
+          pnpm add --global --ignore-scripts @earendil-works/pi-coding-agent@1.5.2
+          printf 'PNPM_HOME=%s\n' "$PNPM_HOME" >> "$GITHUB_ENV"
+          printf '%s\n' "$PNPM_HOME/bin" >> "$GITHUB_PATH"
 
       - name: Run Pi tests
         working-directory: test
-        run: npm test
+        run: pnpm test
 
       - name: Typecheck Pi extensions
         working-directory: test
-        run: npm run typecheck
+        run: pnpm run typecheck
+
+      - name: Check OpenCode plugins
+        run: |
+          for name in guardrails jev xai-search; do
+            plugin="stow/opencode/.config/opencode/plugins/$name"
+            pnpm --dir "$plugin" install --frozen-lockfile
+            pnpm --dir "$plugin" run check
+            pnpm --dir "$plugin" test
+          done
 
   test-docker:
     runs-on: ubuntu-latest

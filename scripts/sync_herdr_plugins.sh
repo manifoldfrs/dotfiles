@@ -5,7 +5,7 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 PLUGIN_SOURCES_FILE="$DOTFILES_DIR/stow/herdr/.config/herdr/plugins.txt"
 
-for tool in herdr bun jq; do
+for tool in herdr jq; do
     if ! command -v "$tool" >/dev/null 2>&1; then
         echo "[ERROR] Herdr plugins require $tool on PATH" >&2
         exit 1

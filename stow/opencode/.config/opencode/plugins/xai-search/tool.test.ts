@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect, test } from "vitest"
 import { runProcess, xaiSearchTool, type RunProcess } from "./tool.ts"
 
 const context = { signal: new AbortController().signal }
@@ -23,7 +23,7 @@ describe("xai_search tool", () => {
 
     expect(result).toEqual({ content: "Top posts" })
     expect(calls).toHaveLength(1)
-    expect(calls[0]!.argv[0]).toBe("/opt/homebrew/bin/node")
+    expect(calls[0]!.argv[0]).toBe(process.platform === "darwin" ? "/opt/homebrew/bin/node" : "node")
     expect(calls[0]!.argv[1]).toMatch(/\/pi\/\.pi\/agent\/extensions\/xai-search\/run-xai-search\.ts$/)
     expect(calls[0]!.argv.slice(2)).toEqual(["--interactive", "--params", "/dev/stdin"])
     expect(JSON.parse(calls[0]!.stdin)).toEqual({ query: "agents", to_date: "2026-10-16" })
@@ -42,10 +42,10 @@ describe("xai_search tool", () => {
 })
 
 describe("runProcess", () => {
-  const node = (script: string) => ["/opt/homebrew/bin/node", "-e", script] as const
+  const node = (script: string) => [process.execPath, "-e", script] as const
 
-  test("hands stdin to a child that opens /dev/stdin", async () => {
-    const run = await runProcess([...node("process.stdout.write(require('fs').readFileSync('/dev/stdin', 'utf8'))")], "hello", context.signal)
+  test("hands stdin to a child that reads its inherited descriptor", async () => {
+    const run = await runProcess([...node("process.stdout.write(require('fs').readFileSync(0, 'utf8'))")], "hello", context.signal)
 
     expect(run).toEqual({ exitCode: 0, stdout: "hello", stderr: "" })
   })

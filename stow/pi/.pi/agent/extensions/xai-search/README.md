@@ -38,7 +38,8 @@ The runner finds `pi` by searching `PATH` without starting a shell, and needs No
 On this Mac, run it with an explicit minimal environment so scheduled runs do not depend on shell startup:
 
 ```bash
-env -i HOME="$HOME" PATH="$HOME/.bun/bin:/opt/homebrew/bin:/usr/bin:/bin" \
+env -i HOME="$HOME" PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}" \
+  PATH="${PNPM_HOME:-$HOME/.local/share/pnpm}/bin:/opt/homebrew/bin:/usr/bin:/bin" \
   /opt/homebrew/bin/node run-xai-search.ts --params digest.json --out result.json
 ```
 

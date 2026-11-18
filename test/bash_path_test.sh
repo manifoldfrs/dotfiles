@@ -11,6 +11,7 @@ mkdir -p \
     "$test_home/.cargo/bin" \
     "$test_home/.deno/bin" \
     "$test_home/.bun/bin" \
+    "$test_home/.local/share/pnpm/bin" \
     "$test_home/.pyenv/bin" \
     "$test_home/.local/opt/go/bin" \
     "$test_home/go/bin" \
@@ -24,6 +25,11 @@ ln -s "$repo_dir/stow/bash/.bashrc" "$test_home/.bashrc"
 for command_name in herdr pi; do
     printf '#!/bin/bash\nexit 0\n' >"$test_home/path-last/$command_name"
     chmod +x "$test_home/path-last/$command_name"
+done
+
+for directory in "$test_home/.bun/bin" "$test_home/.local/share/pnpm/bin"; do
+    printf '#!/bin/bash\nexit 0\n' >"$directory/pi"
+    chmod +x "$directory/pi"
 done
 
 printf '#!/bin/bash\nexit 0\n' >"$test_home/rex-bin/rex"
@@ -62,6 +68,7 @@ for startup_file in .config/bash/environment.bash .bashrc .bash_profile; do
                 "$HOME/.cargo/bin" \
                 "$HOME/.deno/bin" \
                 "$HOME/.bun/bin" \
+                "$PNPM_HOME/bin" \
                 "$HOME/.pyenv/bin" \
                 "$HOME/.local/opt/go/bin" \
                 "$HOME/go/bin" \
@@ -76,6 +83,11 @@ for startup_file in .config/bash/environment.bash .bashrc .bash_profile; do
             duplicates=$(printf "%s\n" "$PATH" | /usr/bin/tr ":" "\n" | /usr/bin/sort | /usr/bin/uniq -d)
             if [[ -n $duplicates ]]; then
                 printf "FAIL: %s created duplicate PATH entries:\n%s\n" "$startup_file" "$duplicates"
+                exit 1
+            fi
+
+            if [[ $(command -v pi) != "$PNPM_HOME/bin/pi" ]]; then
+                printf "FAIL: %s did not select the pnpm-installed Pi\n" "$startup_file"
                 exit 1
             fi
 

@@ -1,5 +1,7 @@
+import { execFileSync } from "node:child_process";
 import { accessSync, constants, realpathSync } from "node:fs";
-import { delimiter, join } from "node:path";
+import { createRequire } from "node:module";
+import { delimiter, dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 export interface RegisteredTool {
@@ -40,27 +42,37 @@ function findPiOnPath(): string {
       continue;
     }
   }
-  throw new Error("pi was not found on PATH; include the directory that contains pi, such as ~/.bun/bin");
+  throw new Error("pi was not found on PATH; include the directory that contains pi");
 }
 
-export function piNodeModules(): string {
+const PI_PACKAGE = "@earendil-works/pi-coding-agent";
+
+function piPackageDirectory(): string {
   const piPath = realpathSync(findPiOnPath());
-  const marker = "/node_modules/";
-  const index = piPath.lastIndexOf(marker, piPath.indexOf("/@earendil-works/"));
-  if (index < 0) throw new Error(`Cannot locate node_modules for ${piPath}`);
-  return piPath.slice(0, index + marker.length - 1);
+  const marker = `/node_modules/${PI_PACKAGE}/`;
+  const index = piPath.lastIndexOf(marker);
+  if (index >= 0) return piPath.slice(0, index + marker.length - 1);
+
+  const installed = JSON.parse(execFileSync("/usr/bin/env", ["pnpm", "list", "--global", "--depth=0", "--json"], { encoding: "utf8" })) as
+    Array<{ dependencies?: Record<string, { path?: string }> }>;
+  const path = installed[0]?.dependencies?.[PI_PACKAGE]?.path;
+  if (!path) throw new Error(`Cannot locate the Pi package for ${piPath}`);
+  return realpathSync(path);
 }
 
-export function installedPiPaths(nodeModules = piNodeModules()): EntryLoaderPaths {
+export function installedPiPaths(packageDirectory = piPackageDirectory()): EntryLoaderPaths {
+  const resolve = createRequire(join(packageDirectory, "package.json")).resolve;
   return {
-    piCodingAgent: join(nodeModules, "@earendil-works/pi-coding-agent/dist/index.js"),
-    typebox: join(nodeModules, "typebox/build/index.mjs"),
+    piCodingAgent: join(packageDirectory, "dist/index.js"),
+    typebox: resolve("typebox"),
   };
 }
 
 // Loads index.ts fresh through the jiti bundled with pi, the same loader Pi uses for extensions.
-export async function loadXaiSearchEntry(paths: EntryLoaderPaths, nodeModules = piNodeModules()): Promise<RegisteredEntry> {
-  const { createJiti } = (await import(pathToFileURL(join(nodeModules, "jiti/lib/jiti.mjs")).href)) as {
+export async function loadXaiSearchEntry(paths: EntryLoaderPaths, packageDirectory = piPackageDirectory()): Promise<RegisteredEntry> {
+  const resolve = createRequire(join(packageDirectory, "package.json")).resolve;
+  const jitiPath = join(dirname(resolve("jiti/package.json")), "lib/jiti.mjs");
+  const { createJiti } = (await import(pathToFileURL(jitiPath).href)) as {
     createJiti: (from: string, options: object) => { import: (id: string, options?: object) => Promise<unknown> };
   };
   const jiti = createJiti(import.meta.url, {

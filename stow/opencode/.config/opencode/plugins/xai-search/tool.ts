@@ -27,7 +27,8 @@ export function xaiSearchTool(run: RunProcess) {
     input: inputSchema,
     options: { codemode: false },
     execute: async (input: unknown, context: { readonly signal: AbortSignal }) => {
-      const finished = await run(runnerArgv(PI_XAI_SEARCH), runnerStdin(Object(input)), context.signal)
+      const [node, ...args] = runnerArgv(PI_XAI_SEARCH)
+      const finished = await run([process.platform === "darwin" ? node : "node", ...args], runnerStdin(Object(input)), context.signal)
 
       if (!finished) throw new Error(RUNNER_FAILED)
 

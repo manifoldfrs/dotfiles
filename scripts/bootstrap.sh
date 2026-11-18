@@ -200,18 +200,20 @@ install_global_anti_slop() {
 }
 
 install_pi() {
-    if command -v pi &> /dev/null; then
-        info "Pi already installed"
+    local pnpm_home="${PNPM_HOME:-$HOME/.local/share/pnpm}"
+
+    if [ -x "$pnpm_home/bin/pi" ]; then
+        info "Pi already installed with pnpm"
         return
     fi
 
-    if ! command -v bun &> /dev/null; then
-        warn "Bun not found, skipping Pi"
+    if ! command -v pnpm &> /dev/null; then
+        warn "pnpm not found, skipping Pi"
         return
     fi
 
-    info "Installing Pi..."
-    bun add -g @earendil-works/pi-coding-agent || warn "Pi installation failed"
+    info "Installing Pi with pnpm..."
+    PNPM_HOME="$pnpm_home" PATH="$pnpm_home/bin:$PATH" pnpm add --global --ignore-scripts @earendil-works/pi-coding-agent || warn "Pi installation failed"
 }
 
 # cua-driver installs its version-matched skill itself and links it into ~/.agents/skills and ~/.claude/skills.

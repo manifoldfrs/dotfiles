@@ -52,6 +52,9 @@ path_prepend "/Applications/Ghostty.app/Contents/MacOS"
 # Rex exports its CLI directory to its terminals but leaves PATH to the shell.
 [[ -n ${REX_BIN_DIR:-} ]] && path_prepend "$REX_BIN_DIR"
 
+export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"
+path_prepend "$PNPM_HOME/bin"
+
 if [[ -n ${HOMEBREW_PREFIX:-} && -x "$HOMEBREW_PREFIX/opt/ruby/bin/ruby" ]]; then
     path_prepend "$HOMEBREW_PREFIX/opt/ruby/bin"
 fi

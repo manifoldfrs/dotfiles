@@ -34,6 +34,9 @@ cd ~/code/personal/dotfiles
 
 Bootstrap installs Homebrew and the `Brewfile`, installs Claude Code and OpenCode 2 with their native installers, backs up conflicting live files (`.backup.YYYYMMDDhhmmss`), applies all Stow packages, registers Claude Code's MCP servers, syncs Herdr plugins, selects Homebrew Bash as the login shell, restores Neovim plugins from `lazy-lock.json`, installs the global npm packages, sets up the global `anti-slop` runtime and Plannotator, and runs `rex skill setup --session-naming` when Rex is present.
 
+Bootstrap installs pnpm from the Brewfile and uses it to install Pi in `$PNPM_HOME/bin`.
+The Bash profile prefers that Pi and keeps Bun available for other projects.
+
 Rex itself installs from its DMG and updates itself, so install it separately.
 Then quit and reopen your terminal (or `exec /opt/homebrew/bin/bash --login`) and sign in to each harness (`claude`, `pi` with `/login`, `codex`).
 In OpenCode, run `/connect` for the providers you use; **Claude Agent** reuses your Claude Code login.
@@ -403,14 +406,14 @@ The Jev plugin in `stow/opencode/.config/opencode/plugins/jev/` is the thin Open
 OpenCode bundles the `effect` package it uses at runtime; its `package.json` pins the same versions only for tests and type checks, and failed checks are logged to `~/.local/share/opencode/log/jev-plugin.log`.
 
 ```bash
-(cd stow/opencode/.config/opencode/plugins/jev && bun install && bun test && bun run check)
+(cd stow/opencode/.config/opencode/plugins/jev && pnpm install --frozen-lockfile && pnpm test && pnpm run check)
 ```
 
 The `xai-search` mod and the OpenCode plugin in `stow/opencode/.config/opencode/plugins/xai-search/` both give agents the `xai_search` tool through Pi's guarded runner.
 Their shared tool definition lives in `stow/pi/.pi/agent/extensions/xai-search/xai-shared.ts`, and the mod gets a generated copy the same way.
 
 ```bash
-(cd stow/opencode/.config/opencode/plugins/xai-search && bun install && bun test && bun run check)
+(cd stow/opencode/.config/opencode/plugins/xai-search && pnpm install --frozen-lockfile && pnpm test && pnpm run check)
 ```
 
 `local` skills are never overwritten by sync, and `excluded` skills are never restored.
@@ -491,8 +494,9 @@ Install agent integrations once per machine with `herdr integration install pi` 
 ./scripts/validate-dotfiles.sh                 # full isolated preflight, no live changes
 bash -n scripts/*.sh stow/bash/.bashrc         # shell syntax spot check
 bash test/run_tests.sh                         # shell test suite
-npm --prefix test test                         # Pi extension tests
-npm --prefix test run typecheck                # Pi extension types
+pnpm --dir test install --frozen-lockfile
+pnpm --dir test test                          # Pi extension tests
+pnpm --dir test run typecheck                 # Pi extension types (tsc-ts)
 bash test/nvim_plugin_safety.sh --base-ref HEAD
 (cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i error
 docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test  # closest to CI

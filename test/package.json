@@ -1,17 +1,19 @@
 {
   "name": "dotfiles-pi-tests",
   "private": true,
+  "packageManager": "pnpm@12.21.0",
   "scripts": {
     "link-extension-deps": "ln -sfn ../../../../../test/node_modules ../stow/pi/.pi/agent/extensions/node_modules",
-    "pretest": "npm run link-extension-deps",
-    "pretypecheck": "npm run link-extension-deps",
-    "test": "node --import tsx --test active_skill_catalog_test.mjs pi_commands_test.ts pi_guardrails_test.ts pi_compaction_test.ts skill_pages_test.ts ../stow/pi/.pi/agent/extensions/jev-guardrails/checks.test.ts ../stow/pi/.pi/agent/extensions/inline-skills/index.test.ts ../stow/pi/.pi/agent/extensions/skill-toast/index.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/format.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/skill-mentions.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/tips.test.ts ../stow/pi/.pi/agent/extensions/frsh-header/art.test.ts pi_save_md_test.mts '../stow/pi/.pi/agent/extensions/codex-fast-variants/*.test.ts' '../stow/pi/.pi/agent/extensions/xai-search/*.test.ts'",
-    "typecheck": "tsc --project tsconfig.pi.json"
+    "test": "pnpm run link-extension-deps && node --import tsx --test active_skill_catalog_test.mjs pi_commands_test.ts pi_guardrails_test.ts pi_compaction_test.ts skill_pages_test.ts ../stow/pi/.pi/agent/extensions/jev-guardrails/checks.test.ts ../stow/pi/.pi/agent/extensions/inline-skills/index.test.ts ../stow/pi/.pi/agent/extensions/skill-toast/index.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/format.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/skill-mentions.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/tips.test.ts ../stow/pi/.pi/agent/extensions/frsh-header/art.test.ts pi_save_md_test.mts '../stow/pi/.pi/agent/extensions/codex-fast-variants/*.test.ts' '../stow/pi/.pi/agent/extensions/xai-search/*.test.ts'",
+    "typecheck": "pnpm run link-extension-deps && tsc-ts --project tsconfig.pi.json"
   },
   "devDependencies": {
+    "@earendil-works/pi-ai": "1.5.2",
     "@earendil-works/pi-coding-agent": "1.5.2",
+    "@earendil-works/pi-tui": "1.5.2",
     "@types/node": "^24.5.2",
     "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
+    "tsc-ts": "0.1.5",
+    "typebox": "1.3.27"
   }
 }

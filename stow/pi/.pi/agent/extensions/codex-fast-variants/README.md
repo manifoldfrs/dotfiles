@@ -64,11 +64,10 @@ Current OpenAI variants do not depend on this discovery.
 
 ## Development
 
-With development dependencies and the Pi packages available:
-
 ```bash
 cd stow/pi/.pi/agent/extensions/codex-fast-variants
-npm run check
+pnpm install --frozen-lockfile
+pnpm run check
 ```
 
 The TypeScript configuration is self-contained.
