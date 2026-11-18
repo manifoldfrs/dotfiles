@@ -381,10 +381,12 @@ The Jev logic lives once in Pi, in `stow/pi/.pi/agent/extensions/jev-guardrails/
 Claude Code only loads mod files whose real path is inside the mod, so the mod's `hooks/jev-shared.ts` is a copy that `./scripts/harness_sync.sh` generates; edit Pi's file, then run the script.
 The `bold-color` mod draws bold reply text in Tokyo Night blue.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
-Pi's `claude-style-ui` extension does both, shows known skills typed as `/name` in blue with a menu of matching skills anywhere in the prompt, and its footer shows session cost per model like Claude Code's `model-cost` status line.
-Its spinner shimmers a random verb with elapsed time and streamed tokens, turns red when the model goes quiet, and rotates tips for your own commands and skills, putting the ones Jev ranks relevant to your prompt first as `Try /name`.
-After each run it adds a `✻ Cooked for 1m 12s` line to the chat that the model never sees, and the footer counts running pi-subagents background agents as `← N agents`.
-Pi's `frsh-header` extension draws the π in its own digits and animates it at startup like pi-cc-header: the left leg, the bar, and the right leg drop in, then it flashes twice; resumed sessions show it finished.
+Pi uses [pi-cyber-ui](https://github.com/22GNUs/pi-cyber-ui) and its `cyber-ui-dark` theme for the prompt, tool gutter, animated working indicator, and footer.
+Signal Deck adds a static startup header and a panel above the prompt that distinguishes model work, tool work, and the final outcome without adding a redraw timer.
+The Cyber UI footer keeps session context and the selected model's display name, including `(Fast)` or `(Ultrafast)` for the Codex variants.
+Bootstrap removes the cat icon from the model label and prefixes the prompt cache percentage with `cache`.
+If you only run Stow or reinstall the Cyber UI package, run `bash scripts/setup_pi_cyber_ui.sh` from the repository root, then run `/reload` in Pi.
+The previous `claude-style-ui` and `frsh-header` extensions remain in the repository but are disabled in Pi's settings so they do not override the new UI.
 Pi's `pi-cloak` extension masks secret values (`.env`, `.vars`, `local.bash`, auth and credential files) in files Pi's `read` tool returns, using the rules in `stow/pi/.pi/agent/cloak.json`; `/cloak-status` shows them, and a shell `cat` is not covered.
 `/save-md name` saves the last reply as `name.md`; both extensions are adapted from Dillon Mulroy's dotfiles.
 Use `agent-browser` for browser work and `cua-driver` for native Mac apps and desktop automation.
