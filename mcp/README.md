@@ -22,7 +22,7 @@ cd ~/dotfiles
 ./scripts/stow.sh apply
 ```
 
-`mcp/codex_config.toml.example` remains as a standalone template, but the active tracked config is `stow/codex/.codex/config.toml`.
+The tracked Codex config is `stow/codex/.codex/config.toml`.
 
 ### Claude Code
 
@@ -64,10 +64,8 @@ Adding these entries does not install their packages or configure the browser br
 
 ### API keys
 
-Edit each file and replace placeholders:
-- `YOUR_USERNAME` → your macOS username
-- `REF_API_KEY` → environment variable containing your Ref API key
-- `EXA_API_KEY` → environment variable containing your Exa API key
+Set `REF_API_KEY` and `EXA_API_KEY` in your shell environment.
+Leave their references in the tracked configs unchanged.
 
 Restart Codex to apply changes.
 Run `/reload` or restart Pi after changing `~/.pi/agent/mcp.json`.
@@ -80,7 +78,7 @@ To capture your current Codex config (including any literal API keys):
 ./mcp_setup.sh backup
 ```
 
-**Note:** Untracked template outputs containing literal API keys are gitignored. Stow-managed configs use environment interpolation and contain no secrets.
+**Note:** The local copy at `mcp/codex_config.toml` is gitignored. Stow-managed configs use environment interpolation and contain no secrets.
 Codex MCP HTTP servers should use `env_http_headers` with `REF_API_KEY` and `EXA_API_KEY`, not API keys embedded in URLs.
 Codex stdio servers should forward keys such as `TYPESAFE_API_KEY` with `env_vars`, not literal `env` values.
 Export every key from machine-local `~/.config/bash/local.bash`; do not keep keys in loose files in the repository.

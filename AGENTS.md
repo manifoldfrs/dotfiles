@@ -2,7 +2,7 @@
 
 ## Scope and Intent
 This repository manages personal macOS dotfiles and setup automation.
-It includes shell bootstrap scripts, Neovim Lua config, MCP templates, and Docker-based validation.
+It includes shell bootstrap scripts, Neovim Lua config, MCP configuration, and Docker-based validation.
 This file is the top-level guide for coding agents working in `/Users/frshbb/code/personal/dotfiles`.
 Read `CONTEXT.md` when work changes the tracked-to-live configuration lifecycle, skill ownership, or cross-harness agent setup.
 
@@ -30,7 +30,7 @@ Agent behavior:
 - `mcp_setup.sh` - MCP config install + backup script
 - `stow/` - GNU Stow packages that mirror `$HOME`
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
-- `mcp/` - MCP template configs (`*.example`) and docs
+- `mcp/` - MCP setup and configuration docs
 - `test/` - Docker test harness + shell test runner
 - `stow/pi/` - Pi config, the primary agent harness, with the canonical global AGENTS.md, guardrail hooks, and MCP servers (`.pi/agent/`), and the retained shared skills (`skills/`); the Pi-only pstack workflow comes from `pi-pstack-adapter`
 - `stow/claude/` - Claude Code config and mods; links AGENTS.md and hooks to `stow/pi/`
@@ -180,7 +180,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 
 ## Security and Secrets
 - Never commit API keys/tokens or real local credentials.
-- Real MCP configs (`mcp/*.json`, `mcp/*.toml`) are local; keep templates in `mcp/*.example`.
+- Keep machine-local MCP configs (`mcp/*.json`, `mcp/*.toml`) untracked.
 - Preserve placeholders like `YOUR_*` in examples.
 - Treat `~/.config/bash/local.bash` as sensitive, machine-local content.
 
@@ -206,6 +206,6 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 ```bash
 rg '^[a-z_]+\(\)' scripts mcp_setup.sh
 rg 'vim.keymap.set|desc\s*=\s*"' stow/nvim/.config/nvim/lua
-rg 'mcpServers|YOUR_' mcp/*.example
+rg 'mcpServers' stow/pi/.pi/agent/mcp.json
 rg '\[TEST|\[PASS|\[FAIL' test/run_tests.sh
 ```

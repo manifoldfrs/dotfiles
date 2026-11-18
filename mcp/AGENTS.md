@@ -1,43 +1,14 @@
 # AGENTS.md - MCP Configurations
 
 ## Package Identity
-MCP configuration templates for Codex plus tracked MCP guidance for Claude Code, Codex, and Pi.
-Templates stored as `.example` files with placeholders.
-
-## Setup & Run
-```bash
-cp codex_config.toml.example codex_config.toml
-../mcp_setup.sh install
-../mcp_setup.sh backup
-../mcp_setup.sh install-claude
-```
-
-## Patterns & Conventions
-
-### File Organization
-```
-mcp/
-├── README.md
-└── codex_config.toml.example
-```
-
-### Examples
-- ✅ DO: Use `[[mcpServers]]` blocks in `mcp/codex_config.toml.example`
-- ✅ DO: Keep placeholders like `YOUR_REF_API_KEY` in `.example` templates
-- ✅ DO: Document server changes in `mcp/README.md`
-- ❌ DON'T: Copy archived setup logic from `old/install.sh`
+MCP setup and configuration guidance for Pi, Claude Code, Codex, and OpenCode.
+Document server changes in `mcp/README.md` and keep machine-local config copies untracked.
 
 ## Touch Points / Key Files
 - Setup docs: `mcp/README.md`
-- Install script: `mcp_setup.sh`
-- Codex template: `mcp/codex_config.toml.example`
-
-## JIT Index Hints
-```bash
-rg 'mcpServers' mcp/*.toml.example
-rg 'YOUR_' mcp/*.example
-rg 'command' mcp/*.example
-```
+- Canonical server list: `stow/pi/.pi/agent/mcp.json`
+- Claude Code import: `mcp_setup.sh install-claude`
+- Stow-managed Codex config: `stow/codex/.codex/config.toml`
 
 ## Common Gotchas
 - Restart Codex after `./mcp_setup.sh install`
@@ -45,10 +16,9 @@ rg 'command' mcp/*.example
 - Restart Claude Code after importing MCP definitions.
 - Pi's `stow/pi/.pi/agent/mcp.json` is the only hand-edited server list; run `./scripts/harness_sync.sh` to regenerate OpenCode's and Codex's servers, and `./mcp_setup.sh install-claude` for Claude Code.
 - Run `/reload` or restart Pi after Stowing `stow/pi/.pi/agent/mcp.json`
-- TOML syntax is strict; keep `command` arrays
-- Templates must keep `.example` suffix to avoid commits
 
 ## Pre-PR Checks
 ```bash
-rg 'YOUR_' mcp/*.example
+./scripts/harness_sync.sh --check
+bash test/claude_mcp_setup_test.sh
 ```

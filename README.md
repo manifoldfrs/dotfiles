@@ -108,7 +108,7 @@ scripts/
   rex_prefs.sh         Save / load / auto-save Rex app settings
 rex/                   Tracked Rex app settings (not stowed)
 server/rex/            Files installed under /etc on agentbox (not stowed)
-mcp/                   MCP templates and notes (see mcp/README.md)
+mcp/                   MCP setup and configuration notes (see mcp/README.md)
 test/                  Shell and TypeScript tests, Docker harness
 docs/                  Research notes and plans; decisions land here, not in this README
 old/                   Archived Fish, Zsh, tmux, Karabiner, Zed, and older Cursor config
@@ -432,7 +432,7 @@ Claude Code keeps registrations in machine-local `~/.claude.json`, so bootstrap 
 `./scripts/harness_sync.sh` writes the same servers into OpenCode's `opencode.jsonc` and Codex's `stow/codex/.codex/config.toml`, so change servers only in Pi's file, then run it; `validate-dotfiles.sh` fails when they drift.
 The sync preserves Codex's per-tool approvals for servers still configured in Pi.
 Codex keeps the `node_repl` and `computer-use` servers the ChatGPT app installs for its browser and computer use.
-The legacy template flow in `mcp/` is documented in `mcp/README.md`.
+See [MCP setup and configuration](mcp/README.md) for more details.
 
 Two things worth knowing:
 
