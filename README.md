@@ -382,7 +382,9 @@ Claude Code only loads mod files whose real path is inside the mod, so the mod's
 The `bold-color` mod draws bold reply text in Tokyo Night blue.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
 Pi uses [pi-cyber-ui](https://github.com/22GNUs/pi-cyber-ui) and its `cyber-ui-dark` theme for the prompt, tool gutter, animated working indicator, and footer.
-Signal Deck adds a static startup header and a panel above the prompt that distinguishes model work, tool work, and the final outcome without adding a redraw timer.
+Signal Deck shows `Pi` and its version at startup and centers a dim dotted π in a fresh, empty pane when there is room.
+The watermark disappears on the first prompt or shell command and stays out of resumed sessions.
+The panel above the prompt distinguishes model work, tool work, and the final outcome without adding a redraw timer.
 The Cyber UI footer keeps session context and the selected model's display name, including `(Fast)` or `(Ultrafast)` for the Codex variants.
 `./scripts/stow.sh apply` installs and patches the pinned Cyber UI package when Pi is available.
 The patch removes the cat icon, labels the prompt cache percentage `cache`, and puts the completed run's stats directly in the Signal Deck panel.
