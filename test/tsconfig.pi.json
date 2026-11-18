@@ -33,6 +33,7 @@
     "./pi_commands_test.ts",
     "../stow/pi/.pi/agent/extensions/jev-guardrails/*.ts",
     "../stow/pi/.pi/agent/extensions/lg.ts",
+    "../stow/pi/.pi/agent/extensions/pistack-sticky.ts",
     "../stow/pi/.pi/agent/extensions/update.ts",
     "./pi_guardrails_test.ts",
     "./pi_compaction_test.ts",

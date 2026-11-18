@@ -347,7 +347,9 @@ Codex stays configured. Every model runs through Pi, including cross-provider re
 ### pstack in Pi
 
 Pi loads Lauren Tan's pstack through the published [`pi-pstack-adapter`](https://github.com/elderfo/pi-pstack-adapter); the adapter's first run asks before fetching its certified upstream snapshot.
-Run `/pistack-status` for the active release and capabilities, `/pistack-check <skill>` for prerequisites, and `/skill:pistack-poteto-mode <task>` to start a playbook.
+Run `/pistack-status` for the active release and capabilities, and `/pistack-check <skill>` for prerequisites.
+Run `/skill:pistack-poteto-mode <task>` to start a playbook and turn on sticky Poteto Mode for follow-up requests in that Pi session.
+New sessions start with sticky mode off; use `/pistack-sticky on`, `/pistack-sticky off`, or `/pistack-sticky status` to manage it.
 Sticky mode is opt-in.
 Arena's candidates and judge pool and Interrogate's reviewers use Opus 5.5, Astra 6.2, and Grok 4.7 at `high`, configured in [`pi-pstack-adapter.json`](stow/pi/.pi/agent/pi-pstack-adapter.json).
 Arena selects one eligible judge from a different vendor than the parent model.
