@@ -12,7 +12,7 @@ fail() { echo "[FAIL] $1"; exit 1; }
 
 # Test 1: syntax
 echo "[TEST 1] Checking Bash syntax..."
-for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh scripts/rex_server_setup.sh scripts/setup_pi_cyber_ui.sh \
+for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh scripts/rex_server_setup.sh \
     stow/bash/.bash_profile stow/bash/.bashrc \
     stow/bash/.config/bash/aliases.bash \
     stow/bash/.config/bash/environment.bash \

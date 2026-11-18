@@ -289,9 +289,6 @@ main() {
     install_claude_code
     install_opencode
     apply_dotfiles
-    if command -v pi >/dev/null 2>&1; then
-        bash "$DOTFILES_DIR/scripts/setup_pi_cyber_ui.sh" || warn "Pi Cyber UI footer setup failed; rerun: bash scripts/setup_pi_cyber_ui.sh"
-    fi
     bash "$DOTFILES_DIR/mcp_setup.sh" install-claude || warn "Claude Code MCP setup failed; rerun: ./mcp_setup.sh install-claude"
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
     configure_bash_login_shell

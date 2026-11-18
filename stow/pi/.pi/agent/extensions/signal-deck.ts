@@ -1,6 +1,10 @@
 import type { ExtensionAPI, Theme } from "@earendil-works/pi-coding-agent";
 import { keyText } from "@earendil-works/pi-coding-agent";
-import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import { truncateToWidth, visibleWidth, wrapTextWithAnsi } from "@earendil-works/pi-tui";
+import { Type } from "typebox";
+import { Value } from "typebox/value";
+
+const summaryPacket = Type.Object({ stats: Type.String(), handled: Type.Boolean() });
 
 const panels = {
   ready: ["◈ READY", "muted"],
@@ -18,7 +22,7 @@ type Run = {
   outcome?: "completed" | "aborted" | "error";
 };
 
-function panelLines(theme: Theme, width: number, panel: Panel): string[] {
+function panelLines(theme: Theme, width: number, panel: Panel, summary: string | undefined): string[] {
   const [label, color] = panels[panel];
   const status = theme.bold(theme.fg(color, label));
   const active = panel === "working" || panel === "tool";
@@ -26,18 +30,21 @@ function panelLines(theme: Theme, width: number, panel: Panel): string[] {
 
   if (width < 6) return [truncateToWidth(status, width)];
 
-  const inner = Math.min(width - 4, 50);
-  const line = truncateToWidth(status + hint, inner);
+  const trailing = !active && summary ? `${theme.fg("dim", " · ")}${summary}` : hint;
+  const content = status + trailing;
+  const inner = Math.min(width - 4, Math.max(50, visibleWidth(content)));
+  const lines = !active && summary ? wrapTextWithAnsi(content, inner) : [truncateToWidth(content, inner)];
   const border = (text: string) => theme.fg("toolTitle", text);
-  const pad = " ".repeat(inner - visibleWidth(line));
+  const rows = lines.map((line) => `${border("│")} ${line}${" ".repeat(inner - visibleWidth(line))} ${border("│")}`);
   const rule = "─".repeat(inner + 2);
 
-  return [border(`┌${rule}┐`), `${border("│")} ${line}${pad} ${border("│")}`, border(`└${rule}┘`)];
+  return [border(`┌${rule}┐`), ...rows, border(`└${rule}┘`)];
 }
 
 export default function signalDeck(pi: ExtensionAPI) {
   let panel: Panel = "ready";
   let run: Run | undefined;
+  let summary: string | undefined;
   let redraw: (() => void) | undefined;
 
   function show(next: Panel) {
@@ -46,10 +53,19 @@ export default function signalDeck(pi: ExtensionAPI) {
     redraw?.();
   }
 
+  pi.events.on("cyber-ui:summary", (event) => {
+    if (!redraw || !Value.Check(summaryPacket, event)) return;
+
+    event.handled = true;
+    summary = event.stats;
+    redraw();
+  });
+
   pi.on("session_start", (_event, ctx) => {
     if (ctx.mode !== "tui") return;
     panel = "ready";
     run = undefined;
+    summary = undefined;
     ctx.ui.setHeader((_tui, theme) => ({
       render: (width) => [truncateToWidth(theme.bold(theme.fg("toolTitle", "▰ π / signal deck")), width)],
       invalidate() {},
@@ -57,12 +73,13 @@ export default function signalDeck(pi: ExtensionAPI) {
     ctx.ui.setWidget("signal-deck", (tui, theme) => {
       redraw = () => tui.requestRender();
 
-      return { render: (width) => panelLines(theme, width, panel), invalidate() {} };
+      return { render: (width) => panelLines(theme, width, panel, summary), invalidate() {} };
     });
   });
 
   pi.on("agent_start", (_event, ctx) => {
     if (ctx.mode !== "tui") return;
+    summary = undefined;
     run = { tools: new Set() };
     show("working");
   });
@@ -90,6 +107,10 @@ export default function signalDeck(pi: ExtensionAPI) {
   });
   pi.on("session_tree", () => {
     run = undefined;
+    summary = undefined;
     show("ready");
+  });
+  pi.on("session_shutdown", () => {
+    redraw = undefined;
   });
 }

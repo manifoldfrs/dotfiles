@@ -1,0 +1,50 @@
+--- a/extensions/pi-cyber-ui/working.ts
++++ b/extensions/pi-cyber-ui/working.ts
+@@ -526,7 +526,7 @@
+
+ const WIDGET_KEY = "cyber-ui:summary";
+
+-function buildIdleSummary(summary: PromptSummary, alpha = 1): string {
++function buildIdleSummary(summary: PromptSummary, alpha = 1, showDone = true): string {
+   // Fade-in support: every colour is mixed up from the theme background so
+   // the whole line rises together instead of popping.
+   const col = (c: RGB): RGB => mix(C.bg, c, alpha);
+@@ -539,7 +539,7 @@
+   const check = paint(col(C.green), "✓", true);
+   const doneLabel = paint(col(C.fgMuted), "done");
+   const time = paint(col(C.fgMuted), formatElapsed(summary.totalElapsedMs));
+-  parts.push(`${check} ${doneLabel} ${paint(col(C.fgDim), "·")} ${time}`);
++  parts.push(showDone ? `${check} ${doneLabel} ${paint(col(C.fgDim), "·")} ${time}` : time);
+
+   // tokens
+   const inTokens = formatTokens(summary.inputTokens);
+@@ -750,7 +750,7 @@
+   updateWorkingMessage(ctx);
+ }
+
+-function endPromptTimer(ctx: ExtensionContext): void {
++function endPromptTimer(pi: ExtensionAPI, ctx: ExtensionContext): void {
+   if (!prompt) return;
+   const totalElapsedMs = Date.now() - prompt.startedAt;
+   const snapshot = cyberState.snapshot();
+@@ -769,7 +769,10 @@
+   prompt = undefined;
+   lastMessage = undefined;
+   safeUi(ctx, () => ctx.ui.setWorkingMessage());
+-  fadeInSummaryWidget(ctx, lastSummary);
++  const summary = { stats: buildIdleSummary(lastSummary, 1, false), handled: false };
++  pi.events.emit("cyber-ui:summary", summary);
++  if (summary.handled) lastSummary = undefined;
++  else fadeInSummaryWidget(ctx, lastSummary);
+ }
+
+ // ---------------------------------------------------------------------------
+@@ -842,7 +845,7 @@
+
+   pi.on("agent_settled", (_event, ctx) => {
+     stopMessageTimer();
+-    endPromptTimer(ctx);
++    endPromptTimer(pi, ctx);
+   });
+
+   pi.on("session_tree", (_event, ctx) => {

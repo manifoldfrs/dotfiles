@@ -384,8 +384,9 @@ The `tool-row-color` mod keeps running and folded tool rows in the text color in
 Pi uses [pi-cyber-ui](https://github.com/22GNUs/pi-cyber-ui) and its `cyber-ui-dark` theme for the prompt, tool gutter, animated working indicator, and footer.
 Signal Deck adds a static startup header and a panel above the prompt that distinguishes model work, tool work, and the final outcome without adding a redraw timer.
 The Cyber UI footer keeps session context and the selected model's display name, including `(Fast)` or `(Ultrafast)` for the Codex variants.
-Bootstrap removes the cat icon from the model label and prefixes the prompt cache percentage with `cache`.
-If you only run Stow or reinstall the Cyber UI package, run `bash scripts/setup_pi_cyber_ui.sh` from the repository root, then run `/reload` in Pi.
+`./scripts/stow.sh apply` installs and patches the pinned Cyber UI package when Pi is available.
+The patch removes the cat icon, labels the prompt cache percentage `cache`, and puts the completed run's stats directly in the Signal Deck panel.
+After reinstalling the package, rerun Stow apply and use `/reload` in Pi.
 The previous `claude-style-ui` and `frsh-header` extensions remain in the repository but are disabled in Pi's settings so they do not override the new UI.
 Pi's `pi-cloak` extension masks secret values (`.env`, `.vars`, `local.bash`, auth and credential files) in files Pi's `read` tool returns, using the rules in `stow/pi/.pi/agent/cloak.json`; `/cloak-status` shows them, and a shell `cat` is not covered.
 `/save-md name` saves the last reply as `name.md`; both extensions are adapted from Dillon Mulroy's dotfiles.
