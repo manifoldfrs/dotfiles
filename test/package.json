@@ -5,7 +5,7 @@
     "link-extension-deps": "ln -sfn ../../../../../test/node_modules ../stow/pi/.pi/agent/extensions/node_modules",
     "pretest": "npm run link-extension-deps",
     "pretypecheck": "npm run link-extension-deps",
-    "test": "node --import tsx --test fstack_skills_test.mjs pi_commands_test.ts pi_guardrails_test.ts pi_compaction_test.ts skill_pages_test.ts ../stow/pi/.pi/agent/extensions/jev-guardrails/checks.test.ts ../stow/pi/.pi/agent/extensions/inline-skills/index.test.ts ../stow/pi/.pi/agent/extensions/skill-toast/index.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/format.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/skill-mentions.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/tips.test.ts ../stow/pi/.pi/agent/extensions/frsh-header/art.test.ts pi_save_md_test.mts '../stow/pi/.pi/agent/extensions/codex-fast-variants/*.test.ts' '../stow/pi/.pi/agent/extensions/xai-search/*.test.ts'",
+    "test": "node --import tsx --test active_skill_catalog_test.mjs pi_commands_test.ts pi_guardrails_test.ts pi_compaction_test.ts skill_pages_test.ts ../stow/pi/.pi/agent/extensions/jev-guardrails/checks.test.ts ../stow/pi/.pi/agent/extensions/inline-skills/index.test.ts ../stow/pi/.pi/agent/extensions/skill-toast/index.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/format.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/skill-mentions.test.ts ../stow/pi/.pi/agent/extensions/claude-style-ui/tips.test.ts ../stow/pi/.pi/agent/extensions/frsh-header/art.test.ts pi_save_md_test.mts '../stow/pi/.pi/agent/extensions/codex-fast-variants/*.test.ts' '../stow/pi/.pi/agent/extensions/xai-search/*.test.ts'",
     "typecheck": "tsc --project tsconfig.pi.json"
   },
   "devDependencies": {

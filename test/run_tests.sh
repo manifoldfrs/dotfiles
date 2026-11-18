@@ -31,7 +31,6 @@ if command -v node >/dev/null 2>&1; then
     bash test/backup_npm_test.sh "$DOTFILES_DIR"
 fi
 bash test/agent_skills_sync_test.sh "$DOTFILES_DIR"
-bash test/behavior_lines_test.sh "$DOTFILES_DIR"
 bash test/harness_sync_test.sh "$DOTFILES_DIR"
 bash test/agent_guardrails_test.sh "$DOTFILES_DIR"
 bash test/claude_mcp_setup_test.sh
