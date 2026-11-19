@@ -366,7 +366,14 @@ Sticky mode is opt-in.
 Arena's candidates and judge pool and Interrogate's reviewers use Opus 5.5, Astra 6.2, and Grok 4.7 at `high`, configured in [`pi-pstack-adapter.json`](stow/pi/.pi/agent/pi-pstack-adapter.json).
 Arena selects one eligible judge from a different vendor than the parent model.
 Playbooks do not authorize delegation, commits, pushes, PRs, merges, or live changes.
-The old shared workflows are archived in [`old/skills/`](old/skills/); other harnesses get the retained shared catalog, not the Pi adapter.
+Retired workflows are archived in [`old/skills/`](old/skills/); other harnesses get the retained shared catalog, not the Pi adapter.
+
+### Council in Pi
+
+Run `/skill:council <review scope>` for independent reviews from Opus 5.5, Astra 6.2, and Grok 4.7 at `high` thinking.
+Add a score at the start of the arguments (for example, `/skill:council 9.5 review this diff`) to require that score from every reviewer.
+Council repeats the review after authorized fixes; Interrogate instead reports failures it can reproduce.
+[Council](stow/pi/.pi/agent/skills/council/SKILL.md) is installed through Pi's Stow package, not the shared skill catalog.
 
 ### Shared rules and skills
 
