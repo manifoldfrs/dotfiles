@@ -80,6 +80,7 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 
 - In Pi, use `/skill:pistack-poteto-mode` for pstack playbooks when requested. Use Pi's native Plannotator integration for requested reviews and wait for approval before implementing a plan.
 - Delegate, commit, push, open or merge a PR, or apply live configuration only with explicit user authorization. A playbook or an available tool does not authorize those actions.
+- When working on an existing pull request, the user gives standing authorization to commit and push the requested fixes or updates to that PR's head branch after verification, unless they say otherwise. Include all in-scope changes and leave unrelated local work out. This does not authorize merging, force-pushing, or deploying.
 - If an approved step conflicts with a guardrail, stop and report the conflict.
 
 ## Comments and Prose
