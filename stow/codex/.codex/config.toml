@@ -184,6 +184,7 @@ args = ["mcp"]
 
 [mcp_servers.superlogical]
 url = "https://www.superlogical.com/rex/community-mcp"
+
 [mcp_servers.node_repl]
 args = []
 command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
