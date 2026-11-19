@@ -64,7 +64,7 @@
     "enabled": true
   },
   "extensionChangelogVersions": {
-    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.89.0",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.89.1",
     "{\"source\":\"npm:pi-pstack-adapter\",\"scope\":\"user\"}": "0.11.0"
   },
   "skills": [

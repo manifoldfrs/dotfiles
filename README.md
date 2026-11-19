@@ -24,7 +24,7 @@ Agents working in this repo should start with [AGENTS.md](AGENTS.md).
 
 ## Install on a new Mac
 
-Clone to `~/code/personal/dotfiles`; some Claude Code mod paths assume that location.
+Clone to `~/code/personal/dotfiles`.
 
 ```bash
 git clone git@github.com:manifoldfrs/dotfiles.git ~/code/personal/dotfiles
