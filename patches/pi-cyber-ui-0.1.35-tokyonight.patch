@@ -46,10 +46,12 @@
      "borderMuted":      "blueDark",
      "success":          "cyan",
      "error":            "red",
-@@ -49,5 +49,5 @@
+@@ -49,7 +49,7 @@
      "toolPendingBg":    "bgAlt",
      "toolSuccessBg":    "toolSurface",
      "toolErrorBg":      "toolErrorBg",
 -    "toolTitle":        "cyan",
 +    "toolTitle":        "blue",
      "toolOutput":       "fgMuted",
+ 
+     "mdHeading":        "cyan",
