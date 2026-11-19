@@ -571,7 +571,7 @@ setup_pi_cyber_ui() {
 
     jq -e --arg version "$version" '.name == "pi-cyber-ui" and .version == $version' "$package_dir/package.json" >/dev/null || return 1
 
-    for patch_file in "$DOTFILES_DIR/patches/pi-cyber-ui-$version.patch" "$DOTFILES_DIR/patches/pi-cyber-ui-$version-summary.patch"; do
+    for patch_file in "$DOTFILES_DIR/patches/pi-cyber-ui-$version"{,-summary,-tokyonight}.patch; do
         if patch -d "$package_dir" -p1 -R -f -F 0 --dry-run < "$patch_file" >/dev/null 2>&1; then
             continue
         fi

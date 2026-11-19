@@ -413,7 +413,8 @@ The watermark disappears on the first prompt or shell command and stays out of r
 The panel above the prompt distinguishes model work, tool work, and the final outcome without adding a redraw timer.
 The Cyber UI footer keeps session context and the selected model's display name, including `(Fast)` or `(Ultrafast)` for the Codex variants.
 `./scripts/stow.sh apply` installs and patches the pinned Cyber UI package when Pi is available.
-The patch removes the cat icon, labels the prompt cache percentage `cache`, and puts the completed run's stats directly in the Signal Deck panel.
+Stow softens the `cyber-ui-dark` palette with Tokyo Night navy panels, muted teal and blue, and dusty lavender in place of bright pink.
+The other patches remove the cat icon, label the prompt cache percentage `cache`, and put the completed run's stats directly in the Signal Deck panel.
 After reinstalling the package, rerun Stow apply and use `/reload` in Pi.
 The previous `claude-style-ui` and `frsh-header` extensions remain in the repository but are disabled in Pi's settings so they do not override the new UI.
 Pi's `pi-cloak` extension masks secret values (`.env`, `.vars`, `local.bash`, auth and credential files) in files Pi's `read` tool returns, using the rules in `stow/pi/.pi/agent/cloak.json`; `/cloak-status` shows them, and a shell `cat` is not covered.
