@@ -1,6 +1,6 @@
 ---
 name: council
-description: Reviews a change, design, or plan with Opus, Astra, and Grok in parallel and repeats after fixes. Use when the user asks for council or council with a score target.
+description: Reviews a change, design, or plan with Opus, Sol, and Gemini Neon in parallel and repeats after fixes. Use when the user asks for council or council with a score target.
 disable-model-invocation: true
 ---
 
@@ -24,8 +24,8 @@ Run all three members unless the user explicitly changes the roster:
 | Member | Model override |
 | --- | --- |
 | Opus 5.5 | `pi-claude-cli/claude-opus-5-5:high` |
-| Astra 6.2 | `openai/gpt-6.2-astra:high` |
-| Grok 4.7 | `xai/grok-4.7:high` |
+| Sol 6.2 | `openai/gpt-6.2-sol:high` |
+| Gemini 4 Neon | `antigravity/gemini-4-neon:high` |
 
 Give all three the same brief: question, intent, scope, working directory, snapshot or plan, known issues, and observed check results.
 For code, specify the base SHA and provide the diff inline or in a readable temporary artifact outside the repo; the `reviewer` agent cannot run `git diff`.
@@ -36,7 +36,7 @@ For code reviews or when the user supplies a target, also ask for a score out of
 Launch one async call per member in the same turn, substituting each exact model override:
 
 ```js
-subagent({ agent: "reviewer", model: "xai/grok-4.7:high", cwd: "<repo>", async: true,
+subagent({ agent: "reviewer", model: "antigravity/gemini-4-neon:high", cwd: "<repo>", async: true,
   task: "<brief>", options: { context: "fresh" } })
 ```
 

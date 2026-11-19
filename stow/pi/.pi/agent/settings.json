@@ -36,8 +36,12 @@
       "source": "npm:@plannotator/pi-extension",
       "skills": []
     },
-    "git:github.com/dmmulroy/pi-claude-cli@bf61ec2cf5fde13b03ff67300d269c801862fda7"
+    "git:github.com/dmmulroy/pi-claude-cli@bf61ec2cf5fde13b03ff67300d269c801862fda7",
+    "npm:@tian.zuo/pi-antigravity@0.12.1"
   ],
+  "antigravity": {
+    "toolMode": "pi"
+  },
   "subagents": {
     "agentOverridesByProvider": {
       "pi-claude-cli": {

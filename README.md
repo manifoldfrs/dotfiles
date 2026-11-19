@@ -356,6 +356,13 @@ OpenCode 2 stays configured for non-Claude models; switch models with `/models`.
 Its Claude Agent provider drives your local `claude` login through the Agent SDK, but until [anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074) is fixed that draws the 5-hour limit about twice as fast as Claude Code itself, so don't run Claude through OpenCode.
 Codex stays configured. Every model runs through Pi, including cross-provider review in `sol-loop`: Sol reviews through `pi -p`, the agent fixes, and the loop repeats until Sol approves.
 
+### Gemini 4 Neon in Pi
+
+Install the [Antigravity CLI](https://antigravity.google/docs/getting-started/), run `agy`, and sign in with an account that has access to Neon.
+Run `pi install npm:@tian.zuo/pi-antigravity@0.12.1` if the pinned bridge is not already installed, then start a new Pi session and choose `antigravity/gemini-4-neon` in `/model`.
+The bridge uses the local `agy` login, and Pi tools mode routes workspace tool calls through Pi's permission hooks.
+[Google does not support wrapping `agy` in a third-party coding agent on consumer plans](https://antigravity.google/docs/faq/).
+
 ### pstack in Pi
 
 Pi loads Lauren Tan's pstack through the published [`pi-pstack-adapter`](https://github.com/elderfo/pi-pstack-adapter); the adapter's first run asks before fetching its certified upstream snapshot.
@@ -363,14 +370,14 @@ Run `/pistack-status` for the active release and capabilities, and `/pistack-che
 Run `/skill:pistack-poteto-mode <task>` to start a playbook and turn on sticky Poteto Mode for follow-up requests in that Pi session.
 New sessions start with sticky mode off; use `/pistack-sticky on`, `/pistack-sticky off`, or `/pistack-sticky status` to manage it.
 Sticky mode is opt-in.
-Arena's candidates and judge pool and Interrogate's reviewers use Opus 5.5, Astra 6.2, and Grok 4.7 at `high`, configured in [`pi-pstack-adapter.json`](stow/pi/.pi/agent/pi-pstack-adapter.json).
+Arena's candidates and judge pool and Interrogate's reviewers use Opus 5.5, Sol 6.2, and Gemini 4 Neon at `high`, configured in [`pi-pstack-adapter.json`](stow/pi/.pi/agent/pi-pstack-adapter.json).
 Arena selects one eligible judge from a different vendor than the parent model.
 Playbooks do not authorize delegation, commits, pushes, PRs, merges, or live changes.
 Retired workflows are archived in [`old/skills/`](old/skills/); other harnesses get the retained shared catalog, not the Pi adapter.
 
 ### Council in Pi
 
-Run `/skill:council <review scope>` for independent reviews from Opus 5.5, Astra 6.2, and Grok 4.7 at `high` thinking.
+Run `/skill:council <review scope>` for independent reviews from Opus 5.5, Sol 6.2, and Gemini 4 Neon at `high` thinking.
 Add a score at the start of the arguments (for example, `/skill:council 9.5 review this diff`) to require that score from every reviewer.
 Council repeats the review after authorized fixes; Interrogate instead reports failures it can reproduce.
 [Council](stow/pi/.pi/agent/skills/council/SKILL.md) is installed through Pi's Stow package, not the shared skill catalog.

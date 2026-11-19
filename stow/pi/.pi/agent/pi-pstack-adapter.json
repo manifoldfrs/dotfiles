@@ -1,8 +1,8 @@
 {
   "delegation": "pi-subagents",
   "models": {
-    "arena-runners": "pi-claude-cli/claude-opus-5-5:high openai/gpt-6.2-astra:high xai/grok-4.7:high",
-    "arena-cross-judge-pool": "pi-claude-cli/claude-opus-5-5:high openai/gpt-6.2-astra:high xai/grok-4.7:high",
-    "interrogate-reviewers": "pi-claude-cli/claude-opus-5-5:high openai/gpt-6.2-astra:high xai/grok-4.7:high"
+    "arena-runners": "pi-claude-cli/claude-opus-5-5:high openai/gpt-6.2-sol:high antigravity/gemini-4-neon:high",
+    "arena-cross-judge-pool": "pi-claude-cli/claude-opus-5-5:high openai/gpt-6.2-sol:high antigravity/gemini-4-neon:high",
+    "interrogate-reviewers": "pi-claude-cli/claude-opus-5-5:high openai/gpt-6.2-sol:high antigravity/gemini-4-neon:high"
   }
 }
