@@ -375,6 +375,12 @@ Arena selects one eligible judge from a different vendor than the parent model.
 Playbooks do not authorize delegation, commits, pushes, PRs, merges, or live changes.
 Retired workflows are archived in [`old/skills/`](old/skills/); other harnesses get the retained shared catalog, not the Pi adapter.
 
+### PR writing with Gemini in Pi
+
+Run [`/skill:neon-pr`](stow/pi/.pi/agent/skills/neon-pr/SKILL.md) to draft a PR title and body with Gemini 4 Neon.
+The skill also applies to the writing step of pstack's Opening a PR playbook; if drafting delegation isn't already authorized, Pi asks first.
+Gemini uses pstack's writing rules without changing its model roles, and Pi only publishes the copy when authorized.
+
 ### Council in Pi
 
 Run `/skill:council <review scope>` for independent reviews from Opus 5.5, Sol 6.2, and Gemini 4 Neon at `high` thinking.
