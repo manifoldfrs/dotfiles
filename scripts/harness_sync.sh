@@ -72,7 +72,10 @@ codex_servers() {
         # jq 1.7 binds `a + b as $x` as `a + (b as $x | ...)`, so the whole sum is parenthesized.
         | ((if $server.url then {url: $server.url} else {command: $server.command, args: ($server.args // [])} end)
           + (if $server.enabled == false then {enabled: false} else {} end)
-          + (if $server.timeout then {tool_timeout_sec: $server.timeout} else {} end)) as $main
+          + (if $server.timeout then {tool_timeout_sec: $server.timeout} else {} end)
+          + (if $server.exposure == "direct" then {omit_tools_from: ["deferred"]}
+             elif $server.exposure == "codemode" then {omit_tools_from: ["direct","deferred"]}
+             else {} end)) as $main
         | ($server.headers // {} | to_entries) as $headers
         | ($server.env // {} | to_entries) as $env
         | if ($headers | map(select((.value | whole_ref) == null and (.value | test("\\$\\{")))) | length) > 0

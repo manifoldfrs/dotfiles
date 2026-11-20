@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_dir=${1:?Pass the dotfiles repository directory}
-guardrails="$repo_dir/stow/pi/.pi/agent/guardrails"
+guardrails="$repo_dir/stow/codex/.codex/hooks"
 app_dir=$(mktemp -d)
 trap 'rm -rf "$app_dir"' EXIT
 failures=0
@@ -22,6 +22,14 @@ run_bash_hook() {
 
 run_edit_hook() {
     jq -n --arg path "$1" --arg cwd "$app_dir" '{cwd: $cwd, tool_input: {file_path: $path}}' \
+        | bash "$guardrails/block-generated-edits.sh" >/dev/null 2>&1
+}
+
+run_codex_patch_hook() {
+    local patch
+    patch=$(printf '*** Begin Patch\n*** Update File: %s\n@@\n-end\n+end # fixture\n*** End Patch' "$1")
+    jq -n --arg patch "$patch" --arg cwd "$app_dir" \
+        '{cwd: $cwd, hook_event_name: "PreToolUse", tool_name: "apply_patch", tool_input: {command: $patch}}' \
         | bash "$guardrails/block-generated-edits.sh" >/dev/null 2>&1
 }
 
@@ -57,6 +65,8 @@ expect allow run_bash_hook 'rg production config/deploy.yml'
 
 expect block run_edit_hook "$app_dir/db/schema.rb"
 expect block run_edit_hook 'db/schema.rb'
+expect block run_codex_patch_hook "$app_dir/db/schema.rb"
+expect allow run_codex_patch_hook "$app_dir/db/seeds.rb"
 expect block run_edit_hook "$app_dir/db/queue_schema.rb"
 expect block run_edit_hook "$app_dir/db/structure.sql"
 expect block run_edit_hook "$app_dir/Gemfile.lock"

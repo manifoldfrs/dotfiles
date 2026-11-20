@@ -1,6 +1,6 @@
-# Codex skill discovery supports symlinked skill folders. Stow would otherwise
-# link each SKILL.md file inside a real folder, so scripts/stow.sh manages
-# ~/.agents/skills/<skill> links explicitly.
+# Codex discovers symlinked skill folders, but not standalone SKILL.md links.
+# Stow the folder link under .codex/skills, not its source under skills/.
+^/skills(?:/|$)
 ^\.agents$
 ^\.codex/tmp$
 ^\.codex/\.tmp$

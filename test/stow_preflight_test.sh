@@ -97,8 +97,21 @@ assert_bash5_link() {
 }
 
 fresh_home="$test_root/fresh-home"
-mkdir -p "$fresh_home"
+mkdir -p "$fresh_home/.agents/skills"
+ln -s "$repo_dir/stow/pi/skills/anti-slop" "$fresh_home/.agents/skills/anti-slop"
+[[ -f $fresh_home/.agents/skills/anti-slop/SKILL.md ]] || fail_with_log 'the legacy skill link did not resolve before apply'
 apply_into "$fresh_home" || fail_with_log 'apply with a minimal PATH failed'
+[[ $(readlink "$fresh_home/.agents/skills/anti-slop") == "$repo_dir/stow/codex/skills/shared/anti-slop" ]] \
+    || fail_with_log 'apply did not repoint the legacy Pi skill link to Codex'
+[[ ! -e $fresh_home/.agents/skills/pi-skill ]] || fail_with_log 'apply exposed the Codex-only bridge as a shared skill'
+[[ -L $fresh_home/.codex/skills/pi-skill && -f $fresh_home/.codex/skills/pi-skill/SKILL.md ]] \
+    || fail_with_log 'apply did not link the Codex Pi skill folder'
+[[ ! -e $fresh_home/skills/pi-skill ]] || fail_with_log 'apply linked the source skill outside Codex'
+council="$repo_dir/stow/codex/skills/council/SKILL.md"
+[[ $fresh_home/.codex/skills/council/SKILL.md -ef $council ]] \
+    || fail_with_log 'Codex did not link to the Council source'
+[[ $fresh_home/.pi/agent/skills/council/SKILL.md -ef $council ]] \
+    || fail_with_log 'Pi did not link to the Codex-owned Council source'
 assert_bash5_link "$fresh_home"
 first_target=$(readlink "$fresh_home/.local/bin/bash")
 apply_into "$fresh_home" || fail_with_log 'repeat apply failed'
@@ -126,7 +139,7 @@ conflict_home="$test_root/conflict-home"
 mkdir -p "$conflict_home/.config/nvim"
 printf 'old bashrc\n' >"$conflict_home/.bashrc"
 printf 'old nvim\n' >"$conflict_home/.config/nvim/init.lua"
-conflict_skill=$(basename "$(dirname "$(find "$repo_dir/stow/pi/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | sort | head -n 1)")")
+conflict_skill=$(basename "$(dirname "$(find "$repo_dir/stow/codex/skills/shared" -mindepth 2 -maxdepth 2 -name SKILL.md | sort | head -n 1)")")
 mkdir -p "$conflict_home/.agents/skills/$conflict_skill"
 printf 'old skill\n' >"$conflict_home/.agents/skills/$conflict_skill/SKILL.md"
 if apply_into "$conflict_home"; then

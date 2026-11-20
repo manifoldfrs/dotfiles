@@ -1,5 +1,4 @@
-# scripts/stow.sh links complete skill directories into ~/.agents/skills and ~/.claude/skills,
-# so references, scripts, and metadata stay together and updates replace atomically.
+# Existing shared skill links can still resolve through this compatibility path.
 ^/skills
 \.DS_Store
 sessions

@@ -12,9 +12,9 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default, on the Mac and on the iPhone (Rex for iOS beta). Ghostty is the fallback terminal; Herdr and Termius remain the fallback phone path into `agentbox`. |
 | Editor / IDE | Neovim, Cursor | lazy.nvim + Lua plugins in `stow/nvim/.config/nvim/`. Cursor settings, keybindings, and tasks are the `cursor` Stow package. Zed is retired and archived under `old/`. |
 | Shell | Fish + FZF + Atuin + zoxide | Bash still runs scripts and agent commands. |
-| Primary agent harness | Pi | Settings, models, extensions, keybindings, the shared global rules and guardrail hooks (`stow/pi/.pi/agent/`), the shared skills (`stow/pi/skills/`), and MCP servers (`stow/pi/.pi/agent/mcp.json`). |
-| Other harnesses | Claude Code, OpenCode 2, Codex | Claude Code keeps its mods in `stow/claude/.claude/`; OpenCode covers non-Claude models; Codex runs Sol reviews. |
-| Reviewer / second opinion | `sol-loop` skill | GPT-6.1 Sol reviews in a fix loop, headless through `pi -p` with only read-only tools; `code-review` adds standards and intent axes before it. |
+| Primary agent harness | Codex | Global rules and guardrail hooks in `stow/codex/.codex/`; shared skills in `stow/codex/skills/shared/`. |
+| Worker | Pi | Non-GPT models and Pi-native workflows through Codex's `$pi-skill` bridge. |
+| Standalone harnesses | Claude Code, OpenCode 2 | Still configured for direct use, not used as Codex worker fallbacks. |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception: its theme and font are app settings, not files (see [Rex app settings](#rex-app-settings-one-time-per-machine)).
@@ -93,10 +93,10 @@ stow/                  Stow packages, each mirroring $HOME
   herdr/               Herdr config, plugin list, Plannotator TUI config
   nvim/                Neovim config (see stow/nvim/AGENTS.md)
   bin/                 ~/.local/bin tools, including agentbox-auth for finishing agentbox sign-ins from the Mac
-  pi/                  Pi settings, MCP servers, models, themes, extensions/, the shared guardrail scripts in guardrails/, and the shared global AGENTS.md and skills/
-  claude/              Claude Code settings, keybindings, theme, status line, mods/; links AGENTS.md and hooks to pi/
-  opencode/            OpenCode config, CLI settings, MCP servers, plugins/ (Jev checks, xai_search, guardrails), tui-plugins/, and generated commands/ for /<skill>; links AGENTS.md to pi/
-  codex/               Codex config and theme; links AGENTS.md and hooks to pi/
+  codex/               Primary harness config, theme, global AGENTS.md, hooks, shared skills, and Pi worker bridge
+  pi/                  Worker settings, MCP definitions, models, themes, and extensions; links shared rules and guardrails to codex/
+  claude/              Standalone Claude Code settings and mods; links shared rules and hooks to codex/
+  opencode/            Standalone OpenCode config, plugins, and generated skill commands; links shared rules to codex/
   cursor/              Cursor settings, keybindings, tasks (Library/Application Support/Cursor/User)
 cursor/extensions.txt  Cursor extension IDs; install with the app's bundled CLI
 scripts/
@@ -347,14 +347,13 @@ Fish-specific settings can go in an untracked `~/.config/fish/conf.d/` file.
 
 ## Agents
 
-Pi is the primary harness and starts new sessions with OpenAI GPT-6.2 Sol Ultrafast at medium thinking.
-GPT-6.2 Sol and its Fast and Ultrafast variants use a 500k context window in Pi; GPT-6.2 Astra keeps the catalog default of 272k.
-If you use an OpenAI API key, requests with more than 272k input tokens use [long-context pricing](https://developers.openai.com/api/docs/models/gpt-6.2-sol).
-If the model is missing after signing in to OpenAI, run `pi update --models` and start a new session.
-Claude Code stays configured with its mods.
-OpenCode 2 stays configured for non-Claude models; switch models with `/models`.
-Its Claude Agent provider drives your local `claude` login through the Agent SDK, but until [anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074) is fixed that draws the 5-hour limit about twice as fast as Claude Code itself, so don't run Claude through OpenCode.
-Codex stays configured. Every model runs through Pi, including cross-provider review in `sol-loop`: Sol reviews through `pi -p`, the agent fixes, and the loop repeats until Sol approves.
+Codex is the primary harness and uses GPT-6.2 Sol at medium reasoning and Ultrafast in the tracked macOS configuration.
+That configuration disables routine command approvals and the filesystem sandbox, while keeping the shared guardrail hooks enabled.
+To restore approval prompts and workspace isolation for a CLI session, start `codex -a on-request -s workspace-write`.
+Use Pi for non-GPT models and Pi-native workflows; Codex does not fall back to OpenCode or silently substitute a model.
+Pi's separate configuration includes GPT-6.2 Sol and Astra under `openai` with 272K context windows inherited by the local speed variants.
+If a Pi model is missing after sign-in, run `pi update --models` and start a new Pi session.
+Claude Code and OpenCode retain their standalone configurations.
 
 ### Gemini 4 Neon in Pi
 
@@ -386,15 +385,42 @@ Gemini uses pstack's writing rules without changing its model roles, and Pi only
 Run `/skill:council <review scope>` for independent reviews from Opus 5.5, Sol 6.2, and Gemini 4 Neon at `high` thinking.
 Add a score at the start of the arguments (for example, `/skill:council 9.5 review this diff`) to require that score from every reviewer.
 Council repeats the review after authorized fixes; Interrogate instead reports failures it can reproduce.
-[Council](stow/pi/.pi/agent/skills/council/SKILL.md) is installed through Pi's Stow package, not the shared skill catalog.
+[Council](stow/codex/skills/council/SKILL.md) lives in the Codex package, and Pi's Stow package links to that copy.
 
 ### Shared rules and skills
 
-Pi is the canonical home for everything the harnesses share.
-One global rules file, `stow/pi/.pi/agent/AGENTS.md`, is symlinked into Claude Code, OpenCode, and Codex by their Stow packages, so all four harnesses follow the same instructions.
-Reload or restart sessions after changing it.
+Codex owns the global rules and shared skills.
+The Pi, Claude Code, and OpenCode packages link to `stow/codex/.codex/AGENTS.md`, so all four harnesses read the same rules.
+Reload or restart sessions after changing them.
 
-Skills live once in `stow/pi/skills/`; `scripts/stow.sh` links each skill folder into `~/.agents/skills/`, which Pi, Codex, and OpenCode read, and `~/.claude/skills/` for Claude Code.
+Shared skills live in `stow/codex/skills/shared/`.
+`scripts/stow.sh` links each skill folder into `~/.agents/skills/`, which Pi, Codex, and OpenCode read, and `~/.claude/skills/` for Claude Code.
+Existing links through `stow/pi/skills` still resolve and are repointed at the next Stow apply.
+In Codex, use `$pi-skill` to list the skills Pi loads in the current project or to run one in Pi, for example `$pi-skill council review the staged changes only` or `$pi-skill pistack-interrogate review this design`.
+The bridge uses the worker's actual Pi skill catalog, not a mirrored catalog.
+It passes the scoped brief, not the Codex conversation, into a fresh Pi session.
+For an individual model, ask Codex to use the bridge's `model <provider/model> '<brief>'` command.
+A missing route or provider error is reported without switching models or harnesses.
+Workflows that need a live Pi UI must be continued in interactive Pi.
+
+The bridge requires Node.js and a machine-local `pi-worker.json` in `$CODEX_HOME` (normally `~/.codex`).
+Set the absolute path to the intended Pi executable and an existing private state directory distinct from `~/.pi/agent`:
+
+```json
+{
+  "executable": "/absolute/path/to/pi",
+  "agentDir": "/absolute/path/to/private-pi-worker-state",
+  "timeoutSeconds": 180
+}
+```
+
+Initialize that Pi directory and authenticate its providers by launching the same executable with `PI_CODING_AGENT_DIR` set to `agentDir`.
+Configure the extensions and skills the worker should load; a new directory does not inherit the main Pi installation or its sign-ins.
+To make `council` available to the worker, link its `skills/council` directory entry to `stow/codex/skills/council/` in this checkout.
+Do not symlink the auth store back to the main Pi directory.
+Allow the worker state directory as a writable root in the Codex session (for example, `codex --add-dir /absolute/path/to/private-pi-worker-state`) and allow network access when needed without disabling the sandbox.
+The launcher prints a job ID; use its `cancel <job-id>` command to stop that process group explicitly.
+The deadline also stops the process group, but pressing Stop in Codex is not yet wired to that explicit cancellation command.
 Ownership and archive exclusions are recorded in `.skill-sources.tsv` in that folder; see [CONTEXT.md](CONTEXT.md) for the terms.
 [docs/skills.md](docs/skills.md) lists every skill, who can invoke it, its owner, and what it does; it is generated from each `SKILL.md`, so run `./scripts/skill_catalog.sh` after adding, renaming, or editing a skill.
 The same script writes one OpenCode command per skill under `stow/opencode/.config/opencode/commands/`, because OpenCode loads skills with `@skill-id` rather than `/skill-id`.
@@ -452,7 +478,7 @@ A new machine gets the tracked snapshot from `./scripts/stow.sh apply` with no u
 
 `stow/pi/.pi/agent/mcp.json` defines six servers: Ref (library docs), Exa (web search), Jev (TypeSafe judgments), Chrome DevTools (isolated browser), HEY (mail/calendar via `hey mcp`), and superlogical (Rex docs and feedback).
 Keys come from the environment (`REF_API_KEY`, `EXA_API_KEY`, `TYPESAFE_API_KEY`), never from tracked files.
-Run `claude mcp list` to check connections.
+Run `codex mcp list` to check Codex's server registrations.
 
 Claude Code keeps registrations in machine-local `~/.claude.json`, so bootstrap imports Pi's file, dropping Pi-only `exposure` and `timeout` fields; rerun the import after changing it:
 
@@ -462,6 +488,11 @@ Claude Code keeps registrations in machine-local `~/.claude.json`, so bootstrap 
 
 `./scripts/harness_sync.sh` writes the same servers into OpenCode's `opencode.jsonc` and Codex's `stow/codex/.codex/config.toml`, so change servers only in Pi's file, then run it; `validate-dotfiles.sh` fails when they drift.
 The sync preserves Codex's per-tool approvals for servers still configured in Pi.
+Codex uses native Code Mode (`features.code_mode`), with Ref and Exa available directly and from Code Mode.
+Jev, Chrome DevTools, HEY, and Superlogical are available only from Code Mode, matching how those servers are normally reached in Pi.
+Codex uses its own JavaScript tool interface; the shared MCP calls work there, but Pi's `models.classify` API and `jev_pipeline` extension tool do not carry over.
+Use Jev's MCP classifier tools in Codex, or run Pi through `$pi-skill` for a Pi-native workflow.
+Do not disable Codex Code Mode and expect the Code-Mode-only MCP tools to remain callable.
 Codex keeps the `node_repl` and `computer-use` servers the ChatGPT app installs for its browser and computer use.
 See [MCP setup and configuration](mcp/README.md) for more details.
 
@@ -474,17 +505,19 @@ Two things worth knowing:
 
 ### Guardrails
 
-The hooks in `stow/pi/.pi/agent/guardrails/` block dangerous shell commands and hand edits to generated files; Pi runs them from `~/.pi/agent/guardrails/` through its `agent-guardrails` extension.
-They live in `guardrails/`, not `hooks/`, because Pi stops at a deprecation prompt on every start when `~/.pi/agent/hooks/` exists.
-Claude Code and Codex run the same scripts through symlinks in `stow/claude/.claude/hooks/` and `stow/codex/.codex/hooks/`.
-OpenCode's `guardrails` plugin runs the shell rules from `~/.pi/agent/guardrails/` on every model, including Opus through Claude Agent, but it does not run the generated-file rules.
+Codex's `stow/codex/.codex/hooks.json` runs the shared scripts in `stow/codex/.codex/hooks/` to block dangerous shell commands and hand edits to generated files.
+Claude Code links to those scripts from its hooks directory.
+Pi's `agent-guardrails` extension runs them through compatibility links in `~/.pi/agent/guardrails/` because a `~/.pi/agent/hooks/` directory triggers a deprecation prompt.
+OpenCode's standalone `guardrails` plugin uses the same shell-command script but does not run the generated-file rules.
 Rails extras: schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
-Pi screens fetched web content, audits edit scope, and fact-checks answers with Jev (`jev-guardrails` extension), and Claude Code does the same through its `jev-checks` mod.
+Codex uses the shared `jev` skill and MCP server for the judgment checks specified in `AGENTS.md`; the automatic Pi extension and Claude Code mod remain specific to those harnesses.
 Test the shell rules with `bash test/agent_guardrails_test.sh "$PWD"`.
 
 ### Planning and review
 
 Plans are project Markdown files and are implemented only after explicit approval.
+In Codex, Plannotator reviews plans through the `Stop` hook in `stow/codex/.codex/hooks.json`.
+Keep the Plannotator marketplace plugin disabled in Codex because its Claude Code hook manifest uses the unsupported `modules` field.
 In Pi, use the native Plannotator integration to open a review and send feedback directly to the active session.
 `Ctrl-a Shift-o` and `Ctrl-a Shift-l` review a folder or an agent's last reply in Herdr; in Rex, run `plannotator-tui` directly.
 

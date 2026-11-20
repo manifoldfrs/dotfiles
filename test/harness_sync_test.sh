@@ -39,6 +39,10 @@ grep -Eq '^\[mcp_servers\.hey(\.|\])' "$codex" && fail "Codex kept a server Pi r
 grep -A1 -F '[mcp_servers.jev.tools.fixture]' "$codex" | grep -qx 'approval_mode = "approve"' || fail "Codex lost a tool approval"
 grep -q '"hey"' "$opencode" && fail "OpenCode kept a server Pi removed"
 grep -q '^\[mcp_servers.docs.http_headers\]' "$codex" || fail "Codex is missing a literal header table"
+awk '/^\[/{section=$0} section=="[mcp_servers.docs]" && $0=="omit_tools_from = [\"deferred\"]" {found=1} END {exit !found}' "$codex" \
+    || fail "Codex did not keep the docs server direct and callable from Code Mode"
+awk '/^\[/{section=$0} section=="[mcp_servers.jev]" && $0=="omit_tools_from = [\"direct\",\"deferred\"]" {found=1} END {exit !found}' "$codex" \
+    || fail "Codex did not make Jev available only through Code Mode"
 grep -q '^\[mcp_servers.node_repl\]' "$codex" || fail "Codex lost a ChatGPT app server"
 grep -q '^\[mcp_servers.computer-use\]' "$codex" || fail "Codex lost a ChatGPT app server"
 grep -q '^\[hooks.state\]' "$codex" || fail "Codex lost unrelated settings"

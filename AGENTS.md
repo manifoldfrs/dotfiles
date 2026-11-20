@@ -32,9 +32,10 @@ Agent behavior:
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
 - `mcp/` - MCP setup and configuration docs
 - `test/` - Docker test harness + shell test runner
-- `stow/pi/` - Pi config, the primary agent harness, with the canonical global AGENTS.md, guardrail hooks, and MCP servers (`.pi/agent/`), and the retained shared skills (`skills/`); the Pi-only pstack workflow comes from `pi-pstack-adapter`
-- `stow/claude/` - Claude Code config and mods; links AGENTS.md and hooks to `stow/pi/`
-- `stow/opencode/` - OpenCode 2 config, for non-Claude models
+- `stow/codex/` - Primary agent harness, with the canonical global AGENTS.md and shell guardrail hooks under `.codex/`, shared skills in `skills/shared/`, and the `pi-skill` worker bridge
+- `stow/pi/` - Worker for non-GPT models and Pi-native workflows; links global AGENTS.md and guardrails to Codex and retains the shared MCP definitions (`.pi/agent/mcp.json`) and `pi-pstack-adapter`
+- `stow/claude/` - Standalone Claude Code config and mods; links AGENTS.md and hooks to `stow/codex/`
+- `stow/opencode/` - Standalone OpenCode 2 config, not a worker fallback for Codex
 - `stow/rex/` - Rex config (`init.lua` and the Lua files it requires); Rex is the default terminal and Ghostty the fallback
 - `server/rex/` - files the Rex login server setup installs under `/etc` (not stowed)
 - `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files

@@ -14,7 +14,8 @@ STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
 CODEX_CONFIG_TARGET="$HOME/.codex/config.toml"
-AGENT_SKILLS_DIR="$STOW_DIR/pi/skills"
+AGENT_SKILLS_DIR="$STOW_DIR/codex/skills/shared"
+LEGACY_AGENT_SKILLS_DIR="$STOW_DIR/pi/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
 OPENCODE_PLUGINS_DIR="$STOW_DIR/opencode/.config/opencode/plugins"
 OPENCODE_PLUGINS_TARGET="$HOME/.config/opencode/plugins"
@@ -328,7 +329,7 @@ backup_shared_skill_targets() {
     local target
     local target_dir
 
-    if ! has_stow_package pi; then
+    if ! has_stow_package codex; then
         return
     fi
 
@@ -400,7 +401,7 @@ ensure_shared_skill_folder_links() {
     local link_dest
     local target_dir
 
-    if ! has_stow_package pi; then
+    if ! has_stow_package codex; then
         return
     fi
 
@@ -453,7 +454,7 @@ remove_shared_skill_folder_links() {
     local link_dest
     local target_dir
 
-    if ! has_stow_package pi; then
+    if ! has_stow_package codex; then
         return
     fi
 
@@ -471,7 +472,7 @@ remove_shared_skill_folder_links() {
             fi
 
             link_dest="$(readlink "$dest")"
-            if [ "$link_dest" != "$src" ]; then
+            if [ "$link_dest" != "$src" ] && [ "$link_dest" != "$LEGACY_AGENT_SKILLS_DIR/$(basename "$skill_dir")" ]; then
                 continue
             fi
 

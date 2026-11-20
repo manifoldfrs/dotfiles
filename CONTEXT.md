@@ -39,16 +39,19 @@ _Avoid_: Package, live configuration
 ## Agent configuration
 
 **Primary harness**:
-Pi, which owns the canonical global agent rules, shared skill catalog, guardrail hooks, and MCP definitions.
-Claude Code, OpenCode, and Codex stay configured and read those through harness adapters.
+Codex, which owns the canonical global agent rules, shared skill catalog, and shared shell guardrail hooks.
+Pi is the sole worker for non-GPT models and Pi-native workflows.
+Claude Code and OpenCode remain standalone configurations, not fallback workers.
+The shared MCP definitions remain in Pi's native format and are synced into Codex.
 _Avoid_: Default agent
 
 **Shared skill catalog**:
-The tracked set of agent skills made available to supported harnesses from one canonical source tree, `stow/pi/skills/`.
+The tracked set of agent skills made available to supported harnesses from one canonical source tree, `stow/codex/skills/shared/`.
 _Avoid_: Claude skills, Pi skills
 
 **Pi workflow catalog**:
 Lauren Tan's pstack skills loaded by the community Pi adapter, separate from the tracked shared skill catalog.
+Codex's `pi-skill` bridge discovers these and other Pi skills in the current project and delegates execution to Pi without copying the skill files.
 
 **Baseline catalog**:
 The stable Matt Pocock source that the shared catalog sync can import from, subject to recorded exclusions.
@@ -75,7 +78,7 @@ _Avoid_: Skill copy
 
 **Global agent rules**:
 User-scoped instructions shared across repositories and imported by supported coding-agent harnesses.
-The canonical tracked file is `stow/pi/.pi/agent/AGENTS.md`; the Claude, OpenCode, and Codex Stow packages expose it through relative symlinks.
+The canonical tracked file is `stow/codex/.codex/AGENTS.md`; the Pi, Claude, and OpenCode Stow packages expose it through relative symlinks.
 _Avoid_: Project rules
 
 **Project rules**:

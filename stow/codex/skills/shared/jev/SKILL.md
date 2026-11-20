@@ -14,6 +14,7 @@ Twelve tools built on TypeSafe's Jev. They return typed judgments and probabilit
 
 Global agent rules own when judgments are required.
 This skill owns tool selection, result interpretation, and failure handling.
+In Codex, call these MCP tools through native Code Mode and use its tool declarations for names and arguments; Pi's `models.classify` and `jev_pipeline` are not Codex tools.
 Use deterministic search, parsing, arithmetic, and tests for exact facts, and reuse judgments whose evidence and scope have not changed.
 
 ## Choose the tool

@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.5.2",
+  "lastChangelogVersion": "1.6.0",
   "theme": "cyber-ui-dark",
   "defaultProvider": "openai",
   "defaultModel": "gpt-6.2-sol-ultrafast",
@@ -65,7 +65,8 @@
   },
   "extensionChangelogVersions": {
     "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.89.1",
-    "{\"source\":\"npm:pi-pstack-adapter\",\"scope\":\"user\"}": "0.11.0"
+    "{\"source\":\"npm:pi-pstack-adapter\",\"scope\":\"user\"}": "0.11.0",
+    "{\"source\":\"npm:@tian.zuo/pi-antigravity@0.12.1\",\"scope\":\"user\"}": "0.12.1"
   },
   "skills": [
     "!**/synced/**/built-in-browser/**",

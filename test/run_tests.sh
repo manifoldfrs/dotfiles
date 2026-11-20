@@ -19,8 +19,8 @@ for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh scripts/rex
     stow/bash/.config/bash/functions.bash \
     stow/bin/.local/bin/rex-annotate \
     stow/bin/.local/bin/agentbox-auth \
-    stow/pi/.pi/agent/guardrails/block-dangerous-bash.sh \
-    stow/pi/.pi/agent/guardrails/block-generated-edits.sh mcp_setup.sh scripts/harness_sync.sh; do
+    stow/codex/.codex/hooks/block-dangerous-bash.sh \
+    stow/codex/.codex/hooks/block-generated-edits.sh mcp_setup.sh scripts/harness_sync.sh; do
     bash -n "$script"
 done
 pass "Shell syntax is valid"
@@ -67,19 +67,21 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
     && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
     && [ -L "$STOW_TEST_HOME/.config/rex/init.lua" ] \
-    && [ ! -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
-    && [ -f "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
+    && [ ! -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
+    && [ -f "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
-    && [ -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
+    && [ -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
     && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.config/opencode/AGENTS.md" \
-    && [ ! -L "$DOTFILES_DIR/stow/pi/.pi/agent/guardrails/block-dangerous-bash.sh" ] \
+    && [ ! -L "$DOTFILES_DIR/stow/codex/.codex/hooks/block-dangerous-bash.sh" ] \
     && [ -L "$DOTFILES_DIR/stow/claude/.claude/hooks/block-dangerous-bash.sh" ] \
-    && [ -L "$DOTFILES_DIR/stow/codex/.codex/hooks/block-dangerous-bash.sh" ] \
-    && cmp "$STOW_TEST_HOME/.pi/agent/guardrails/block-dangerous-bash.sh" "$STOW_TEST_HOME/.claude/hooks/block-dangerous-bash.sh" \
-    && cmp "$STOW_TEST_HOME/.pi/agent/guardrails/block-dangerous-bash.sh" "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" \
+    && [ -L "$DOTFILES_DIR/stow/pi/.pi/agent/guardrails/block-dangerous-bash.sh" ] \
+    && [ "$STOW_TEST_HOME/.pi/agent/guardrails/block-dangerous-bash.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
+    && [ "$STOW_TEST_HOME/.claude/hooks/block-dangerous-bash.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
+    && [ "$STOW_TEST_HOME/.pi/agent/guardrails/block-generated-edits.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-generated-edits.sh" ] \
+    && [ "$STOW_TEST_HOME/.claude/hooks/block-generated-edits.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-generated-edits.sh" ] \
     && [ ! -L "$STOW_TEST_HOME/.claude/skills/frontend-design/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.claude/keybindings.json" ] \
     && [ ! -e "$STOW_TEST_HOME/.claude/mcp.json" ] \
@@ -93,7 +95,7 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.pi/agent/mcp.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/frontend-design" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/frontend-design" ] \
-    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/anti-slop")" = "$DOTFILES_DIR/stow/pi/skills/anti-slop" ] \
+    && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/anti-slop")" = "$DOTFILES_DIR/stow/codex/skills/shared/anti-slop" ] \
     && [ ! -L "$STOW_TEST_HOME/.agents/skills/deleted-skill" ] \
     && [ ! -e "$STOW_TEST_HOME/AGENTS.md" ]; then
     pass "Default Bash Stow profile is idempotent"

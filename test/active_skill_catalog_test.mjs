@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const catalog = resolve(root, "stow/pi/skills");
+const catalog = resolve(root, "stow/codex/skills/shared");
 const read = (path) => readFileSync(path, "utf8");
 const frontmatter = (text) => text.split("\n---")[0];
 const description = (text) => frontmatter(text).split(/\n(?=[a-z-]+:)/).find((field) => field.startsWith("description:"));

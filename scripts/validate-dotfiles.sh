@@ -23,6 +23,8 @@ for script in \
     "$DOTFILES_DIR/scripts/rex_server_setup.sh" \
     "$DOTFILES_DIR/scripts/skill_catalog.sh" \
     "$DOTFILES_DIR/scripts/harness_sync.sh" \
+    "$DOTFILES_DIR/stow/codex/.codex/skills/pi-skill/scripts/pi-skill" \
+    "$DOTFILES_DIR/test/codex_pi_skill_test.sh" \
     "$DOTFILES_DIR/stow/bash/.bash_profile" \
     "$DOTFILES_DIR/stow/bash/.bashrc" \
     "$DOTFILES_DIR/stow/bash/.config/bash/aliases.bash" \
@@ -32,6 +34,12 @@ for script in \
 done
 
 bash "$DOTFILES_DIR/test/bash_path_test.sh" "$DOTFILES_DIR"
+if command -v node >/dev/null 2>&1; then
+    node --check "$STOW_DIR/codex/skills/pi-skill/scripts/pi-worker.mjs"
+    bash "$DOTFILES_DIR/test/codex_pi_skill_test.sh" "$DOTFILES_DIR"
+else
+    printf 'WARN: node is not installed; skipped the Codex Pi worker check\n'
+fi
 bash "$DOTFILES_DIR/scripts/skill_catalog.sh" --check
 bash "$DOTFILES_DIR/scripts/harness_sync.sh" --check
 
