@@ -275,7 +275,7 @@ code_mode = true
 memories = true
 
 [desktop]
-conversationDetailMode = "STEPS_PROSE"
+conversationDetailMode = "STEPS_COMMANDS"
 show-context-window-usage = true
 notifications-turn-mode = "off"
 toys-confetti-enabled = true
@@ -287,7 +287,7 @@ usePointerCursors = true
 external-agent-import-sync-enabled = true
 external-agent-import-sync-item-types = "all"
 selected-avatar-id = "null-signal"
-"browser-family-enabled:chrome" = false
+"browser-family-enabled:chrome" = true
 migratedFollowUpQueueToSteer = true
 
 [desktop.open-in-target-preferences]
