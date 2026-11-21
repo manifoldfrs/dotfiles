@@ -555,32 +555,6 @@ remove_opencode_plugin_links() {
     done
 }
 
-setup_pi_cyber_ui() {
-    local version=0.1.35
-    local agent_dir="$HOME/.pi/agent"
-    local package_dir="$agent_dir/npm/node_modules/pi-cyber-ui"
-    local source="npm:pi-cyber-ui@$version"
-    local patch_file
-
-    if ! has_stow_package pi || ! command -v pi >/dev/null 2>&1; then
-        return 0
-    fi
-
-    if [ ! -f "$package_dir/package.json" ]; then
-        PI_CODING_AGENT_DIR="$agent_dir" pi install "$source" --no-approve || return 1
-    fi
-
-    jq -e --arg version "$version" '.name == "pi-cyber-ui" and .version == $version' "$package_dir/package.json" >/dev/null || return 1
-
-    for patch_file in "$DOTFILES_DIR/patches/pi-cyber-ui-$version"{,-summary,-tokyonight}.patch; do
-        if patch -d "$package_dir" -p1 -R -f -F 0 --dry-run < "$patch_file" >/dev/null 2>&1; then
-            continue
-        fi
-        patch -d "$package_dir" -p1 -f -F 0 --dry-run < "$patch_file" >/dev/null || return 1
-        patch -d "$package_dir" -p1 -f -F 0 < "$patch_file" || return 1
-    done
-}
-
 apply_dotfiles() {
     info "Running isolated preflight before changing $HOME"
     "$DOTFILES_DIR/scripts/validate-dotfiles.sh" "$DOTFILES_DIR" "${STOW_PACKAGES[@]}"
@@ -606,7 +580,6 @@ apply_dotfiles() {
     ensure_shared_skill_folder_links
     ensure_opencode_plugin_links
     ensure_bash_link
-    setup_pi_cyber_ui || warn "Pi Cyber UI setup failed; check the installed package and rerun Stow apply."
 }
 
 dry_run_dotfiles() {

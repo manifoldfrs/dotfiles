@@ -441,16 +441,8 @@ The Jev logic lives once in Pi, in `stow/pi/.pi/agent/extensions/jev-guardrails/
 Claude Code only loads mod files whose real path is inside the mod, so the mod's `hooks/jev-shared.ts` is a copy that `./scripts/harness_sync.sh` generates; edit Pi's file, then run the script.
 The `bold-color` mod draws bold reply text in Tokyo Night blue.
 The `tool-row-color` mod keeps running and folded tool rows in the text color instead of grey.
-Pi uses [pi-cyber-ui](https://github.com/22GNUs/pi-cyber-ui) and its `cyber-ui-dark` theme for the prompt, tool gutter, animated working indicator, and footer.
-Signal Deck shows `Pi` and its version at startup and centers a dim dotted π in a fresh, empty pane when there is room.
-The watermark disappears on the first prompt or shell command and stays out of resumed sessions.
-The panel above the prompt distinguishes model work, tool work, and the final outcome without adding a redraw timer.
-The Cyber UI footer keeps session context and the selected model's display name, including `(Fast)` or `(Ultrafast)` for the Codex variants.
-`./scripts/stow.sh apply` installs and patches the pinned Cyber UI package when Pi is available.
-Stow softens the `cyber-ui-dark` palette with Tokyo Night navy panels, muted teal and blue, and dusty lavender in place of bright pink.
-The other patches remove the cat icon, label the prompt cache percentage `cache`, and put the completed run's stats directly in the Signal Deck panel.
-After reinstalling the package, rerun Stow apply and use `/reload` in Pi.
-The previous `claude-style-ui` and `frsh-header` extensions remain in the repository but are disabled in Pi's settings so they do not override the new UI.
+Pi uses its built-in interface with the `tokyonight-frsh` color palette.
+The `claude-style-ui`, `frsh-header`, and `signal-deck` extensions remain in the repository but are disabled in Pi's settings.
 Pi's `pi-cloak` extension masks secret values (`.env`, `.vars`, `local.bash`, auth and credential files) in files Pi's `read` tool returns, using the rules in `stow/pi/.pi/agent/cloak.json`; `/cloak-status` shows them, and a shell `cat` is not covered.
 `/save-md name` saves the last reply as `name.md`; both extensions are adapted from Dillon Mulroy's dotfiles.
 Use `agent-browser` for browser work and `cua-driver` for native Mac apps and desktop automation.

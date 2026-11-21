@@ -120,7 +120,11 @@ grep -Fq '"frshbb": { "principals": ["tailscale:manifoldfrs@github"] }' server/r
 grep -Eq '^ExecStart=/usr/bin/rex login-server .* --extra-listen tailnet://:7297$' server/rex/rex-login-server.service.d/override.conf
 grep -Fqx 'Pin-Priority: 1001' server/rex/apt-preferences.d/rex
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
-jq -e '.theme == "cyber-ui-dark" and (.packages | index("npm:pi-cyber-ui@0.1.35") != null)' stow/pi/.pi/agent/settings.json >/dev/null
+jq -e --slurpfile theme stow/pi/.pi/agent/themes/tokyonight-frsh.json '
+    .theme == "tokyonight-frsh" and .theme == $theme[0].name
+    and (.extensions | contains(["-extensions/claude-style-ui/index.ts", "-extensions/frsh-header/index.ts", "-extensions/signal-deck.ts"]))
+    and (.packages | map(if type == "object" then .source else . end) | all(startswith("npm:pi-cyber-ui") | not))
+' stow/pi/.pi/agent/settings.json >/dev/null
 jq -e '.packages | any(type == "string" and startswith("git:github.com/dmmulroy/pi-claude-cli@"))' stow/pi/.pi/agent/settings.json >/dev/null
 grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
