@@ -463,8 +463,9 @@ OpenCode bundles the `effect` package it uses at runtime; its `package.json` pin
 (cd stow/opencode/.config/opencode/plugins/jev && pnpm install --frozen-lockfile && pnpm test && pnpm run check)
 ```
 
-The `xai-search` mod and the OpenCode plugin in `stow/opencode/.config/opencode/plugins/xai-search/` both give agents the `xai_search` tool through Pi's guarded runner.
-Their shared tool definition lives in `stow/pi/.pi/agent/extensions/xai-search/xai-shared.ts`, and the mod gets a generated copy the same way.
+Claude Code's `xai-search` mod, OpenCode's `xai-search` plugin, and Codex's `xai-search` MCP server all expose `xai_search` through Pi's guarded runner.
+They share the tool definition in `stow/pi/.pi/agent/extensions/xai-search/xai-shared.ts`; the Claude Code mod gets a generated copy.
+Codex exposes the tool directly and through Code Mode, and it uses Pi's existing SuperGrok or X Premium sign-in (`/login xai`) rather than a separate API key.
 
 ```bash
 (cd stow/opencode/.config/opencode/plugins/xai-search && pnpm install --frozen-lockfile && pnpm test && pnpm run check)
@@ -487,7 +488,7 @@ Claude Code keeps registrations in machine-local `~/.claude.json`, so bootstrap 
 ```
 
 `./scripts/harness_sync.sh` writes the same servers into OpenCode's `opencode.jsonc` and Codex's `stow/codex/.codex/config.toml`, so change servers only in Pi's file, then run it; `validate-dotfiles.sh` fails when they drift.
-The sync preserves Codex's per-tool approvals for servers still configured in Pi.
+The sync preserves Codex's per-tool approvals for servers still configured in Pi and leaves the Codex-only `xai-search` MCP adapter in place.
 Codex uses native Code Mode (`features.code_mode`), with Ref and Exa available directly and from Code Mode.
 Jev, Chrome DevTools, HEY, and Superlogical are available only from Code Mode, matching how those servers are normally reached in Pi.
 Codex uses its own JavaScript tool interface; the shared MCP calls work there, but Pi's `models.classify` API and `jev_pipeline` extension tool do not carry over.

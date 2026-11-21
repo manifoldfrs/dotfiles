@@ -23,6 +23,10 @@ cd ~/dotfiles
 ```
 
 The tracked Codex config is `stow/codex/.codex/config.toml`.
+On macOS, `codex mcp list` should list `xai-search` after applying Stow.
+Restart Codex and ask it to search X using `xai_search`; it can also search the public web using `sources: ["web"]`.
+The adapter uses Homebrew Node and the Pi runner, so sign in to SuperGrok or X Premium in Pi with `/login xai` first.
+No separate Codex xAI key or login is needed.
 
 ### Claude Code
 
@@ -88,6 +92,7 @@ Pi MCP HTTP servers should use built-in header interpolation with `${REF_API_KEY
 
 - **Ref** - Documentation search
 - **Exa** - Web search
+- **xai-search** - Live X and Grok web search (Codex adapter for Pi's native `xai_search`)
 - **Jev** - Typed judgments from TypeSafe's Jev model (Pi)
 - **Chrome DevTools** - Browser testing, screenshots, console, and network inspection (Pi)
 - **Superlogical** - Rex Beta docs, changelog, and community feedback; OAuth via `/mcp` after registering (Claude Code and Pi)

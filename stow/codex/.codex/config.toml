@@ -225,6 +225,14 @@ command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.
 args = ["mcp"]
 cwd = "."
 enabled = false
+
+[mcp_servers.xai-search]
+command = "/bin/sh"
+args = ["-c", 'export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"; export PATH="$PNPM_HOME/bin:/opt/homebrew/bin:/usr/bin:/bin"; cd "$HOME" && exec /opt/homebrew/bin/node "$HOME/.codex/mcp/xai-search.ts"']
+env_vars = ["PNPM_HOME"]
+tool_timeout_sec = 340
+omit_tools_from = ["deferred"]
+
 [hooks.state]
 
 [hooks.state."/Users/frshbb/.codex/hooks.json:pre_tool_use:0:0"]

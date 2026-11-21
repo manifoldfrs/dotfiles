@@ -45,6 +45,9 @@ awk '/^\[/{section=$0} section=="[mcp_servers.jev]" && $0=="omit_tools_from = [\
     || fail "Codex did not make Jev available only through Code Mode"
 grep -q '^\[mcp_servers.node_repl\]' "$codex" || fail "Codex lost a ChatGPT app server"
 grep -q '^\[mcp_servers.computer-use\]' "$codex" || fail "Codex lost a ChatGPT app server"
+awk '/^\[/{section=$0} section=="[mcp_servers.xai-search]" && $0=="omit_tools_from = [\"deferred\"]" {found=1} END {exit !found}' "$codex" \
+    || fail "Codex lost its direct X search adapter"
+grep -q '"xai-search"' "$opencode" && fail "OpenCode got a duplicate X search adapter"
 grep -q '^\[hooks.state\]' "$codex" || fail "Codex lost unrelated settings"
 grep -q '"codemode": false' "$opencode" || fail "OpenCode did not map direct exposure"
 tail -1 "$test_dir/stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts" | grep -q 'changed in Pi' || fail "Claude's jev copy did not follow Pi"
@@ -62,4 +65,4 @@ bash "$sync" >/dev/null 2>&1 && fail "the sync accepted a header Codex cannot ex
 if [ "$failures" -gt 0 ]; then
     exit 1
 fi
-echo "PASS: harness sync generates OpenCode, Codex, and Claude copies from Pi and keeps the ChatGPT app's Codex servers"
+echo "PASS: harness sync generates OpenCode, Codex, and Claude copies from Pi and keeps Codex-only servers"
