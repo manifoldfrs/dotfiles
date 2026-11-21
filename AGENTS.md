@@ -30,7 +30,8 @@ Agent behavior:
 - `mcp_setup.sh` - MCP config install + backup script
 - `stow/` - GNU Stow packages that mirror `$HOME`
 - `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
-- `mcp/` - MCP setup and configuration docs
+- `mcp/` - MCP setup and configuration docs (`mcp/README.md`)
+- `docs/` - deep-dive user guides (`docs/rex.md`, `docs/agents.md`, generated `docs/skills.md`), plans, and research notes
 - `test/` - Docker test harness + shell test runner
 - `stow/codex/` - Primary agent harness, with the canonical global AGENTS.md and shell guardrail hooks under `.codex/`, shared skills in `skills/shared/`, and the `pi-skill` worker bridge
 - `stow/pi/` - Worker for non-GPT models and Pi-native workflows; links global AGENTS.md and guardrails to Codex and retains the shared MCP definitions (`.pi/agent/mcp.json`) and `pi-pstack-adapter`
@@ -186,7 +187,7 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 - Treat `~/.config/bash/local.bash` as sensitive, machine-local content.
 
 ## Change Management Expectations
-- Update `README.md` when user-facing commands/keymaps/setup behavior changes.
+- Update `README.md` and the relevant `docs/` guide when user-facing commands/keymaps/setup behavior changes.
 - For notable features or workflow changes, follow the project changelog process without manually editing generated changelog files.
 - Do not commit unless explicitly asked.
 - Do not revert unrelated local changes you did not author.

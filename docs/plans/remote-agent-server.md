@@ -161,6 +161,8 @@ Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy p
   brew install git stow ripgrep fd fzf jq bat eza zoxide starship neovim lazygit tree glow gh mise node oven-sh/bun/bun herdr
   ```
 
+  Add `fish` and `atuin` if you want the Fish shell and its `Ctrl-R`/`Ctrl-F` Atuin history picker on the server.
+
 - [x] Keep `/bin/bash` as the login shell; Ubuntu 24.04 ships Bash 5.2, so there is no reason to switch to Linuxbrew Bash.
 
 ## Phase 6: Dotfiles
@@ -207,14 +209,7 @@ Codex and OpenCode are optional; skip their install and login steps if you do no
 - [x] Install Plannotator: `curl -fsSL https://plannotator.ai/install.sh | bash`.
   It installs to `~/.local/bin/plannotator`, the path the tracked Codex Stop hook calls.
   Trust the hook in Codex's `/hooks` on the server, then confirm a review page opens from the Mac at `http://agentbox:19432` with the Cloud Firewall still closed.
-- [ ] Skipped for now: Install OpenCode plugin dependencies, mirroring `install_opencode_plugin_dependencies` in `scripts/bootstrap.sh`:
-
-  ```bash
-  for p in typesafe-ai optojr-slack tui-conveniences request-logger; do
-    (cd ~/.config/opencode/plugins/$p && npm install --omit=dev --no-package-lock)
-  done
-  ```
-
+- [x] Install Claude Code as `frshbb`: `curl -fsSL https://claude.ai/install.sh | bash`.
 - [x] Log in to Claude Code first, because `pi-claude-cli` uses its login: run `claude`, then `/login`, and paste the code from the browser on the Mac.
 - [x] Log in to Codex: `ssh -t agentbox codex login --device-auth`, then open the printed URL on the Mac and enter the code.
   Without it, `codex exec` fails with `401 Unauthorized` after a few retries.
