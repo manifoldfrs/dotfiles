@@ -350,6 +350,8 @@ Fish-specific settings can go in an untracked `~/.config/fish/conf.d/` file.
 Codex is the primary harness and uses GPT-6.2 Sol at medium reasoning and Ultrafast in the tracked macOS configuration.
 That configuration disables routine command approvals and the filesystem sandbox, while keeping the shared guardrail hooks enabled.
 To restore approval prompts and workspace isolation for a CLI session, start `codex -a on-request -s workspace-write`.
+The Codex terminal footer shows the percentage of the context window used once token usage is available.
+Run `/statusline` in Codex to customize the footer.
 Use Pi for non-GPT models and Pi-native workflows; Codex does not fall back to OpenCode or silently substitute a model.
 Pi's separate configuration includes GPT-6.2 Sol and Astra under `openai` with 272K context windows inherited by the local speed variants.
 If a Pi model is missing after sign-in, run `pi update --models` and start a new Pi session.
