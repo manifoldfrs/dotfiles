@@ -1,17 +1,19 @@
-import { execFile } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { fileURLToPath } from 'node:url'
-import { inputSchema, runnerArgv, runnerOutcome, runnerStdin, RUNNER_FAILED, RUNNER_TIMEOUT_MS, TOOL_DESCRIPTION, TOOL_NAME } from '../../../pi/.pi/agent/extensions/xai-search/xai-shared.ts'
+import { inputSchema, TOOL_DESCRIPTION, TOOL_NAME } from '../../../../mcp/xai-search/schema.ts'
+import { postXaiSearch, XAI_API_BASE_URL, XaiBearerToken } from '../../../../mcp/xai-search/xai-client.ts'
+import { formatXaiSearchResponse } from '../../../../mcp/xai-search/xai-format.ts'
+import { buildXaiSearchRequest, type XaiSearchParams } from '../../../../mcp/xai-search/xai-request.ts'
+import { runGrokSearch } from './grok-search.ts'
 
-const extensionDir = fileURLToPath(new URL('../../../pi/.pi/agent/extensions/xai-search', import.meta.url))
-const [node, ...args] = runnerArgv(extensionDir)
+const DEFAULT_MODEL = 'grok-4.7'
 const tool = { name: TOOL_NAME, description: TOOL_DESCRIPTION, inputSchema }
 const protocolVersions = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05']
+
 type RequestId = number | string
 interface Request {
   id?: RequestId
   method: string
-  params?: { protocolVersion?: string; name?: string; arguments?: Record<string, unknown>; requestId?: RequestId }
+  params?: { protocolVersion?: string; name?: string; arguments?: XaiSearchParams; requestId?: RequestId }
 }
 
 const pending = new Map<RequestId, AbortController>()
@@ -25,23 +27,39 @@ function replyError(id: RequestId | null, code: number, message: string) {
   reply(id, { error: { code, message } })
 }
 
-function callTool(id: RequestId, params: Request['params']) {
+function replyTool(id: RequestId, text: string, isError: boolean) {
+  reply(id, { result: { content: [{ type: 'text', text }], isError } })
+}
+
+async function callTool(id: RequestId, params: Request['params']) {
   if (params?.name !== TOOL_NAME) return replyError(id, -32602, 'Unknown tool')
   const call = params.arguments
   if (!call || typeof call.query !== 'string' || !call.query.trim()) return replyError(id, -32602, 'Expected a nonempty query')
 
   const controller = new AbortController()
   pending.set(id, controller)
-  const child = execFile(node, args, { signal: controller.signal, timeout: RUNNER_TIMEOUT_MS }, (error, stdout, stderr) => {
+  try {
+    const key = process.env.XAI_API_KEY?.trim()
+    const request = buildXaiSearchRequest(call, key ? DEFAULT_MODEL : 'grok-build')
+    if (!key) {
+      const text = await runGrokSearch(request, controller.signal)
+      if (!controller.signal.aborted) replyTool(id, text, false)
+      return
+    }
+
+    const runtime = { baseUrl: XAI_API_BASE_URL, bearer: new XaiBearerToken(key) }
+    const response = await postXaiSearch(runtime, request, { fetch, signal: controller.signal })
+    const searched = request.sources.length === 2 ? 'both' : request.sources[0]
+    if (!controller.signal.aborted) {
+      replyTool(id, formatXaiSearchResponse(response, request.model, searched).text, false)
+    }
+  } catch (error) {
+    if (!controller.signal.aborted) {
+      replyTool(id, error instanceof Error ? error.message : 'xAI search failed', true)
+    }
+  } finally {
     pending.delete(id)
-    if (controller.signal.aborted) return
-    const outcome = error && typeof error.code !== 'number'
-      ? { ok: false, text: RUNNER_FAILED }
-      : runnerOutcome({ exitCode: error ? 1 : 0, stdout, stderr })
-    reply(id, { result: { content: [{ type: 'text', text: outcome.text }], isError: !outcome.ok } })
-  })
-  child.stdin?.on('error', () => undefined)
-  child.stdin?.end(runnerStdin(call))
+  }
 }
 
 input.on('line', (line) => {
@@ -65,7 +83,10 @@ input.on('line', (line) => {
   }
   if (method === 'ping') return reply(id, { result: {} })
   if (method === 'tools/list') return reply(id, { result: { tools: [tool] } })
-  if (method === 'tools/call') return callTool(id, params)
+  if (method === 'tools/call') {
+    void callTool(id, params)
+    return
+  }
   return replyError(id, -32601, 'Method not found')
 })
 

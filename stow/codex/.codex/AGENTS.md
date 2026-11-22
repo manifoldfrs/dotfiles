@@ -72,7 +72,7 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - If a step fails or needs approval, keep working on any independent steps and try an authorized alternative where one exists.
   Ask when missing information or approval materially affects what you can safely do.
   When the user flags an in-scope mistake, fix it and rerun the check that covers the correction, unless they asked only for an explanation.
-- Use Codex as the primary harness. When authorized, use the `pi-skill` bridge for non-GPT models and Pi-native workflows. Report failures without substituting OpenCode or another model.
+- Use Codex as the primary harness. When authorized to delegate from Codex, use the requested model's native harness. Report failures without substituting another harness or model.
 - In Pi, use `/skill:pistack-poteto-mode` for pstack playbooks when requested. Use Pi's native Plannotator integration for requested reviews and wait for approval before implementing a plan.
 - Delegate, commit, push, open or merge a PR, or apply live configuration only with explicit user authorization. A playbook or an available tool does not authorize those actions.
 - When working on an existing pull request, the user gives standing authorization to commit and push the requested fixes or updates to that PR's head branch after verification, unless they say otherwise. Include all in-scope changes and leave unrelated local work out. This does not authorize merging, force-pushing, or deploying.
@@ -90,3 +90,26 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 - Preserve placeholder values such as `YOUR_API_KEY` in examples and templates.
 - Treat local environment files and shell startup files as sensitive unless the user says otherwise.
 - Before finishing, consider whether any changed file could expose a secret or machine-local credential.
+
+<!-- pstack:models:begin -->
+# pstack model configuration
+
+These model roles apply when Codex is the parent.
+
+feature, refactoring: codex:gpt-6.2-sol@high
+bug-fix: codex:gpt-6.2-sol@high
+perf-issue: codex:gpt-6.2-sol@high
+hillclimb: codex:gpt-6.2-sol@high
+judgment and prose: claude:claude-opus-5-5@high
+hardest tasks: claude:claude-opus-5-5@high
+how explorer: agy:gemini-4-neon-high@default
+how explainer: claude:claude-opus-5-5@high
+why investigators, synthesizer: inherit-parent
+reflect tooling, judgment, divergent, synthesizer: inherit-parent
+arena runners: claude:claude-opus-5-5@high, codex:gpt-6.2-sol@high
+arena cross-judge pool: agy:gemini-4-neon-high@default, claude:claude-opus-5-5@high
+swarm workers: codex:gpt-6.2-sol@high
+architect runners: claude:claude-opus-5-5@high, codex:gpt-6.2-sol@high
+interrogate reviewers: claude:claude-opus-5-5@high, codex:gpt-6.2-sol@high
+codex writer sandbox: bounded
+<!-- pstack:models:end -->

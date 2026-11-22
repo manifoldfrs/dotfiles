@@ -512,6 +512,9 @@ ensure_opencode_plugin_links() {
     mkdir -p "$OPENCODE_PLUGINS_TARGET"
     for plugin_dir in "$OPENCODE_PLUGINS_DIR"/*/; do
         src="${plugin_dir%/}"
+        if [ ! -f "$src/index.ts" ]; then
+            continue
+        fi
         dest="$OPENCODE_PLUGINS_TARGET/$(basename "$src")"
 
         if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
@@ -533,6 +536,14 @@ ensure_opencode_plugin_links() {
 
         ln -s "$src" "$dest"
         info "Linked OpenCode plugin folder: $dest -> $src"
+    done
+
+    for dest in "$OPENCODE_PLUGINS_TARGET"/*; do
+        src="$OPENCODE_PLUGINS_DIR/$(basename "$dest")"
+        if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ] && [ ! -f "$src/index.ts" ]; then
+            rm "$dest"
+            info "Removed link to retired OpenCode plugin: $dest"
+        fi
     done
 }
 

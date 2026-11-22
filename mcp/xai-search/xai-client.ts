@@ -1,9 +1,29 @@
-import { XAI_API_BASE_URL, type GuardedXaiRuntime } from "./xai-auth.ts";
 import type { XaiSearchRequest } from "./xai-request.ts";
 
+export const XAI_API_BASE_URL = "https://api.x.ai/v1";
 export const XAI_SEARCH_TIMEOUT_MS = 300_000;
 
 export type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
+
+export class XaiBearerToken {
+  readonly #value: string;
+
+  constructor(value: string) {
+    this.#value = value;
+  }
+
+  reveal(): string {
+    return this.#value;
+  }
+
+  toJSON(): string {
+    return "[redacted]";
+  }
+
+  toString(): string {
+    return "[redacted]";
+  }
+}
 
 // Response bodies and transport errors are never surfaced, since either could echo request headers.
 export class XaiApiError extends Error {
@@ -36,7 +56,7 @@ export interface PostXaiSearchOptions {
 }
 
 export async function postXaiSearch(
-  runtime: GuardedXaiRuntime,
+  runtime: { baseUrl: string; bearer: XaiBearerToken },
   request: XaiSearchRequest,
   options: PostXaiSearchOptions,
 ): Promise<Record<string, unknown>> {

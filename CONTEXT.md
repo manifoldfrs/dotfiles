@@ -40,8 +40,8 @@ _Avoid_: Package, live configuration
 
 **Primary harness**:
 Codex, which owns the canonical global agent rules, shared skill catalog, and shared shell guardrail hooks.
-Pi is the sole worker for non-GPT models and Pi-native workflows.
-Claude Code and OpenCode remain standalone configurations, not fallback workers.
+Codex runs independent reviews through Codex CLI, Claude Code, and Antigravity CLI.
+Pi and OpenCode remain standalone harnesses.
 The shared MCP definitions remain in Pi's native format and are synced into Codex.
 _Avoid_: Default agent
 
@@ -51,7 +51,7 @@ _Avoid_: Claude skills, Pi skills
 
 **Pi workflow catalog**:
 Lauren Tan's pstack skills loaded by the community Pi adapter, separate from the tracked shared skill catalog.
-Codex's `pi-skill` bridge discovers these and other Pi skills in the current project and delegates execution to Pi without copying the skill files.
+Run these workflows from Pi.
 
 **Baseline catalog**:
 The stable Matt Pocock source that the shared catalog sync can import from, subject to recorded exclusions.

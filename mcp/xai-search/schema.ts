@@ -1,20 +1,7 @@
-// xai_search definition that Claude Code and OpenCode use to call this extension's runner: the xai-search mod (through a copy scripts/harness_sync.sh generates) and the OpenCode plugin.
-// Keep it free of imports and harness APIs.
-
 export const TOOL_NAME = 'xai_search'
 
 export const TOOL_DESCRIPTION =
-  "Search live X (Twitter) posts, the public web, or both with Grok over Pi's SuperGrok/X Premium sign-in. sources picks x (default), web, or both. Supports X date ranges (to_date is exclusive) and handle filters, web domain filters, image/video understanding, and turn/output limits."
-
-// The Pi extension owns the xAI auth guards and request bounds; other harnesses only adapt its runner.
-const RUNNER = 'run-xai-search.ts'
-
-// Pinned so a project's Node version cannot pick a runtime without native TypeScript.
-const NODE = '/opt/homebrew/bin/node'
-
-// The runner's own request timeout is 300 s.
-export const RUNNER_TIMEOUT_MS = 330_000
-export const RUNNER_FAILED = 'xai_search runner failed'
+  'Search live X (Twitter) posts, the web, or both through Grok Build or the xAI Responses API. Exact date, handle, media, and domain filters require the API route.'
 
 const handleList = (description: string) => ({
   type: 'array',
@@ -64,36 +51,4 @@ export const inputSchema = {
     max_turns: { type: 'integer', minimum: 1, description: 'Maximum xAI assistant/tool-call turns for this search' },
     max_output_tokens: { type: 'integer', minimum: 1, description: 'Maximum output tokens for the final answer' },
   },
-}
-
-const PARAM_NAMES = Object.keys(inputSchema.properties)
-
-export type RunnerRun = { readonly exitCode: number; readonly stdout: string; readonly stderr: string }
-
-export type RunnerOutcome = { readonly ok: boolean; readonly text: string }
-
-/** The runner command, given the absolute path of Pi's xai-search extension folder. */
-export function runnerArgv(extensionDir: string): [string, ...string[]] {
-  return [NODE, `${extensionDir}/${RUNNER}`, '--interactive', '--params', '/dev/stdin']
-}
-
-export function runnerStdin(call: object) {
-  return JSON.stringify(Object.fromEntries(Object.entries(call).filter(([name, value]) => PARAM_NAMES.includes(name) && value !== undefined)))
-}
-
-export function runnerOutcome(run: RunnerRun): RunnerOutcome {
-  // The runner's errors are already sanitized of credential detail.
-  if (run.exitCode !== 0) return { ok: false, text: run.stderr.trim() || RUNNER_FAILED }
-
-  let output: { text?: unknown }
-
-  try {
-    output = JSON.parse(run.stdout)
-  } catch {
-    return { ok: false, text: RUNNER_FAILED }
-  }
-
-  if (String(output.text) !== output.text) return { ok: false, text: RUNNER_FAILED }
-
-  return { ok: true, text: output.text }
 }

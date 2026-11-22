@@ -17,8 +17,7 @@ copy() {
 }
 
 for file in scripts/harness_sync.sh stow/pi/.pi/agent/mcp.json stow/opencode/.config/opencode/opencode.jsonc stow/codex/.codex/config.toml \
-    stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts stow/pi/.pi/agent/extensions/xai-search/xai-shared.ts \
-    stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts stow/claude/.claude/mods/xai-search/hooks/xai-shared.ts; do
+    stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts; do
     copy "$file"
 done
 sync="$test_dir/scripts/harness_sync.sh"
@@ -45,9 +44,8 @@ awk '/^\[/{section=$0} section=="[mcp_servers.jev]" && $0=="omit_tools_from = [\
     || fail "Codex did not make Jev available only through Code Mode"
 grep -q '^\[mcp_servers.node_repl\]' "$codex" || fail "Codex lost a ChatGPT app server"
 grep -q '^\[mcp_servers.computer-use\]' "$codex" || fail "Codex lost a ChatGPT app server"
-awk '/^\[/{section=$0} section=="[mcp_servers.xai-search]" && $0=="omit_tools_from = [\"deferred\"]" {found=1} END {exit !found}' "$codex" \
-    || fail "Codex lost its direct X search adapter"
-grep -q '"xai-search"' "$opencode" && fail "OpenCode got a duplicate X search adapter"
+awk '/^\[/{section=$0} section=="[mcp_servers.xai-search]" && $0 ~ /^env_vars = .*XAI_API_KEY/ {found=1} END {exit !found}' "$codex" \
+    || fail "Codex lost its direct xAI server"
 grep -q '^\[hooks.state\]' "$codex" || fail "Codex lost unrelated settings"
 grep -q '"codemode": false' "$opencode" || fail "OpenCode did not map direct exposure"
 tail -1 "$test_dir/stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts" | grep -q 'changed in Pi' || fail "Claude's jev copy did not follow Pi"

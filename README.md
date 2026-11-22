@@ -10,9 +10,9 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Guide | What it covers |
 | --- | --- |
 | [docs/rex.md](docs/rex.md) | Rex keybindings, app settings, `agentbox` remote server, `agentbox-auth`, iOS setup, and beta gaps. |
-| [docs/agents.md](docs/agents.md) | Codex, Pi (`$pi-skill`, Gemini 4 Neon, pstack, Council), Claude Code, OpenCode, shared rules/skills, extensions, guardrails, and Plannotator. |
+| [docs/agents.md](docs/agents.md) | Codex, Council, Pi and pstack, Claude Code, OpenCode, shared rules/skills, extensions, guardrails, and Plannotator. |
 | [docs/skills.md](docs/skills.md) | Generated catalog of shared agent skills and ownership. |
-| [mcp/README.md](mcp/README.md) | Shared MCP servers, harness sync, Codex Code Mode, Claude Code import, and API keys. |
+| [mcp/README.md](mcp/README.md) | Shared MCP servers, direct X search in Codex, harness sync, Claude Code import, and API keys. |
 | [CONTEXT.md](CONTEXT.md) | Glossary for the configuration lifecycle (*tracked source*, *live configuration*, *apply*, *capture*) and agent terms. |
 | [AGENTS.md](AGENTS.md) | Repository guide and validation checks for coding agents working in this repo. |
 
@@ -24,8 +24,8 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Editor / IDE | Neovim, Cursor | `lazy.nvim` + Lua plugins in `stow/nvim/.config/nvim/`, Cursor user config in `stow/cursor/`, retired Zed archived under `old/` |
 | Shell | Fish + FZF + Atuin + zoxide | Interactive Bash login starts Fish; Bash still runs scripts and agent commands |
 | Primary agent harness | Codex | Owns global rules and guardrail hooks in `stow/codex/.codex/` and shared skills in `stow/codex/skills/shared/` |
-| Worker | Pi | Non-GPT models and Pi-native workflows via Codex's `$pi-skill` bridge; owns canonical `mcp.json` |
-| Standalone harnesses | Claude Code, OpenCode 2 | Configured for direct use, not as Codex worker fallbacks |
+| Council reviewers | Codex CLI, Claude Code, Antigravity CLI | Codex runs each model through its own command-line tool |
+| Standalone harnesses | Pi, Claude Code, OpenCode 2 | Pi runs pstack workflows and owns canonical `mcp.json` |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception because its theme and font live in app settings rather than `init.lua` (see [docs/rex.md](docs/rex.md#app-settings-one-time-per-machine)).
@@ -130,8 +130,8 @@ stow/                     Stow packages, each mirroring $HOME
   herdr/                  Herdr config, plugin list, Plannotator TUI config
   nvim/                   Neovim config (see stow/nvim/AGENTS.md)
   bin/                    ~/.local/bin helpers (anti-slop, rex-annotate, agentbox-auth, spotify-visualizer)
-  codex/                  Primary harness config, theme, global AGENTS.md, hooks, shared skills, Pi worker bridge
-  pi/                     Worker settings, canonical MCP definitions, models, themes, extensions
+  codex/                  Primary harness config, theme, global AGENTS.md, hooks, and shared skills
+  pi/                     Standalone Pi settings, canonical MCP definitions, models, themes, extensions
   claude/                 Standalone Claude Code settings and mods; links rules and hooks to codex/
   opencode/               Standalone OpenCode config, plugins, and generated skill commands
   cursor/                 Cursor settings, keybindings, tasks (Library/Application Support/Cursor/User)
@@ -230,7 +230,10 @@ Scripts, Bash command strings, and Pi's Bash runner still use Bash; stay in Bash
 
 ### AI agents
 
-Codex is the primary harness (GPT-6.2 Sol, medium reasoning, Ultrafast), Pi is the worker for non-GPT models and Pi-native workflows via `$pi-skill`, and Claude Code and OpenCode 2 remain standalone configurations.
+Codex is the primary harness and runs Council reviews through Codex CLI, Claude Code, and Antigravity CLI.
+Codex hosts pstack directly through the Open Pstack plugin ([docs/agents.md](docs/agents.md#pstack-in-codex)).
+It pairs GPT-6.2 Sol High and Opus 5.5 High for Arena candidate work, Architect, and Interrogate with read-only Gemini 4 Neon High through Antigravity CLI.
+Standalone Pi runs independently with a separate pstack adapter and its own roles.
 The tracked macOS Codex config disables routine command approvals and the filesystem sandbox while keeping guardrail hooks enabled.
 All four harnesses share the same global `AGENTS.md`, shell guardrails, shared skill catalog ([docs/skills.md](docs/skills.md)), and MCP definitions (Codex on macOS only; see [mcp/README.md](mcp/README.md)).
 
@@ -252,7 +255,7 @@ codex -a on-request -s workspace-write     # restore Codex approval prompts and 
 pi-log                                     # run Pi with per-process request logging
 ```
 
-See [docs/agents.md](docs/agents.md) for `$pi-skill` worker setup, Gemini 4 Neon, pstack, Council, PR drafting, extensions/mods, guardrails, and Plannotator.
+See [docs/agents.md](docs/agents.md) for Council setup, Gemini 4 Neon, pstack, PR drafting, extensions/mods, guardrails, and Plannotator.
 
 ### Extra tools in `bin/`
 

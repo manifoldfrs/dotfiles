@@ -1,7 +1,9 @@
 import type { ModelRegistry } from "@earendil-works/pi-coding-agent";
+import { XAI_API_BASE_URL, XaiBearerToken } from "../../../../../../mcp/xai-search/xai-client.ts";
+
+export { XAI_API_BASE_URL, XaiBearerToken };
 
 export const XAI_PROVIDER_ID = "xai";
-export const XAI_API_BASE_URL = "https://api.x.ai/v1";
 const OAUTH_AUTH_SOURCE = "OAuth";
 const STORED_AUTH_STATUS_SOURCE = "stored";
 const LOGIN_HINT = "Run `/login xai` and choose the SuperGrok or X Premium sign-in.";
@@ -20,26 +22,6 @@ export class XaiAuthGuardError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "XaiAuthGuardError";
-  }
-}
-
-export class XaiBearerToken {
-  readonly #value: string;
-
-  constructor(value: string) {
-    this.#value = value;
-  }
-
-  reveal(): string {
-    return this.#value;
-  }
-
-  toJSON(): string {
-    return "[redacted]";
-  }
-
-  toString(): string {
-    return "[redacted]";
   }
 }
 

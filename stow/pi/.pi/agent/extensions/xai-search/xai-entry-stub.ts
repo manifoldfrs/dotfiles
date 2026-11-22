@@ -1,6 +1,9 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { installedPiPaths, loadXaiSearchEntry, type EntryLoaderPaths, type RegisteredEntry } from "./xai-entry-loader.ts";
+
+const packageDirectory = fileURLToPath(new URL("../", import.meta.resolve("@earendil-works/pi-coding-agent")));
 
 // Test-only: Pi's API is replaced by a stub whose getAgentDir points at a temporary directory.
 export function stubbedPiPaths(agentDir: string): EntryLoaderPaths {
@@ -13,9 +16,9 @@ export function stubbedPiPaths(agentDir: string): EntryLoaderPaths {
       "export const formatSize = (bytes) => `${bytes}B`;",
     ].join("\n"),
   );
-  return { piCodingAgent: stubPath, typebox: installedPiPaths().typebox };
+  return { piCodingAgent: stubPath, typebox: installedPiPaths(packageDirectory).typebox };
 }
 
 export function loadStubbedEntry(agentDir: string): Promise<RegisteredEntry> {
-  return loadXaiSearchEntry(stubbedPiPaths(agentDir));
+  return loadXaiSearchEntry(stubbedPiPaths(agentDir), packageDirectory);
 }

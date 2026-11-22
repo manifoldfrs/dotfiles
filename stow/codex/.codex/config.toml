@@ -153,6 +153,12 @@ enabled = true
 [plugins."cloudflare@cloudflare"]
 enabled = true
 
+[plugins."messages@openai-bundled"]
+enabled = true
+
+[plugins."pstack@open-pstack"]
+enabled = true
+
 [tui]
 theme = "tokyonight-frsh"
 screen_reader_detection_done = true
@@ -215,8 +221,8 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.1117.31558"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.1117.31558/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.1117.41037"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/frshbb/.codex/plugins/cache/openai-bundled/browser/26.1117.41037/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/frshbb/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 NODE_REPL_LAZY_TRUSTED_WORKER = "0"
@@ -235,9 +241,9 @@ enabled = false
 
 [mcp_servers.xai-search]
 command = "/bin/sh"
-args = ["-c", 'export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"; export PATH="$PNPM_HOME/bin:/opt/homebrew/bin:/usr/bin:/bin"; cd "$HOME" && exec /opt/homebrew/bin/node "$HOME/.codex/mcp/xai-search.ts"']
-env_vars = ["PNPM_HOME"]
-tool_timeout_sec = 340
+args = ["-c", 'exec /opt/homebrew/bin/node "$HOME/.codex/mcp/xai-search.ts"']
+env_vars = ["XAI_API_KEY","GROK_HOME"]
+tool_timeout_sec = 310
 omit_tools_from = ["deferred"]
 
 [hooks.state]
@@ -350,6 +356,11 @@ source = "https://github.com/typesafe-ai/skills.git"
 source_type = "git"
 source = "https://github.com/cloudflare/skills.git"
 
+[marketplaces.open-pstack]
+source_type = "git"
+source = "https://github.com/ericlitman/open-pstack.git"
+ref = "main"
+
 [shell_environment_policy]
 inherit = "core"
 
@@ -366,7 +377,7 @@ CLAUDE_CODE_MAX_OUTPUT_TOKENS = "128000"
 ENABLE_TOOL_SEARCH = "true"
 MAX_MCP_OUTPUT_TOKENS = "30000"
 MCP_TIMEOUT = "60000"
-CLAUDE_CODE_PLUGIN_DIRS = "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-checks:~/code/personal/dotfiles/stow/claude/.claude/mods/xai-search:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
+CLAUDE_CODE_PLUGIN_DIRS = "~/code/personal/dotfiles/stow/claude/.claude/mods/skill-toast:~/code/personal/dotfiles/stow/claude/.claude/mods/session-relaunch:~/code/personal/dotfiles/stow/claude/.claude/mods/model-cost:~/code/personal/dotfiles/stow/claude/.claude/mods/jev-checks:~/code/personal/dotfiles/stow/claude/.claude/mods/inline-skills"
 
 [memories]
 generate_memories = true

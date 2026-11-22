@@ -9,10 +9,10 @@ import {
   XaiBearerToken,
   type XaiAuthRegistry,
 } from "./xai-auth.ts";
-import { postXaiSearch, type FetchLike } from "./xai-client.ts";
+import { postXaiSearch, type FetchLike } from "../../../../../../mcp/xai-search/xai-client.ts";
 import { loadXaiSearchConfig, parseXaiSearchConfig, type XaiSearchConfig } from "./xai-config.ts";
-import { formatXaiSearchResponse, readXSearchUsage } from "./xai-format.ts";
-import { buildXaiSearchRequest } from "./xai-request.ts";
+import { formatXaiSearchResponse, readXSearchUsage } from "../../../../../../mcp/xai-search/xai-format.ts";
+import { buildXaiSearchRequest } from "../../../../../../mcp/xai-search/xai-request.ts";
 import { runXaiSearch } from "./xai-search.ts";
 
 const FAKE_TOKEN = "fake-oauth-access-token";

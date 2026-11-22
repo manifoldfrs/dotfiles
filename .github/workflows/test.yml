@@ -92,7 +92,7 @@ jobs:
 
       - name: Check OpenCode plugins
         run: |
-          for name in guardrails jev xai-search; do
+          for name in guardrails jev; do
             plugin="stow/opencode/.config/opencode/plugins/$name"
             pnpm --dir "$plugin" install --frozen-lockfile
             pnpm --dir "$plugin" run check

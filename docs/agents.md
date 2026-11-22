@@ -8,8 +8,8 @@ See [CONTEXT.md](../CONTEXT.md) for the terminology used here, [docs/skills.md](
 | Harness | Role | Tracked package | Notes |
 | --- | --- | --- | --- |
 | **Codex** | Primary harness | `stow/codex/` | Owns the canonical global `AGENTS.md`, shared skills, and guardrail hook scripts. |
-| **Pi** | Worker | `stow/pi/` | Used for non-GPT models and Pi-native workflows (direct or via Codex's `$pi-skill` bridge); owns the canonical `mcp.json`. |
-| **Claude Code** | Standalone | `stow/claude/` | Configured for direct use with its own mods; links rules and hooks to `stow/codex/`. |
+| **Pi** | Standalone | `stow/pi/` | Runs Pi-native workflows and owns the canonical `mcp.json`. |
+| **Claude Code** | Standalone and Council reviewer | `stow/claude/` | Runs the Opus reviewer for Codex and links rules and hooks to `stow/codex/`. |
 | **OpenCode 2** | Standalone | `stow/opencode/` | Configured for direct use; links rules to `stow/codex/` and receives generated MCP and skill command files. |
 
 Codex does not fall back to OpenCode or silently substitute a model when a route or provider fails.
@@ -42,47 +42,47 @@ If you expect a context reset or want to hand off an unfinished task, ask for a 
 
 > Record the current goal, the latest correction and any earlier constraints that still apply, the last check that actually ran and its result, and the next check to run.
 
-## Pi (worker harness)
+### Council
+
+Run `$council <review scope>` in Codex to ask Claude Code, Codex CLI, and Antigravity CLI for independent reviews of the same brief.
+Council selects `claude-opus-5-5`, `gpt-6.2-sol`, and `gemini-4-neon-high`, all at high reasoning effort.
+Use your existing sign-ins in the three CLIs, and check `agy models` for the exact Neon model.
+Google documents [consumer-plan limits on using Antigravity from other agents](https://antigravity.google/docs/faq/).
+Prefix the arguments with a minimum score (for example, `$council 9.5 review this diff`) to require that score from every reviewer.
+Council repeats the review after authorized fixes.
+The [Council skill](../stow/codex/skills/council/SKILL.md) also supports `/skill:council` in interactive Pi, where Pi still runs its Opus and Sol reviewers through `pi-subagents`.
+
+### pstack in Codex
+
+[Open Pstack](https://github.com/ericlitman/open-pstack) provides Poteto Mode, Arena, and Interrogate as a native Codex plugin.
+Codex hosts this route directly and runs it independently of standalone Pi, which has a separate adapter and its own roles.
+To install it on another machine:
+
+```bash
+codex plugin marketplace add https://github.com/ericlitman/open-pstack --ref main
+codex plugin add pstack@open-pstack
+```
+
+The [Codex model sheet](../stow/codex/.codex/pstack-models.md) assigns GPT-6.2 Sol High and Opus 5.5 High to Arena candidate work, Architect, and Interrogate.
+GPT-6.2 Sol High runs as a native Codex subagent under the parent Codex session's sandbox.
+Opus 5.5 High runs in Claude Code with its writer sandbox, and the runner explicitly denies writes to shared Git state.
+A worktree is a separate checkout and does not itself restrict filesystem access.
+
+Gemini 4 Neon High is pinned through the signed-in Antigravity CLI as `gemini-4-neon-high`.
+It handles read-only exploration and is Arena's first cross-judge.
+Open Pstack's Antigravity adapter has read-only and full-access writer modes.
+Its writer mode cannot confine writes to the assigned worktree, including shared Git state.
+The model sheet gives Neon read-only roles so the full-access writer option stays unused.
+
+The exact Sol and Neon model IDs passed live probes and are outside the Open Pstack 1.21.0 setup wizard catalog.
+Keep the sheet and its marked copy in Codex's global `AGENTS.md` in sync.
+Start a fresh Codex task to pick up model sheet changes.
+
+## Pi (standalone harness)
 
 Pi defaults to `openai/gpt-6.2-sol-ultrafast` at medium thinking (`stow/pi/.pi/agent/settings.json`).
 The `codex-fast-variants` extension adds `-fast` and `-ultrafast` variants inheriting each base model's context window, while `stow/pi/.pi/agent/models.json` overrides context windows for `gpt-6.1-sol*` (500K) and `gpt-6-astra*` (272K).
 If a Pi model is missing after sign-in, run `pi update --models` and start a new Pi session.
-
-### Running Pi from Codex (`$pi-skill`)
-
-In Codex, `$pi-skill` lists the skills Pi loads in the current project or runs one in a fresh Pi worker session:
-
-```text
-$pi-skill council review the staged changes only
-$pi-skill pistack-interrogate review this design
-```
-
-- The bridge reads the worker's live Pi skill catalog rather than a mirrored list.
-- It passes only the scoped brief, not the Codex conversation.
-- To run a specific model, ask Codex to use the bridge's `model <provider/model> '<brief>'` command.
-- Missing routes or provider errors are reported without switching models or harnesses.
-- Workflows that require an interactive Pi UI must be continued in Pi directly.
-
-#### Worker setup (`pi-worker.json`)
-
-The bridge requires Node.js and a machine-local `pi-worker.json` in `$CODEX_HOME` (normally `~/.codex`), pointing to the intended Pi executable and an existing private state directory separate from `~/.pi/agent`:
-
-```json
-{
-  "executable": "/absolute/path/to/pi",
-  "agentDir": "/absolute/path/to/private-pi-worker-state",
-  "timeoutSeconds": 180
-}
-```
-
-1. Initialize and authenticate the worker directory by launching the same Pi executable with `PI_CODING_AGENT_DIR` set to `agentDir`.
-2. Configure the extensions and skills the worker should load; a new directory does not inherit `~/.pi/agent` or its sign-ins.
-   Do not symlink the auth store back to `~/.pi/agent`.
-3. To expose `council` to the worker, link `skills/council` inside `agentDir` to `stow/codex/skills/council/` in this checkout.
-4. Allow `agentDir` as a writable root in the Codex session (for example, `codex --add-dir /absolute/path/to/private-pi-worker-state`) and permit network access when needed without disabling the sandbox.
-
-The launcher prints a job ID; stop that process group explicitly with its `cancel <job-id>` command.
-The configured timeout also stops the process group, though pressing Stop in Codex is not yet wired to `cancel`.
 
 ### Gemini 4 Neon in Pi
 
@@ -104,22 +104,13 @@ On first run, the adapter asks before fetching its certified upstream snapshot.
 Arena's candidates and judge pool and Interrogate's reviewers use Opus 5.5, Sol 6.2, and Gemini 4 Neon at `high`, configured in [`pi-pstack-adapter.json`](../stow/pi/.pi/agent/pi-pstack-adapter.json).
 Arena picks an eligible judge from a different vendor than the parent model.
 Playbooks do not authorize delegation, commits, pushes, PRs, merges, or live changes.
-Retired workflows are archived in [`old/skills/`](../old/skills/); other harnesses receive the retained shared skill catalog, not the Pi adapter.
+Retired workflows are archived in [`old/skills/`](../old/skills/).
 
 ### PR writing with Gemini (`neon-pr`)
 
 Run [`/skill:neon-pr`](../stow/pi/.pi/agent/skills/neon-pr/SKILL.md) in Pi to draft a PR title and body with Gemini 4 Neon.
 The skill also applies to the writing step of pstack's Opening a PR playbook; Pi asks first if drafting delegation is not already authorized.
 Gemini follows pstack's writing rules without changing its model roles, and Pi only publishes the copy when authorized.
-
-### Council
-
-Run `$council <review scope>` from Codex for independent reviews from Opus 5.5, Sol 6.2, and Gemini 4 Neon at `high` thinking.
-The dedicated Pi worker runs Opus and Sol, and the signed-in `agy` CLI runs Neon directly.
-When invoking `/skill:council` from interactive Pi, use the same reviewer routes.
-Prefix the arguments with a minimum score (for example, `/skill:council 9.5 review this diff`) to require that score from every reviewer.
-Council repeats the review after authorized fixes, whereas Interrogate reports failures it can reproduce.
-[Council](../stow/codex/skills/council/SKILL.md) lives in the Codex package, and Pi's Stow package links to that copy.
 
 ## Shared rules and skills
 
@@ -172,13 +163,11 @@ Jev logic is maintained once in `stow/pi/.pi/agent/extensions/jev-guardrails/sha
 
 ### xAI search (`xai_search`)
 
-Claude Code's `xai-search` mod, OpenCode's `xai-search` plugin, and Codex's `xai-search` MCP server all expose `xai_search` through Pi's guarded runner.
-They share the tool definition in `stow/pi/.pi/agent/extensions/xai-search/xai-shared.ts`, and `./scripts/harness_sync.sh` copies it into the Claude Code mod.
-Codex exposes `xai_search` both directly and through Code Mode, reusing Pi's existing SuperGrok or X Premium login (`/login xai`) with no separate API key.
-
-```bash
-(cd stow/opencode/.config/opencode/plugins/xai-search && pnpm install --frozen-lockfile && pnpm test && pnpm run check)
-```
+Codex exposes `xai_search` through [Grok Build or the xAI Responses API](../mcp/README.md#codex).
+Without `XAI_API_KEY`, it uses the Grok Build CLI's own sign-in.
+Set `XAI_API_KEY` in Codex's launch environment to use exact search filters and output-token caps through the API.
+Standalone Pi continues to use its existing SuperGrok or X sign-in.
+The two integrations share the request and response code in `mcp/xai-search/`.
 
 ### Browser and desktop automation
 

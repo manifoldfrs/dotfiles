@@ -3,7 +3,7 @@ import { formatSize, getAgentDir, truncateHead, type ExtensionAPI } from "@earen
 import { Type } from "typebox";
 import { assertFirstPartyXaiSubscriptionProvider } from "./xai-auth.ts";
 import { loadXaiSearchConfig, XAI_SEARCH_CONFIG_FILENAME } from "./xai-config.ts";
-import type { XaiSearchDetails } from "./xai-format.ts";
+import type { XaiSearchDetails } from "../../../../../../mcp/xai-search/xai-format.ts";
 import { runXaiSearch } from "./xai-search.ts";
 
 const handleList = (description: string) =>
