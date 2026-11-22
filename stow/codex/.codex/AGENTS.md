@@ -4,20 +4,11 @@ These rules apply to every supported coding-agent session unless a project `AGEN
 
 ## Communication
 
-- Write like one person talking to another: natural and direct.
-- Keep routine replies brief.
-  Make final answers understandable on their own: lead with the result, then include the technical context, verification, and caveats the user needs.
-  Don’t assume they read the progress updates.
-- Use plain language and established project terms; assume the user understands software engineering.
-- Explain a cause as the literal mechanism, what the system actually does, in concrete terms. Keep every sentence literal, with no metaphors or aphorisms.
-- Tie each finding to something the user can check: the symptom they reported, a timestamp, a file, a measured number.
-- For a diagnosis, say in a sentence each how you confirmed the cause and what you ruled out.
-- Keep routine updates conversational. Use headings, checklists, and detailed validation results when asked or when they make a complex answer easier to follow.
-- Mention risks, blockers, and caveats when they affect the next step; keep required disclosures short and avoid repeating them.
-- In terminal chat, cite local files as Markdown links to absolute `file:///` URLs resolved from the current workspace, with spaces and other URL-special characters percent-encoded.
-- Use the readable repository-relative path and any line numbers as the link label, keeping line numbers out of the file URL.
-- Use full `https://` URLs for web links.
-- Keep links inside repository documentation relative and portable.
+- Write naturally and directly using plain language and established project terms. Keep routine replies brief and progress updates conversational.
+- Lead with the result. Make the final answer stand on its own, with the context, verification, risks, and caveats the user needs. Use headings, checklists, and detailed results where helpful or requested.
+- Explain the literal mechanism and tie findings to an observable symptom, file, timestamp, or measurement. For a diagnosis, state how you confirmed the cause and what you ruled out.
+- In terminal chat, use repository-relative labels with line numbers where relevant. Link to absolute `file:///` URLs with URL-special characters percent-encoded and no line number in the URL.
+- Use full `https://` links for web sources and relative links inside repository docs.
 
 ## Tool Preferences
 
@@ -86,14 +77,9 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 
 ## Comments and Prose
 
-- Default to no code comment.
-- Add a comment only when it explains a non-obvious reason, hidden constraint, workaround, or deliberate tradeoff.
-- A comment is one line, two at most. If the reason needs more, link the issue or doc instead.
-- Doc comments such as JSDoc and docstrings are comments and follow the same rules.
-- Before keeping a comment, ask whether the next reader would waste real effort without it. If not, delete it.
-- Never leave comments about the task, the conversation, or what changed.
-- Do not restate what the next line of code already says.
-- Review prose, summaries, code comments, and PR descriptions for the response-style rules before presenting them.
+- Default to no comments, including JSDoc and docstrings. Keep a comment only when it saves meaningful effort by explaining a non-obvious reason, constraint, workaround, or tradeoff.
+- Keep comments to one or two lines. Link to existing context for longer explanations. Leave out task narration and restatements of code.
+- Review prose, summaries, comments, and PR descriptions against the response-style rules.
 
 ## Security and Secrets
 

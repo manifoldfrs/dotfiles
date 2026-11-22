@@ -36,6 +36,12 @@ Run `/statusline` in Codex to customize the footer.
 | `codex resume --last --all` | Resume the most recent interactive session across directories. |
 | `codex resume` | Open the session picker for the current directory. |
 
+### Handing off a long task
+
+If you expect a context reset or want to hand off an unfinished task, ask for a short checkpoint in the existing task notes or the thread.
+
+> Record the current goal, the latest correction and any earlier constraints that still apply, the last check that actually ran and its result, and the next check to run.
+
 ## Pi (worker harness)
 
 Pi defaults to `openai/gpt-6.2-sol-ultrafast` at medium thinking (`stow/pi/.pi/agent/settings.json`).

@@ -6,105 +6,17 @@ It includes shell bootstrap scripts, Neovim Lua config, MCP configuration, and D
 This file is the top-level guide for coding agents working in `/Users/frshbb/code/personal/dotfiles`.
 Read `CONTEXT.md` when work changes the tracked-to-live configuration lifecycle, skill ownership, or cross-harness agent setup.
 
-## Rule File Discovery (Cursor/Copilot)
-Checked locations:
-- `.cursor/rules/`
-- `.cursorrules`
-- `.github/copilot-instructions.md`
+## Working in this repository
 
-Current status:
-- No Cursor rule files found.
-- No Copilot instruction file found.
-
-Agent behavior:
-- If any of these files are added later, treat them as high-priority local instructions.
-- Keep this AGENTS.md in sync with those rule files.
-
-## Repository Layout
-- `scripts/bootstrap.sh` - full machine bootstrap for non-Stow setup
-- `scripts/backup.sh` - backup current machine config into tracked sources
-- `scripts/stow.sh` - apply/delete/dry-run GNU Stow dotfile symlinks
-- `scripts/harness_sync.sh` - generate OpenCode and Codex MCP servers and Claude Code mod copies of shared TypeScript from Pi (`--check` fails when stale)
-- `scripts/skill_catalog.sh` - generate `docs/skills.md` and OpenCode `/<skill>` commands from skill frontmatter (`--check` fails when stale)
-- `scripts/rex_server_setup.sh` - root-only Rex login server setup on Linux hosts (agentbox)
-- `mcp_setup.sh` - MCP config install + backup script
-- `stow/` - GNU Stow packages that mirror `$HOME`
-- `stow/nvim/.config/nvim/` - Neovim config (lazy.nvim + Lua plugins)
-- `mcp/` - MCP setup and configuration docs (`mcp/README.md`)
-- `docs/` - deep-dive user guides (`docs/rex.md`, `docs/agents.md`, generated `docs/skills.md`), plans, and research notes
-- `test/` - Docker test harness + shell test runner
-- `stow/codex/` - Primary agent harness, with the canonical global AGENTS.md and shell guardrail hooks under `.codex/`, shared skills in `skills/shared/`, and the `pi-skill` worker bridge
-- `stow/pi/` - Worker for non-GPT models and Pi-native workflows; links global AGENTS.md and guardrails to Codex and retains the shared MCP definitions (`.pi/agent/mcp.json`) and `pi-pstack-adapter`
-- `stow/claude/` - Standalone Claude Code config and mods; links AGENTS.md and hooks to `stow/codex/`
-- `stow/opencode/` - Standalone OpenCode 2 config, not a worker fallback for Codex
-- `stow/rex/` - Rex config (`init.lua` and the Lua files it requires); Rex is the default terminal and Ghostty the fallback
-- `server/rex/` - files the Rex login server setup installs under `/etc` (not stowed)
-- `stow/herdr/`, `stow/ghostty/`, `stow/bash/`, `stow/git/` - user config files
-- `stow/cursor/` - Cursor user settings, keybindings, and tasks; extension list in `cursor/extensions.txt`
-- `old/` - archived Fish, Zsh, older Cursor iterations, Zed (including the custom Zed build), and other legacy areas (avoid unless explicitly requested)
-
-Subdirectory guides:
-- `stow/nvim/AGENTS.md`
-- `mcp/AGENTS.md`
-- `test/AGENTS.md`
+- See the [repository layout](README.md#repository-layout) and [agent harness guide](docs/agents.md) for ownership and entry points.
+- Follow the scoped instructions in [Neovim](stow/nvim/AGENTS.md), [MCP](mcp/AGENTS.md), and [tests](test/AGENTS.md). Root safety and approval rules apply throughout.
+- Treat `old/` as an archive. Work there only when explicitly requested.
 
 ## Build, Lint, and Test Commands
 
-### Fast Preflight (recommended before PR)
-```bash
-bash -n scripts/bootstrap.sh
-bash -n scripts/backup.sh
-bash -n scripts/stow.sh
-bash -n scripts/validate-dotfiles.sh
-bash -n scripts/rex_server_setup.sh
-bash -n scripts/skill_catalog.sh
-bash -n mcp_setup.sh
-bash -n test/run_tests.sh test/bash_path_test.sh test/stow_preflight_test.sh
-bash -n stow/bash/.bash_profile stow/bash/.bashrc stow/bash/.config/bash/*.bash
-./scripts/validate-dotfiles.sh
-(cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
-```
-
-### Full Test Suite (closest to CI behavior)
-```bash
-# local CI-like sequence
-bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh && bash -n mcp_setup.sh && docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
-
-# test script only
-bash test/run_tests.sh
-```
-
-### Run a Single Test/Check (important)
-`test/run_tests.sh` is sequential and not parameterized. For one check, run the equivalent command directly:
-
-```bash
-# TEST 1 equivalent: shell syntax
-bash -n scripts/bootstrap.sh
-bash -n scripts/backup.sh
-bash -n scripts/stow.sh
-bash -n scripts/validate-dotfiles.sh
-bash -n scripts/rex_server_setup.sh
-bash test/bash_path_test.sh "$PWD"
-bash test/stow_preflight_test.sh "$PWD"
-
-# MCP script syntax gate
-bash -n mcp_setup.sh
-
-# TEST 2 equivalent: ensure no active SSH rewrite in .gitconfig
-if grep -E '^\s*insteadOf\s*=' stow/git/.gitconfig || grep -E '^\s*sshCommand\s*=' stow/git/.gitconfig; then
-  echo "FAIL: active SSH rewrite present"
-  exit 1
-fi
-
-# nvim config loads without Lua errors
-(cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i "error"
-```
-
-To run a single check in the Docker test environment:
-```bash
-docker build -t dotfiles-test -f test/Dockerfile .
-docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/stow.sh'
-```
+- Run `./scripts/validate-dotfiles.sh` for isolated preflight.
+- Run `bash test/run_tests.sh` for the shell suite. See [Validation](README.md#validation) for the Ubuntu Docker sequence and per-area checks.
+- Run `bash -n` once per modified Bash file. For a single test, use its equivalent command from the [test guide](test/AGENTS.md).
 
 ## Code Style Guidelines
 
@@ -203,11 +115,3 @@ docker run --rm dotfiles-test bash -lc 'cd ~/dotfiles && bash -n scripts/bootstr
 3. Confirm no secrets or real credentials are staged.
 4. Update docs/changelog when behavior changes.
 5. Report exactly what was changed and where.
-
-## Quick Search Commands
-```bash
-rg '^[a-z_]+\(\)' scripts mcp_setup.sh
-rg 'vim.keymap.set|desc\s*=\s*"' stow/nvim/.config/nvim/lua
-rg 'mcpServers' stow/pi/.pi/agent/mcp.json
-rg '\[TEST|\[PASS|\[FAIL' test/run_tests.sh
-```

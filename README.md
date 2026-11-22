@@ -280,11 +280,12 @@ bash test/run_tests.sh                                                   # shell
 pnpm --dir test install --frozen-lockfile && pnpm --dir test test        # Pi extension tests
 pnpm --dir test run typecheck                                            # Pi extension typecheck
 bash test/nvim_plugin_safety.sh --base-ref HEAD                          # isolated Neovim plugin check
-(cd stow/nvim/.config/nvim && nvim --headless -c "luafile init.lua" -c "qa") 2>&1 | rg -i error
 docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
 ```
 
-See [AGENTS.md](AGENTS.md) for the complete preflight checklist and per-area checks.
+For Neovim startup changes, use the [isolated startup check](.github/workflows/test.yml) in CI.
+It checks the theme and fails the run on startup errors.
+See [AGENTS.md](AGENTS.md) for validation requirements.
 
 ## Troubleshooting
 
