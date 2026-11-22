@@ -6,10 +6,9 @@ disable-model-invocation: true
 
 # Council
 
-From Codex, use `$pi-skill` to run the `council` skill in the dedicated Pi worker with the user's authorized scope.
-The following steps are for the Pi worker.
-
-Review one scoped change, design, or plan with three independent Pi subagents.
+From Codex, run the Opus and Sol reviewers through `$pi-skill` in the dedicated Pi worker and run Neon directly with the signed-in Antigravity CLI.
+The parent coordinates all three independent reviews of the same change, design, or plan.
+From interactive Pi, launch Opus and Sol with `pi-subagents` and run the same standalone Antigravity command for Neon.
 Only the parent decides what to change, and only within the user's authorization.
 
 ## Set the scope
@@ -21,31 +20,44 @@ Treat an argument such as `9.5` as a minimum score out of 10 for every member.
 
 ## Run a round
 
-Use the `pi-subagents` skill and enable its tools if needed.
-Run all three members unless the user explicitly changes the roster:
+Run all three members unless the user explicitly changes the roster.
+Use `pi-subagents` for the Pi reviewers and enable its tools if needed.
 
-| Member | Model override |
+| Member | Route |
 | --- | --- |
-| Opus 5.5 | `pi-claude-cli/claude-opus-5-5:high` |
-| Sol 6.2 | `openai/gpt-6.2-sol:high` |
-| Gemini 4 Neon | `antigravity/gemini-4-neon:high` |
+| Opus 5.5 | Pi `pi-claude-cli/claude-opus-5-5:high` |
+| Sol 6.2 | Pi `openai/gpt-6.2-sol:high` |
+| Gemini 4 Neon | Antigravity CLI `gemini-4-neon-high` |
 
 Give all three the same brief: question, intent, scope, working directory, snapshot or plan, known issues, and observed check results.
-For code, specify the base SHA and provide the diff inline or in a readable temporary artifact outside the repo; the `reviewer` agent cannot run `git diff`.
+For code, specify the base SHA and put the diff inline so all three reviewers can inspect the same snapshot.
+The Pi `reviewer` cannot run `git diff`.
 Tell each member to review only: no edits, commits, pushes, or PR updates.
 Ask for an explicit approval verdict, plus evidence and the smallest suggested fix for each finding.
 For code reviews or when the user supplies a target, also ask for a score out of 10.
 
-Launch one async call per member in the same turn, substituting each exact model override:
+Launch both Pi reviewers and the standalone Neon review in parallel.
+When delegating from Codex, tell the Pi worker it owns the two Pi reviewers and supply the shared brief.
+For each Pi reviewer, use its exact model override:
 
 ```js
-subagent({ agent: "reviewer", model: "antigravity/gemini-4-neon:high", cwd: "<repo>", async: true,
+subagent({ agent: "reviewer", model: "openai/gpt-6.2-sol:high", cwd: "<repo>", async: true,
   task: "<brief>", options: { context: "fresh" } })
 ```
 
-Use the run receipt to identify the model, not the reviewer's self-report.
-Keep the reviewed files unchanged until all three complete, and yield for their completion notifications rather than polling.
-Follow pi-subagents failure handling for a failed launch or an unusable reply; retry the same member once where appropriate and never silently substitute a model.
+For Neon, check the exact model in `agy models` and run this from a disposable directory with the same self-contained review brief.
+Put the brief in `review_brief` and direct Neon to answer from that material without tools.
+
+```bash
+agy --model gemini-4-neon-high --effort high --mode plan --sandbox \
+  --output-format json --print-timeout 420s -p="$review_brief"
+```
+
+Use Pi run receipts to identify Opus and Sol.
+Record Neon's explicit CLI model selection and conversation ID.
+Require JSON status `SUCCESS` and a nonempty response with a verdict and any requested score.
+Keep the reviewed files unchanged until all three complete and wait for completion notifications.
+Follow each route's failure handling and retry the same member once where appropriate.
 An explicit approval with no findings is a valid reply.
 
 ## Resolve findings

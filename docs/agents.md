@@ -108,7 +108,9 @@ Gemini follows pstack's writing rules without changing its model roles, and Pi o
 
 ### Council
 
-Run `/skill:council <review scope>` in Pi for independent reviews from Opus 5.5, Sol 6.2, and Gemini 4 Neon at `high` thinking.
+Run `$council <review scope>` from Codex for independent reviews from Opus 5.5, Sol 6.2, and Gemini 4 Neon at `high` thinking.
+The dedicated Pi worker runs Opus and Sol, and the signed-in `agy` CLI runs Neon directly.
+When invoking `/skill:council` from interactive Pi, use the same reviewer routes.
 Prefix the arguments with a minimum score (for example, `/skill:council 9.5 review this diff`) to require that score from every reviewer.
 Council repeats the review after authorized fixes, whereas Interrogate reports failures it can reproduce.
 [Council](../stow/codex/skills/council/SKILL.md) lives in the Codex package, and Pi's Stow package links to that copy.
