@@ -154,6 +154,9 @@ grt() {
 # Pi's update extension writes a session path to PI_RELAUNCH_FILE before /update or /restart exits.
 pi() {
     local relaunch_file session_file status
+    export AGY_STALL_TIMEOUT_MS="${AGY_STALL_TIMEOUT_MS:-300000}"
+    export AGY_TOOL_STALL_TIMEOUT_MS="${AGY_TOOL_STALL_TIMEOUT_MS:-600000}"
+    export AGY_TURN_TIMEOUT_MS="${AGY_TURN_TIMEOUT_MS:-1800000}"
     relaunch_file=$(mktemp "${TMPDIR:-/tmp}/pi-relaunch.XXXXXX") || return
     PI_RELAUNCH_FILE=$relaunch_file command pi "$@"
     status=$?

@@ -66,6 +66,9 @@ export MANPAGER='nvim +Man!'
 export PYENV_ROOT="$HOME/.pyenv"
 export NVM_DIR="$HOME/.nvm"
 export BUN_INSTALL="$HOME/.bun"
+export AGY_STALL_TIMEOUT_MS="${AGY_STALL_TIMEOUT_MS:-300000}"
+export AGY_TOOL_STALL_TIMEOUT_MS="${AGY_TOOL_STALL_TIMEOUT_MS:-600000}"
+export AGY_TURN_TIMEOUT_MS="${AGY_TURN_TIMEOUT_MS:-1800000}"
 
 export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs -g "!{node_modules,.git,Desktop,.Trash,Library,Pictures,.rvm}"'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"

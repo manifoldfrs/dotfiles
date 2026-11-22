@@ -221,6 +221,9 @@ NODE_REPL_LAZY_TRUSTED_WORKER = "0"
 [mcp_servers.jev.tools.jev_verify]
 approval_mode = "approve"
 
+[mcp_servers.jev.tools.jev_screen]
+approval_mode = "approve"
+
 [mcp_servers.computer-use]
 command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
 args = ["mcp"]
@@ -365,3 +368,6 @@ CLAUDE_CODE_PLUGIN_DIRS = "~/code/personal/dotfiles/stow/claude/.claude/mods/ski
 [memories]
 generate_memories = true
 use_memories = true
+
+[apps.connector_5f3c8c41a1e54ad7a76272c89e2554fa.tools."google_drive.batch_update_spreadsheet"]
+approval_mode = "approve"
