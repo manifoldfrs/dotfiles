@@ -69,11 +69,14 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 
 ## Workflow and Authority
 
+- If a step fails or needs approval, keep working on any independent steps and try an authorized alternative where one exists.
+  Ask when missing information or approval materially affects what you can safely do.
+  When the user flags an in-scope mistake, fix it and rerun the check that covers the correction, unless they asked only for an explanation.
 - Use Codex as the primary harness. When authorized, use the `pi-skill` bridge for non-GPT models and Pi-native workflows. Report failures without substituting OpenCode or another model.
 - In Pi, use `/skill:pistack-poteto-mode` for pstack playbooks when requested. Use Pi's native Plannotator integration for requested reviews and wait for approval before implementing a plan.
 - Delegate, commit, push, open or merge a PR, or apply live configuration only with explicit user authorization. A playbook or an available tool does not authorize those actions.
 - When working on an existing pull request, the user gives standing authorization to commit and push the requested fixes or updates to that PR's head branch after verification, unless they say otherwise. Include all in-scope changes and leave unrelated local work out. This does not authorize merging, force-pushing, or deploying.
-- If an approved step conflicts with a guardrail, stop and report the conflict.
+- If an approved step conflicts with a guardrail, stop that step and report the conflict.
 
 ## Comments and Prose
 
