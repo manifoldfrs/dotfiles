@@ -1,5 +1,5 @@
 model = "gpt-6.2-sol"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 model_verbosity = "low"
 tool_output_token_limit = 25000
 personality = "pragmatic"
@@ -97,6 +97,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/frshbb/Library/Application Support/Claude/scratch-workspaces/5d32a2d2-d041-4e7b-8d26-4be353c4e2e2/4bfe39c1-b53c-4472-b724-f0319168b2dd/scratch-2026-11-14-a343ef"]
+trust_level = "trusted"
+
+[projects."/Users/frshbb/code/optoai/opto2"]
 trust_level = "trusted"
 
 [notice]
