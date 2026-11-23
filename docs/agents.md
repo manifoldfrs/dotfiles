@@ -146,7 +146,10 @@ Existing links through `stow/pi/skills` continue to resolve and are repointed on
 
 ### Jev judgments
 
-Jev logic is maintained once in `stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts`:
+- **Codex:** uses the shared `jev` skill and a Codex-owned, pinned Jev MCP registration in Code Mode.
+  Fetch and screen external text in the same Code Mode call before returning it to the model.
+
+The standalone guardrail adapters share `stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts`.
 
 - **Pi (`jev-guardrails`):** screens web results, audits edit scope, fact-checks answers, and adds the `jev_pipeline` tool.
   It calls the `jev` server in Pi's `mcp.json` over stdio because Pi's extension loader does not expose its MCP client.
@@ -155,7 +158,6 @@ Jev logic is maintained once in `stow/pi/.pi/agent/extensions/jev-guardrails/sha
   Test with `claude plugin test <mod folder>`.
 - **OpenCode (`jev` plugin):** imports Pi's `shared.ts` directly from `stow/opencode/.config/opencode/plugins/jev/`.
   OpenCode bundles its runtime `effect` package, so `package.json` pins matching versions for tests and typechecks only; failed checks log to `~/.local/share/opencode/log/jev-plugin.log`.
-- **Codex:** uses the shared `jev` skill and Jev MCP server (via Code Mode) rather than an automatic hook extension.
 
 ```bash
 (cd stow/opencode/.config/opencode/plugins/jev && pnpm install --frozen-lockfile && pnpm test && pnpm run check)

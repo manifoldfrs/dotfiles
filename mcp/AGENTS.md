@@ -14,7 +14,7 @@ Document server changes in `mcp/README.md` and keep machine-local config copies 
 - Apply desired MCP changes from the template to existing local Codex configs and restart Codex.
 - `install-claude` imports Pi's definitions (`stow/pi/.pi/agent/mcp.json`) into user-scoped Claude registrations, skips identical entries, and refuses conflicting entries.
 - Restart Claude Code after importing MCP definitions.
-- Pi's `stow/pi/.pi/agent/mcp.json` owns shared server registrations. Codex's direct `xai-search` server is configured in the Codex package. For shared changes, run `./scripts/harness_sync.sh` to regenerate OpenCode's and Codex's servers, and `./mcp_setup.sh install-claude` for Claude Code.
+- Pi's `stow/pi/.pi/agent/mcp.json` owns shared server registrations. The Codex package owns its `jev` and `xai-search` registrations. For shared changes, run `./scripts/harness_sync.sh` to regenerate OpenCode's and Codex's shared servers, and `./mcp_setup.sh install-claude` for Claude Code.
 - Run `/reload` or restart Pi after Stowing `stow/pi/.pi/agent/mcp.json`
 
 ## Pre-PR Checks

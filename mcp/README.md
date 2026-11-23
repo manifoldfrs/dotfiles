@@ -4,7 +4,8 @@ Model Context Protocol (MCP) server configurations shared across coding-agent ha
 
 ## Source of truth and sync
 
-Pi's [`stow/pi/.pi/agent/mcp.json`](../stow/pi/.pi/agent/mcp.json) is the canonical definition for the six shared MCP servers.
+Pi's [`stow/pi/.pi/agent/mcp.json`](../stow/pi/.pi/agent/mcp.json) defines the shared MCP servers.
+Codex owns its Jev and xAI Search entries in [`stow/codex/.codex/config.toml`](../stow/codex/.codex/config.toml).
 Edit shared servers there, then sync the other harnesses:
 
 - **Codex and OpenCode:** run `./scripts/harness_sync.sh` to regenerate their server blocks from Pi's config (`scripts/validate-dotfiles.sh` fails if they drift).
@@ -25,7 +26,7 @@ The Exposure column below applies to Pi and Codex Code Mode; OpenCode sets `code
 | --- | --- | --- | --- |
 | **Ref** | Library and framework documentation search | Direct (and Code Mode) | `REF_API_KEY` |
 | **Exa** | General web search and page fetching | Direct (and Code Mode) | `EXA_API_KEY` |
-| **Jev** | Typed judgments from TypeSafe's Jev model | Code Mode | `TYPESAFE_API_KEY` |
+| **Jev** | Typed judgments from TypeSafe's Jev model | Code Mode | `TYPESAFE_API_KEY`; Codex pins the MCP package |
 | **Chrome DevTools** | Isolated browser inspection, console, network, screenshots | Code Mode | Isolated Chrome with usage statistics disabled; never attaches to your personal browser profile |
 | **HEY** | Mail, calendars, todos, and contacts via `hey mcp` | Code Mode | Keychain credentials from `hey auth login`; read/write by default |
 | **Superlogical** | Rex Beta docs, changelog, and community feedback | Code Mode | OAuth via `/mcp` after registering |
@@ -78,10 +79,13 @@ codex mcp list
 For existing installations, copy the desired server changes from the template into the local file, then restart Codex.
 
 - **Code Mode:** Codex enables native Code Mode (`features.code_mode`).
-  Ref and Exa are exposed both directly and in Code Mode; Jev, Chrome DevTools, HEY, and Superlogical are exposed only in Code Mode (matching Pi).
+  Ref and Exa are exposed both directly and in Code Mode; Jev, Chrome DevTools, HEY, and Superlogical are exposed only in Code Mode.
   Do not disable Codex Code Mode and expect Code-Mode-only MCP tools to remain callable.
-- **Pi-only APIs:** Codex uses its own JavaScript tool interface; shared MCP calls work there, but Pi's `models.classify` API and `jev_pipeline` extension tool do not carry over.
-  Use Jev's MCP classifier tools in Codex and run Pi-native workflows in Pi.
+- **Jev:** To update the pinned package, edit the Codex-owned server entry in the template and copy its `args` to the existing local entry.
+  Fetch and screen external text in one Code Mode call before returning screened content to the model.
+  `jev_screen` and `jev_verify` have explicit `approval_mode = "approve"` overrides.
+  Other Jev tools, including `jev_gate` and `jev_review`, follow Codex's normal MCP approval behavior.
+  Send only the evidence the judgment needs and follow the Jev skill's data handling rules.
 - **`xai-search`:** Make `node` available on Codex's launch PATH, install [Grok Build](https://x.ai/build), and run `grok login` to use the signed-in CLI from Codex.
   The Grok Build route requires a completed search event for every requested source.
   For exact date, handle, media, or domain filters and output-token caps, set `XAI_API_KEY` in Codex's launch environment to select the direct [xAI Responses API](https://docs.x.ai/developers/tools/x-search) route.

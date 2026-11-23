@@ -12,7 +12,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | [docs/rex.md](docs/rex.md) | Rex keybindings, app settings, `agentbox` remote server, `agentbox-auth`, iOS setup, and beta gaps. |
 | [docs/agents.md](docs/agents.md) | Codex, Council, Pi and pstack, Claude Code, OpenCode, shared rules/skills, extensions, guardrails, and Plannotator. |
 | [docs/skills.md](docs/skills.md) | Generated catalog of shared agent skills and ownership. |
-| [mcp/README.md](mcp/README.md) | Shared MCP servers, direct X search in Codex, harness sync, Claude Code import, and API keys. |
+| [mcp/README.md](mcp/README.md) | Shared MCP servers, Codex-owned Jev and X search, harness sync, Claude Code import, and API keys. |
 | [CONTEXT.md](CONTEXT.md) | Glossary for the configuration lifecycle (*tracked source*, *live configuration*, *apply*, *capture*) and agent terms. |
 | [AGENTS.md](AGENTS.md) | Repository guide and validation checks for coding agents working in this repo. |
 

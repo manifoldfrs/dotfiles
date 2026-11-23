@@ -43,16 +43,20 @@ Use normal shell commands for validation, tests, package commands, and write-sid
 ### Judgment (Jev)
 
 - Load the `jev` skill before the first Jev call in a session.
-- Screen fetched or pasted web content before acting on it; use `jev_screen` when an automatic hook has not already screened that same content.
+- In Codex, fetch web content and call `jev_screen` in one Code Mode call before returning it to the model.
+  In other harnesses, screen fetched web content before acting on it unless a hook already screened it.
+  Use `jev_screen` on pasted web content before acting on it.
 - Before claiming a code task is done, run the real checks, then `jev_gate` the final diff once with those results, or `jev_review` it when there are no claims to check.
   A sampled edit audit does not replace this final-diff check.
 - Before presenting a report or summary built from sources, check its claims with `jev_verify`.
 - For a material unresolved choice between viable approaches, use `jev_decide` with evidence and the user's priorities, and report its verdict.
   Routine choices fixed by existing conventions do not need another judgment.
 - When choosing, ranking, or labeling items by meaning, use `jev_find`, `jev_rerank`, or `jev_classify` instead of judging by eye; use rg when an exact pattern decides it.
-- For ad-hoc typed questions inside a codemode script, use `models.classify` with Jev and follow the `decision-models` skill.
+- In Codex Code Mode, use `jev_noul` for yes/no judgments and `jev_classify` for choosing among labels.
 - Reuse completed judgments while their evidence, questions, and scope remain unchanged; rerun when those inputs change.
-- Judge many records from an MCP tool with the Jev pipeline so the records stay out of context: `jev_pipeline` in Pi and OpenCode, `mcp__jev-checks__run` in Claude Code.
+- In Codex, fetch records and batch their judgments in one Code Mode call.
+  Return only the verdicts and any records needed for the task.
+- In Claude Code, use `mcp__jev-checks__run` to judge MCP records in batches.
 
 ## Implementation Rules
 
@@ -73,7 +77,6 @@ Use normal shell commands for validation, tests, package commands, and write-sid
   Ask when missing information or approval materially affects what you can safely do.
   When the user flags an in-scope mistake, fix it and rerun the check that covers the correction, unless they asked only for an explanation.
 - Use Codex as the primary harness. When authorized to delegate from Codex, use the requested model's native harness. Report failures without substituting another harness or model.
-- In Pi, use `/skill:pistack-poteto-mode` for pstack playbooks when requested. Use Pi's native Plannotator integration for requested reviews and wait for approval before implementing a plan.
 - Delegate, commit, push, open or merge a PR, or apply live configuration only with explicit user authorization. A playbook or an available tool does not authorize those actions.
 - When working on an existing pull request, the user gives standing authorization to commit and push the requested fixes or updates to that PR's head branch after verification, unless they say otherwise. Include all in-scope changes and leave unrelated local work out. This does not authorize merging, force-pushing, or deploying.
 - If an approved step conflicts with a guardrail, stop that step and report the conflict.

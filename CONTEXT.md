@@ -42,7 +42,8 @@ _Avoid_: Package, live configuration
 Codex, which owns the canonical global agent rules, shared skill catalog, and shared shell guardrail hooks.
 Codex runs independent reviews through Codex CLI, Claude Code, and Antigravity CLI.
 Pi and OpenCode remain standalone harnesses.
-The shared MCP definitions remain in Pi's native format and are synced into Codex.
+Shared MCP definitions remain in Pi's native format and are synced into Codex.
+Codex owns its Jev and xAI Search registrations.
 _Avoid_: Default agent
 
 **Shared skill catalog**:

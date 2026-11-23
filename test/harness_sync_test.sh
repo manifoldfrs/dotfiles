@@ -26,6 +26,8 @@ codex="$test_dir/stow/codex/.codex/config.toml"
 opencode="$test_dir/stow/opencode/.config/opencode/opencode.jsonc"
 
 bash "$sync" --check >/dev/null || fail "the tracked generated files are stale"
+jev_args=$(awk '/^\[/{section=$0} section=="[mcp_servers.jev]" && /^args = / {print}' "$codex")
+[[ "$jev_args" =~ @jkudish/jev-mcp@[0-9]+\.[0-9]+\.[0-9]+ ]] || fail "Codex Jev is missing its version pin"
 
 cat >> "$codex" <<'TOML'
 
@@ -44,8 +46,8 @@ enabled = false
 [hooks.state]
 TOML
 
-# Removing a server from Pi removes it everywhere, and Pi's shared files reach Claude's mods.
-jq 'del(.mcpServers.hey) | .mcpServers.docs = {url: "https://docs.test/mcp", headers: {"x-team": "dotfiles"}, exposure: "direct"}' "$pi_mcp" > "$pi_mcp.new"
+# Removing a shared server removes its generated copies.
+jq 'del(.mcpServers.hey) | .mcpServers.jev.args = ["-y", "@jkudish/jev-mcp@fixture"] | .mcpServers.docs = {url: "https://docs.test/mcp", headers: {"x-team": "dotfiles"}, exposure: "direct"}' "$pi_mcp" > "$pi_mcp.new"
 mv "$pi_mcp.new" "$pi_mcp"
 printf '\n// changed in Pi\n' >> "$test_dir/stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts"
 bash "$sync" >/dev/null
@@ -57,6 +59,14 @@ awk '/^\[/{section=$0} section=="[mcp_servers.docs]" && $0=="omit_tools_from = [
     || fail "Codex did not keep the docs server direct and callable from Code Mode"
 awk '/^\[/{section=$0} section=="[mcp_servers.jev]" && $0=="omit_tools_from = [\"direct\",\"deferred\"]" {found=1} END {exit !found}' "$codex" \
     || fail "Codex did not make Jev available only through Code Mode"
+awk -v args="$jev_args" '
+    /^\[/ {section=$0}
+    section=="[mcp_servers.jev]" && /^\[/ {count++}
+    section=="[mcp_servers.jev]" && $0==args {preserved=1}
+    END {exit !(count == 1 && preserved)}
+' "$codex" \
+    || fail "Pi's Jev server overrode or duplicated the Codex-owned registration"
+grep -q '@jkudish/jev-mcp@fixture' "$opencode" || fail "OpenCode's Jev server did not follow Pi"
 grep -q '^\[mcp_servers.node_repl\]' "$codex" || fail "Codex lost a ChatGPT app server"
 grep -q '^\[mcp_servers.computer-use\]' "$codex" || fail "Codex lost a ChatGPT app server"
 awk '/^\[/{section=$0} section=="[mcp_servers.xai-search]" && $0 ~ /^env_vars = .*XAI_API_KEY/ {found=1} END {exit !found}' "$codex" \

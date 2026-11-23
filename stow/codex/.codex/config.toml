@@ -6,6 +6,18 @@ model_reasoning_effort = "medium"
 theme = "tokyonight-frsh"
 status_line = ["model-with-reasoning", "current-dir", "thread-name", "context-used"]
 
+[mcp_servers.jev]
+command = "npx"
+args = ["-y","@jkudish/jev-mcp@0.15.0"]
+omit_tools_from = ["direct","deferred"]
+env_vars = ["TYPESAFE_API_KEY"]
+
+[mcp_servers.jev.tools.jev_verify]
+approval_mode = "approve"
+
+[mcp_servers.jev.tools.jev_screen]
+approval_mode = "approve"
+
 [mcp_servers.Ref]
 url = "https://api.ref.tools/mcp"
 omit_tools_from = ["deferred"]
@@ -19,12 +31,6 @@ omit_tools_from = ["deferred"]
 
 [mcp_servers.exa.env_http_headers]
 x-api-key = "EXA_API_KEY"
-
-[mcp_servers.jev]
-command = "npx"
-args = ["-y","@jkudish/jev-mcp"]
-omit_tools_from = ["direct","deferred"]
-env_vars = ["TYPESAFE_API_KEY"]
 
 [mcp_servers.chrome-devtools]
 command = "npx"
@@ -40,12 +46,6 @@ omit_tools_from = ["direct","deferred"]
 [mcp_servers.superlogical]
 url = "https://www.superlogical.com/rex/community-mcp"
 omit_tools_from = ["direct","deferred"]
-
-[mcp_servers.jev.tools.jev_verify]
-approval_mode = "approve"
-
-[mcp_servers.jev.tools.jev_screen]
-approval_mode = "approve"
 
 [mcp_servers.xai-search]
 command = "/bin/sh"
