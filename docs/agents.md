@@ -54,6 +54,8 @@ Council repeats the review after authorized fixes.
 
 ### pstack in Codex
 
+See the [Open Pstack skill catalog](pstack-skills.md) for the installed skills and their descriptions.
+
 [Open Pstack](https://github.com/ericlitman/open-pstack) provides Poteto Mode, Arena, and Interrogate as a native Codex plugin.
 Codex hosts this plugin directly.
 To install it on another machine:
