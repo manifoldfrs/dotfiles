@@ -20,7 +20,9 @@ for script in scripts/bootstrap.sh scripts/backup.sh scripts/stow.sh scripts/rex
     stow/bin/.local/bin/rex-annotate \
     stow/bin/.local/bin/agentbox-auth \
     stow/codex/.codex/hooks/block-dangerous-bash.sh \
-    stow/codex/.codex/hooks/block-generated-edits.sh mcp_setup.sh scripts/harness_sync.sh; do
+    stow/codex/.codex/hooks/block-generated-edits.sh \
+    stow/antigravity/.gemini/config/hooks/agy-pretool-guardrail.sh \
+    mcp_setup.sh scripts/harness_sync.sh; do
     bash -n "$script"
 done
 pass "Shell syntax is valid"
@@ -77,6 +79,11 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$DOTFILES_DIR/stow/claude/.claude/hooks/block-dangerous-bash.sh" ] \
     && [ "$STOW_TEST_HOME/.claude/hooks/block-dangerous-bash.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
     && [ "$STOW_TEST_HOME/.claude/hooks/block-generated-edits.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-generated-edits.sh" ] \
+    && [ -L "$STOW_TEST_HOME/.gemini/config/hooks.json" ] \
+    && [ -L "$STOW_TEST_HOME/.gemini/config/hooks/agy-pretool-guardrail.sh" ] \
+    && [ -L "$DOTFILES_DIR/stow/antigravity/.gemini/config/hooks/block-dangerous-bash.sh" ] \
+    && [ "$STOW_TEST_HOME/.gemini/config/hooks/block-dangerous-bash.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
+    && [ "$STOW_TEST_HOME/.gemini/config/hooks/block-generated-edits.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-generated-edits.sh" ] \
     && [ ! -L "$STOW_TEST_HOME/.claude/skills/frontend-design/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.claude/keybindings.json" ] \
     && [ ! -e "$STOW_TEST_HOME/.claude/mcp.json" ] \

@@ -1,0 +1,1 @@
+../../../../codex/.codex/hooks/block-dangerous-bash.sh

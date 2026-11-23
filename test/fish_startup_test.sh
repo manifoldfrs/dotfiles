@@ -18,16 +18,21 @@ for name in fzf atuin zoxide; do
 done
 
 printf '#!/bin/bash\nprintf "claude <%%s>\\n" "$@"\n' > "$test_home/bin/claude"
-chmod +x "$test_home/bin/claude"
+printf '#!/bin/bash\nprintf "agy"; printf " <%%s>" "$@"; printf "\\n"\n' > "$test_home/bin/agy"
+chmod +x "$test_home/bin/claude" "$test_home/bin/agy"
 export HOME="$test_home" XDG_CONFIG_HOME="$test_home/.config" XDG_DATA_HOME="$test_home/.local/share"
 export PATH="$test_home/bin:/usr/bin:/bin:/usr/sbin:/sbin" TERM=xterm
 unset PNPM_HOME ATUIN_SESSION
 fish --no-config -c 'set -U fish_user_paths "$HOME/.bun/bin"'
 
 fish --no-execute "$test_home/.config/fish/config.fish"
-result=$(printf '%s\n' 'echo "fish=$version"' 'functions -q claude; or exit 1' 'functions -q pi; and exit 1' 'functions -q opencode; and exit 1' 'claude "one argument"' 'exit' | /bin/bash --login -i 2>&1)
+result=$(printf '%s\n' 'echo "fish=$version"' 'functions -q claude; or exit 1' 'functions -q agy; or exit 1' 'functions -q pi; and exit 1' 'functions -q opencode; and exit 1' 'claude "one argument"' 'agy' 'agy -c' 'agy models' 'agy --mode plan' 'exit' | /bin/bash --login -i 2>&1)
 grep -q '^fish=[0-9]' <<< "$result"
 grep -Fxq 'claude <one argument>' <<< "$result"
+grep -Fxq 'agy <--dangerously-skip-permissions>' <<< "$result"
+grep -Fxq 'agy <--dangerously-skip-permissions> <-c>' <<< "$result"
+grep -Fxq 'agy <models>' <<< "$result"
+grep -Fxq 'agy <--mode> <plan>' <<< "$result"
 
 result=$(/bin/bash --login -ic 'printf "bash=%s\n" "$BASH_VERSION"' 2>/dev/null)
 grep -q '^bash=[0-9]' <<< "$result"

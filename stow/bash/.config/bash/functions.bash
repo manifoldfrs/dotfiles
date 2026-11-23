@@ -171,6 +171,28 @@ claude-log() {
     ANTHROPIC_BASE_URL=http://127.0.0.1:8787 command claude "$@"
 }
 
+# Run interactive Antigravity CLI sessions with permissions bypassed unless a subcommand or explicit mode/sandbox is given.
+agy() {
+    case "${1:-}" in
+        acp|agent|agents|changelog|help|install|mcp|mic-serve|models|plugin|plugins|remote-control|update|-h|--help)
+            command agy "$@"
+            return
+            ;;
+    esac
+
+    local arg
+    for arg in "$@"; do
+        case "$arg" in
+            --dangerously-skip-permissions|--mode|--mode=*|--sandbox|--sandbox=*|-h|--help)
+                command agy "$@"
+                return
+                ;;
+        esac
+    done
+
+    command agy --dangerously-skip-permissions "$@"
+}
+
 # Open a Rex session on agentbox in the app, creating it first if needed.
 # DIR is relative to the agentbox home, because the Mac's shell would expand ~ to /Users.
 rexbox() {

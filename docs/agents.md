@@ -9,7 +9,7 @@ See [CONTEXT.md](../CONTEXT.md) for the terminology used here, [docs/skills.md](
 | --- | --- | --- | --- |
 | **Codex** | Primary harness | `stow/codex/` | Owns the canonical global `AGENTS.md`, shared skills, and guardrail hook scripts. |
 | **Claude Code** | Native Anthropic route | `stow/claude/` | Runs Opus and Fable natively (`claude-opus-5-5` in Council; `claude --model fable` resolved to `claude-fable-5-2` in local checks). |
-| **Antigravity CLI** | Native Gemini route | Machine-local | Use `gemini-4-neon-high` for Gemini 4 Neon High (verify with `agy models`). |
+| **Antigravity CLI** | Native Gemini route | `stow/antigravity/` | Use `gemini-4-neon-high` for Neon. Interactive `agy` passes `--dangerously-skip-permissions`; `~/.gemini/antigravity-cli/settings.json` stays machine-local. |
 
 Pi and OpenCode are retired: their tracked configurations live under [`old/stow/pi/`](../old/stow/pi/) and [`old/stow/opencode/`](../old/stow/opencode/), and retired Pi tests live under [`old/test/`](../old/test/).
 Both harnesses were uninstalled on the current Mac (not verified on separate remote hosts such as `agentbox`), local session and state data were preserved, and default bootstrap, Stow, and CI no longer install or require either harness.
@@ -147,6 +147,8 @@ Codex's `stow/codex/.codex/hooks.json` runs the shared scripts in `stow/codex/.c
 On first run on either macOS or Linux (`agentbox`), verify `hooks = true` under `[features]` in the local `~/.codex/config.toml` and review and trust the expected hooks via `/hooks`.
 
 - **Claude Code** links to those scripts from its hooks directory.
+- **Antigravity CLI** links to those scripts through `stow/antigravity/.gemini/config/hooks.json` and the `agy-pretool-guardrail.sh` adapter, which translates Antigravity's `PreToolUse` JSON contract and fails closed on errors.
+  Interactive `agy` sessions in Bash and Fish pass `--dangerously-skip-permissions` automatically unless you invoke a subcommand (like `agy models`) or pass `--mode` or `--sandbox`.
 - **Rails rules:** schema and lockfile edits are blocked, destructive `db:` tasks require `RAILS_ENV=test`, and production Rails commands are blocked.
 
 Test the shell rules with:

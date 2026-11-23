@@ -9,7 +9,7 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude codex cursor)
+STOW_PACKAGES=(bash git ghostty herdr rex nvim bin antigravity claude codex cursor)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
@@ -30,6 +30,12 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/hooks/block-dangerous-bash.sh"
     "$HOME/.codex/hooks/block-generated-edits.sh"
     "$HOME/.codex/themes/$CODEX_THEME_FILE"
+)
+ANTIGRAVITY_BACKUP_TARGETS=(
+    "$HOME/.gemini/config/hooks.json"
+    "$HOME/.gemini/config/hooks/agy-pretool-guardrail.sh"
+    "$HOME/.gemini/config/hooks/block-dangerous-bash.sh"
+    "$HOME/.gemini/config/hooks/block-generated-edits.sh"
 )
 CLAUDE_BACKUP_TARGETS=(
     "$HOME/.claude/AGENTS.md"
@@ -157,6 +163,20 @@ is_stow_managed_tree() {
     done
 
     [ "$saw_entry" -eq 1 ]
+}
+
+backup_antigravity_stow_targets() {
+    local target
+
+    if ! has_stow_package antigravity; then
+        return
+    fi
+
+    mkdir -p "$HOME/.gemini/config/hooks"
+
+    for target in "${ANTIGRAVITY_BACKUP_TARGETS[@]}"; do
+        backup_stow_target "$target"
+    done
 }
 
 backup_claude_stow_targets() {
@@ -475,6 +495,7 @@ apply_dotfiles() {
 
     backup_bash_stow_targets
     backup_shared_stow_targets
+    backup_antigravity_stow_targets
     backup_claude_stow_targets
     backup_shared_skill_targets
 

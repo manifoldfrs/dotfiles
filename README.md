@@ -107,7 +107,7 @@ It also moves known conflicting files (Bash, Codex, Claude Code, Cursor, Herdr `
 `dry-run` runs plain `stow -n` without those backups, so it may flag auto-backed-up files alongside unexpected conflicts; only conflicts outside the auto-backup list need manual moves (see [Troubleshooting](#troubleshooting)).
 Use `./scripts/stow.sh delete` to remove managed symlinks, and `./scripts/bootstrap.sh` only on macOS when you want packages, plugins, and tooling refreshed.
 
-The default `STOW_PACKAGES` list in `scripts/stow.sh` is `bash git ghostty herdr rex nvim bin claude codex cursor`.
+The default `STOW_PACKAGES` list in `scripts/stow.sh` is `bash git ghostty herdr rex nvim bin antigravity claude codex cursor`.
 
 To restow a single simple leaf package (`nvim`, `git`, `ghostty`, or `rex`) by hand:
 
@@ -133,6 +133,7 @@ stow/                     Stow packages, each mirroring $HOME
   bin/                    ~/.local/bin helpers (anti-slop, rex-annotate, agentbox-auth, spotify-visualizer)
   codex/                  Primary harness config, theme, global AGENTS.md, hooks, and shared skills
   claude/                 Claude Code settings, agents, and mods; links rules and hooks to codex/
+  antigravity/            Antigravity PreToolUse guardrail hooks adapter; links shared scripts to codex/
   cursor/                 Cursor settings, keybindings, tasks (Library/Application Support/Cursor/User)
 cursor/extensions.txt     Cursor extension IDs; install with the app's bundled CLI
 scripts/
@@ -223,8 +224,7 @@ Scripts and agent shell commands still use Bash; stay in Bash for a pane with `D
 
 - **Prompt:** Tokyo Night colors, short path, Git branch or detached commit, clock, and non-zero exit code only (no username or hostname).
 - **Navigation & history:** `Ctrl-T` opens FZF file search, `Ctrl-R` and `Ctrl-F` search Atuin history in FZF (`Ctrl-D` filters to the current directory), Up Arrow uses native Fish history, and `z` uses zoxide.
-- **Wrappers:** `claude` resumes sessions through its Bash wrapper.
-  `rexbox` calls the shared Bash function.
+- **Wrappers:** `claude` resumes sessions through its Bash wrapper, `agy` passes `--dangerously-skip-permissions` for interactive sessions (unless a subcommand, `--mode`, or `--sandbox` is given), and `rexbox` calls the shared Bash function.
 - **Local overrides:** put environment variables in untracked `~/.config/bash/local.bash` and Fish-specific tweaks in `~/.config/fish/conf.d/`.
   On an existing Mac or `agentbox` without Fish, run `brew install fish`, restow, and open a new login pane.
 

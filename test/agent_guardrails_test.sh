@@ -3,6 +3,7 @@ set -euo pipefail
 
 repo_dir=${1:?Pass the dotfiles repository directory}
 guardrails="$repo_dir/stow/codex/.codex/hooks"
+agy_guardrail="$repo_dir/stow/antigravity/.gemini/config/hooks/agy-pretool-guardrail.sh"
 app_dir=$(mktemp -d)
 trap 'rm -rf "$app_dir"' EXIT
 failures=0
@@ -156,6 +157,40 @@ touch "$sql_app_dir/db/migrate/20260901120000_create_cards.rb" "$sql_app_dir/db/
 expect block run_edit_hook "$sql_app_dir/db/migrate/20260901120000_create_cards.rb"
 expect allow run_edit_hook "$sql_app_dir/db/migrate/20261001090000_add_title_to_cards.rb"
 rm -rf "$sql_app_dir"
+
+expect_agy() {
+    local expected=$1
+    local mode=$2
+    local payload=$3
+    local status=0
+    local out
+    out=$(printf '%s' "$payload" | bash "$agy_guardrail" "$mode" 2>&1) || status=$?
+    if [ "$status" -ne 0 ]; then
+        printf 'FAIL: agy adapter exited %s for %s: %s\n' "$status" "$mode" "$out"
+        failures=$((failures + 1))
+        return
+    fi
+    local decision reason
+    decision=$(printf '%s' "$out" | jq -r '.decision // empty' 2>/dev/null) || decision=""
+    reason=$(printf '%s' "$out" | jq -r '.reason // empty' 2>/dev/null) || reason=""
+    if [ "$decision" != "$expected" ] || { [ "$expected" = deny ] && [ -z "$reason" ]; }; then
+        printf 'FAIL: expected agy %s (%s), got output: %s\n' "$expected" "$mode" "$out"
+        failures=$((failures + 1))
+    fi
+}
+
+expect_agy deny bash "$(jq -n '{toolCall: {name: "run_command", args: {CommandLine: "git push --force origin main"}}}')"
+expect_agy deny bash "$(jq -n '{toolCall: {name: "run_command", args: {CommandLine: "bin/rails db:drop"}}}')"
+expect_agy deny bash "$(jq -n '{toolCall: {name: "run_command", args: {CommandLine: "rm -rf /"}}}')"
+expect_agy allow bash "$(jq -n '{toolCall: {name: "run_command", args: {CommandLine: "git status"}}}')"
+expect_agy allow bash "$(jq -n '{toolCall: {name: "run_command", args: {CommandLine: "RAILS_ENV=test bin/rails db:reset"}}}')"
+expect_agy deny edit "$(jq -n --arg path "$app_dir/db/schema.rb" --arg cwd "$app_dir" '{cwd: $cwd, toolCall: {name: "edit_file", args: {Path: $path}}}')"
+expect_agy deny edit "$(jq -n --arg path 'db/migrate/20260901120000_create_cards.rb' --arg cwd "$app_dir" '{cwd: $cwd, toolCall: {name: "write_file", args: {Path: $path}}}')"
+expect_agy deny edit "$(jq -n --arg path "$app_dir/Gemfile.lock" --arg cwd "$app_dir" '{cwd: $cwd, toolCall: {name: "replace_file_content", args: {TargetFile: $path}}}')"
+expect_agy allow edit "$(jq -n --arg path "$app_dir/app/models/card.rb" --arg cwd "$app_dir" '{cwd: $cwd, toolCall: {name: "edit_file", args: {Path: $path}}}')"
+expect_agy allow edit "$(jq -n --arg path "$app_dir/db/migrate/20261001090000_add_title_to_cards.rb" --arg cwd "$app_dir" '{cwd: $cwd, toolCall: {name: "edit_file", args: {Path: $path}}}')"
+expect_agy deny bash '{malformed json'
+expect_agy deny edit '{malformed json'
 
 if [ "$failures" -ne 0 ]; then
     printf 'FAIL: %s agent guardrail expectation(s)\n' "$failures"

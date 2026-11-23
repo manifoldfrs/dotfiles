@@ -32,7 +32,7 @@ if command -q zoxide
     zoxide init fish | source
 end
 
-for name in claude rexbox
+for name in agy claude rexbox
     function $name --inherit-variable name
         command bash -c 'source "$HOME/.config/bash/functions.bash"; "$@"' bash $name $argv
     end

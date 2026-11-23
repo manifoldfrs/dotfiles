@@ -29,7 +29,7 @@ jobs:
       - name: Verify Bash Stow layout
         run: |
           tmp_home="$(mktemp -d)"
-          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin claude codex
+          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin antigravity claude codex
           test -L "$tmp_home/.bashrc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"
@@ -38,6 +38,8 @@ jobs:
           test -L "$tmp_home/.config/herdr/config.toml"
           test ! -e "$tmp_home/.pi"
           test ! -e "$tmp_home/.config/opencode"
+          test -L "$tmp_home/.gemini/config/hooks.json"
+          test -L "$tmp_home/.gemini/config/hooks/agy-pretool-guardrail.sh"
           test -L "$tmp_home/.claude/settings.json"
           test -L "$tmp_home/.claude/AGENTS.md"
           test ! -e "$tmp_home/.claude/skills"

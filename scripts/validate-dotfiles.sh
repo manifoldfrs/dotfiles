@@ -7,7 +7,7 @@ STOW_DIR="$DOTFILES_DIR/stow"
 STOW_PACKAGES=("$@")
 
 if [[ ${#STOW_PACKAGES[@]} -eq 0 ]]; then
-    STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude codex cursor)
+    STOW_PACKAGES=(bash git ghostty herdr rex nvim bin antigravity claude codex cursor)
 fi
 
 if ! command -v stow &>/dev/null; then
@@ -27,7 +27,8 @@ for script in \
     "$DOTFILES_DIR/stow/bash/.bashrc" \
     "$DOTFILES_DIR/stow/bash/.config/bash/aliases.bash" \
     "$DOTFILES_DIR/stow/bash/.config/bash/environment.bash" \
-    "$DOTFILES_DIR/stow/bash/.config/bash/functions.bash"; do
+    "$DOTFILES_DIR/stow/bash/.config/bash/functions.bash" \
+    "$DOTFILES_DIR/stow/antigravity/.gemini/config/hooks/agy-pretool-guardrail.sh"; do
     bash -n "$script"
 done
 
