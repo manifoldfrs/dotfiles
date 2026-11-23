@@ -63,6 +63,9 @@ codex plugin marketplace add https://github.com/ericlitman/open-pstack --ref mai
 codex plugin add pstack@open-pstack
 ```
 
+In Codex, run the pstack PR watcher through `bash "${CODEX_HOME:-$HOME/.codex}/bin/pstack_watch_pr.sh" <installed-watch-pr-path> [options]`.
+The launcher keeps Bun dependencies in a versioned `open-pstack/poteto-mode` user cache so the pstack startup hook retains its trust.
+
 The [Codex model sheet](../stow/codex/.codex/pstack-models.md) assigns GPT-6.2 Sol High and Opus 5.5 High to Arena candidate work, Architect, and Interrogate.
 GPT-6.2 Sol High runs as a native Codex subagent under the parent Codex session's sandbox.
 Opus 5.5 High runs in Claude Code with its writer sandbox, and the runner explicitly denies writes to shared Git state.

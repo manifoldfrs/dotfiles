@@ -233,6 +233,7 @@ Scripts and agent shell commands still use Bash; stay in Bash for a pane with `D
 Codex is the primary harness and runs Council reviews through Codex CLI, Claude Code, and Antigravity CLI.
 Codex hosts pstack directly through the Open Pstack plugin ([docs/agents.md](docs/agents.md#pstack-in-codex)).
 It pairs GPT-6.2 Sol High and Opus 5.5 High for Arena candidate work, Architect, and Interrogate with read-only Gemini 4 Neon High through Antigravity CLI.
+The [pstack PR watcher launcher](docs/agents.md#pstack-in-codex) keeps its dependencies outside the plugin directory.
 The tracked macOS Codex config disables routine command approvals and the filesystem sandbox while keeping guardrail hooks enabled.
 Codex and Claude Code share the global `AGENTS.md`, shell guardrails, skill catalog, and MCP definitions.
 [Antigravity runs Neon through its own CLI](docs/agents.md#harness-roles).

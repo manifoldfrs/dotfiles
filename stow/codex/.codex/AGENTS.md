@@ -78,6 +78,7 @@ Use normal shell commands for validation, tests, package commands, and write-sid
   When the user flags an in-scope mistake, fix it and rerun the check that covers the correction, unless they asked only for an explanation.
 - Use Codex as the primary harness. When authorized to delegate from Codex, use the requested model's native harness. Report failures without substituting another harness or model.
   Use Claude Code for Opus and Fable, and Antigravity CLI for Gemini Neon.
+- In Codex, prefix Open Pstack's installed `watch-pr` path with `bash "${CODEX_HOME:-$HOME/.codex}/bin/pstack_watch_pr.sh"` to keep dependencies outside the plugin directory that Codex checks for hook trust.
 - Delegate, commit, push, open or merge a PR, or apply live configuration only with explicit user authorization. A playbook or an available tool does not authorize those actions.
 - When working on an existing pull request, the user gives standing authorization to commit and push the requested fixes or updates to that PR's head branch after verification, unless they say otherwise. Include all in-scope changes and leave unrelated local work out. This does not authorize merging, force-pushing, or deploying.
 - If an approved step conflicts with a guardrail, stop that step and report the conflict.
