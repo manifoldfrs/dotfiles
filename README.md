@@ -84,7 +84,9 @@ cd ~/code/personal/dotfiles
 
 How `scripts/stow.sh` adapts automatically on Linux:
 
-- Skips `stow/codex/.codex/config.toml` (and removes any existing Stow symlink there) so `agentbox` keeps a machine-local `~/.codex/config.toml` while still linking `AGENTS.md`, skills, hooks, and themes.
+- Keeps Codex's config machine-local, the same as on macOS.
+  On first setup, `apply` seeds a missing `~/.codex/config.toml` with GPT-6.2 Sol at medium reasoning.
+  It converts legacy Stow links to local copies and still links `AGENTS.md`, skills, hooks, and themes.
 - Creates `~/.local/bin/bash` pointing to `/bin/bash` (instead of Homebrew Bash 4+ on macOS) so Pi's `shellPath` resolves.
 
 After applying dotfiles as `frshbb`, follow [docs/plans/remote-agent-server.md](docs/plans/remote-agent-server.md#phase-5-toolchain-on-the-server) (Phases 5–8; skip Phase 6's clone and Stow steps, which you just did) for Linuxbrew, the server toolchain, and harness installs (run `brew install fish` as `frshbb` after Phase 5 if desired), and see [docs/rex.md](docs/rex.md#remote-server-on-agentbox) for the root Rex login server setup and `agentbox-auth` sign-in flow.
@@ -114,7 +116,7 @@ To restow a single simple leaf package (`nvim`, `git`, `ghostty`, or `rex`) by h
 stow --no-folding -R -v -t "$HOME" -d stow nvim
 ```
 
-Do not run raw `stow` for `codex`, `opencode`, `pi`, or `bash`; always use `./scripts/stow.sh apply` so shared skills, OpenCode plugins, `~/.local/bin/bash`, and the Linux `.codex/config.toml` ignore rule stay intact.
+Use `./scripts/stow.sh apply` for `codex`, `opencode`, `pi`, and `bash` so local Codex config setup, shared skills, OpenCode plugins, and `~/.local/bin/bash` are handled.
 
 Because Stow uses symlinks, editing either `$HOME` or the repo edits the same file.
 To capture live config back into tracked sources, run `./scripts/backup.sh` and review `git diff` before committing (agent account and runtime state are skipped).
@@ -251,7 +253,7 @@ Common cross-harness commands:
 codex -a on-request -s workspace-write     # restore Codex approval prompts and workspace sandbox
 ./scripts/update_agent_skills.sh --check   # check shared skills for upstream drift
 ./scripts/skill_catalog.sh                 # regenerate docs/skills.md and OpenCode commands
-./scripts/harness_sync.sh                  # sync Pi's MCP servers to Codex/OpenCode and shared TS modules to Claude mods
+./scripts/harness_sync.sh                  # sync MCP servers to the Codex template and OpenCode, and shared TS to Claude mods
 pi-log                                     # run Pi with per-process request logging
 ```
 

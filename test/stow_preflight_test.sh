@@ -156,18 +156,19 @@ fi
 
 printf 'PASS: Failed Stow apply restores files it moved aside\n'
 
-if [[ $(uname -s) == Darwin ]]; then
-    [[ -L $fresh_home/.codex/config.toml ]] || fail_with_log 'macOS apply did not link the Codex config'
-    printf 'PASS: macOS links the tracked Codex config\n'
-    exit 0
-fi
+codex_template="$repo_dir/stow/codex/.codex/config.toml"
+fresh_config="$fresh_home/.codex/config.toml"
+[[ -f $fresh_config && ! -L $fresh_config ]] || fail_with_log 'apply did not seed a regular Codex config'
+cmp -s "$codex_template" "$fresh_config" || fail_with_log 'seeded Codex config differs from the template'
+grep -qx 'model = "gpt-6.2-sol"' "$fresh_config" || fail_with_log 'fresh Codex model default is wrong'
+grep -qx 'model_reasoning_effort = "medium"' "$fresh_config" || fail_with_log 'fresh Codex reasoning default is wrong'
 
 server_home="$test_root/server-home"
 mkdir -p "$server_home/.codex"
 printf 'model = "server"\n' >"$server_home/.codex/config.toml"
 apply_into "$server_home" || fail_with_log 'apply with a server Codex config failed'
 apply_into "$server_home" || fail_with_log 'repeat apply with a server Codex config failed'
-[[ ! -L $server_home/.codex/config.toml ]] || fail_with_log 'apply linked the macOS Codex config'
+[[ ! -L $server_home/.codex/config.toml ]] || fail_with_log 'apply linked a local Codex config'
 [[ $(cat "$server_home/.codex/config.toml") == 'model = "server"' ]] \
     || fail_with_log 'apply changed the server Codex config'
 ! compgen -G "$server_home/.codex/config.toml.backup.*" >/dev/null \
@@ -177,8 +178,13 @@ apply_into "$server_home" || fail_with_log 'repeat apply with a server Codex con
 
 migrated_home="$test_root/migrated-home"
 mkdir -p "$migrated_home/.codex"
-ln -s "$repo_dir/stow/codex/.codex/config.toml" "$migrated_home/.codex/config.toml"
+legacy_dir="$test_root/dotfiles/stow/codex/.codex"
+mkdir -p "$legacy_dir"
+printf 'model_reasoning_effort = "high"\n' >"$legacy_dir/config.toml"
+ln -s "$legacy_dir/config.toml" "$migrated_home/.codex/config.toml"
 apply_into "$migrated_home" || fail_with_log 'apply over an old Codex config link failed'
 [[ ! -L $migrated_home/.codex/config.toml ]] || fail_with_log 'apply kept the old Codex config link'
+cmp -s "$legacy_dir/config.toml" "$migrated_home/.codex/config.toml" \
+    || fail_with_log 'migration did not preserve the linked config contents'
 
-printf 'PASS: Linux keeps its own Codex config and still links Codex AGENTS.md and hooks\n'
+printf 'PASS: Stow seeds, preserves, and migrates local Codex configs\n'

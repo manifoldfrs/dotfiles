@@ -53,7 +53,7 @@ install() {
     # Codex
     if [ -f "$MCP_DIR/codex_config.toml" ]; then
         if [ -L "$CODEX_CONFIG" ]; then
-            warn "Skipping Codex config install because $CODEX_CONFIG is symlinked. Use scripts/stow.sh apply instead."
+            warn "Skipping Codex config restore because $CODEX_CONFIG is symlinked."
         else
             info "Installing Codex config..."
             mkdir -p "$(dirname "$CODEX_CONFIG")"
@@ -71,7 +71,7 @@ install() {
     echo ""
     echo "Edit the following files and replace placeholders with your actual API keys:"
     if [ -L "$CODEX_CONFIG" ]; then
-        echo "  - Codex: $CODEX_CONFIG is Stow-managed; update stow/codex/.codex/config.toml and run scripts/stow.sh apply"
+        echo "  - Codex: $CODEX_CONFIG is symlinked. Migrate an old Stow link with scripts/stow.sh apply before restoring a local config."
     else
         echo "  - Codex: $CODEX_CONFIG"
     fi

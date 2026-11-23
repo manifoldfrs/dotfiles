@@ -16,9 +16,9 @@ Codex does not fall back to OpenCode or silently substitute a model when a route
 
 ## Codex (primary harness)
 
-The tracked macOS configuration (`stow/codex/.codex/config.toml`) uses GPT-6.2 Sol at medium reasoning with Ultrafast.
-On Linux (`agentbox`), `scripts/stow.sh` skips `.codex/config.toml` so Codex keeps its own machine-local config while still linking `AGENTS.md`, skills, hooks, and themes.
-The tracked macOS configuration disables routine command approvals and the filesystem sandbox while keeping the shared guardrail hooks enabled.
+The tracked template (`stow/codex/.codex/config.toml`) defaults to GPT-6.2 Sol at medium reasoning.
+On macOS and Linux, `scripts/stow.sh apply` seeds a missing `~/.codex/config.toml` from the template, preserves existing local configs, and converts legacy Stow links to local copies.
+Codex saves reasoning changes and other preferences to the machine-local file.
 To restore approval prompts and workspace isolation for a session:
 
 ```bash
@@ -198,7 +198,7 @@ The two integrations share the request and response code in `mcp/xai-search/`.
 ## Guardrails
 
 Codex's `stow/codex/.codex/hooks.json` runs the shared scripts in `stow/codex/.codex/hooks/` to block dangerous shell commands and manual edits to generated files.
-On first run on either macOS or Linux (`agentbox`), review and trust the expected hooks in Codex via `/hooks` (tracked trust entries are path-specific, and on Linux `stow.sh` skips `config.toml`, so also verify `hooks = true` under `[features]` in machine-local `~/.codex/config.toml`).
+On first run on either macOS or Linux (`agentbox`), verify `hooks = true` under `[features]` in the local `~/.codex/config.toml` and review and trust the expected hooks via `/hooks`.
 
 - **Claude Code** links to those scripts from its hooks directory.
 - **Pi** runs them via `agent-guardrails` through compatibility links in `~/.pi/agent/guardrails/` (a `~/.pi/agent/hooks/` directory triggers a deprecation prompt).

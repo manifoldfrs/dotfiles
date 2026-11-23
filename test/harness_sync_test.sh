@@ -27,7 +27,22 @@ opencode="$test_dir/stow/opencode/.config/opencode/opencode.jsonc"
 
 bash "$sync" --check >/dev/null || fail "the tracked generated files are stale"
 
-printf '\n[mcp_servers.jev.tools.fixture]\napproval_mode = "approve"\n\n[mcp_servers.hey.tools.fixture]\napproval_mode = "approve"\n' >> "$codex"
+cat >> "$codex" <<'TOML'
+
+[mcp_servers.jev.tools.fixture]
+approval_mode = "approve"
+
+[mcp_servers.hey.tools.fixture]
+approval_mode = "approve"
+
+[mcp_servers.node_repl]
+command = "node"
+
+[mcp_servers.computer-use]
+enabled = false
+
+[hooks.state]
+TOML
 
 # Removing a server from Pi removes it everywhere, and Pi's shared files reach Claude's mods.
 jq 'del(.mcpServers.hey) | .mcpServers.docs = {url: "https://docs.test/mcp", headers: {"x-team": "dotfiles"}, exposure: "direct"}' "$pi_mcp" > "$pi_mcp.new"

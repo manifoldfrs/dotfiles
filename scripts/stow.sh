@@ -14,6 +14,7 @@ STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
 CODEX_CONFIG_TARGET="$HOME/.codex/config.toml"
+CODEX_CONFIG_TEMPLATE="$STOW_DIR/codex/.codex/config.toml"
 AGENT_SKILLS_DIR="$STOW_DIR/codex/skills/shared"
 LEGACY_AGENT_SKILLS_DIR="$STOW_DIR/pi/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
@@ -55,13 +56,6 @@ CURSOR_BACKUP_TARGETS=(
     "$CURSOR_USER_DIR/keybindings.json"
     "$CURSOR_USER_DIR/tasks.json"
 )
-
-# The tracked Codex config is mostly state written by the macOS ChatGPT app, so other systems keep their own.
-if [ "$OS_NAME" = "Darwin" ]; then
-    CODEX_BACKUP_TARGETS+=("$CODEX_CONFIG_TARGET")
-else
-    STOW_FLAGS+=(--ignore='^\.codex/config\.toml$')
-fi
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -259,16 +253,42 @@ backup_codex_stow_targets() {
     done
 }
 
-remove_codex_config_link_off_macos() {
-    if [ "$OS_NAME" = "Darwin" ] || ! has_stow_package codex; then
+ensure_local_codex_config() (
+    local source="$CODEX_CONFIG_TEMPLATE"
+    local temp_dir
+    local temp
+    local migrate=0
+
+    if ! has_stow_package codex; then
         return
     fi
 
-    if is_stow_managed_link "$CODEX_CONFIG_TARGET"; then
-        rm "$CODEX_CONFIG_TARGET"
-        info "Removed macOS Codex config link: $CODEX_CONFIG_TARGET"
+    if is_stow_managed_link "$CODEX_CONFIG_TARGET" && [ ! -d "$CODEX_CONFIG_TARGET" ]; then
+        migrate=1
+        if [ -f "$CODEX_CONFIG_TARGET" ]; then
+            source="$CODEX_CONFIG_TARGET"
+        fi
+    elif [ -e "$CODEX_CONFIG_TARGET" ] || [ -L "$CODEX_CONFIG_TARGET" ]; then
+        return
     fi
-}
+
+    umask 077
+    temp_dir="$(mktemp -d "$HOME/.codex/.config-seed.XXXXXXXX")"
+    temp="$temp_dir/config.toml"
+    trap 'rm -f "$temp"; rmdir "$temp_dir"' EXIT
+    cp "$source" "$temp"
+    if [ "$migrate" -eq 1 ] && is_stow_managed_link "$CODEX_CONFIG_TARGET" && [ ! -d "$CODEX_CONFIG_TARGET" ]; then
+        mv -f "$temp" "$CODEX_CONFIG_TARGET"
+        info "Converted Codex config to a local file: $CODEX_CONFIG_TARGET"
+        return
+    fi
+
+    if ln "$temp" "$HOME/.codex" 2>/dev/null; then
+        info "Seeded local Codex config: $CODEX_CONFIG_TARGET"
+    elif [ ! -e "$CODEX_CONFIG_TARGET" ] && [ ! -L "$CODEX_CONFIG_TARGET" ]; then
+        error "Could not seed local Codex config: $CODEX_CONFIG_TARGET"
+    fi
+)
 
 bash5_candidates() {
     if [ "$OS_NAME" = "Darwin" ]; then
@@ -580,7 +600,6 @@ apply_dotfiles() {
 
     backup_cursor_stow_targets
     backup_codex_stow_targets
-    remove_codex_config_link_off_macos
 
     info "Applying Stow packages into $HOME: ${STOW_PACKAGES[*]}"
     # Stow aborts before linking anything on conflict, so restoring the moved files returns HOME to its prior state.
@@ -588,6 +607,7 @@ apply_dotfiles() {
         restore_backed_up_targets
         error "Stow failed; restored the files this run moved aside."
     fi
+    ensure_local_codex_config
     ensure_shared_skill_folder_links
     ensure_opencode_plugin_links
     ensure_bash_link

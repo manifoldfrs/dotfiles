@@ -2,5 +2,6 @@
 # Stow the folder link under .codex/skills, not its source under skills/.
 ^/skills(?:/|$)
 ^\.agents$
+^/\.codex/config\.toml$
 ^\.codex/tmp$
 ^\.codex/\.tmp$
