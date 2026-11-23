@@ -1,0 +1,44 @@
+{
+  "mcpServers": {
+    "Ref": {
+      "type": "http",
+      "url": "https://api.ref.tools/mcp",
+      "headers": {
+        "x-ref-api-key": "${REF_API_KEY}"
+      },
+      "exposure": "direct"
+    },
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa",
+      "headers": {
+        "x-api-key": "${EXA_API_KEY}"
+      },
+      "exposure": "direct"
+    },
+    "jev": {
+      "command": "npx",
+      "args": ["-y", "@jkudish/jev-mcp"],
+      "env": {
+        "TYPESAFE_API_KEY": "${TYPESAFE_API_KEY}"
+      },
+      "exposure": "codemode"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest", "--isolated", "--no-usage-statistics"],
+      "timeout": 60,
+      "exposure": "codemode"
+    },
+    "hey": {
+      "command": "hey",
+      "args": ["mcp"],
+      "exposure": "codemode"
+    },
+    "superlogical": {
+      "type": "http",
+      "url": "https://www.superlogical.com/rex/community-mcp",
+      "exposure": "codemode"
+    }
+  }
+}

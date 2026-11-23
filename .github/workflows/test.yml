@@ -29,22 +29,17 @@ jobs:
       - name: Verify Bash Stow layout
         run: |
           tmp_home="$(mktemp -d)"
-          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin pi claude opencode codex
+          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin claude codex
           test -L "$tmp_home/.bashrc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"
           test -L "$tmp_home/.config/fish/config.fish"
           test -L "$tmp_home/.config/nvim/init.lua"
           test -L "$tmp_home/.config/herdr/config.toml"
-          test -L "$tmp_home/.pi/agent/themes/tokyonight-frsh.json"
-          test -L "$tmp_home/.pi/agent/AGENTS.md"
-          test -L "$tmp_home/.pi/agent/guardrails/block-dangerous-bash.sh"
-          test ! -e "$tmp_home/.pi/skills"
-          test ! -e "$tmp_home/.pi/agent/hooks"
+          test ! -e "$tmp_home/.pi"
+          test ! -e "$tmp_home/.config/opencode"
           test -L "$tmp_home/.claude/settings.json"
           test -L "$tmp_home/.claude/AGENTS.md"
-          test -L "$tmp_home/.config/opencode/opencode.jsonc"
-          test -L "$tmp_home/.config/opencode/AGENTS.md"
           test ! -e "$tmp_home/.claude/skills"
           test -L "$tmp_home/.codex/hooks/block-dangerous-bash.sh"
           test ! -e "$tmp_home/AGENTS.md"
@@ -66,38 +61,8 @@ jobs:
         with:
           node-version: 24
 
-      - uses: pnpm/action-setup@v6
-        with:
-          package_json_file: test/package.json
-
-      - name: Install Pi test dependencies
-        working-directory: test
-        run: pnpm install --frozen-lockfile
-
-      - name: Install Pi for the X search runner tests
-        run: |
-          export PNPM_HOME="$RUNNER_TEMP/pnpm-global"
-          export PATH="$PNPM_HOME/bin:$PATH"
-          pnpm add --global --ignore-scripts @earendil-works/pi-coding-agent@1.5.2
-          printf 'PNPM_HOME=%s\n' "$PNPM_HOME" >> "$GITHUB_ENV"
-          printf '%s\n' "$PNPM_HOME/bin" >> "$GITHUB_PATH"
-
-      - name: Run Pi tests
-        working-directory: test
-        run: pnpm test
-
-      - name: Typecheck Pi extensions
-        working-directory: test
-        run: pnpm run typecheck
-
-      - name: Check OpenCode plugins
-        run: |
-          for name in guardrails jev; do
-            plugin="stow/opencode/.config/opencode/plugins/$name"
-            pnpm --dir "$plugin" install --frozen-lockfile
-            pnpm --dir "$plugin" run check
-            pnpm --dir "$plugin" test
-          done
+      - name: Check Codex X search and skill catalog
+        run: node --test test/codex_xai_search_test.ts test/active_skill_catalog_test.mjs
 
   test-docker:
     runs-on: ubuntu-latest

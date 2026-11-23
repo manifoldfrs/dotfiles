@@ -15,7 +15,7 @@ Then open a Rex pane configured for Bash login (so `$REX_BIN_DIR` is on `PATH`),
 ```bash
 rex config reload
 rex keymap   # should load without warnings
-rex skill setup --session-naming
+rex skill setup --agent codex --agent claude --session-naming
 ```
 
 Open Neovim once so lazy.nvim installs `vim-rex-navigator`.
@@ -95,7 +95,7 @@ Your account's server starts when you connect and exits once its last session en
 After root setup, run this as `frshbb` on `agentbox`:
 
 ```bash
-rex skill setup --session-naming
+rex skill setup --agent codex --agent claude --session-naming
 ```
 
 Always pass `--session-naming`.
@@ -116,7 +116,7 @@ In the Rex app, choose **Add Remote Host…** with URL `http://100.82.139.102:72
 
 A browser sign-in started on `agentbox` redirects your Mac's browser to `http://127.0.0.1:<port>/...`, where nothing is listening on the Mac.
 The browser shows "This site can't be reached" while the login command on `agentbox` keeps waiting.
-This affects Pi's `/login` and `pi mcp login`, `hey auth login`, Codex, Claude Code, and OpenCode's MCP sign-in.
+This affects sign-in for Codex, Claude Code, and `hey auth login`.
 
 Finish the sign-in from the Mac with `agentbox-auth`:
 

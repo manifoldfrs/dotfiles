@@ -16,14 +16,13 @@ copy() {
     cp "$repo_dir/$1" "$test_dir/$1"
 }
 
-for file in scripts/harness_sync.sh stow/pi/.pi/agent/mcp.json stow/opencode/.config/opencode/opencode.jsonc stow/codex/.codex/config.toml \
-    stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts; do
+for file in scripts/harness_sync.sh mcp/shared/servers.json stow/codex/.codex/config.toml \
+    mcp/shared/jev.ts stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts; do
     copy "$file"
 done
 sync="$test_dir/scripts/harness_sync.sh"
-pi_mcp="$test_dir/stow/pi/.pi/agent/mcp.json"
+shared_mcp="$test_dir/mcp/shared/servers.json"
 codex="$test_dir/stow/codex/.codex/config.toml"
-opencode="$test_dir/stow/opencode/.config/opencode/opencode.jsonc"
 
 bash "$sync" --check >/dev/null || fail "the tracked generated files are stale"
 jev_args=$(awk '/^\[/{section=$0} section=="[mcp_servers.jev]" && /^args = / {print}' "$codex")
@@ -47,13 +46,12 @@ enabled = false
 TOML
 
 # Removing a shared server removes its generated copies.
-jq 'del(.mcpServers.hey) | .mcpServers.jev.args = ["-y", "@jkudish/jev-mcp@fixture"] | .mcpServers.docs = {url: "https://docs.test/mcp", headers: {"x-team": "dotfiles"}, exposure: "direct"}' "$pi_mcp" > "$pi_mcp.new"
-mv "$pi_mcp.new" "$pi_mcp"
-printf '\n// changed in Pi\n' >> "$test_dir/stow/pi/.pi/agent/extensions/jev-guardrails/shared.ts"
+jq 'del(.mcpServers.hey) | .mcpServers.jev.args = ["-y", "@jkudish/jev-mcp@fixture"] | .mcpServers.docs = {url: "https://docs.test/mcp", headers: {"x-team": "dotfiles"}, exposure: "direct"}' "$shared_mcp" > "$shared_mcp.new"
+mv "$shared_mcp.new" "$shared_mcp"
+printf '\n// changed in shared Jev\n' >> "$test_dir/mcp/shared/jev.ts"
 bash "$sync" >/dev/null
-grep -Eq '^\[mcp_servers\.hey(\.|\])' "$codex" && fail "Codex kept a server Pi removed"
+grep -Eq '^\[mcp_servers\.hey(\.|\])' "$codex" && fail "Codex kept a removed shared server"
 grep -A1 -F '[mcp_servers.jev.tools.fixture]' "$codex" | grep -qx 'approval_mode = "approve"' || fail "Codex lost a tool approval"
-grep -q '"hey"' "$opencode" && fail "OpenCode kept a server Pi removed"
 grep -q '^\[mcp_servers.docs.http_headers\]' "$codex" || fail "Codex is missing a literal header table"
 awk '/^\[/{section=$0} section=="[mcp_servers.docs]" && $0=="omit_tools_from = [\"deferred\"]" {found=1} END {exit !found}' "$codex" \
     || fail "Codex did not keep the docs server direct and callable from Code Mode"
@@ -65,15 +63,13 @@ awk -v args="$jev_args" '
     section=="[mcp_servers.jev]" && $0==args {preserved=1}
     END {exit !(count == 1 && preserved)}
 ' "$codex" \
-    || fail "Pi's Jev server overrode or duplicated the Codex-owned registration"
-grep -q '@jkudish/jev-mcp@fixture' "$opencode" || fail "OpenCode's Jev server did not follow Pi"
+    || fail "The shared Jev server overrode or duplicated the Codex-owned registration"
 grep -q '^\[mcp_servers.node_repl\]' "$codex" || fail "Codex lost a ChatGPT app server"
 grep -q '^\[mcp_servers.computer-use\]' "$codex" || fail "Codex lost a ChatGPT app server"
 awk '/^\[/{section=$0} section=="[mcp_servers.xai-search]" && $0 ~ /^env_vars = .*XAI_API_KEY/ {found=1} END {exit !found}' "$codex" \
     || fail "Codex lost its direct xAI server"
 grep -q '^\[hooks.state\]' "$codex" || fail "Codex lost unrelated settings"
-grep -q '"codemode": false' "$opencode" || fail "OpenCode did not map direct exposure"
-tail -1 "$test_dir/stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts" | grep -q 'changed in Pi' || fail "Claude's jev copy did not follow Pi"
+tail -1 "$test_dir/stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts" | grep -q 'changed in shared Jev' || fail "Claude's jev copy did not follow the shared source"
 bash "$sync" --check >/dev/null || fail "a fresh sync is not up to date"
 # tomllib needs Python 3.11; older Pythons skip only this parse check.
 if python3 -c 'import tomllib' 2>/dev/null; then
@@ -81,11 +77,11 @@ if python3 -c 'import tomllib' 2>/dev/null; then
 fi
 
 # Codex cannot express a secret inside a larger value, so the sync refuses rather than drop it.
-jq '.mcpServers.docs.headers = {Authorization: "Bearer ${DOCS_TOKEN}"}' "$pi_mcp" > "$pi_mcp.new"
-mv "$pi_mcp.new" "$pi_mcp"
+jq '.mcpServers.docs.headers = {Authorization: "Bearer ${DOCS_TOKEN}"}' "$shared_mcp" > "$shared_mcp.new"
+mv "$shared_mcp.new" "$shared_mcp"
 bash "$sync" >/dev/null 2>&1 && fail "the sync accepted a header Codex cannot express"
 
 if [ "$failures" -gt 0 ]; then
     exit 1
 fi
-echo "PASS: harness sync generates OpenCode, Codex, and Claude copies from Pi and keeps Codex-only servers"
+echo "PASS: harness sync generates Codex and Claude files from shared sources and keeps Codex-owned servers"

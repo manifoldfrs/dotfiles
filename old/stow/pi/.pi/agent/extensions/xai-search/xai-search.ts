@@ -1,8 +1,8 @@
 import { resolveGuardedXaiRuntime, type XaiAuthRegistry } from "./xai-auth.ts";
-import { postXaiSearch, type FetchLike } from "../../../../../../mcp/xai-search/xai-client.ts";
+import { postXaiSearch, type FetchLike } from "../../../../../../../mcp/xai-search/xai-client.ts";
 import type { XaiSearchConfig } from "./xai-config.ts";
-import { formatXaiSearchResponse, type FormattedXaiSearch } from "../../../../../../mcp/xai-search/xai-format.ts";
-import { buildXaiSearchRequest, type XaiSearchParams } from "../../../../../../mcp/xai-search/xai-request.ts";
+import { formatXaiSearchResponse, type FormattedXaiSearch } from "../../../../../../../mcp/xai-search/xai-format.ts";
+import { buildXaiSearchRequest, type XaiSearchParams } from "../../../../../../../mcp/xai-search/xai-request.ts";
 
 export interface RunXaiSearchOptions {
   registry: XaiAuthRegistry;

@@ -9,7 +9,7 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr rex nvim bin pi claude opencode codex cursor)
+STOW_PACKAGES=(bash git ghostty herdr rex nvim bin claude codex cursor)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
@@ -18,8 +18,6 @@ CODEX_CONFIG_TEMPLATE="$STOW_DIR/codex/.codex/config.toml"
 AGENT_SKILLS_DIR="$STOW_DIR/codex/skills/shared"
 LEGACY_AGENT_SKILLS_DIR="$STOW_DIR/pi/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
-OPENCODE_PLUGINS_DIR="$STOW_DIR/opencode/.config/opencode/plugins"
-OPENCODE_PLUGINS_TARGET="$HOME/.config/opencode/plugins"
 BACKED_UP_TARGETS=()
 BACKUP_PATHS=()
 SHARED_BACKUP_TARGETS=(
@@ -33,22 +31,12 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/hooks/block-generated-edits.sh"
     "$HOME/.codex/themes/$CODEX_THEME_FILE"
 )
-PI_BACKUP_TARGETS=(
-    "$HOME/.pi/agent/AGENTS.md"
-    "$HOME/.pi/agent/mcp.json"
-    "$HOME/.pi/agent/settings.json"
-)
 CLAUDE_BACKUP_TARGETS=(
     "$HOME/.claude/AGENTS.md"
     "$HOME/.claude/keybindings.json"
     "$HOME/.claude/settings.json"
     "$HOME/.claude/settings.local.json"
     "$HOME/.claude/statusline.sh"
-)
-OPENCODE_BACKUP_TARGETS=(
-    "$HOME/.config/opencode/AGENTS.md"
-    "$HOME/.config/opencode/cli.json"
-    "$HOME/.config/opencode/opencode.jsonc"
 )
 CURSOR_USER_DIR="$HOME/Library/Application Support/Cursor/User"
 CURSOR_BACKUP_TARGETS=(
@@ -171,14 +159,6 @@ is_stow_managed_tree() {
     [ "$saw_entry" -eq 1 ]
 }
 
-backup_pi_stow_targets() {
-    mkdir -p "$HOME/.pi/agent"
-
-    for target in "${PI_BACKUP_TARGETS[@]}"; do
-        backup_stow_target "$target"
-    done
-}
-
 backup_claude_stow_targets() {
     local target
 
@@ -189,20 +169,6 @@ backup_claude_stow_targets() {
     mkdir -p "$HOME/.claude"
 
     for target in "${CLAUDE_BACKUP_TARGETS[@]}"; do
-        backup_stow_target "$target"
-    done
-}
-
-backup_opencode_stow_targets() {
-    local target
-
-    if ! has_stow_package opencode; then
-        return
-    fi
-
-    mkdir -p "$HOME/.config/opencode"
-
-    for target in "${OPENCODE_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
     done
 }
@@ -502,90 +468,6 @@ remove_shared_skill_folder_links() {
     done
 }
 
-# Earlier applies stowed plugin files one by one; clear a directory that holds only those links.
-remove_stowed_plugin_files() {
-    local dest=$1
-    local entry
-
-    for entry in "$dest"/* "$dest"/.[!.]*; do
-        if [ ! -e "$entry" ] && [ ! -L "$entry" ]; then
-            continue
-        fi
-        if ! is_stow_managed_link "$entry"; then
-            return 1
-        fi
-    done
-
-    find "$dest" -mindepth 1 -maxdepth 1 -type l -delete
-    rmdir "$dest"
-}
-
-ensure_opencode_plugin_links() {
-    local plugin_dir
-    local src
-    local dest
-
-    if ! has_stow_package opencode || [ ! -d "$OPENCODE_PLUGINS_DIR" ]; then
-        return
-    fi
-
-    mkdir -p "$OPENCODE_PLUGINS_TARGET"
-    for plugin_dir in "$OPENCODE_PLUGINS_DIR"/*/; do
-        src="${plugin_dir%/}"
-        if [ ! -f "$src/index.ts" ]; then
-            continue
-        fi
-        dest="$OPENCODE_PLUGINS_TARGET/$(basename "$src")"
-
-        if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
-            continue
-        fi
-        if [ -L "$dest" ] && is_stow_managed_link "$dest"; then
-            ln -sfn "$src" "$dest"
-            info "Repointed OpenCode plugin folder: $dest -> $src"
-            continue
-        fi
-        if [ -d "$dest" ] && [ ! -L "$dest" ] && ! remove_stowed_plugin_files "$dest"; then
-            warn "Skipping non-Stow OpenCode plugin target: $dest"
-            continue
-        fi
-        if [ -e "$dest" ] || [ -L "$dest" ]; then
-            warn "Skipping non-Stow OpenCode plugin target: $dest"
-            continue
-        fi
-
-        ln -s "$src" "$dest"
-        info "Linked OpenCode plugin folder: $dest -> $src"
-    done
-
-    for dest in "$OPENCODE_PLUGINS_TARGET"/*; do
-        src="$OPENCODE_PLUGINS_DIR/$(basename "$dest")"
-        if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ] && [ ! -f "$src/index.ts" ]; then
-            rm "$dest"
-            info "Removed link to retired OpenCode plugin: $dest"
-        fi
-    done
-}
-
-remove_opencode_plugin_links() {
-    local plugin_dir
-    local src
-    local dest
-
-    if ! has_stow_package opencode || [ ! -d "$OPENCODE_PLUGINS_DIR" ]; then
-        return
-    fi
-
-    for plugin_dir in "$OPENCODE_PLUGINS_DIR"/*/; do
-        src="${plugin_dir%/}"
-        dest="$OPENCODE_PLUGINS_TARGET/$(basename "$src")"
-        if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
-            rm "$dest"
-            info "Removed OpenCode plugin folder link: $dest"
-        fi
-    done
-}
-
 apply_dotfiles() {
     info "Running isolated preflight before changing $HOME"
     "$DOTFILES_DIR/scripts/validate-dotfiles.sh" "$DOTFILES_DIR" "${STOW_PACKAGES[@]}"
@@ -593,9 +475,7 @@ apply_dotfiles() {
 
     backup_bash_stow_targets
     backup_shared_stow_targets
-    backup_pi_stow_targets
     backup_claude_stow_targets
-    backup_opencode_stow_targets
     backup_shared_skill_targets
 
     backup_cursor_stow_targets
@@ -609,7 +489,6 @@ apply_dotfiles() {
     fi
     ensure_local_codex_config
     ensure_shared_skill_folder_links
-    ensure_opencode_plugin_links
     ensure_bash_link
 }
 
@@ -620,7 +499,6 @@ dry_run_dotfiles() {
 
 delete_dotfiles() {
     remove_shared_skill_folder_links
-    remove_opencode_plugin_links
     warn "Removing Stow-managed symlinks from $HOME: ${STOW_PACKAGES[*]}"
     stow -D "${STOW_FLAGS[@]}" "${STOW_PACKAGES[@]}"
 }

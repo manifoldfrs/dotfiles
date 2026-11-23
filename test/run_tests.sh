@@ -60,7 +60,6 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.bashrc" ] \
     && [ -L "$STOW_TEST_HOME/.inputrc" ] \
     && find "$STOW_TEST_HOME" -maxdepth 1 -name '.bashrc.backup.*' | grep -q . \
-    && find "$STOW_TEST_HOME/.pi/agent" -maxdepth 1 -name 'mcp.json.backup.*' | grep -q . \
     && [ -L "$STOW_TEST_HOME/.config/bash/environment.bash" ] \
     && [ -L "$STOW_TEST_HOME/.config/fish/config.fish" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
@@ -70,29 +69,20 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ ! -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
     && [ -f "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
     && [ -L "$DOTFILES_DIR/stow/claude/.claude/AGENTS.md" ] \
-    && [ -L "$DOTFILES_DIR/stow/opencode/.config/opencode/AGENTS.md" ] \
-    && [ -L "$DOTFILES_DIR/stow/pi/.pi/agent/AGENTS.md" ] \
-    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
-    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.codex/AGENTS.md" \
-    && cmp "$STOW_TEST_HOME/.pi/agent/AGENTS.md" "$STOW_TEST_HOME/.config/opencode/AGENTS.md" \
+    && cmp "$STOW_TEST_HOME/.codex/AGENTS.md" "$STOW_TEST_HOME/.claude/AGENTS.md" \
+    && [ ! -L "$STOW_TEST_HOME/.pi/agent/mcp.json" ] \
+    && grep -Fxq '{}' "$STOW_TEST_HOME/.pi/agent/mcp.json" \
+    && [ ! -e "$STOW_TEST_HOME/.config/opencode" ] \
     && [ ! -L "$DOTFILES_DIR/stow/codex/.codex/hooks/block-dangerous-bash.sh" ] \
     && [ -L "$DOTFILES_DIR/stow/claude/.claude/hooks/block-dangerous-bash.sh" ] \
-    && [ -L "$DOTFILES_DIR/stow/pi/.pi/agent/guardrails/block-dangerous-bash.sh" ] \
-    && [ "$STOW_TEST_HOME/.pi/agent/guardrails/block-dangerous-bash.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
     && [ "$STOW_TEST_HOME/.claude/hooks/block-dangerous-bash.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-dangerous-bash.sh" ] \
-    && [ "$STOW_TEST_HOME/.pi/agent/guardrails/block-generated-edits.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-generated-edits.sh" ] \
     && [ "$STOW_TEST_HOME/.claude/hooks/block-generated-edits.sh" -ef "$STOW_TEST_HOME/.codex/hooks/block-generated-edits.sh" ] \
     && [ ! -L "$STOW_TEST_HOME/.claude/skills/frontend-design/SKILL.md" ] \
     && [ -L "$STOW_TEST_HOME/.claude/keybindings.json" ] \
     && [ ! -e "$STOW_TEST_HOME/.claude/mcp.json" ] \
-    && [ ! -e "$STOW_TEST_HOME/.pi/skills" ] \
-    && [ ! -e "$STOW_TEST_HOME/.pi/agent/hooks" ] \
     && [ ! -e "$STOW_TEST_HOME/skills" ] \
     && [ ! -e "$STOW_TEST_HOME/mcp.json" ] \
     && find "$STOW_TEST_HOME/.claude" -maxdepth 1 -name 'settings.json.backup.*' | grep -q . \
-    && [ -L "$STOW_TEST_HOME/.pi/agent/themes/tokyonight-frsh.json" ] \
-    && [ -L "$STOW_TEST_HOME/.pi/agent/extensions/signal-deck.ts" ] \
-    && [ -L "$STOW_TEST_HOME/.pi/agent/mcp.json" ] \
     && [ -L "$STOW_TEST_HOME/.agents/skills/frontend-design" ] \
     && [ -L "$STOW_TEST_HOME/.claude/skills/frontend-design" ] \
     && [ "$(readlink "$STOW_TEST_HOME/.claude/skills/anti-slop")" = "$DOTFILES_DIR/stow/codex/skills/shared/anti-slop" ] \
@@ -120,13 +110,6 @@ grep -Fq '"frshbb": { "principals": ["tailscale:manifoldfrs@github"] }' server/r
 grep -Eq '^ExecStart=/usr/bin/rex login-server .* --extra-listen tailnet://:7297$' server/rex/rex-login-server.service.d/override.conf
 grep -Fqx 'Pin-Priority: 1001' server/rex/apt-preferences.d/rex
 grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/colorscheme.lua
-jq -e --slurpfile theme stow/pi/.pi/agent/themes/tokyonight-frsh.json '
-    .theme == "tokyonight-frsh" and .theme == $theme[0].name
-    and (.extensions | contains(["-extensions/claude-style-ui/index.ts", "-extensions/frsh-header/index.ts", "-extensions/signal-deck.ts"]))
-    and (.packages | map(if type == "object" then .source else . end) | all(startswith("npm:pi-cyber-ui") | not))
-' stow/pi/.pi/agent/settings.json >/dev/null
-jq -e '.packages | any(type == "string" and startswith("git:github.com/dmmulroy/pi-claude-cli@"))' stow/pi/.pi/agent/settings.json >/dev/null
-grep -q '"shellPath": "~/.local/bin/bash"' stow/pi/.pi/agent/settings.json
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
 grep -q '^source_cached_init zoxide-init zoxide init bash$' stow/bash/.bashrc

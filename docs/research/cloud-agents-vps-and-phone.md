@@ -3,6 +3,10 @@
 Updated 2026-09-26.
 Checked against the Claude Code, opencode, herdr, and Tailscale docs, plus a handful of people's published VPS setups.
 
+> [!NOTE]
+> **Superseded historical spec:** OpenCode has since been retired (tracked configuration archived at [`old/stow/opencode/`](../../old/stow/opencode/)), Codex is now the primary harness, and Rex replaced Herdr as the primary remote workspace on `agentbox`.
+> For current setup and workflows, see [docs/agents.md](../agents.md) and [docs/rex.md](../rex.md).
+
 ## The problem
 
 Right now Claude Code and opencode run on the laptop.

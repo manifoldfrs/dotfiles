@@ -18,9 +18,6 @@ STOW_TARGETS=(
     "$HOME/.gitconfig"
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"
-    "$HOME/.config/opencode/AGENTS.md"
-    "$HOME/.config/opencode/cli.json"
-    "$HOME/.config/opencode/opencode.jsonc"
     "$HOME/.claude/settings.local.json"
     "$HOME/.config/herdr/config.toml"
     "$HOME/.config/herdr/plugins.txt"
@@ -104,7 +101,7 @@ backup_stow_target() {
 }
 
 backup_existing_stow_targets() {
-    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.config/opencode" "$HOME/.claude" "$HOME/.local/bin"
+    mkdir -p "$HOME/.config/ghostty" "$HOME/.config/bash" "$HOME/.claude" "$HOME/.local/bin"
 
     for target in "${STOW_TARGETS[@]}"; do
         backup_stow_target "$target"
@@ -168,23 +165,6 @@ install_global_anti_slop() {
     npm install --prefix "$runtime" --omit=dev --ignore-scripts --no-package-lock --no-audit --no-fund || warn "Global anti-slop dependency installation failed"
 }
 
-install_pi() {
-    local pnpm_home="${PNPM_HOME:-$HOME/.local/share/pnpm}"
-
-    if [ -x "$pnpm_home/bin/pi" ]; then
-        info "Pi already installed with pnpm"
-        return
-    fi
-
-    if ! command -v pnpm &> /dev/null; then
-        warn "pnpm not found, skipping Pi"
-        return
-    fi
-
-    info "Installing Pi with pnpm..."
-    PNPM_HOME="$pnpm_home" PATH="$pnpm_home/bin:$PATH" pnpm add --global --ignore-scripts @earendil-works/pi-coding-agent || warn "Pi installation failed"
-}
-
 # cua-driver installs its version-matched skill itself and links it into ~/.agents/skills and ~/.claude/skills.
 install_cua_driver_skill() {
     if ! command -v cua-driver &> /dev/null; then
@@ -193,22 +173,6 @@ install_cua_driver_skill() {
 
     cua-driver telemetry disable > /dev/null 2>&1 || warn "Could not disable cua-driver telemetry"
     cua-driver skills install || warn "cua-driver skill installation failed; rerun: cua-driver skills install"
-}
-
-install_opencode() {
-    local version
-
-    if command -v opencode &> /dev/null; then
-        version="$(opencode --version 2>/dev/null || true)"
-        if [[ "$version" == "opencode v2."* ]]; then
-            info "OpenCode 2 already installed: $version"
-            return
-        fi
-    fi
-
-    # The tracked Bash environment already puts ~/.opencode/bin on PATH.
-    info "Installing OpenCode 2..."
-    (set -o pipefail; curl -fsSL https://opencode.ai/v2/install | bash -s -- --no-modify-path) || warn "OpenCode 2 installation failed"
 }
 
 install_claude_code() {
@@ -249,16 +213,14 @@ setup_rex_agents() {
 
     info "Installing Rex's agent skill and hooks..."
     # Pass the naming choice explicitly; without it, newer Rex builds rewrite the tracked hooks to turn naming off.
-    "$rex_bin" skill setup --session-naming || warn "Rex agent setup failed; rerun: rex skill setup --session-naming"
+    "$rex_bin" skill setup --agent codex --agent claude --session-naming || warn "Rex agent setup failed; rerun: rex skill setup --agent codex --agent claude --session-naming"
 }
 
 main() {
     info "Bootstrapping development environment..."
     install_homebrew
     install_brewfile
-    install_pi
     install_claude_code
-    install_opencode
     apply_dotfiles
     bash "$DOTFILES_DIR/mcp_setup.sh" install-claude || warn "Claude Code MCP setup failed; rerun: ./mcp_setup.sh install-claude"
     bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"

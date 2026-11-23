@@ -4,6 +4,7 @@ Research date: 2026-10-06.
 Scope: tracked shared skills and Pi, Claude Code, and OpenCode customizations, including the current uncommitted Pi 1.0 migration.
 This records the pre-cleanup snapshot; recommendations below are historical where the approved cleanup has since changed their targets.
 The subsequent cleanup fixed Pi `edits[]` capture, removed the generic Pi SDK adapter and Zsh override, simplified command/workflow adapters, and protected personalized skill ownership.
+Pi and OpenCode were later retired (archived under [`old/stow/`](../../old/stow/)), and shared skills moved to `stow/codex/skills/shared/` (with retired skills under `old/skills/`); links below have been updated to current or archived locations where those files still exist.
 Live deployment still requires separate approval.
 
 ## Verdict
@@ -33,12 +34,12 @@ One OpenAI prompting search was blocked by Jev screening and excluded from the r
 ## Inventory and ownership
 
 The repository tracks **49 shared skills**.
-The [ownership manifest](../../stow/agents/.agents/skills/.skill-sources.tsv) lists 45: 25 Matt-owned, six dmmulroy-owned, and 14 local-owned.
+The [ownership manifest](../../stow/codex/skills/shared/.skill-sources.tsv) lists 45: 25 Matt-owned, six dmmulroy-owned, and 14 local-owned.
 `jev`, `lg`, `optojr`, and `typesafe-ai` have no manifest row.
 There are 45 OpenCode command adapters; these mostly invoke skills rather than maintain separate implementations.
 
 Pi has 11 tracked local extension entry points and a twelfth in the untracked `jev-guardrails` directory.
-Its [settings](../../stow/pi/.pi/agent/settings.json) reference four packages: subagents, intercom, prompt-template-model, and Plannotator.
+Its [settings](../../old/stow/pi/.pi/agent/settings.json) reference four packages: subagents, intercom, prompt-template-model, and Plannotator.
 Claude config selects seven local mods and seven marketplace plugins.
 OpenCode selects three enabled local plugins plus its disabled logger.
 These are configuration facts, not proof that every feature is currently loaded or used.
@@ -55,8 +56,8 @@ These are candidates for review, not an automatic deletion list.
 | --- | --- | --- |
 | Retired Pi `extensions/zsh-user-bash.ts` | Remove if the documented Bash baseline is also the actual Pi shell setup. | Its original workaround concerned interactive Zsh behavior; confirm user `!` and `!!` commands work under the intended Bash before removing it. |
 | Retired Pi `extensions/typesafe-ai/index.ts` | Migrate Pi consumers to native `models.classify` and extension `modelRegistry.classify`, then retire the generic SDK wrapper. | Existing prompts expect `typesafe_evaluate`; migrate those contracts first, and retain specialized Jev MCP operations where used. |
-| [Pi updater implementation](../../stow/pi/.pi/agent/extensions/update.ts) | Prefer native `pi update`; keep only a thin `/update` convenience wrapper if wanted. | Preserve approval before installation changes; test the actual install method rather than assume every manager is supported. |
-| [Pi `/lg` extension](../../stow/pi/.pi/agent/extensions/lg.ts) | Consolidate its prompt with the [shared `lg` skill](../../stow/agents/.agents/skills/lg/SKILL.md), or use a native prompt template. | The extension queues a follow-up when busy; retain it if that behavior matters rather than claiming full template equivalence. |
+| [Pi updater implementation](../../old/stow/pi/.pi/agent/extensions/update.ts) | Prefer native `pi update`; keep only a thin `/update` convenience wrapper if wanted. | Preserve approval before installation changes; test the actual install method rather than assume every manager is supported. |
+| [Pi `/lg` extension](../../old/stow/pi/.pi/agent/extensions/lg.ts) | Consolidate its prompt with the [shared `lg` skill](../../old/skills/lg/SKILL.md), or use a native prompt template. | The extension queues a follow-up when busy; retain it if that behavior matters rather than claiming full template equivalence. |
 
 Installed Pi 1.0.4 documentation establishes native classifier access in `docs/models.md`, reusable Markdown commands in `docs/prompt-templates.md`, and self/package/model updating in `docs/cli.md`.
 These recommendations concern **Pi**.
@@ -67,24 +68,24 @@ The MCP adapter has already been removed in the current Pi migration; retain tha
 
 | Area | Keep | Change |
 | --- | --- | --- |
-| [Research](../../stow/agents/.agents/skills/research/SKILL.md) | Primary sources, citations, clear uncertainties, durable findings when appropriate. | Replace the unconditional background-agent requirement with direct execution for small lookups and bounded delegation for broad investigations. |
-| [Code review](../../stow/agents/.agents/skills/code-review/SKILL.md) | Standards and Spec as separate review axes. | Two axes need not mean two agents for every diff; reserve separate fresh-context reviewers for consequential or broad changes and use the actual harness API. |
-| [Grilling](../../stow/agents/.agents/skills/grilling/SKILL.md) | Look up environmental facts instead of making the user do it; wait for decisions. | Do not require a subagent for every environmental fact; direct reads often suffice. |
-| [Architecture improvement](../../stow/agents/.agents/skills/improve-codebase-architecture/SKILL.md) | Evidence-led repository exploration and bounded improvement suggestions. | Remove compulsory Claude `Agent`/`Explore` syntax from shared instructions; choose the available harness mechanism only when delegation helps. |
-| [Design-it-twice](../../stow/agents/.agents/skills/codebase-design/DESIGN-IT-TWICE.md) | Independent alternative designs when the decision merits them. | Treat three-plus agents as an explicit exploration mode, not an ordinary design prerequisite. |
-| [Effect/umbrella standards](../../stow/agents/.agents/skills/coding-standards/SKILL.md) and [TS standards](../../stow/agents/.agents/skills/coding-standards-ts/SKILL.md) | User-specific invariants and genuinely Effect-specific knowledge. | Narrow the umbrella's trigger to Effect work and load relevant references selectively instead of activating two general TS standards stacks. |
-| [Diagnosis](../../stow/agents/.agents/skills/diagnosing-bugs/SKILL.md) | Reproduction, evidence, hypotheses, and verified fixes. | Reserve elaborate diagnosis and fixed hypothesis counts for hard bugs; do not make every straightforward failure a full investigation. |
-| [TDD](../../stow/agents/.agents/skills/tdd/SKILL.md) | Explicit test-first mode and public-behavior tests. | Agree on the seam and workflow once; avoid repeated approval rituals when the user already authorized that scope. |
-| [Discoverable code](../../stow/agents/.agents/skills/write-discoverable-code/SKILL.md) | Searchable domain vocabulary and literal errors/events. | Replace universal export-comment and rigid naming/file rules with constraints justified by the repository; do not assume every harness lacks semantic navigation. |
+| [Research](../../old/skills/research/SKILL.md) | Primary sources, citations, clear uncertainties, durable findings when appropriate. | Replace the unconditional background-agent requirement with direct execution for small lookups and bounded delegation for broad investigations. |
+| [Code review](../../old/skills/code-review/SKILL.md) | Standards and Spec as separate review axes. | Two axes need not mean two agents for every diff; reserve separate fresh-context reviewers for consequential or broad changes and use the actual harness API. |
+| Grilling (removed) | Look up environmental facts instead of making the user do it; wait for decisions. | Do not require a subagent for every environmental fact; direct reads often suffice. |
+| Architecture improvement (removed) | Evidence-led repository exploration and bounded improvement suggestions. | Remove compulsory Claude `Agent`/`Explore` syntax from shared instructions; choose the available harness mechanism only when delegation helps. |
+| Design-it-twice (`codebase-design/DESIGN-IT-TWICE.md`, removed) | Independent alternative designs when the decision merits them. | Treat three-plus agents as an explicit exploration mode, not an ordinary design prerequisite. |
+| [Effect/umbrella standards](../../stow/codex/skills/shared/coding-standards/SKILL.md) and [TS standards](../../old/skills/coding-standards-ts/SKILL.md) | User-specific invariants and genuinely Effect-specific knowledge. | Narrow the umbrella's trigger to Effect work and load relevant references selectively instead of activating two general TS standards stacks. |
+| [Diagnosis](../../old/skills/diagnosing-bugs/SKILL.md) | Reproduction, evidence, hypotheses, and verified fixes. | Reserve elaborate diagnosis and fixed hypothesis counts for hard bugs; do not make every straightforward failure a full investigation. |
+| TDD (removed) | Explicit test-first mode and public-behavior tests. | Agree on the seam and workflow once; avoid repeated approval rituals when the user already authorized that scope. |
+| [Discoverable code](../../old/skills/write-discoverable-code/SKILL.md) | Searchable domain vocabulary and literal errors/events. | Replace universal export-comment and rigid naming/file rules with constraints justified by the repository; do not assume every harness lacks semantic navigation. |
 
 The shared skills sometimes prescribe Claude's tools even when used from Pi.
 That portability mismatch is a stronger reason to revise them than their age.
 Keep `grill-me` and `grill-with-docs` aliases if used: they are short, user-only wrappers, not large automatically loaded instruction bodies.
-The local [project-aware grilling skill](../../stow/agents/.agents/skills/grill-me-with-docs/SKILL.md) uses a different interviewing mode; choose the intended mode rather than casually merging away that preference.
+The local project-aware grilling skill (`grill-me-with-docs`, later removed) uses a different interviewing mode; choose the intended mode rather than casually merging away that preference.
 
 ## Jev: retain capability, consolidate policy, hold the new coding hook
 
-The [shared global rules](../../stow/pi/.pi/agent/AGENTS.md), [Jev skill](../../stow/agents/.agents/skills/jev/SKILL.md), first-edit reminders, and automatic hooks all prescribe related judgments.
+The [shared global rules](../../old/stow/pi/.pi/agent/AGENTS.md), [Jev skill](../../stow/codex/skills/shared/jev/SKILL.md), first-edit reminders, and automatic hooks all prescribe related judgments.
 This establishes overlapping responsibility, not a measured doubled-call rate or a known dollar cost.
 
 My recommendation is one policy owner and clear boundaries between automatic screening, deliberate semantic decisions, and final completion review.
@@ -94,7 +95,7 @@ If the user wants a leaner baseline, relax always-on routine judgment requiremen
 
 ### Reproduced edit-capture defect
 
-The new [Pi coding hook](../../stow/pi/.pi/agent/extensions/jev-guardrails/jev-coding.ts) extracts top-level `oldText` and `newText` from successful edit inputs.
+The new Pi coding hook (`stow/pi/.pi/agent/extensions/jev-guardrails/jev-coding.ts`, later replaced by [`checks.ts`](../../old/stow/pi/.pi/agent/extensions/jev-guardrails/checks.ts)) extracts top-level `oldText` and `newText` from successful edit inputs.
 The installed Pi edit schema uses `edits[]` containing those fields.
 An in-memory hook harness reproduced the mismatch with a successful edit and settlement event:
 

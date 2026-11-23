@@ -1,5 +1,10 @@
 # Research: OpenCode 2 migration from this Pi setup
 
+> [!NOTE]
+> **Superseded research note:** Both Pi and OpenCode have since been retired, with their tracked configurations archived under [`old/stow/pi/`](../../old/stow/pi/) and [`old/stow/opencode/`](../../old/stow/opencode/).
+> Do not follow the installation or migration steps below for current setup; see [docs/agents.md](../agents.md) for the active Codex, Claude Code, and Antigravity workflow.
+> Links below to archived files have been updated to `old/stow/` while preserving the original findings.
+
 ## Summary
 
 OpenCode 2 is stable.
@@ -29,7 +34,7 @@ This repository is already well positioned for skills because OpenCode 2 directl
    The old `@opencode-ai/cli@beta` command is obsolete.
 
 2. **Claim:** Stable V2 can replace the `opencode` executable and shares the existing configuration path.
-   **Sources:** [OpenCode V2 installer](https://opencode.ai/v2/install), [V1 migration guide](https://opencode.ai/v2/docs/migrate-v1/), [`stow/opencode/.config/opencode/opencode.jsonc`](../../stow/opencode/.config/opencode/opencode.jsonc), [`stow/opencode/.config/opencode/tui.json`](../../stow/opencode/.config/opencode/tui.json).
+   **Sources:** [OpenCode V2 installer](https://opencode.ai/v2/install), [V1 migration guide](https://opencode.ai/v2/docs/migrate-v1/), [`old/stow/opencode/.config/opencode/opencode.jsonc`](../../old/stow/opencode/.config/opencode/opencode.jsonc), historical `stow/opencode/.config/opencode/tui.json`.
    **Support:** The current installer uses `APP=opencode`, installs into `~/.opencode/bin/opencode`, and adds an `opencode2` compatibility shim; configuration remains under `~/.config/opencode`.
    **Researcher inference:** Running the stable installer can replace the currently resolved V1 executable rather than preserving independent V1 and V2 commands.
    **Confidence:** High.
@@ -43,56 +48,56 @@ This repository is already well positioned for skills because OpenCode 2 directl
    **Action:** Prefer the official migration/normalization over a speculative hand conversion, then verify the resulting provider model override (`textVerbosity`), all three MCP servers, and the Tokyo Night theme.
 
 4. **Claim:** Existing `AGENTS.md` content is reusable, but Pi's global file is not automatically the OpenCode global file.
-   **Sources:** [V2 instructions](https://opencode.ai/v2/docs/instructions/), [`AGENTS.md`](../../../../../code/personal/dotfiles/AGENTS.md), [`stow/pi/.pi/agent/AGENTS.md`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/AGENTS.md).
+   **Sources:** [V2 instructions](https://opencode.ai/v2/docs/instructions/), [`AGENTS.md`](../../AGENTS.md), [`old/stow/pi/.pi/agent/AGENTS.md`](../../old/stow/pi/.pi/agent/AGENTS.md).
    **Support:** Direct evidence says V2 reads project `AGENTS.md` and global `~/.config/opencode/AGENTS.md`; the `instructions` array is currently inactive.
    **Repository evidence:** The project already has `AGENTS.md`, while global rules are tracked only at `stow/pi/.pi/agent/AGENTS.md`; there is no tracked `stow/opencode/.config/opencode/AGENTS.md`.
    **Confidence:** High.
    **Action:** Let the project rules work as-is, and create a deliberate OpenCode global adapter later rather than pointing V2 at Pi's file through the inactive `instructions` setting.
 
 5. **Claim:** The shared skill catalog is the lowest-risk migration category.
-   **Sources:** [V2 skills](https://opencode.ai/v2/docs/skills/), [`scripts/stow.sh`](../../../../../code/personal/dotfiles/scripts/stow.sh), [`CONTEXT.md`](../../../../../code/personal/dotfiles/CONTEXT.md).
+   **Sources:** [V2 skills](https://opencode.ai/v2/docs/skills/), [`scripts/stow.sh`](../../scripts/stow.sh), [`CONTEXT.md`](../../CONTEXT.md).
    **Support:** Direct evidence says V2 directly discovers global `~/.agents/skills`.
    **Repository evidence:** The `agents` Stow package already owns `stow/agents/.agents/skills`, and `scripts/stow.sh` targets `~/.agents/skills` as the shared skill catalog.
    **Confidence:** High.
    **Action:** Do not duplicate skills under the OpenCode config tree; verify discovery in stable `opencode` after applying the existing `agents` package.
 
 6. **Claim:** The tracked OpenCode plugin requires a V2 port and must not be assumed compatible.
-   **Sources:** [V2 plugins](https://opencode.ai/v2/docs/build/plugins/), [V1 migration guide](https://opencode.ai/v2/docs/migrate-v1/), [`stow/opencode/.config/opencode/plugin/cb-guards.ts`](../../stow/opencode/.config/opencode/plugin/cb-guards.ts).
+   **Sources:** [V2 plugins](https://opencode.ai/v2/docs/build/plugins/), [V1 migration guide](https://opencode.ai/v2/docs/migrate-v1/), historical `stow/opencode/.config/opencode/plugin/cb-guards.ts`.
    **Support:** Direct evidence says the V2 plugin API breaks from V1 and the server API also breaks.
    **Repository evidence:** `cb-guards.ts` uses the legacy default plugin factory, while V2 requires a `Plugin.define({ id, setup })` default export and discovers local plugins under plural `plugins/` directories.
    **Confidence:** High.
    **Action:** Move the implementation to `stow/opencode/.config/opencode/plugins/cb-guards.ts`, port its hooks to `ctx.tool.hook("execute.before", ...)`, and test both dangerous-command blocking and generated-file blocking before relying on V2 for edits.
 
 7. **Claim:** Pi extensions and extension packages need capability-by-capability replacement, not file copying.
-   **Sources:** [V2 plugins](https://opencode.ai/v2/docs/plugins/), [`stow/pi/.pi/agent/settings.json`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/settings.json), [`stow/pi/.pi/agent/extensions/gpt-verbosity.ts`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/extensions/gpt-verbosity.ts), [`stow/pi/.pi/agent/extensions/code-edit-reminder.ts`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/extensions/code-edit-reminder.ts), [`stow/pi/.pi/agent/extensions/typesafe-ai/index.ts`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/extensions/typesafe-ai/index.ts).
+   **Sources:** [V2 plugins](https://opencode.ai/v2/docs/plugins/), [`old/stow/pi/.pi/agent/settings.json`](../../old/stow/pi/.pi/agent/settings.json), historical `stow/pi/.pi/agent/extensions/gpt-verbosity.ts`, `stow/pi/.pi/agent/extensions/code-edit-reminder.ts`, and `stow/pi/.pi/agent/extensions/typesafe-ai/index.ts`.
    **Support:** Direct evidence establishes a distinct V2 plugin API.
    **Researcher inference:** Pi's `ExtensionAPI` modules and packages (`pi-mcp-adapter`, `pi-subagents`, `pi-intercom`, `pi-prompt-template-model`, and Plannotator's Pi extension) are harness-specific and cannot be treated as OpenCode V2 plugins without an explicit first-party compatibility statement.
    **Confidence:** High for incompatibility-by-default; low for availability of V2 replacements.
    **Action:** Inventory required outcomes—guardrails, response verbosity, TypeSafe tool, request logging, subagents/intercom, prompt-template model selection, and Plannotator—and port only those with a documented V2 API or maintained V2 plugin.
 
 8. **Claim:** MCP should be migrated from the existing OpenCode definitions, not from Pi's adapter format.
-   **Sources:** [V2 configuration](https://opencode.ai/v2/docs/config/), [`stow/opencode/.config/opencode/opencode.jsonc`](../../../../../code/personal/dotfiles/stow/opencode/.config/opencode/opencode.jsonc), [`stow/pi/.pi/agent/mcp.json`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/mcp.json).
+   **Sources:** [V2 configuration](https://opencode.ai/v2/docs/config/), [`old/stow/opencode/.config/opencode/opencode.jsonc`](../../old/stow/opencode/.config/opencode/opencode.jsonc), [`old/stow/pi/.pi/agent/mcp.json`](../../old/stow/pi/.pi/agent/mcp.json).
    **Support:** Direct evidence identifies `mcp.servers` as the V2-native field.
    **Repository evidence:** Both harnesses configure Ref, Exa, and RepoPromptCE, but their schemas and environment interpolation syntax differ.
    **Confidence:** High.
    **Action:** Verify V2 migration of the existing OpenCode local/remote server definitions and secret interpolation; do not copy Pi's `imports`, `mcpServers`, `directTools`, or `${VAR}` syntax into V2 without documentation.
 
 9. **Claim:** Provider/model settings need runtime verification after normalization; provider authentication migration is not established by the supplied evidence.
-   **Sources:** [V2 configuration](https://opencode.ai/v2/docs/config/), [`stow/opencode/.config/opencode/opencode.jsonc`](../../../../../code/personal/dotfiles/stow/opencode/.config/opencode/opencode.jsonc), [`stow/pi/.pi/agent/settings.json`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/settings.json).
+   **Sources:** [V2 configuration](https://opencode.ai/v2/docs/config/), [`old/stow/opencode/.config/opencode/opencode.jsonc`](../../old/stow/opencode/.config/opencode/opencode.jsonc), [`old/stow/pi/.pi/agent/settings.json`](../../old/stow/pi/.pi/agent/settings.json).
    **Support:** Direct evidence says V2 has native `providers`; repository evidence shows OpenCode overrides GPT-5.5 `textVerbosity`, while Pi defaults to provider `openai-codex`, model `gpt-5.6-sol`, and medium thinking.
    **Confidence:** Medium.
    **Action:** Authenticate using only the V2 provider flow documented by the live docs, then explicitly select and test the intended provider/model.
    Do not assume Pi credentials, Pi model IDs, thinking-level settings, or OpenCode V1 auth state transfer to V2.
 
 10. **Claim:** Compaction has a new explicit V2 shape, but there is no current repository value to preserve.
-    **Sources:** [V2 configuration](https://opencode.ai/v2/docs/config/), [`stow/opencode/.config/opencode/opencode.jsonc`](../../../../../code/personal/dotfiles/stow/opencode/.config/opencode/opencode.jsonc).
+    **Sources:** [V2 configuration](https://opencode.ai/v2/docs/config/), [`old/stow/opencode/.config/opencode/opencode.jsonc`](../../old/stow/opencode/.config/opencode/opencode.jsonc).
     **Support:** Direct evidence names `compaction.keep.tokens` and `compaction.buffer`; the tracked OpenCode file has no `compaction` section.
     **Confidence:** High.
     **Action:** Start with the documented V2 defaults: automatic compaction enabled, 15,000 recent tokens retained, and a 20,000-token safety buffer.
     Add explicit values only if testing shows the defaults do not fit the intended workflow.
 
 11. **Claim:** CLI appearance moves from `tui.json` to global `cli.json`, and CLI config can be changed without restarting.
-    **Sources:** [V1 migration guide](https://opencode.ai/v2/docs/migrate-v1/), [V2 CLI configuration](https://opencode.ai/v2/docs/cli/config/), [`stow/opencode/.config/opencode/tui.json`](../../../../../code/personal/dotfiles/stow/opencode/.config/opencode/tui.json), [`stow/pi/.pi/agent/keybindings.json`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/keybindings.json), [`stow/pi/.pi/agent/themes/catppuccin-macchiato.json`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/themes/catppuccin-macchiato.json).
+    **Sources:** [V1 migration guide](https://opencode.ai/v2/docs/migrate-v1/), [V2 CLI configuration](https://opencode.ai/v2/docs/cli/config/), historical `stow/opencode/.config/opencode/tui.json`, [`old/stow/pi/.pi/agent/keybindings.json`](../../old/stow/pi/.pi/agent/keybindings.json), historical `stow/pi/.pi/agent/themes/catppuccin-macchiato.json`.
     **Support:** Direct evidence says global `cli.json` replaces/migrates `tui.json` and is live-reloaded.
     **Repository evidence:** OpenCode currently tracks only `theme: "tokyonight"`; Pi has a substantial custom keymap and a custom Catppuccin theme.
     **Confidence:** High for location/reload; low for exact keybinding/theme schema compatibility.
@@ -105,7 +110,7 @@ This repository is already well positioned for skills because OpenCode 2 directl
     **Action:** Treat direct config/plugin edits in watched locations as reloadable, but restart `opencode` after dependency installs or changes outside watched paths.
 
 13. **Claim:** No verified automatic path was found for Pi prompt templates/slash commands, agent definitions, or session history.
-    **Sources:** [OpenCode V2 docs](https://opencode.ai/v2/docs), [V1 migration guide](https://opencode.ai/v2/docs/migrate-v1/), [`stow/pi/.pi/agent/settings.json`](../../../../../code/personal/dotfiles/stow/pi/.pi/agent/settings.json).
+    **Sources:** [OpenCode V2 docs](https://opencode.ai/v2/docs), [V1 migration guide](https://opencode.ai/v2/docs/migrate-v1/), [`old/stow/pi/.pi/agent/settings.json`](../../old/stow/pi/.pi/agent/settings.json).
     **Support:** The supplied first-party extracts do not state that these Pi artifacts or sessions are imported.
     **Confidence:** Medium.
     **Action:** Treat them as non-migrating until a first-party page explicitly documents import support.

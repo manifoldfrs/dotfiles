@@ -32,7 +32,7 @@ if command -q zoxide
     zoxide init fish | source
 end
 
-for name in pi claude opencode rexbox
+for name in claude rexbox
     function $name --inherit-variable name
         command bash -c 'source "$HOME/.config/bash/functions.bash"; "$@"' bash $name $argv
     end
@@ -41,4 +41,3 @@ end
 abbr --add pn pnpm
 abbr --add cc claude
 abbr --add ccc claude --continue
-abbr --add oc opencode

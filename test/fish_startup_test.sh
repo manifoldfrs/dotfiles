@@ -17,18 +17,17 @@ for name in fzf atuin zoxide; do
     fi
 done
 
-printf '#!/bin/bash\nprintf "pi <%%s>\\n" "$@"\n' > "$test_home/.local/share/pnpm/bin/pi"
-printf '#!/bin/bash\nexit 99\n' > "$test_home/.bun/bin/pi"
-chmod +x "$test_home/.local/share/pnpm/bin/pi" "$test_home/.bun/bin/pi"
+printf '#!/bin/bash\nprintf "claude <%%s>\\n" "$@"\n' > "$test_home/bin/claude"
+chmod +x "$test_home/bin/claude"
 export HOME="$test_home" XDG_CONFIG_HOME="$test_home/.config" XDG_DATA_HOME="$test_home/.local/share"
 export PATH="$test_home/bin:/usr/bin:/bin:/usr/sbin:/sbin" TERM=xterm
 unset PNPM_HOME ATUIN_SESSION
 fish --no-config -c 'set -U fish_user_paths "$HOME/.bun/bin"'
 
 fish --no-execute "$test_home/.config/fish/config.fish"
-result=$(printf '%s\n' 'echo "fish=$version"' 'functions -q pi; or exit 1' 'pi "one argument"' 'exit' | /bin/bash --login -i 2>&1)
+result=$(printf '%s\n' 'echo "fish=$version"' 'functions -q claude; or exit 1' 'functions -q pi; and exit 1' 'functions -q opencode; and exit 1' 'claude "one argument"' 'exit' | /bin/bash --login -i 2>&1)
 grep -q '^fish=[0-9]' <<< "$result"
-grep -Fxq 'pi <one argument>' <<< "$result"
+grep -Fxq 'claude <one argument>' <<< "$result"
 
 result=$(/bin/bash --login -ic 'printf "bash=%s\n" "$BASH_VERSION"' 2>/dev/null)
 grep -q '^bash=[0-9]' <<< "$result"
@@ -61,4 +60,4 @@ git -C "$test_home/project" -c user.name=Test -c user.email=test@example.invalid
     clock=$(fish -c 'fish_right_prompt')
     [[ "$clock" =~ ^[0-9]{2}:[0-9]{2}:[0-9]{2}$ ]]
 )
-printf 'PASS: Fish login, prompt, interactive bindings, Pi launcher, and Bash commands\n'
+printf 'PASS: Fish login, prompt, interactive bindings, Claude launcher, and Bash commands\n'

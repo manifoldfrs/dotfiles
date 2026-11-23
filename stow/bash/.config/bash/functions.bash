@@ -151,25 +151,6 @@ grt() {
     cd "$root" || return
 }
 
-# Pi's update extension writes a session path to PI_RELAUNCH_FILE before /update or /restart exits.
-pi() {
-    local relaunch_file session_file status
-    export AGY_STALL_TIMEOUT_MS="${AGY_STALL_TIMEOUT_MS:-300000}"
-    export AGY_TOOL_STALL_TIMEOUT_MS="${AGY_TOOL_STALL_TIMEOUT_MS:-600000}"
-    export AGY_TURN_TIMEOUT_MS="${AGY_TURN_TIMEOUT_MS:-1800000}"
-    relaunch_file=$(mktemp "${TMPDIR:-/tmp}/pi-relaunch.XXXXXX") || return
-    PI_RELAUNCH_FILE=$relaunch_file command pi "$@"
-    status=$?
-    while [[ -s $relaunch_file ]]; do
-        session_file=$(<"$relaunch_file")
-        : >"$relaunch_file"
-        PI_RELAUNCH_FILE=$relaunch_file command pi --session "$session_file"
-        status=$?
-    done
-    rm -f "$relaunch_file"
-    return "$status"
-}
-
 # The session-relaunch mod's /update and /restart write a session id to CLAUDE_RELAUNCH_FILE before exiting.
 claude() {
     local relaunch_file session_id status
@@ -186,32 +167,8 @@ claude() {
     return "$status"
 }
 
-# The session-relaunch TUI plugin's /upgrade and /relaunch write a session id, or a blank line for none, to OPENCODE_RELAUNCH_FILE before exiting.
-opencode() {
-    local relaunch_file session_id status
-    relaunch_file=$(mktemp "${TMPDIR:-/tmp}/opencode-relaunch.XXXXXX") || return
-    OPENCODE_RELAUNCH_FILE=$relaunch_file command opencode "$@"
-    status=$?
-    while [[ -s $relaunch_file ]]; do
-        session_id=$(<"$relaunch_file")
-        : >"$relaunch_file"
-        if [[ -n $session_id ]]; then
-            OPENCODE_RELAUNCH_FILE=$relaunch_file command opencode -s "$session_id"
-        else
-            OPENCODE_RELAUNCH_FILE=$relaunch_file command opencode
-        fi
-        status=$?
-    done
-    rm -f "$relaunch_file"
-    return "$status"
-}
-
 claude-log() {
     ANTHROPIC_BASE_URL=http://127.0.0.1:8787 command claude "$@"
-}
-
-pi-log() {
-    PI_REQUEST_LOG=1 command pi "$@"
 }
 
 # Open a Rex session on agentbox in the app, creating it first if needed.

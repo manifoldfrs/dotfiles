@@ -10,7 +10,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Guide | What it covers |
 | --- | --- |
 | [docs/rex.md](docs/rex.md) | Rex keybindings, app settings, `agentbox` remote server, `agentbox-auth`, iOS setup, and beta gaps. |
-| [docs/agents.md](docs/agents.md) | Codex, Council, Pi and pstack, Claude Code, OpenCode, shared rules/skills, extensions, guardrails, and Plannotator. |
+| [docs/agents.md](docs/agents.md) | Codex, Council, Claude Code, Antigravity, shared rules and skills, and guardrails. |
 | [docs/skills.md](docs/skills.md) | Generated catalog of shared agent skills and ownership. |
 | [mcp/README.md](mcp/README.md) | Shared MCP servers, Codex-owned Jev and X search, harness sync, Claude Code import, and API keys. |
 | [CONTEXT.md](CONTEXT.md) | Glossary for the configuration lifecycle (*tracked source*, *live configuration*, *apply*, *capture*) and agent terms. |
@@ -24,8 +24,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Editor / IDE | Neovim, Cursor | `lazy.nvim` + Lua plugins in `stow/nvim/.config/nvim/`, Cursor user config in `stow/cursor/`, retired Zed archived under `old/` |
 | Shell | Fish + FZF + Atuin + zoxide | Interactive Bash login starts Fish; Bash still runs scripts and agent commands |
 | Primary agent harness | Codex | Owns global rules and guardrail hooks in `stow/codex/.codex/` and shared skills in `stow/codex/skills/shared/` |
-| Council reviewers | Codex CLI, Claude Code, Antigravity CLI | Codex runs each model through its own command-line tool |
-| Standalone harnesses | Pi, Claude Code, OpenCode 2 | Pi runs pstack workflows and owns canonical `mcp.json` |
+| Native harnesses & Council | Codex CLI, Claude Code, Antigravity CLI | Codex runs Sol and coordinates Council; Claude Code handles Opus and Fable; Antigravity CLI handles Gemini Neon |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception because its theme and font live in app settings rather than `init.lua` (see [docs/rex.md](docs/rex.md#app-settings-one-time-per-machine)).
@@ -34,7 +33,7 @@ Rex is the exception because its theme and font live in app settings rather than
 
 ### New Mac
 
-1. Install [Rex](https://www.superlogical.com/rex/docs/installation) from its DMG first (it self-updates outside Homebrew) so bootstrap can run `rex skill setup --session-naming` automatically.
+1. Install [Rex](https://www.superlogical.com/rex/docs/installation) from its DMG first (it self-updates outside Homebrew) so bootstrap can run `rex skill setup --agent codex --agent claude --session-naming` automatically.
 2. Clone to `~/code/personal/dotfiles` (use the HTTPS URL on a fresh Mac before GitHub SSH keys are set up, or `git@github.com:manifoldfrs/dotfiles.git` once SSH is configured) and run bootstrap:
 
 ```bash
@@ -46,13 +45,13 @@ cd ~/code/personal/dotfiles
 What `bootstrap.sh` does:
 
 - Installs Homebrew, `Brewfile` packages/casks (including `pnpm`), global npm packages, the `anti-slop` runtime, and Plannotator.
-- Installs Pi via `pnpm` into `$PNPM_HOME/bin` (the Bash profile prefers that Pi over Bun while keeping Bun available), and installs Claude Code and OpenCode 2 with their native installers.
+- Installs Claude Code with its native installer.
 - Backs up conflicting live files (`.backup.YYYYMMDDhhmmss`) and applies all Stow packages.
-- Registers Claude Code's MCP servers, syncs Herdr plugins, restores Neovim plugins from `lazy-lock.json`, and runs `rex skill setup --session-naming` when Rex is present.
+- Registers Claude Code's MCP servers, syncs Herdr plugins, restores Neovim plugins from `lazy-lock.json`, and runs `rex skill setup --agent codex --agent claude --session-naming` when Rex is present.
 
 Remaining one-time steps on a new Mac:
 
-1. Quit Rex and run `./scripts/rex_prefs.sh load` to restore tracked app settings (see [docs/rex.md](docs/rex.md#local-setup)); if you installed Rex after running `bootstrap.sh`, then reopen Rex in a Bash login pane and run `rex skill setup --session-naming`.
+1. Quit Rex and run `./scripts/rex_prefs.sh load` to restore tracked app settings (see [docs/rex.md](docs/rex.md#local-setup)); if you installed Rex after running `bootstrap.sh`, then reopen Rex in a Bash login pane and run `rex skill setup --agent codex --agent claude --session-naming`.
 2. Put machine-local API keys in `~/.config/bash/local.bash` (never tracked) so the next login shell loads them:
 
 ```bash
@@ -61,7 +60,7 @@ export EXA_API_KEY="..."
 export TYPESAFE_API_KEY="..."
 ```
 
-3. Run `exec bash --login` so the stowed `.bash_profile` loads `~/.config/bash/local.bash` and `PATH` for Pi and OpenCode (a new terminal pane is equivalent only after its shell launcher is set to Bash login mode), then sign in to each harness (`codex`, `claude`, `pi` with `/login`, and OpenCode with `/connect` — **Claude Agent** reuses your Claude Code login) and review and trust the expected Codex hooks in `/hooks` (see [docs/agents.md](docs/agents.md#guardrails)).
+3. Open a new Bash login pane, sign in to Codex, Claude Code, and Antigravity, and review the Codex hooks with `/hooks`.
 
 ### `agentbox` (Ubuntu)
 
@@ -87,14 +86,14 @@ How `scripts/stow.sh` adapts automatically on Linux:
 - Keeps Codex's config machine-local, the same as on macOS.
   On first setup, `apply` seeds a missing `~/.codex/config.toml` with GPT-6.2 Sol at medium reasoning.
   It converts legacy Stow links to local copies and still links `AGENTS.md`, skills, hooks, and themes.
-- Creates `~/.local/bin/bash` pointing to `/bin/bash` (instead of Homebrew Bash 4+ on macOS) so Pi's `shellPath` resolves.
+- Creates `~/.local/bin/bash` pointing to `/bin/bash` (instead of Homebrew Bash 4+ on macOS) for scripts that use the local Bash link.
 
-After applying dotfiles as `frshbb`, follow [docs/plans/remote-agent-server.md](docs/plans/remote-agent-server.md#phase-5-toolchain-on-the-server) (Phases 5–8; skip Phase 6's clone and Stow steps, which you just did) for Linuxbrew, the server toolchain, and harness installs (run `brew install fish` as `frshbb` after Phase 5 if desired), and see [docs/rex.md](docs/rex.md#remote-server-on-agentbox) for the root Rex login server setup and `agentbox-auth` sign-in flow.
+After applying dotfiles as `frshbb`, follow [docs/plans/remote-agent-server.md](docs/plans/remote-agent-server.md#phase-5-toolchain-on-the-server) (Phases 5–8; skip Phase 6's clone and Stow steps, which you just did, and skip the superseded Pi and OpenCode items in Phases 7–8) for Linuxbrew, the server toolchain, and harness installs (run `brew install fish` as `frshbb` after Phase 5 if desired), and see [docs/rex.md](docs/rex.md#remote-server-on-agentbox) for the root Rex login server setup and `agentbox-auth` sign-in flow.
 
 ### Day-to-day updates
 
 Standalone `./scripts/stow.sh apply` requires `stow` and `jq`.
-On macOS, Homebrew `bash` (`brew install bash`) is also needed so `~/.local/bin/bash` links to Bash 4+ for Pi's configured shell path (otherwise `apply` warns and skips the link).
+On macOS, Homebrew `bash` (`brew install bash`) is also needed so `~/.local/bin/bash` links to Bash 4+ for agent and shell scripts (otherwise `apply` warns and skips the link).
 
 ```bash
 cd ~/code/personal/dotfiles
@@ -104,11 +103,11 @@ git pull
 ```
 
 `apply` runs `scripts/validate-dotfiles.sh` against a temporary home before touching `$HOME`; if validation fails, nothing changes.
-It also moves known conflicting files (Bash, Codex, Pi, Claude, OpenCode, Cursor, Herdr `plugins.txt`, Plannotator TUI, and shared skill folders) aside as `.backup.YYYYMMDDhhmmss` and restores them if Stow fails.
+It also moves known conflicting files (Bash, Codex, Claude Code, Cursor, Herdr `plugins.txt`, Plannotator TUI, and shared skill folders) aside as `.backup.YYYYMMDDhhmmss` and restores them if Stow fails.
 `dry-run` runs plain `stow -n` without those backups, so it may flag auto-backed-up files alongside unexpected conflicts; only conflicts outside the auto-backup list need manual moves (see [Troubleshooting](#troubleshooting)).
 Use `./scripts/stow.sh delete` to remove managed symlinks, and `./scripts/bootstrap.sh` only on macOS when you want packages, plugins, and tooling refreshed.
 
-The default `STOW_PACKAGES` list in `scripts/stow.sh` is `bash git ghostty herdr rex nvim bin pi claude opencode codex cursor`.
+The default `STOW_PACKAGES` list in `scripts/stow.sh` is `bash git ghostty herdr rex nvim bin claude codex cursor`.
 
 To restow a single simple leaf package (`nvim`, `git`, `ghostty`, or `rex`) by hand:
 
@@ -116,7 +115,7 @@ To restow a single simple leaf package (`nvim`, `git`, `ghostty`, or `rex`) by h
 stow --no-folding -R -v -t "$HOME" -d stow nvim
 ```
 
-Use `./scripts/stow.sh apply` for `codex`, `opencode`, `pi`, and `bash` so local Codex config setup, shared skills, OpenCode plugins, and `~/.local/bin/bash` are handled.
+Use `./scripts/stow.sh apply` for `codex` and `bash` so local Codex config setup, shared skills, and `~/.local/bin/bash` are handled.
 
 Because Stow uses symlinks, editing either `$HOME` or the repo edits the same file.
 To capture live config back into tracked sources, run `./scripts/backup.sh` and review `git diff` before committing (agent account and runtime state are skipped).
@@ -133,9 +132,7 @@ stow/                     Stow packages, each mirroring $HOME
   nvim/                   Neovim config (see stow/nvim/AGENTS.md)
   bin/                    ~/.local/bin helpers (anti-slop, rex-annotate, agentbox-auth, spotify-visualizer)
   codex/                  Primary harness config, theme, global AGENTS.md, hooks, and shared skills
-  pi/                     Standalone Pi settings, canonical MCP definitions, models, themes, extensions
-  claude/                 Standalone Claude Code settings and mods; links rules and hooks to codex/
-  opencode/               Standalone OpenCode config, plugins, and generated skill commands
+  claude/                 Claude Code settings, agents, and mods; links rules and hooks to codex/
   cursor/                 Cursor settings, keybindings, tasks (Library/Application Support/Cursor/User)
 cursor/extensions.txt     Cursor extension IDs; install with the app's bundled CLI
 scripts/
@@ -145,16 +142,16 @@ scripts/
   backup.sh               Capture live config into tracked sources
   sync_herdr_plugins.sh   Install or update declared Herdr plugins
   update_agent_skills.sh  Check or sync the shared skill catalog
-  skill_catalog.sh        Generate docs/skills.md and OpenCode skill commands
-  harness_sync.sh         Generate OpenCode and Codex MCP servers and Claude mod copies from Pi
+  skill_catalog.sh        Generate docs/skills.md
+  harness_sync.sh         Generate Codex MCP registrations and the Claude Jev mod copy
   rex_server_setup.sh     Root-only Rex login server setup for agentbox
   rex_prefs.sh            Save, load, or watch Rex app settings
 rex/                      Tracked Rex app settings (not stowed)
 server/rex/               Files installed under /etc on agentbox (not stowed)
-mcp/                      MCP setup guide (see mcp/README.md)
+mcp/                      Shared MCP definitions, shared Jev logic, xai-search, and setup guide (see mcp/README.md)
 test/                     Shell and TypeScript tests, Docker harness
 docs/                     Deep-dive guides (rex.md, agents.md, skills.md), plans, and research notes
-old/                      Archived Fish, Zsh, tmux, Karabiner, Zed, and older Cursor config
+old/                      Archived Fish, Zsh, tmux, Karabiner, Zed, older Cursor, and retired Pi/OpenCode configs and tests
 Brewfile                  Homebrew packages and casks
 npm-global-packages.txt   Global npm packages (@openai/codex, vercel, tree-sitter-cli, agent-browser)
 ```
@@ -222,11 +219,12 @@ while IFS= read -r ext; do "$CURSOR_BIN" --install-extension "$ext"; done < curs
 ### Shell
 
 An interactive Bash login loads the shared `PATH` and `~/.config/bash/local.bash`, then launches Fish for completions and suggestions without changing the system login shell.
-Scripts, Bash command strings, and Pi's Bash runner still use Bash; stay in Bash for a pane with `DOTFILES_KEEP_BASH=1 bash --login` (or run `bash` from Fish).
+Scripts and agent shell commands still use Bash; stay in Bash for a pane with `DOTFILES_KEEP_BASH=1 bash --login` (or run `bash` from Fish).
 
 - **Prompt:** Tokyo Night colors, short path, Git branch or detached commit, clock, and non-zero exit code only (no username or hostname).
 - **Navigation & history:** `Ctrl-T` opens FZF file search, `Ctrl-R` and `Ctrl-F` search Atuin history in FZF (`Ctrl-D` filters to the current directory), Up Arrow uses native Fish history, and `z` uses zoxide.
-- **Wrappers:** `pi`, `claude`, and `opencode` keep their session-relaunch wrappers; `rexbox` calls the shared Bash function.
+- **Wrappers:** `claude` resumes sessions through its Bash wrapper.
+  `rexbox` calls the shared Bash function.
 - **Local overrides:** put environment variables in untracked `~/.config/bash/local.bash` and Fish-specific tweaks in `~/.config/fish/conf.d/`.
   On an existing Mac or `agentbox` without Fish, run `brew install fish`, restow, and open a new login pane.
 
@@ -235,9 +233,9 @@ Scripts, Bash command strings, and Pi's Bash runner still use Bash; stay in Bash
 Codex is the primary harness and runs Council reviews through Codex CLI, Claude Code, and Antigravity CLI.
 Codex hosts pstack directly through the Open Pstack plugin ([docs/agents.md](docs/agents.md#pstack-in-codex)).
 It pairs GPT-6.2 Sol High and Opus 5.5 High for Arena candidate work, Architect, and Interrogate with read-only Gemini 4 Neon High through Antigravity CLI.
-Standalone Pi runs independently with a separate pstack adapter and its own roles.
 The tracked macOS Codex config disables routine command approvals and the filesystem sandbox while keeping guardrail hooks enabled.
-All four harnesses share the same global `AGENTS.md`, shell guardrails, shared skill catalog ([docs/skills.md](docs/skills.md)), and MCP definitions (Codex on macOS only; see [mcp/README.md](mcp/README.md)).
+Codex and Claude Code share the global `AGENTS.md`, shell guardrails, skill catalog, and MCP definitions.
+[Antigravity runs Neon through its own CLI](docs/agents.md#harness-roles).
 
 To resume a Codex session from the terminal:
 
@@ -252,12 +250,11 @@ Common cross-harness commands:
 ```bash
 codex -a on-request -s workspace-write     # restore Codex approval prompts and workspace sandbox
 ./scripts/update_agent_skills.sh --check   # check shared skills for upstream drift
-./scripts/skill_catalog.sh                 # regenerate docs/skills.md and OpenCode commands
-./scripts/harness_sync.sh                  # sync MCP servers to the Codex template and OpenCode, and shared TS to Claude mods
-pi-log                                     # run Pi with per-process request logging
+./scripts/skill_catalog.sh                 # regenerate docs/skills.md
+./scripts/harness_sync.sh                  # sync Codex MCP registrations and the Claude Jev mod
 ```
 
-See [docs/agents.md](docs/agents.md) for Council setup, Gemini 4 Neon, pstack, PR drafting, extensions/mods, guardrails, and Plannotator.
+See [docs/agents.md](docs/agents.md) for Council setup, Claude Code (Opus and Fable), Gemini 4 Neon, pstack, shared integrations, Claude Code mods, guardrails, and Plannotator.
 
 ### Extra tools in `bin/`
 
@@ -273,7 +270,7 @@ See [docs/agents.md](docs/agents.md) for Council setup, Gemini 4 Neon, pstack, P
 - **Ghostty (`stow/ghostty/`):** fallback terminal (source of Rex's imported theme).
   `Shift-Cmd-click` opens links even when an app captures the mouse.
 - **Herdr (`stow/herdr/`):** shares Rex's `Ctrl-a` mental model; still used for its `herdr-annotate` plugin and as the fallback phone path into `agentbox` over Termius.
-  Sync `plannotator/herdr-annotate` and `paulbkim-dev/vim-herdr-navigation` from `plugins.txt` with `./scripts/sync_herdr_plugins.sh`; install agent integrations once per machine with `herdr integration install pi` or `herdr integration install codex`.
+  Sync `plannotator/herdr-annotate` and `paulbkim-dev/vim-herdr-navigation` from `plugins.txt` with `./scripts/sync_herdr_plugins.sh`; install agent integrations once per machine with `herdr integration install codex`.
   Useful commands: `herdr server reload-config`, `herdr integration status`, `herdr pane list`, `herdr agent list`.
 
 ## Validation
@@ -282,8 +279,6 @@ See [docs/agents.md](docs/agents.md) for Council setup, Gemini 4 Neon, pstack, P
 ./scripts/validate-dotfiles.sh                                           # full isolated preflight, no live changes
 for f in scripts/*.sh stow/bash/.bashrc; do bash -n "$f"; done           # shell syntax spot check
 bash test/run_tests.sh                                                   # shell test suite
-pnpm --dir test install --frozen-lockfile && pnpm --dir test test        # Pi extension tests
-pnpm --dir test run typecheck                                            # Pi extension typecheck
 bash test/nvim_plugin_safety.sh --base-ref HEAD                          # isolated Neovim plugin check
 docker build -t dotfiles-test -f test/Dockerfile . && docker run --rm dotfiles-test
 ```

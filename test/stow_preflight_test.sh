@@ -97,23 +97,18 @@ assert_bash5_link() {
 }
 
 fresh_home="$test_root/fresh-home"
-mkdir -p "$fresh_home/.agents/skills" "$fresh_home/.config/opencode/plugins"
+mkdir -p "$fresh_home/.agents/skills"
 ln -s "$repo_dir/stow/pi/skills/anti-slop" "$fresh_home/.agents/skills/anti-slop"
-ln -s "$repo_dir/stow/opencode/.config/opencode/plugins/xai-search" "$fresh_home/.config/opencode/plugins/xai-search"
-ln -s "$test_root/personal-plugin" "$fresh_home/.config/opencode/plugins/personal-plugin"
-[[ -f $fresh_home/.agents/skills/anti-slop/SKILL.md ]] || fail_with_log 'the legacy skill link did not resolve before apply'
 apply_into "$fresh_home" || fail_with_log 'apply with a minimal PATH failed'
 [[ $(readlink "$fresh_home/.agents/skills/anti-slop") == "$repo_dir/stow/codex/skills/shared/anti-slop" ]] \
     || fail_with_log 'apply did not repoint the legacy Pi skill link to Codex'
 [[ ! -e $fresh_home/.codex/skills/pi-skill && ! -L $fresh_home/.codex/skills/pi-skill ]] \
     || fail_with_log 'apply linked the retired Codex Pi worker skill'
-[[ ! -L $fresh_home/.config/opencode/plugins/xai-search && -L $fresh_home/.config/opencode/plugins/personal-plugin ]] \
-    || fail_with_log 'apply did not prune only the retired managed OpenCode plugin'
 council="$repo_dir/stow/codex/skills/council/SKILL.md"
 [[ $fresh_home/.codex/skills/council/SKILL.md -ef $council ]] \
     || fail_with_log 'Codex did not link to the Council source'
-[[ $fresh_home/.pi/agent/skills/council/SKILL.md -ef $council ]] \
-    || fail_with_log 'Pi did not link to the Codex-owned Council source'
+[[ ! -e $fresh_home/.pi && ! -e $fresh_home/.config/opencode ]] \
+    || fail_with_log 'default apply configured a retired harness'
 assert_bash5_link "$fresh_home"
 first_target=$(readlink "$fresh_home/.local/bin/bash")
 apply_into "$fresh_home" || fail_with_log 'repeat apply failed'

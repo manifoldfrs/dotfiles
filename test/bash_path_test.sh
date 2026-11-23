@@ -22,15 +22,8 @@ mkdir -p \
 ln -s "$repo_dir/stow/bash/.config/bash" "$test_home/.config/bash"
 ln -s "$repo_dir/stow/bash/.bashrc" "$test_home/.bashrc"
 
-for command_name in herdr pi; do
-    printf '#!/bin/bash\nexit 0\n' >"$test_home/path-last/$command_name"
-    chmod +x "$test_home/path-last/$command_name"
-done
-
-for directory in "$test_home/.bun/bin" "$test_home/.local/share/pnpm/bin"; do
-    printf '#!/bin/bash\nexit 0\n' >"$directory/pi"
-    chmod +x "$directory/pi"
-done
+printf '#!/bin/bash\nexit 0\n' >"$test_home/path-last/herdr"
+chmod +x "$test_home/path-last/herdr"
 
 printf '#!/bin/bash\nexit 0\n' >"$test_home/rex-bin/rex"
 chmod +x "$test_home/rex-bin/rex"
@@ -86,12 +79,7 @@ for startup_file in .config/bash/environment.bash .bashrc .bash_profile; do
                 exit 1
             fi
 
-            if [[ $(command -v pi) != "$PNPM_HOME/bin/pi" ]]; then
-                printf "FAIL: %s did not select the pnpm-installed Pi\n" "$startup_file"
-                exit 1
-            fi
-
-            for command_name in awk bash env git grep herdr pi rex rm sed; do
+            for command_name in awk bash env git grep herdr rex rm sed; do
                 command -v "$command_name" >/dev/null || {
                     printf "FAIL: %s lost command %s\n" "$startup_file" "$command_name"
                     exit 1

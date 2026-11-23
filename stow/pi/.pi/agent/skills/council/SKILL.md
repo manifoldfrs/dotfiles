@@ -1,1 +1,0 @@
-../../../../../codex/skills/council/SKILL.md

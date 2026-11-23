@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import type { XaiAuthRegistry } from "./xai-auth.ts";
-import type { FetchLike } from "../../../../../../mcp/xai-search/xai-client.ts";
+import type { FetchLike } from "../../../../../../../mcp/xai-search/xai-client.ts";
 import { installedPiPaths, loadXaiSearchEntry } from "./xai-entry-loader.ts";
 import { runRunner } from "./xai-runner.ts";
 

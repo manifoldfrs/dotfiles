@@ -4,6 +4,10 @@ Researched 2026-11-06 with Exa, Ref, xAI X search, local git history, and local 
 Conflict of interest: this was written by Claude Opus 5.5 running in Claude Code, so Anthropic and Claude Code were searched for negatives on purpose.
 Quotes from X came through xAI search and could not be opened independently, so they are marked `[X via xAI]`.
 
+> [!NOTE]
+> **Historical record:** Since this note was written, Codex became the primary harness, Pi and OpenCode were retired (archived under [`old/stow/`](../../old/stow/)), and Anthropic and Gemini work run natively through Claude Code and Antigravity CLI.
+> See [docs/agents.md](../agents.md) for the current setup; the analysis below is preserved as recorded on 2026-11-06.
+
 ## Answer
 
 Popper would reject the question as first asked.

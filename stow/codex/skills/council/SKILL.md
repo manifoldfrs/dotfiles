@@ -20,6 +20,7 @@ Treat an argument such as `9.5` as a minimum score out of 10 for every member.
 ## Run a round
 
 Run all three members unless the user explicitly changes the roster.
+Do not automatically substitute Fable for Opus or swap in another model or harness if a member fails or is unavailable.
 
 | Member | Route |
 | --- | --- |
@@ -54,9 +55,6 @@ codex exec --model gpt-6.2-sol -c 'model_reasoning_effort="high"' \
 agy --model gemini-4-neon-high --effort high --mode plan --sandbox \
   --output-format json --print-timeout 420s -p="$(cat brief.txt)" > neon.json
 ```
-
-From interactive Pi, keep using fresh `pi-subagents` sessions for Opus and Sol with the `reviewer` agent and the exact overrides `pi-claude-cli/claude-opus-5-5:high` and `openai/gpt-6.2-sol:high`.
-Run the same Antigravity command for Neon in parallel and use the Pi run receipts to identify Opus and Sol.
 
 Require successful exits, a verdict from each reviewer, and any requested scores.
 For Claude, use `.result` and require `.is_error == false`.

@@ -1,5 +1,5 @@
 import type { ModelRegistry } from "@earendil-works/pi-coding-agent";
-import { XAI_API_BASE_URL, XaiBearerToken } from "../../../../../../mcp/xai-search/xai-client.ts";
+import { XAI_API_BASE_URL, XaiBearerToken } from "../../../../../../../mcp/xai-search/xai-client.ts";
 
 export { XAI_API_BASE_URL, XaiBearerToken };
 

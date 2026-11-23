@@ -30,8 +30,6 @@
     ]
   },
   "include": [
-    "./codex_xai_search_test.ts",
-    "../stow/codex/.codex/mcp/xai-search.ts",
     "./pi_commands_test.ts",
     "../stow/pi/.pi/agent/extensions/jev-guardrails/*.ts",
     "../stow/pi/.pi/agent/extensions/lg.ts",

@@ -1,0 +1,1 @@
+../../../../../stow/codex/.codex/AGENTS.md

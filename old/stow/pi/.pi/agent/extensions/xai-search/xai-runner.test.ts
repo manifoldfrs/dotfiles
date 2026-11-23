@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { XAI_API_BASE_URL, type XaiAuthRegistry } from "./xai-auth.ts";
-import type { FetchLike } from "../../../../../../mcp/xai-search/xai-client.ts";
+import type { FetchLike } from "../../../../../../../mcp/xai-search/xai-client.ts";
 import { loadStubbedEntry } from "./xai-entry-stub.ts";
 import { boundRunnerParams, parseRunnerArgs, runRunner, type RunnerDeps } from "./xai-runner.ts";
 

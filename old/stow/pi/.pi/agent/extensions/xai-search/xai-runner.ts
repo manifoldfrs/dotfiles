@@ -1,5 +1,5 @@
 import { assertFirstPartyXaiSubscriptionProvider, XAI_API_BASE_URL, type XaiAuthRegistry } from "./xai-auth.ts";
-import type { FetchLike } from "../../../../../../mcp/xai-search/xai-client.ts";
+import type { FetchLike } from "../../../../../../../mcp/xai-search/xai-client.ts";
 import type { RegisteredEntry, RegisteredTool } from "./xai-entry-loader.ts";
 
 export const RUNNER_MAX_TURNS = 4;
