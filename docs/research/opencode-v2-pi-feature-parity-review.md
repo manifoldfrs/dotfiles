@@ -1,9 +1,5 @@
 # Research: Native OpenCode V2 parity with valued Pi features
 
-> [!NOTE]
-> **Superseded research note:** Both Pi and OpenCode have since been retired, with their tracked configurations archived under [`old/stow/pi/`](../../old/stow/pi/) and [`old/stow/opencode/`](../../old/stow/opencode/).
-> The adoption next steps below are superseded; see [docs/agents.md](../agents.md) for the active Codex, Claude Code, and Antigravity workflow.
-
 ## Summary
 
 The reviewed document conflates two implementations: the established `packages/opencode` runtime and the in-development native V2 implementation under `packages/core` (described by `specs/v2`).

@@ -9,7 +9,7 @@ set -e
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
 CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
-STOW_PACKAGES=(bash git ghostty herdr rex nvim bin antigravity claude codex cursor)
+STOW_PACKAGES=(bash git ghostty rex nvim bin antigravity claude codex cursor)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
 BASH_LINK="$HOME/.local/bin/bash"
@@ -20,10 +20,6 @@ LEGACY_AGENT_SKILLS_DIR="$STOW_DIR/pi/skills"
 SKILL_TARGET_DIRS=("$HOME/.agents/skills" "$HOME/.claude/skills")
 BACKED_UP_TARGETS=()
 BACKUP_PATHS=()
-SHARED_BACKUP_TARGETS=(
-    "$HOME/.config/herdr/plugins.txt"
-    "$HOME/.config/plannotator-tui/config.toml"
-)
 CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/AGENTS.md"
     "$HOME/.codex/hooks.json"
@@ -189,14 +185,6 @@ backup_claude_stow_targets() {
     mkdir -p "$HOME/.claude"
 
     for target in "${CLAUDE_BACKUP_TARGETS[@]}"; do
-        backup_stow_target "$target"
-    done
-}
-
-backup_shared_stow_targets() {
-    mkdir -p "$HOME/.local/bin"
-
-    for target in "${SHARED_BACKUP_TARGETS[@]}"; do
         backup_stow_target "$target"
     done
 }
@@ -494,7 +482,6 @@ apply_dotfiles() {
     require_bash_link_slot
 
     backup_bash_stow_targets
-    backup_shared_stow_targets
     backup_antigravity_stow_targets
     backup_claude_stow_targets
     backup_shared_skill_targets

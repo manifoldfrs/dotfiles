@@ -84,6 +84,3 @@ On 2026-11-06 Claude Code and OpenCode moved onto one copy of the Jev logic, `st
 That replaced the `jev-coding`, `jev-screen`, and `jev-pipeline` mods named in older notes.
 OpenCode now shows flagged items through `description`, tells the model to write for a reader who never saw the flags, and keeps failed answer-check notices away from the model; a failed edit audit still tells the model, so it cannot claim the audit passed.
 Claim extraction there also became stateless, because with the conversation in view a claim the user asked for went unchecked.
-
-Later update: OpenCode has since been retired and its plugin configuration is archived at [`old/stow/opencode/.config/opencode/plugins/jev/index.ts`](../../old/stow/opencode/.config/opencode/plugins/jev/index.ts).
-Active shared Jev logic now lives in [`mcp/shared/jev.ts`](../../mcp/shared/jev.ts), and `scripts/harness_sync.sh` generates the Claude Code mod copy at `stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts`.

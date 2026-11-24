@@ -1,9 +1,5 @@
 # Rex Migration Plan
 
-> [!NOTE]
-> **Historical migration record (October 2026):** For current Rex setup and daily use, see [docs/rex.md](../rex.md).
-> Pi and OpenCode have since been retired (archived under [`old/stow/`](../../old/stow/)), so current Rex hook setup uses `rex skill setup --agent codex --agent claude --session-naming` rather than bare `rex skill setup`, and the unchecked Pi smoke test below is superseded.
-
 Goal: make Rex Beta the default terminal and multiplexer on the Mac and the agent workspace on `agentbox`, with every tracked setting in this repo.
 Ghostty stays installed as the fallback terminal.
 Rex for iOS (beta, joined 2026-10-26) is now the iPhone path into `agentbox`; Herdr stays there as the Termius fallback, including for Android.

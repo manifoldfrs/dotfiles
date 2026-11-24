@@ -20,7 +20,6 @@ Treat an argument such as `9.5` as a minimum score out of 10 for every member.
 ## Run a round
 
 Run all three members unless the user explicitly changes the roster.
-Do not automatically substitute Fable for Opus or swap in another model or harness if a member fails or is unavailable.
 
 | Member | Route |
 | --- | --- |

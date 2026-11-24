@@ -15,7 +15,7 @@ bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/sto
 - ✅ DO: Use `[TEST N]` / `[PASS]` / `[FAIL]` in `test/run_tests.sh`
 - ✅ DO: Exit non-zero on failure (see `test/run_tests.sh`)
 - ✅ DO: Keep Docker environment in `test/Dockerfile`
-- ❌ DON'T: Add new checks to archived scripts like `old/install.sh` or retired Pi tests under `old/test/`
+- ❌ DON'T: Add new checks to archived scripts like `old/install.sh`
 - ❌ DON'T: Copy legacy setup logic from `old/verify_fonts.sh`
 
 ## Touch Points / Key Files
@@ -24,7 +24,6 @@ bash -n scripts/bootstrap.sh && bash -n scripts/backup.sh && bash -n scripts/sto
 - Docker wrapper: `test/docker_test.sh`
 - CI workflow: `.github/workflows/test.yml`
 - Scripts under test: `scripts/bootstrap.sh`, `scripts/backup.sh`, `scripts/stow.sh`, `mcp_setup.sh`
-- Retired Pi tests (archived, excluded from active suite and CI): `old/test/`
 
 ## JIT Index Hints
 ```bash

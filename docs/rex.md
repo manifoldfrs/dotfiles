@@ -15,7 +15,7 @@ Then open a Rex pane configured for Bash login (so `$REX_BIN_DIR` is on `PATH`),
 ```bash
 rex config reload
 rex keymap   # should load without warnings
-rex skill setup --agent codex --agent claude --session-naming
+rex skill setup --session-naming
 ```
 
 Open Neovim once so lazy.nvim installs `vim-rex-navigator`.
@@ -41,7 +41,8 @@ Press `Ctrl-a Ctrl-a` to send a literal `Ctrl-a`.
 | `Ctrl-a a`, `Ctrl-a A`, `Ctrl-a m` | Annotate copied selection, copy annotations as agent context, manage annotations |
 | `Ctrl-h/j/k/l` | Move between Neovim splits and Rex panes |
 
-Annotations reuse Herdr's `herdr-annotate` binary through the `rex-annotate` helper, so keep the Herdr plugin installed with `./scripts/sync_herdr_plugins.sh`.
+Annotations reuse Herdr's `herdr-annotate` binary through the `rex-annotate` helper.
+Bootstrap installs this plugin, or you can run `herdr plugin install plannotator/herdr-annotate --yes`.
 Rex has no selection API yet, so annotations read the clipboard: select text first (with copy on select enabled), then press `Ctrl-a a`.
 
 ## App settings (one time per machine)
@@ -95,7 +96,7 @@ Your account's server starts when you connect and exits once its last session en
 After root setup, run this as `frshbb` on `agentbox`:
 
 ```bash
-rex skill setup --agent codex --agent claude --session-naming
+rex skill setup --session-naming
 ```
 
 Always pass `--session-naming`.
@@ -153,7 +154,6 @@ Closing a session's last tab ends the session along with anything running in it.
 
 Rex for iOS (beta) connects to the same `agentbox` sessions as the Mac.
 With Tailscale signed in to the same account, add a remote host with URL `http://100.82.139.102:7297` and name `agentbox`, using the IPv4 address for the same IPv6 reason as on the Mac.
-Herdr still runs on `agentbox` as the fallback phone path through Termius for devices without Rex, such as Android.
 
 ## Troubleshooting
 

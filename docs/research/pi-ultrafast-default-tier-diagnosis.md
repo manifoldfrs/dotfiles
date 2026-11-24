@@ -2,10 +2,6 @@
 
 Investigated 2026-10-17 using local authenticated requests, Ref, Exa, and X search.
 
-> [!NOTE]
-> **Historical diagnosis:** Pi has since been retired, with its tracked configuration and `codex-fast-variants` extension archived under [`old/stow/pi/`](../../old/stow/pi/).
-> The empirical speed and response-metadata findings below are preserved as recorded; for the active Codex, Claude Code, and Antigravity setup, see [docs/agents.md](../agents.md).
-
 ## Finding
 
 UltraFast requests produce a large, repeatable output-speed increase through this account's ChatGPT OAuth connection, despite OpenAI returning `service_tier: "default"`.

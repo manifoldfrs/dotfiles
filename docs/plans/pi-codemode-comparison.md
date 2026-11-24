@@ -1,10 +1,5 @@
 # Bring three useful Pi Codemode ideas to OpenCode
 
-> [!NOTE]
-> **Superseded plan:** Pi and OpenCode have been retired and their tracked configurations are archived under [`old/stow/pi/`](../../old/stow/pi/) and [`old/stow/opencode/`](../../old/stow/opencode/).
-> Active Code Mode and Jev integrations live in Codex and Claude Code (see [docs/agents.md](../agents.md) and [mcp/README.md](../../mcp/README.md)).
-> The text below is preserved as a historical plan record.
-
 ## Approved scope and current status
 
 Plannotator approved Changes 1 and 2, using the section numbers below.
@@ -279,4 +274,4 @@ The installed OpenCode version and plugin compatibility must be checked before i
 - [OpenCode search](https://github.com/anomalyco/opencode/blob/d9d094a54378a8af4852a6c3594e0a8a91e2d498/packages/codemode/src/tool-runtime.ts)
 - [OpenCode runtime limits](https://github.com/anomalyco/opencode/blob/d9d094a54378a8af4852a6c3594e0a8a91e2d498/packages/codemode/README.md#execution-limits)
 - [OpenCode plugin API](https://opencode.ai/v2/docs/build/plugins)
-- Historical TypeSafe tool: `stow/opencode/.config/opencode/plugins/typesafe-ai/src/index.ts` (later replaced by the OpenCode Jev plugin, now archived at [`old/stow/opencode/.config/opencode/plugins/jev/index.ts`](../../old/stow/opencode/.config/opencode/plugins/jev/index.ts))
+- [Existing TypeSafe tool](../../stow/opencode/.config/opencode/plugins/typesafe-ai/src/index.ts)

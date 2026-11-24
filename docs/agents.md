@@ -8,11 +8,10 @@ See [CONTEXT.md](../CONTEXT.md) for the terminology used here, [docs/skills.md](
 | Harness | Role | Tracked package | Notes |
 | --- | --- | --- | --- |
 | **Codex** | Primary harness | `stow/codex/` | Owns the canonical global `AGENTS.md`, shared skills, and guardrail hook scripts. |
-| **Claude Code** | Native Anthropic route | `stow/claude/` | Runs Opus and Fable natively (`claude-opus-5-5` in Council; `claude --model fable` resolved to `claude-fable-5-2` in local checks). |
+| **Claude Code** | Native Anthropic route | `stow/claude/` | Runs Opus in Council. Use `claude --model fable` when you want Fable. |
 | **Antigravity CLI** | Native Gemini route | `stow/antigravity/` | Use `gemini-4-neon-high` for Neon. Interactive `agy` passes `--dangerously-skip-permissions`; `~/.gemini/antigravity-cli/settings.json` stays machine-local. |
 
-Pi and OpenCode are retired: their tracked configurations live under [`old/stow/pi/`](../old/stow/pi/) and [`old/stow/opencode/`](../old/stow/opencode/), and retired Pi tests live under [`old/test/`](../old/test/).
-Both harnesses were uninstalled on the current Mac (not verified on separate remote hosts such as `agentbox`), local session and state data were preserved, and default bootstrap, Stow, and CI no longer install or require either harness.
+The retired Pi and OpenCode configurations are preserved under [`old/stow/`](../old/stow/).
 
 ## Codex (primary harness)
 
@@ -46,7 +45,6 @@ If you expect a context reset or want to hand off an unfinished task, ask for a 
 
 Run `$council <review scope>` in Codex to ask Claude Code, Codex CLI, and Antigravity CLI for independent reviews of the same brief.
 Council selects `claude-opus-5-5`, `gpt-6.2-sol`, and `gemini-4-neon-high`, all at high reasoning effort.
-Council does not automatically substitute Fable for Opus or swap in another harness if a reviewer fails or is unavailable.
 Use your existing sign-ins in the three CLIs, and check `agy models` for the exact Neon model.
 Google documents [consumer-plan limits on using Antigravity from other agents](https://antigravity.google/docs/faq/).
 Prefix the arguments with a minimum score (for example, `$council 9.5 review this diff`) to require that score from every reviewer.
@@ -116,10 +114,10 @@ Stow apply repairs old shared skill links that still point to the retired Pi pac
 
 ### Jev judgments
 
-- **Codex:** uses the shared `jev` skill and a Codex-owned, pinned Jev MCP registration in `stow/codex/.codex/config.toml` via Code Mode.
+- **Codex:** uses the shared `jev` skill and a Codex-owned, pinned Jev MCP registration in Code Mode.
   Fetch and screen external text in the same Code Mode call before returning it to the model.
 
-- **Claude Code:** the `jev-checks` mod runs the shared Jev logic from the generated copy at `stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts`.
+- **Claude Code:** the `jev-checks` mod runs the shared Jev logic from a generated copy within the mod.
   Edit [`mcp/shared/jev.ts`](../mcp/shared/jev.ts), run `./scripts/harness_sync.sh`, then verify with `claude plugin test <mod folder>`.
 
 ### xAI search (`xai_search`)
@@ -169,4 +167,4 @@ Plans are project Markdown files and are implemented only after explicit approva
 - **Codex:** Plannotator reviews plans through the `Stop` hook in `stow/codex/.codex/hooks.json`.
   Keep the Plannotator marketplace plugin disabled in Codex because its Claude Code hook manifest uses the unsupported `modules` field.
   On a fresh `agentbox`, install Plannotator ([Phase 8](plans/remote-agent-server.md#phase-8-harnesses-and-auth)) and set `PLANNOTATOR_REMOTE=1` ([Phase 7](plans/remote-agent-server.md#phase-7-secrets)) before relying on that `Stop` hook.
-- **Terminal:** in Herdr, press `Ctrl-a Shift-o` to review a folder or `Ctrl-a Shift-l` to review an agent's last reply; in Rex, run `plannotator-tui` directly.
+- **Rex:** run `plannotator-tui` directly.

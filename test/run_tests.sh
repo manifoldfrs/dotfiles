@@ -66,7 +66,8 @@ if HOME="$STOW_TEST_HOME" PATH="$STOW_TEST_BIN:/usr/bin:/bin:/usr/sbin:/sbin" ./
     && [ -L "$STOW_TEST_HOME/.config/fish/config.fish" ] \
     && [ -L "$STOW_TEST_HOME/.gitconfig" ] \
     && [ -L "$STOW_TEST_HOME/.config/nvim/init.lua" ] \
-    && [ -L "$STOW_TEST_HOME/.config/herdr/config.toml" ] \
+    && [ ! -e "$STOW_TEST_HOME/.config/herdr" ] \
+    && [ ! -e "$STOW_TEST_HOME/.config/plannotator-tui" ] \
     && [ -L "$STOW_TEST_HOME/.config/rex/init.lua" ] \
     && [ ! -L "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
     && [ -f "$DOTFILES_DIR/stow/codex/.codex/AGENTS.md" ] \
@@ -108,8 +109,6 @@ grep -q '^command = /opt/homebrew/bin/bash --login$' stow/ghostty/.config/ghostt
 grep -q '^shell-integration = none$' stow/ghostty/.config/ghostty/config
 grep -q '^font-family = MonoLisaCode$' stow/ghostty/.config/ghostty/config
 grep -q '^font-size = 14$' stow/ghostty/.config/ghostty/config
-grep -q 'name = "terminal"' stow/herdr/.config/herdr/config.toml
-grep -q '^default_shell = "bash"$' stow/herdr/.config/herdr/config.toml
 grep -Fq 'local prefix = "ctrl+a>"' stow/rex/.config/rex/keys.lua
 grep -Fq 'endpoint = "http://100.82.139.102:7297"' stow/rex/.config/rex/init.lua
 grep -Fq '"pankrashin/vim-rex-navigator"' stow/nvim/.config/nvim/lua/plugins/vim-rex-navigator.lua
@@ -120,7 +119,6 @@ grep -q 'vim.cmd.colorscheme("tokyonight")' stow/nvim/.config/nvim/lua/plugins/c
 grep -q '^source_cached_init fzf-bash fzf --bash$' stow/bash/.bashrc
 grep -Fq 'bind -m emacs-standard -x '\''"\C-f": __fzf_history__'\''' stow/bash/.bashrc
 grep -q '^source_cached_init zoxide-init zoxide init bash$' stow/bash/.bashrc
-grep -q '^shell_mode = "login"$' stow/herdr/.config/herdr/config.toml
 if command -v fish >/dev/null 2>&1; then
     bash test/fish_startup_test.sh "$DOTFILES_DIR"
 fi

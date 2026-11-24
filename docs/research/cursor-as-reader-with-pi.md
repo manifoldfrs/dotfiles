@@ -3,10 +3,6 @@
 Updated 2026-10-13.
 Checked against Cursor's official docs, the Pi package gallery, VS Code's source and docs, Ghostty's docs, and this repo's own setup notes.
 
-> [!NOTE]
-> **Historical record:** Since this research was written, Pi was retired (tracked configuration archived under [`old/stow/pi/`](../../old/stow/pi/)), Codex became the primary harness, Rex replaced Ghostty and Herdr as the default terminal multiplexer, and Cursor user settings are now tracked in `stow/cursor/`.
-> Do not follow the Pi bridge or installation notes below for current setup; see [docs/agents.md](../agents.md) and [docs/rex.md](../rex.md).
-
 ## The question
 
 Agents write nearly all the code now, so the editor's job is mostly reading and reviewing.

@@ -19,9 +19,6 @@ STOW_TARGETS=(
     "$HOME/.gitignore_global"
     "$HOME/.config/ghostty/config"
     "$HOME/.claude/settings.local.json"
-    "$HOME/.config/herdr/config.toml"
-    "$HOME/.config/herdr/plugins.txt"
-    "$HOME/.config/plannotator-tui/config.toml"
     "$HOME/.config/nvim"
 )
 
@@ -223,7 +220,7 @@ main() {
     install_claude_code
     apply_dotfiles
     bash "$DOTFILES_DIR/mcp_setup.sh" install-claude || warn "Claude Code MCP setup failed; rerun: ./mcp_setup.sh install-claude"
-    bash "$DOTFILES_DIR/scripts/sync_herdr_plugins.sh" || warn "Herdr plugin setup failed. Install Bun if missing, then rerun scripts/sync_herdr_plugins.sh"
+    herdr plugin install plannotator/herdr-annotate --yes || warn "Rex annotation setup failed; rerun: herdr plugin install plannotator/herdr-annotate --yes"
     sync_neovim_plugins
     install_npm_globals
     install_global_anti_slop

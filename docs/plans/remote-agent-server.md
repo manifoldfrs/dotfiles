@@ -1,9 +1,7 @@
 # Remote Agent Server Checklist
 
-This plan records the original `agentbox` setup.
-Pi and OpenCode have since been retired (tracked configs archived under [`old/stow/pi/`](../../old/stow/pi/) and [`old/stow/opencode/`](../../old/stow/opencode/); both were uninstalled on the Mac and have not been verified separately on `agentbox`).
+This plan records the original agentbox setup.
 For the current Codex, Claude Code, and Antigravity workflow, see [Agent harnesses](../agents.md).
-Phases 2, 5, 7, and 8 remain linked for Linuxbrew, Plannotator, and server setup; historical Pi and OpenCode items below are preserved as records and marked superseded where a reader could otherwise follow them today.
 
 Original goal: run Pi, Claude Code, Codex, and OpenCode inside Herdr on a DigitalOcean Droplet so agents keep working while the MacBook is closed.
 The Mac becomes a thin client: `herdr` on the Mac shows the Droplet's panes over SSH through Tailscale.
@@ -31,7 +29,7 @@ The standard for one Stow repo shared between a Mac and Linux machines has three
 
 Templating tools (chezmoi) and Nix Home Manager are the heavier standard; this repo has too few differences to need them.
 An earlier pass already applied rule 1 to Herdr (`default_shell = "bash"`), recorded in `docs/research/cloud-agents-vps-and-phone.md`.
-These tracked entries still assume macOS or the Mac's checkout location (historical record: `stow/pi/` and `stow/opencode/` below have since been archived under `old/stow/`):
+These tracked entries still assume macOS or the Mac's checkout location:
 
 | File | Problem on Linux | Change |
 | --- | --- | --- |
@@ -180,7 +178,7 @@ Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy p
   The `gh` CLI itself only reads `GH_TOKEN`; prefix personal-repo commands with `GH_TOKEN=$GH_TOKEN_PERSONAL gh ...`.
   Verified with `git credential fill` (each URL gets its own token) and `git push --dry-run` to both repos.
   Set calendar reminders to rotate both tokens before they expire.
-- [x] Clone this repo to the same path as on the Mac, because `CLAUDE_CODE_PLUGIN_DIRS` and the root `rex_server_setup.sh` path in `docs/rex.md` (and historically OpenCode's plugin paths) point there:
+- [x] Clone this repo to the same path as on the Mac, because the OpenCode plugin paths and `CLAUDE_CODE_PLUGIN_DIRS` point there:
   `git clone https://github.com/manifoldfrs/dotfiles.git ~/code/personal/dotfiles`.
 - [x] Preview: `cd ~/code/personal/dotfiles && ./scripts/stow.sh dry-run`.
 - [x] Validate in isolation: `./scripts/validate-dotfiles.sh`.
@@ -198,28 +196,24 @@ Do not run `brew bundle` with the full `Brewfile`; it includes casks and heavy p
 - [x] Add `export PLANNOTATOR_REMOTE=1` to `local.bash`.
   Plannotator only detects SSH sessions on its own, and agents in Herdr panes may not inherit the SSH variables.
 - [x] `chmod 600 ~/.config/bash/local.bash`.
-- [x] *(Superseded — Pi retired; config archived at `old/stow/pi/.pi/agent/mcp.json`)* Pi needs no untracked MCP config: `stow/pi/.pi/agent/mcp.json` is tracked and reads the four keys from `local.bash`.
-- [ ] For active harnesses today, `./scripts/stow.sh apply` seeds Codex's machine-local `~/.codex/config.toml` from `stow/codex/.codex/config.toml`, and `./mcp_setup.sh install-claude` imports the shared servers from `mcp/shared/servers.json` into machine-local `~/.claude.json` (see [mcp/README.md](../../mcp/README.md)).
+- [x] Pi needs no untracked MCP config: `stow/pi/.pi/agent/mcp.json` is tracked and reads the four keys from `local.bash`.
+- [ ] Only if you use Claude Code's own MCP servers on the server: add them with `claude mcp add`, because they live in the machine-local `~/.claude.json`.
 
 ## Phase 8: Harnesses and auth
 
-> [!NOTE]
-> **Superseded harness directions:** Pi and OpenCode are retired and no longer installed or required by default dotfiles workflows.
-> On a fresh server today, Codex is the primary harness (`@openai/codex` via `npm-global-packages.txt`), Claude Code is the native Anthropic harness (Opus and Fable), and Antigravity CLI handles Gemini Neon if used on the host.
-> Skip the historical Pi and OpenCode steps below, and use [docs/rex.md](../rex.md#signing-in-to-tools-from-agentbox) (`agentbox-auth`) for browser-based sign-ins.
+Pi is the primary harness on the server.
+Claude Code is required too, because Pi's Claude models, from `pi-claude-cli`, run through the `claude` CLI and its login.
+Codex and OpenCode are optional; skip their install and login steps if you do not need them on the server.
 
-Original October 2026 checklist (preserved for history):
-Pi was the primary harness on the server, Claude Code was also required because Pi's `pi-claude-cli` ran through the `claude` CLI login, and Codex and OpenCode were optional.
-
-- [x] *(Superseded — Pi retired)* Install Pi with the official installer: `curl -fsSL https://pi.dev/install.sh | sh`.
-- [x] *(Superseded — Pi retired)* Install Pi packages declared in `settings.json`: `pi update --extensions`, then `pi list`.
+- [x] Install Pi with the official installer: `curl -fsSL https://pi.dev/install.sh | sh`.
+- [x] Install Pi packages declared in `settings.json`: `pi update --extensions`, then `pi list`.
 - [x] Install the global npm tools: `grep -v '^#' ~/code/personal/dotfiles/npm-global-packages.txt | xargs npm install -g`.
-- [ ] *(Superseded — OpenCode retired)* Skipped for now: Install OpenCode 2: `curl -fsSL https://opencode.ai/v2/install | bash`.
+- [ ] Skipped for now: Install OpenCode 2: `curl -fsSL https://opencode.ai/v2/install | bash`.
 - [x] Install Plannotator: `curl -fsSL https://plannotator.ai/install.sh | bash`.
   It installs to `~/.local/bin/plannotator`, the path the tracked Codex Stop hook calls.
   Trust the hook in Codex's `/hooks` on the server, then confirm a review page opens from the Mac at `http://agentbox:19432` with the Cloud Firewall still closed.
 - [x] Install Claude Code as `frshbb`: `curl -fsSL https://claude.ai/install.sh | bash`.
-- [x] Log in to Claude Code: run `claude`, then `/login`, and complete the browser callback from the Mac (historically done first for `pi-claude-cli`).
+- [x] Log in to Claude Code first, because `pi-claude-cli` uses its login: run `claude`, then `/login`, and paste the code from the browser on the Mac.
 - [x] Log in to Codex: `ssh -t agentbox codex login --device-auth`, then open the printed URL on the Mac and enter the code.
   Without it, `codex exec` fails with `401 Unauthorized` after a few retries.
 - [x] Make Codex's Linux sandbox work (Ubuntu 24.04 restricts unprivileged user namespaces, so `bwrap` fails with `loopback: Failed RTM_NEWADDR`), as root:
@@ -232,14 +226,14 @@ Pi was the primary harness on the server, Claude Code was also required because 
 
   This is OpenAI's documented fix and keeps the restriction on for everything except `/usr/bin/bwrap`.
   Verified as `frshbb`: `codex sandbox` reads project files, cannot write outside the project, and has no network.
-- [ ] *(Superseded — Pi retired)* Log in to any other Pi providers with `/login` inside `pi`.
-- [ ] Start each active harness once (`codex`, `claude`, and `agy` if Antigravity CLI is used on the host) and fix any extension, mod, or MCP errors other than expected macOS-only ones. *(Historical Pi and OpenCode startup checks are superseded.)*
+- [ ] Log in to any other Pi providers with `/login` inside `pi`.
+- [ ] Start each harness once (`pi`, `claude`, `codex`, `opencode`) and fix any extension or MCP errors other than the expected macOS-only ones from Phase 0.
 
 ## Phase 9: Herdr
 
 - [x] On the Mac: `herdr machine add agentbox`.
   It finds the Homebrew-installed `herdr` on the server, starts its background server, and saves the machine profile.
-- [x] *(Superseded — Pi retired; current Herdr integration uses `herdr integration install codex`)* On the server, install the Pi integration so Herdr can track agent state: `herdr integration install pi` (v9, an untracked file in `~/.pi/agent/extensions/`).
+- [x] On the server, install the Pi integration so Herdr can track agent state: `herdr integration install pi` (v9, an untracked file in `~/.pi/agent/extensions/`).
   Matching the Mac, skip the `claude` integration: it adds hooks to `~/.claude/settings.json`, which is a Stow link into the tracked repo.
 - [x] On the server, sync Herdr plugins: `~/code/personal/dotfiles/scripts/sync_herdr_plugins.sh`.
   The `annotate` plugin calls `plannotator-tui`, so also run `brew install plannotator/tap/plannotator-tui` there.
@@ -308,9 +302,7 @@ Alternative clients:
 - Reattach with `herdr`; the saved machine reconnects automatically.
 - From the phone, open the `agentbox` host in Termius (Phase 11), then run `herdr` there.
 
-### Browser tasks for agentbox agents *(historical Pi workflow)*
-
-This `pi-intercom` handoff applied while Pi was the active harness; Pi has since been retired, and active browser automation uses `agent-browser` (see [docs/agents.md](../agents.md#browser-and-desktop-automation)).
+### Browser tasks for agentbox agents
 
 The browser (Claude in Chrome, `codex-chrome`) only works on the Mac, so agents on agentbox hand browser work to a Local Pi on the Mac:
 
@@ -329,8 +321,9 @@ Verified 2026-10-09: a Mac session's messages reached the agentbox Pi by UUID an
 
 - Pull dotfile changes on the server with `cd ~/code/personal/dotfiles && git pull && ./scripts/stow.sh apply`.
   If `git pull` refuses because of local changes, check `git diff` first: tools rewrite stowed files through their links (Claude Code reorders `settings.json`, `gh auth setup-git` and `git config --global` write `.gitconfig`). Revert those with `git checkout -- <file>`.
-- *(Historical Pi note)* The `codex-chrome` MCP warning on the server applied to the retired `mcp.json` setup (now archived at `old/stow/pi/.pi/agent/mcp.json`).
-- Update active tools with `brew upgrade` and `npm update -g` (historical note: `pi update` applied before Pi was retired).
+- The `codex-chrome` MCP warning on the server is expected; leave it.
+  Disabling it through `/mcp` writes `"enabled": false` into the tracked `mcp.json`, which would turn it off on the Mac if committed.
+- Update tools with `brew upgrade`, `pi update`, and `npm update -g`.
 - Updating Herdr on the Mac does not restart the server's Herdr; update the server separately when you need new server-side behavior.
 - Ubuntu's unattended upgrades install security patches but do not reboot by default; reboot deliberately when no agents are running.
 - To stop paying, snapshot the Droplet if you want to keep it ($0.06/GB/month), then destroy it.

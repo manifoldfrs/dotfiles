@@ -4,12 +4,12 @@ Model Context Protocol (MCP) server configurations shared across coding-agent ha
 
 ## Source of truth and sync
 
-[`shared/servers.json`](shared/servers.json) defines the shared MCP servers for Codex and Claude Code, and [`shared/jev.ts`](shared/jev.ts) holds the active shared Jev logic.
-Codex owns its pinned Jev and xAI Search entries in [`stow/codex/.codex/config.toml`](../stow/codex/.codex/config.toml).
-Edit shared servers in `shared/servers.json` (or shared Jev logic in `shared/jev.ts`), then sync the harnesses:
+[`shared/servers.json`](shared/servers.json) defines the shared MCP servers.
+Codex owns its Jev and xAI Search entries in [`stow/codex/.codex/config.toml`](../stow/codex/.codex/config.toml).
+Edit shared servers there, then sync the other harnesses:
 
-- **Codex and Claude Jev mod:** run `./scripts/harness_sync.sh` to regenerate the shared server blocks in the Codex template and the Claude Code Jev mod copy at `stow/claude/.claude/mods/jev-checks/hooks/jev-shared.ts` (`scripts/validate-dotfiles.sh` fails if either drifts).
-- **Claude Code MCP:** run `./mcp_setup.sh install-claude` to import the shared servers into machine-local `~/.claude.json`.
+- **Codex:** run `./scripts/harness_sync.sh` to regenerate the shared server blocks in the Codex template (`scripts/validate-dotfiles.sh` fails if they drift).
+- **Claude Code:** run `./mcp_setup.sh install-claude` to import the shared servers into machine-local `~/.claude.json`.
 
 | Harness | Config file | How it stays in sync |
 | --- | --- | --- |

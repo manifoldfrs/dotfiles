@@ -29,13 +29,14 @@ jobs:
       - name: Verify Bash Stow layout
         run: |
           tmp_home="$(mktemp -d)"
-          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty herdr nvim bin antigravity claude codex
+          stow --no-folding -R -t "$tmp_home" -d stow bash git ghostty nvim bin antigravity claude codex
           test -L "$tmp_home/.bashrc"
           test -L "$tmp_home/.inputrc"
           test -L "$tmp_home/.config/bash/environment.bash"
           test -L "$tmp_home/.config/fish/config.fish"
           test -L "$tmp_home/.config/nvim/init.lua"
-          test -L "$tmp_home/.config/herdr/config.toml"
+          test ! -e "$tmp_home/.config/herdr"
+          test ! -e "$tmp_home/.config/plannotator-tui"
           test ! -e "$tmp_home/.pi"
           test ! -e "$tmp_home/.config/opencode"
           test -L "$tmp_home/.gemini/config/hooks.json"

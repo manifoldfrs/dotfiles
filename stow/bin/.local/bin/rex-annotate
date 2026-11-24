@@ -11,7 +11,7 @@ for candidate in "$HOME"/.config/herdr/plugins/github/annotate-*/bin/herdr-annot
 done
 
 if [[ -z $BIN ]]; then
-    printf 'rex-annotate: herdr-annotate is missing; run scripts/sync_herdr_plugins.sh\n' >&2
+    printf 'rex-annotate: herdr-annotate is missing; run: herdr plugin install plannotator/herdr-annotate --yes\n' >&2
     exit 1
 fi
 

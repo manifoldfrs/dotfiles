@@ -20,11 +20,11 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 
 | Layer | Choice | Notes |
 | --- | --- | --- |
-| Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default on macOS and iOS (Ghostty fallback on Mac; Herdr + Termius fallback phone path into `agentbox`) |
+| Terminal + multiplexer | [Rex](https://www.superlogical.com/rex/docs/installation) (beta) | Default on macOS and iOS (Ghostty fallback on Mac) |
 | Editor / IDE | Neovim, Cursor | `lazy.nvim` + Lua plugins in `stow/nvim/.config/nvim/`, Cursor user config in `stow/cursor/`, retired Zed archived under `old/` |
 | Shell | Fish + FZF + Atuin + zoxide | Interactive Bash login starts Fish; Bash still runs scripts and agent commands |
 | Primary agent harness | Codex | Owns global rules and guardrail hooks in `stow/codex/.codex/` and shared skills in `stow/codex/skills/shared/` |
-| Native harnesses & Council | Codex CLI, Claude Code, Antigravity CLI | Codex runs Sol and coordinates Council; Claude Code handles Opus and Fable; Antigravity CLI handles Gemini Neon |
+| Council reviewers | Codex CLI, Claude Code, Antigravity CLI | Codex runs each model through its own command-line tool |
 
 Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception because its theme and font live in app settings rather than `init.lua` (see [docs/rex.md](docs/rex.md#app-settings-one-time-per-machine)).
@@ -47,7 +47,7 @@ What `bootstrap.sh` does:
 - Installs Homebrew, `Brewfile` packages/casks (including `pnpm`), global npm packages, the `anti-slop` runtime, and Plannotator.
 - Installs Claude Code with its native installer.
 - Backs up conflicting live files (`.backup.YYYYMMDDhhmmss`) and applies all Stow packages.
-- Registers Claude Code's MCP servers, syncs Herdr plugins, restores Neovim plugins from `lazy-lock.json`, and runs `rex skill setup --agent codex --agent claude --session-naming` when Rex is present.
+- Registers Claude Code's MCP servers, installs the Herdr annotation plugin used by Rex, restores Neovim plugins from `lazy-lock.json`, and runs `rex skill setup --agent codex --agent claude --session-naming` when Rex is present.
 
 Remaining one-time steps on a new Mac:
 
@@ -88,7 +88,7 @@ How `scripts/stow.sh` adapts automatically on Linux:
   It converts legacy Stow links to local copies and still links `AGENTS.md`, skills, hooks, and themes.
 - Creates `~/.local/bin/bash` pointing to `/bin/bash` (instead of Homebrew Bash 4+ on macOS) for scripts that use the local Bash link.
 
-After applying dotfiles as `frshbb`, follow [docs/plans/remote-agent-server.md](docs/plans/remote-agent-server.md#phase-5-toolchain-on-the-server) (Phases 5–8; skip Phase 6's clone and Stow steps, which you just did, and skip the superseded Pi and OpenCode items in Phases 7–8) for Linuxbrew, the server toolchain, and harness installs (run `brew install fish` as `frshbb` after Phase 5 if desired), and see [docs/rex.md](docs/rex.md#remote-server-on-agentbox) for the root Rex login server setup and `agentbox-auth` sign-in flow.
+After applying dotfiles as `frshbb`, follow [docs/plans/remote-agent-server.md](docs/plans/remote-agent-server.md#phase-5-toolchain-on-the-server) (Phases 5–8; skip Phase 6's clone and Stow steps, which you just did) for Linuxbrew, the server toolchain, and harness installs (run `brew install fish` as `frshbb` after Phase 5 if desired), and see [docs/rex.md](docs/rex.md#remote-server-on-agentbox) for the root Rex login server setup and `agentbox-auth` sign-in flow.
 
 ### Day-to-day updates
 
@@ -103,11 +103,11 @@ git pull
 ```
 
 `apply` runs `scripts/validate-dotfiles.sh` against a temporary home before touching `$HOME`; if validation fails, nothing changes.
-It also moves known conflicting files (Bash, Codex, Claude Code, Cursor, Herdr `plugins.txt`, Plannotator TUI, and shared skill folders) aside as `.backup.YYYYMMDDhhmmss` and restores them if Stow fails.
+It also moves known conflicting files (Bash, Codex, Claude Code, Cursor, and shared skill folders) aside as `.backup.YYYYMMDDhhmmss` and restores them if Stow fails.
 `dry-run` runs plain `stow -n` without those backups, so it may flag auto-backed-up files alongside unexpected conflicts; only conflicts outside the auto-backup list need manual moves (see [Troubleshooting](#troubleshooting)).
 Use `./scripts/stow.sh delete` to remove managed symlinks, and `./scripts/bootstrap.sh` only on macOS when you want packages, plugins, and tooling refreshed.
 
-The default `STOW_PACKAGES` list in `scripts/stow.sh` is `bash git ghostty herdr rex nvim bin antigravity claude codex cursor`.
+The default `STOW_PACKAGES` list in `scripts/stow.sh` is `bash git ghostty rex nvim bin antigravity claude codex cursor`.
 
 To restow a single simple leaf package (`nvim`, `git`, `ghostty`, or `rex`) by hand:
 
@@ -128,11 +128,10 @@ stow/                     Stow packages, each mirroring $HOME
   git/                    .gitconfig and global gitignore
   rex/                    Rex init.lua and required Lua modules
   ghostty/                Fallback terminal config
-  herdr/                  Herdr config, plugin list, Plannotator TUI config
   nvim/                   Neovim config (see stow/nvim/AGENTS.md)
   bin/                    ~/.local/bin helpers (anti-slop, rex-annotate, agentbox-auth, spotify-visualizer)
   codex/                  Primary harness config, theme, global AGENTS.md, hooks, and shared skills
-  claude/                 Claude Code settings, agents, and mods; links rules and hooks to codex/
+  claude/                 Standalone Claude Code settings and mods; links rules and hooks to codex/
   antigravity/            Antigravity PreToolUse guardrail hooks adapter; links shared scripts to codex/
   cursor/                 Cursor settings, keybindings, tasks (Library/Application Support/Cursor/User)
 cursor/extensions.txt     Cursor extension IDs; install with the app's bundled CLI
@@ -141,7 +140,6 @@ scripts/
   stow.sh                 apply / dry-run / delete with isolated preflight
   validate-dotfiles.sh    Isolated validation without live changes
   backup.sh               Capture live config into tracked sources
-  sync_herdr_plugins.sh   Install or update declared Herdr plugins
   update_agent_skills.sh  Check or sync the shared skill catalog
   skill_catalog.sh        Generate docs/skills.md
   harness_sync.sh         Generate Codex MCP registrations and the Claude Jev mod copy
@@ -149,10 +147,10 @@ scripts/
   rex_prefs.sh            Save, load, or watch Rex app settings
 rex/                      Tracked Rex app settings (not stowed)
 server/rex/               Files installed under /etc on agentbox (not stowed)
-mcp/                      Shared MCP definitions, shared Jev logic, xai-search, and setup guide (see mcp/README.md)
+mcp/                      MCP setup guide (see mcp/README.md)
 test/                     Shell and TypeScript tests, Docker harness
 docs/                     Deep-dive guides (rex.md, agents.md, skills.md), plans, and research notes
-old/                      Archived Fish, Zsh, tmux, Karabiner, Zed, older Cursor, and retired Pi/OpenCode configs and tests
+old/                      Archived Fish, Zsh, tmux, Karabiner, Zed, and older Cursor config
 Brewfile                  Homebrew packages and casks
 npm-global-packages.txt   Global npm packages (@openai/codex, vercel, tree-sitter-cli, agent-browser)
 ```
@@ -203,6 +201,8 @@ In Rex, Neovim also supports Cursor-style `Cmd` keys: `Cmd-P` find files, `Cmd-S
 - **LSPs:** Mason installs `lua_ls`, `ts_ls`, `gopls`, `clangd`, and `ty` (Python).
   Install Ruby LSP outside Mason so it uses the project Ruby: `gem install ruby-lsp --bindir "$HOME/.local/bin" --no-document`.
 - **TypeScript extras:** `:TSC` populates quickfix, `ts-error-translator` clarifies diagnostics, and `:TwoslashQueriesEnable` shows inline types.
+- **Markdown preview:** run `:MarkdownPreview` in a Markdown buffer to open a live preview in your browser.
+  Run `:MarkdownPreviewStop` to close it.
 - **Debugging:** no in-editor debugger; use tests and logs first, then `dlv` (Go) or `debugpy` (Python) in a terminal pane.
 - **Plugin safety check:** run `bash test/nvim_plugin_safety.sh --base-ref HEAD` before changing plugins; it checks startup in an isolated profile without touching live config or `lazy-lock.json`.
 
@@ -232,8 +232,8 @@ Scripts and agent shell commands still use Bash; stay in Bash for a pane with `D
 
 Codex is the primary harness and runs Council reviews through Codex CLI, Claude Code, and Antigravity CLI.
 Codex hosts pstack directly through the Open Pstack plugin ([docs/agents.md](docs/agents.md#pstack-in-codex)).
-It pairs GPT-6.2 Sol High and Opus 5.5 High for Arena candidate work, Architect, and Interrogate with read-only Gemini 4 Neon High through Antigravity CLI.
 The [pstack PR watcher launcher](docs/agents.md#pstack-in-codex) keeps its dependencies outside the plugin directory.
+It pairs GPT-6.2 Sol High and Opus 5.5 High for Arena candidate work, Architect, and Interrogate with read-only Gemini 4 Neon High through Antigravity CLI.
 The tracked macOS Codex config disables routine command approvals and the filesystem sandbox while keeping guardrail hooks enabled.
 Codex and Claude Code share the global `AGENTS.md`, shell guardrails, skill catalog, and MCP definitions.
 [Antigravity runs Neon through its own CLI](docs/agents.md#harness-roles).
@@ -255,7 +255,7 @@ codex -a on-request -s workspace-write     # restore Codex approval prompts and 
 ./scripts/harness_sync.sh                  # sync Codex MCP registrations and the Claude Jev mod
 ```
 
-See [docs/agents.md](docs/agents.md) for Council setup, Claude Code (Opus and Fable), Gemini 4 Neon, pstack, shared integrations, Claude Code mods, guardrails, and Plannotator.
+See [docs/agents.md](docs/agents.md) for Council setup, Gemini 4 Neon, pstack, PR drafting, extensions/mods, guardrails, and Plannotator.
 
 ### Extra tools in `bin/`
 
@@ -266,13 +266,10 @@ See [docs/agents.md](docs/agents.md) for Council setup, Claude Code (Opus and Fa
   Requires a Spotify developer app with redirect URI `http://127.0.0.1:8974/callback` and `SPOTIFY_CLIENT_ID` exported (tokens cache in `~/.cache/dotfiles/spotify-visualizer/`).
   Keys: `Space` play/pause, `n`/`p` next/previous, `s` shuffle, `r` repeat, `q` quit.
 
-### Fallbacks (Ghostty and Herdr)
+### Ghostty fallback
 
 - **Ghostty (`stow/ghostty/`):** fallback terminal (source of Rex's imported theme).
   `Shift-Cmd-click` opens links even when an app captures the mouse.
-- **Herdr (`stow/herdr/`):** shares Rex's `Ctrl-a` mental model; still used for its `herdr-annotate` plugin and as the fallback phone path into `agentbox` over Termius.
-  Sync `plannotator/herdr-annotate` and `paulbkim-dev/vim-herdr-navigation` from `plugins.txt` with `./scripts/sync_herdr_plugins.sh`; install agent integrations once per machine with `herdr integration install codex`.
-  Useful commands: `herdr server reload-config`, `herdr integration status`, `herdr pane list`, `herdr agent list`.
 
 ## Validation
 
@@ -290,12 +287,10 @@ See [AGENTS.md](AGENTS.md) for validation requirements.
 
 ## Troubleshooting
 
-- **Stow reports conflicts:** `./scripts/stow.sh apply` auto-backs up known managed targets, while unexpected conflicts (such as `~/.config/nvim`, `~/.gitconfig`, `~/.gitignore_global`, `~/.config/ghostty/config`, `~/.config/herdr/config.toml`, `~/.config/rex/*`, or a regular file or directory at `~/.local/bin/bash`) must be moved aside manually.
+- **Stow reports conflicts:** `./scripts/stow.sh apply` auto-backs up known managed targets, while unexpected conflicts (such as `~/.config/nvim`, `~/.gitconfig`, `~/.gitignore_global`, `~/.config/ghostty/config`, `~/.config/rex/*`, or a regular file or directory at `~/.local/bin/bash`) must be moved aside manually.
   Use `./scripts/stow.sh dry-run` to inspect Stow file conflicts (conflicts on targets `apply` backs up automatically can be disregarded) and the `./scripts/stow.sh apply` error for wrapper-only checks such as `~/.local/bin/bash`.
   Check a file (not an ordinary parent directory, because `--no-folding` creates real directories) with e.g. `readlink ~/.config/nvim/init.lua`, move aside only the exact conflicting path named in the error (including an unmanaged symlink itself rather than its target) with `.backup.$(date +%Y%m%d%H%M%S)`, and re-run `./scripts/stow.sh apply`.
 - **Edits to `~/.config/...` do not appear in `git diff`:** run `readlink` on the specific file (for example, `readlink ~/.config/nvim/init.lua`); if it does not point into this repo, re-run `./scripts/stow.sh apply`.
 - **Neovim LSP or treesitter errors:** verify Neovim >= 0.11 and `tree-sitter-cli` >= 0.26.1, then run `:Mason`, `:LspInfo`, and `:checkhealth nvim-treesitter`.
 - **Markdown crashes Neovim with `CODESIGNING Invalid Page`:** stale parsers in `~/.local/share/nvim/site/parser` (even `markdown.so.disabled`) get loaded and killed by macOS; move them out and retry.
 - **Prompt looks plain after an update:** on macOS, run `brew bundle --file=Brewfile`, `./scripts/stow.sh apply`, and `exec bash --login` (on Ubuntu/`agentbox`, install or update the Linuxbrew tool subset from [Phase 5](docs/plans/remote-agent-server.md#phase-5-toolchain-on-the-server) instead of running the macOS `Brewfile`).
-- **Herdr config or agent state looks stale:** verify `readlink ~/.config/herdr/config.toml` points into `stow/herdr/`, run `herdr server reload-config`, and check `herdr integration status`.
-  Herdr keeps the previous keymap when bindings are invalid; details are in `~/.config/herdr/herdr-server.log`.
