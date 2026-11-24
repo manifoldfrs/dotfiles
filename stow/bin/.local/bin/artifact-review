@@ -1,0 +1,265 @@
+#!/usr/bin/env node
+
+const { execFile, spawn } = require("node:child_process");
+const { randomBytes, createHash } = require("node:crypto");
+const { lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } = require("node:fs/promises");
+const { createServer } = require("node:http");
+const { tmpdir } = require("node:os");
+const { basename, dirname, extname, join, resolve } = require("node:path");
+const { parseArgs, promisify } = require("node:util");
+
+const usage = [
+  "Usage: artifact-review [--no-open] [--notify-codex] [--] FILE.html",
+  "       artifact-review workspace",
+  "       artifact-review clean",
+  "       artifact-review acknowledge FILE",
+].join("\n");
+const run = promisify(execFile);
+const maxFileBytes = 8 * 1024 * 1024;
+const maxFeedbackBytes = 6 * 1024 * 1024;
+const limits = { id: 200, selector: 2000, quote: 2000, source: 500, comment: 4000 };
+const artifactPolicy = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; form-action 'none'; base-uri 'none'; sandbox allow-same-origin";
+const viewerPolicy = "default-src 'none'; script-src 'self'; style-src 'self'; frame-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'";
+
+function send(response, status, type, body, policy) {
+  response.writeHead(status, {
+    "Content-Type": type,
+    "Cache-Control": "no-store",
+    "Referrer-Policy": "no-referrer",
+    "X-Content-Type-Options": "nosniff",
+    ...(policy ? { "Content-Security-Policy": policy } : {}),
+  });
+  response.end(body);
+}
+
+async function readDecision(request) {
+  const chunks = [];
+  let length = 0;
+  for await (const chunk of request.iterator({ destroyOnReturn: false })) {
+    length += chunk.length;
+    if (length > maxFeedbackBytes) return null;
+    chunks.push(chunk);
+  }
+
+  let value;
+  try {
+    value = JSON.parse(Buffer.concat(chunks));
+  } catch (error) {
+    if (error instanceof SyntaxError) return null;
+    throw error;
+  }
+
+  if (value?.decision === "dismissed") return { decision: "dismissed", annotations: [] };
+  if (value?.decision !== "annotated" || !Array.isArray(value.annotations)) return null;
+  if (value.annotations.length === 0 || value.annotations.length > 100) return null;
+
+  const annotations = [];
+  for (const annotation of value.annotations) {
+    if (!annotation || !["text", "element", "document"].includes(annotation.kind)) return null;
+    const fields = Object.entries(limits).map(([key, limit]) => [key, annotation[key], limit]);
+    if (fields.some(([, field, limit]) => typeof field !== "string" || field.length > limit)) return null;
+    if (!annotation.comment.trim()) return null;
+    if (annotation.kind !== "document" && !annotation.selector) return null;
+    if (annotation.kind === "text" && !annotation.quote.trim()) return null;
+    annotations.push({
+      kind: annotation.kind,
+      ...Object.fromEntries(fields.filter(([, field]) => field).map(([key, field]) => [key, field])),
+    });
+  }
+  return { decision: "annotated", annotations };
+}
+
+function openBrowser(url) {
+  const program = process.platform === "darwin" ? "open" : "xdg-open";
+  const child = spawn(program, [url], { stdio: "ignore" });
+  child.on("error", () => console.error("Open the review URL in your browser."));
+  child.on("exit", (code) => {
+    if (code !== 0) console.error("Open the review URL in your browser.");
+  });
+  child.unref();
+}
+
+const threadIdPattern = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+const feedbackDirectoryPattern = /^feedback-[A-Za-z0-9]{6}$/;
+
+async function workspacePath(thread, create) {
+  if (!threadIdPattern.test(thread ?? "")) {
+    throw new Error("This command requires a valid CODEX_THREAD_ID.");
+  }
+
+  let directory = await realpath(tmpdir());
+  for (const segment of ["agent-artifacts", "artifact-review", thread]) {
+    directory = join(directory, segment);
+    if (create) {
+      await mkdir(directory, { mode: 0o700 }).catch((error) => {
+        if (error.code !== "EEXIST") throw error;
+      });
+    }
+    const info = await lstat(directory).catch((error) => {
+      if (error.code !== "ENOENT") throw error;
+    });
+    if (!info && !create) return;
+    if (!info?.isDirectory()) throw new Error("The review workspace must be a real directory.");
+  }
+  return directory;
+}
+
+async function cleanOnSessionEnd() {
+  let input = "";
+  for await (const chunk of process.stdin) input += chunk;
+  const event = JSON.parse(input);
+  if (event.hook_event_name !== "SessionEnd" || !threadIdPattern.test(event.session_id ?? "")) return;
+  const workspace = await workspacePath(event.session_id, false);
+  if (!workspace) return;
+  const entries = await readdir(workspace);
+  if (entries.some((entry) => feedbackDirectoryPattern.test(entry))) return;
+  await rm(workspace, { recursive: true, force: true });
+}
+
+async function acknowledgeFeedback(file) {
+  const workspace = await workspacePath(process.env.CODEX_THREAD_ID, false);
+  const path = resolve(file);
+  const directory = dirname(path);
+  if (!workspace || dirname(directory) !== workspace || basename(path) !== "feedback.json"
+      || !feedbackDirectoryPattern.test(basename(directory))) {
+    throw new Error("Provide a feedback file from this thread's review workspace.");
+  }
+  await rm(directory, { recursive: true, force: true });
+}
+
+async function notifyCodex(thread, result) {
+  const workspace = await workspacePath(thread, true);
+  const directory = await mkdtemp(join(workspace, "feedback-"));
+  const file = join(directory, "feedback.json");
+  try {
+    await writeFile(file, result, { mode: 0o600 });
+    const message = [
+      `I submitted artifact review feedback. Read the JSON at ${JSON.stringify(file)}.`,
+      "Use each annotation's comment as my feedback and its quote and source as context.",
+      "Apply requested revisions within the scope of the review and summarize what you did.",
+      "If the comments are questions or test notes, answer or acknowledge them.",
+    ].join(" ");
+    await run("codex", ["queue", "--thread", thread, "--message", message]);
+  } catch (error) {
+    await rm(directory, { recursive: true, force: true });
+    throw error;
+  }
+}
+
+async function main(args) {
+  if (args.length === 1 && ["--help", "-h"].includes(args[0])) {
+    console.log(usage);
+    return;
+  }
+  if (args.length === 1 && args[0] === "workspace") {
+    console.log(await workspacePath(process.env.CODEX_THREAD_ID, true));
+    return;
+  }
+  if (args.length === 1 && args[0] === "clean") {
+    const directory = await workspacePath(process.env.CODEX_THREAD_ID, false);
+    if (directory) await rm(directory, { recursive: true, force: true });
+    return;
+  }
+  if (args.length === 1 && args[0] === "session-end") {
+    await cleanOnSessionEnd();
+    return;
+  }
+  if (args.length === 2 && args[0] === "acknowledge") {
+    await acknowledgeFeedback(args[1]);
+    return;
+  }
+
+  const { values, positionals } = parseArgs({
+    args,
+    options: { "no-open": { type: "boolean" }, "notify-codex": { type: "boolean" } },
+    allowPositionals: true,
+  });
+  if (positionals.length !== 1) throw new Error(usage);
+  const thread = values["notify-codex"] ? process.env.CODEX_THREAD_ID : undefined;
+  if (values["notify-codex"] && !thread) throw new Error("--notify-codex requires an originating Codex thread.");
+
+  const target = resolve(positionals[0]);
+  if (![".html", ".htm"].includes(extname(target).toLowerCase())) throw new Error("Provide an HTML file.");
+  const info = await stat(target);
+  if (!info.isFile() || info.size > maxFileBytes) throw new Error("Provide an HTML file of at most 8 MB.");
+  const artifact = await readFile(target);
+  if (artifact.length > maxFileBytes) throw new Error("Provide an HTML file of at most 8 MB.");
+
+  const assets = resolve(dirname(await realpath(process.argv[1])), "../share/artifact-review");
+  const root = "/" + randomBytes(24).toString("hex") + "/";
+  const revision = createHash("sha256").update(artifact).digest("hex");
+  const routes = new Map([
+    [root, ["text/html; charset=utf-8", await readFile(resolve(assets, "index.html")), viewerPolicy]],
+    [root + "viewer.css", ["text/css; charset=utf-8", await readFile(resolve(assets, "viewer.css"))]],
+    [root + "viewer.js", ["text/javascript; charset=utf-8", await readFile(resolve(assets, "viewer.js"))]],
+    [root + "artifact", ["text/html; charset=utf-8", artifact, artifactPolicy]],
+    [root + "session", ["application/json", JSON.stringify({ name: basename(target) })]],
+  ]);
+  let accepting = true;
+  const server = createServer(async (request, response) => {
+    const host = request.headers.host;
+    if (!/^(127\.0\.0\.1|localhost):\d+$/.test(host)) {
+      send(response, 403, "text/plain", "Use the loopback review URL.");
+      return;
+    }
+    const route = routes.get(request.url);
+    if (request.method === "GET" && route) {
+      send(response, 200, ...route);
+      return;
+    }
+    if (request.method !== "POST" || request.url !== root + "finish") {
+      send(response, 404, "text/plain", "Not found.");
+      return;
+    }
+    if (request.headers.origin !== "http://" + host || request.headers["content-type"] !== "application/json") {
+      send(response, 403, "text/plain", "Submit from the review page.");
+      return;
+    }
+
+    try {
+      const feedback = await readDecision(request);
+      if (!feedback) {
+        response.setHeader("Connection", "close");
+        send(response, 400, "text/plain", "Invalid review feedback.");
+        return;
+      }
+      if (!accepting) {
+        send(response, 409, "text/plain", "This review is already being submitted.");
+        return;
+      }
+      accepting = false;
+      const result = JSON.stringify({ target, revision, ...feedback }) + "\n";
+      if (thread && feedback.decision === "annotated") {
+        try {
+          await notifyCodex(thread, result);
+        } catch (error) {
+          accepting = true;
+          console.error("Unable to queue feedback for Codex: " + error.message);
+          send(response, 502, "text/plain", "Could not queue feedback for Codex. Your comments are still here. Try sending again.");
+          return;
+        }
+      }
+      process.stdout.write(result);
+      response.setHeader("Connection", "close");
+      send(response, 200, "text/plain", "Review complete.");
+      server.close();
+    } catch {
+      send(response, 400, "text/plain", "Unable to read review feedback.");
+    }
+  });
+
+  server.on("error", (error) => {
+    console.error("artifact-review: " + error.message);
+    process.exitCode = 1;
+  });
+  server.listen(0, "127.0.0.1", () => {
+    const url = `http://127.0.0.1:${server.address().port}${root}`;
+    console.error(`Review URL: ${url}`);
+    if (!values["no-open"]) openBrowser(url);
+  });
+}
+
+main(process.argv.slice(2)).catch((error) => {
+  console.error("artifact-review: " + error.message);
+  process.exitCode = 1;
+});

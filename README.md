@@ -129,7 +129,7 @@ stow/                     Stow packages, each mirroring $HOME
   rex/                    Rex init.lua and required Lua modules
   ghostty/                Fallback terminal config
   nvim/                   Neovim config (see stow/nvim/AGENTS.md)
-  bin/                    ~/.local/bin helpers (anti-slop, rex-annotate, agentbox-auth, spotify-visualizer)
+  bin/                    ~/.local/bin helpers (anti-slop, artifact-review, rex-annotate, agentbox-auth, spotify-visualizer)
   codex/                  Primary harness config, theme, global AGENTS.md, hooks, and shared skills
   claude/                 Standalone Claude Code settings and mods; links rules and hooks to codex/
   antigravity/            Antigravity PreToolUse guardrail hooks adapter; links shared scripts to codex/
@@ -235,7 +235,7 @@ Codex hosts pstack directly through the Open Pstack plugin ([docs/agents.md](doc
 The [pstack PR watcher launcher](docs/agents.md#pstack-in-codex) keeps its dependencies outside the plugin directory.
 It pairs GPT-6.2 Sol High and Opus 5.5 High for Arena candidate work, Architect, and Interrogate with read-only Gemini 4 Neon High through Antigravity CLI.
 Pstack also uses Gemini 4 Neon High for its `judgment and prose` role in multi-phase planning.
-Use [`$bro neon`](docs/agents.md#shared-skill-catalog) for a paste-ready Antigravity prompt when you want Neon to rewrite a reply.
+Use [`$bro-neon`](docs/agents.md#shared-skill-catalog) for a paste-ready Antigravity prompt when you want Neon to rewrite a reply.
 The tracked macOS Codex config disables routine command approvals and the filesystem sandbox while keeping guardrail hooks enabled.
 Codex and Claude Code share the global `AGENTS.md`, shell guardrails, skill catalog, and MCP definitions.
 [Antigravity runs Neon through its own CLI](docs/agents.md#harness-roles).
@@ -261,6 +261,7 @@ See [docs/agents.md](docs/agents.md) for Council setup, Gemini 4 Neon, pstack, P
 
 ### Extra tools in `bin/`
 
+- **`artifact-review`:** opens an HTML plan, design comparison, walkthrough, or document for anchored comments that return to Codex. Codex cleans up the temporary workspace when the session ends after queued feedback is handled. See [HTML artifact reviews](docs/agents.md#html-artifact-reviews).
 - **`anti-slop`:** runs a vendored Oxlint rule set (see `stow/bin/.local/share/anti-slop/UPSTREAM.md`) against any JS/TS project without per-project setup (`anti-slop .`, `anti-slop --effect .`, `anti-slop --fix .`).
   Validate with `bash test/global_anti_slop_test.sh`.
 - **`rex-annotate`:** backs Rex's `Ctrl-a a/A/m` annotation keys using Herdr's `herdr-annotate`.

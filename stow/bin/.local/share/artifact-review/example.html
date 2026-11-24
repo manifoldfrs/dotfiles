@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reviewing a retry policy</title>
+  <style>
+    :root { color-scheme: light; color: #1b2940; background: #f6f8fb; font: 16px/1.6 system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { max-width: 69rem; margin: auto; padding: clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3 { line-height: 1.16; }
+    h1 { font: 600 clamp(2.3rem, 5vw, 4.1rem)/1.05 Georgia, serif; margin: .75rem 0; max-width: 15ch; }
+    h2 { margin-top: 2.5rem; }
+    p { max-width: 66ch; }
+    a { color: #2450a7; }
+    nav { display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
+    .choices, .flow { display: grid; gap: .8rem; }
+    .choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .flow { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.65rem; margin: 0; padding: 0; list-style: none; }
+    .choices article, .flow li { background: white; padding: 1rem; border: 1px solid #c5d1e1; border-radius: .45rem; }
+    .choices article:first-child { border-top: .3rem solid #3667c4; }
+    .choices h3 { margin: 0; }
+    .flow li { position: relative; border-left: .3rem solid #6285c5; }
+    .flow li + li::before { content: "→"; position: absolute; top: 50%; left: -1.65rem; translate: 0 -50%; color: #2450a7; }
+    .flow strong { display: block; }
+    figure { background: #17243a; color: #ecf3ff; margin: 0; padding: 1rem; border-radius: .45rem; }
+    pre { margin: .5rem 0 0; overflow: auto; }
+    del { background: #67323a; }
+    ins { background: #215742; text-decoration: none; }
+    summary { cursor: pointer; }
+    @media (max-width: 620px) {
+      .choices, .flow { grid-template-columns: 1fr; }
+      .flow li + li::before { content: "↓"; top: -1.65rem; left: 1rem; translate: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Reviewing a retry policy</h1>
+    <p>Decide how long background jobs should retry before asking an operator to intervene.</p>
+    <nav aria-label="Sections">
+      <a href="#plan">Plan</a>
+      <a href="#options">Design options</a>
+      <a href="#flow">Architecture</a>
+      <a href="#changes">PR walkthrough</a>
+      <a href="#docs">Operator docs</a>
+    </nav>
+  </header>
+  <main>
+    <section id="plan">
+      <h2>Implementation plan</h2>
+      <ol>
+        <li data-review-id="record-first-failure">Record when a job first fails so each attempt shares the same deadline.</li>
+        <li data-review-id="bound-retries">Retry transient failures for 30 seconds. Send permanent failures directly to the failed jobs list.</li>
+        <li data-review-id="verify-deadline">Verify that restarting the worker preserves the original deadline.</li>
+      </ol>
+    </section>
+
+    <section id="options">
+      <h2>What operators see</h2>
+      <div class="choices">
+        <article data-review-id="option-countdown">
+          <h3>Show the countdown</h3>
+          <p><strong>Retrying</strong> · 18 seconds remaining</p>
+          <p>Operators can tell when to expect an outcome, but the countdown may be distracting in long job lists.</p>
+        </article>
+        <article data-review-id="option-next-attempt">
+          <h3>Show the next attempt</h3>
+          <p><strong>Retrying</strong> · Next attempt at 14:32:08</p>
+          <p>Operators can correlate attempts with logs, but the deadline is less obvious.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="flow">
+      <h2>How a failure moves through the worker</h2>
+      <ol class="flow" aria-label="Failure flow">
+        <li data-review-id="flow-worker"><strong>1. Worker</strong>Records the first failure and sends its type to the retry policy.</li>
+        <li data-review-id="flow-policy"><strong>2. Retry policy</strong>Compares the failure type and elapsed time with the retry deadline.</li>
+        <li data-review-id="flow-queue"><strong>3. Queue</strong>Schedules another attempt or moves the job to failed jobs.</li>
+      </ol>
+    </section>
+
+    <section id="changes">
+      <h2>PR walkthrough</h2>
+      <p>The policy measures elapsed time from the first failure. This excerpt illustrates the proposed change.</p>
+      <figure data-review-id="retry-deadline">
+        <figcaption><code>worker/retry.js</code> · Illustrative diff</figcaption>
+        <pre><code><del>- return job.attempts &lt; 3;</del>
+<ins>+ return now - job.firstFailedAt &lt; retryWindowMs;</ins></code></pre>
+      </figure>
+    </section>
+
+    <section id="docs">
+      <h2>Operator docs</h2>
+      <details>
+        <summary>When should I retry a job manually?</summary>
+        <p data-review-id="manual-retry">Wait for the job to appear in Failed jobs. Check the failure reason before retrying so a permanent error does not re-enter the queue.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

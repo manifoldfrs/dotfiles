@@ -96,7 +96,7 @@ Shared skills live in `stow/codex/skills/shared/`.
 Stow apply repairs old shared skill links that still point to the retired Pi package.
 
 Use `$bro` to simplify the previous reply in the current chat.
-Use `$bro neon` to get a prompt with the original question and relevant facts, then paste it into an Antigravity session running `agy --model gemini-4-neon-high`.
+In Codex, use the standalone `$bro-neon` skill to get a prompt with the original question and relevant facts, then paste it into an Antigravity session running `agy --model gemini-4-neon-high`.
 
 - Ownership and archive exclusions are recorded in `stow/codex/skills/shared/.skill-sources.tsv`; see [CONTEXT.md](../CONTEXT.md) for the ownership terms.
 - `local` skills are never overwritten by sync, and `excluded` skills are never restored.
@@ -171,3 +171,47 @@ Plans are project Markdown files and are implemented only after explicit approva
   Keep the Plannotator marketplace plugin disabled in Codex because its Claude Code hook manifest uses the unsupported `modules` field.
   On a fresh `agentbox`, install Plannotator ([Phase 8](plans/remote-agent-server.md#phase-8-harnesses-and-auth)) and set `PLANNOTATOR_REMOTE=1` ([Phase 7](plans/remote-agent-server.md#phase-7-secrets)) before relying on that `Stop` hook.
 - **Rex:** run `plannotator-tui` directly.
+
+## HTML artifact reviews
+
+Ask Codex to use `$artifact-review` for an HTML plan, side-by-side design comparison, PR or architecture walkthrough, or document.
+The skill writes a standalone HTML file and launches the viewer from the Codex thread that will read your comments.
+The `bin` Stow package provides the command and the `codex` package provides the skill.
+
+To try the included example from this checkout, run:
+
+```bash
+stow/bin/.local/bin/artifact-review stow/bin/.local/share/artifact-review/example.html
+```
+
+**Annotate** starts on, so you can select text or click an element right away.
+Click **Annotate** to interact with the page, or use **General note** for feedback on the whole document.
+Save each comment, then choose **Send feedback** when you finish the review.
+When opened by the skill, sending feedback queues a new message in the same Codex thread.
+An open thread starts processing the feedback as soon as it is idle.
+If you closed the thread, Codex processes the message when you reopen it.
+Saved comments survive a reload of the review tab.
+The command prints a single JSON result with the file path, its SHA-256 revision, and the submitted comments.
+Each anchored comment includes its quote and selector, plus the author-provided `data-review-id` and `data-review-source` when present.
+**Close review** returns a dismissal, and Ctrl-C stops the command if you already closed the browser tab.
+
+The viewer reads a snapshot of one local HTML file.
+It supports inline diagrams, embedded images, and native HTML controls such as expandable details.
+Use a new run to review an edited file.
+The review iframe disables artifact scripts and external assets.
+
+The skill saves generated HTML and queued feedback under `${TMPDIR:-/tmp}/agent-artifacts/artifact-review/<thread-id>/`.
+`artifact-review workspace` prints the current thread's absolute path.
+Codex's `SessionEnd` hook removes that temporary workspace when the session ends.
+Codex can also end an idle, unattached session after 30 minutes.
+The hook keeps workspaces with queued feedback until Codex handles it.
+Use `artifact-review clean` to remove the current workspace sooner.
+The example in this repository and files you saved elsewhere remain outside the workspace.
+
+On a remote Rex host, run `artifact-review --no-open FILE.html` and forward the port from the printed URL.
+Keep its full path when forwarding so the browser opens the same review session.
+For example, if the review URL uses port 45678 and path `/SESSION/`, run this on your Mac and replace both values:
+
+```bash
+rex -S agentbox forward open 'http://127.0.0.1:45678/SESSION/'
+```

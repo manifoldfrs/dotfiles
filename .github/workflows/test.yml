@@ -64,8 +64,8 @@ jobs:
         with:
           node-version: 24
 
-      - name: Check Codex X search and skill catalog
-        run: node --test test/codex_xai_search_test.ts test/active_skill_catalog_test.mjs
+      - name: Run Node tests
+        run: node --test test/codex_xai_search_test.ts test/active_skill_catalog_test.mjs test/artifact_review_test.mjs
 
   test-docker:
     runs-on: ubuntu-latest

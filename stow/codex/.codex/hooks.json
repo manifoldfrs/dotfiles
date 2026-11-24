@@ -35,6 +35,18 @@
         ]
       }
     ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.local/bin/artifact-review session-end",
+            "timeout": 5,
+            "statusMessage": "Cleaning temporary HTML reviews"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [

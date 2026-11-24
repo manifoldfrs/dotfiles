@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Artifact review</title>
+  <link rel="stylesheet" href="viewer.css">
+  <script defer src="viewer.js"></script>
+</head>
+<body>
+  <header class="toolbar">
+    <div class="file">
+      <span class="file-label">Artifact review</span>
+      <strong id="filename"></strong>
+    </div>
+    <button type="button" id="annotate" aria-pressed="true">Annotate</button>
+    <button type="button" id="finish">Close review</button>
+  </header>
+  <main>
+    <iframe id="artifact" title="Artifact under review" sandbox="allow-same-origin" src="artifact"></iframe>
+    <aside aria-labelledby="comments-title">
+      <div class="rail-heading">
+        <h1 id="comments-title">Comments <span id="count">0</span></h1>
+        <button type="button" id="general">General note</button>
+      </div>
+      <p id="instructions">Select text or click an element. To use the keyboard, focus an outlined section and press Enter.</p>
+      <p id="status" role="status"></p>
+      <form id="composer" hidden>
+        <p id="anchor"></p>
+        <label for="comment">Comment</label>
+        <textarea id="comment" rows="4" maxlength="4000" required></textarea>
+        <div class="composer-actions">
+          <button type="button" id="cancel">Cancel</button>
+          <button type="submit">Save comment</button>
+        </div>
+      </form>
+      <ol id="comments"></ol>
+    </aside>
+  </main>
+</body>
+</html>
