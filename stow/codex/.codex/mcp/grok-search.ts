@@ -7,6 +7,7 @@ import { promisify } from 'node:util'
 import type { XaiSearchRequest } from '../../../../mcp/xai-search/xai-request.ts'
 
 const execute = promisify(execFile)
+const searchVariants = { x_search: 'XSearch', web_search: 'WebSearch' } as const
 
 interface SearchEvent {
   type?: string
@@ -15,9 +16,10 @@ interface SearchEvent {
   status?: string
   data?: string
   stopReason?: string
+  rawInput?: { variant?: string; backend?: boolean }
 }
 
-function readSearchResult(stdout: string, tools: string[]) {
+function readSearchResult(stdout: string, tools: (keyof typeof searchVariants)[]) {
   let events: SearchEvent[]
   try {
     events = stdout.trim().split('\n').map(line => JSON.parse(line))
@@ -25,12 +27,18 @@ function readSearchResult(stdout: string, tools: string[]) {
     throw new Error('Grok returned an invalid search event stream.')
   }
   const last = events.at(-1)
-  if (last?.type !== 'end' || last.stopReason !== 'EndTurn') throw new Error('Grok did not finish its search.')
+  if (last?.type !== 'end' || (last.stopReason !== 'EndTurn' && last.stopReason !== 'end_turn')) {
+    throw new Error('Grok did not finish its search.')
+  }
 
   for (const tool of tools) {
-    const calls = events.filter(event => event.type === 'tool_call' && event.toolName === tool)
+    const calls = events.filter(event =>
+      event.type === 'tool_call' && (event.toolName === tool
+        || (event.rawInput?.backend === true && event.rawInput.variant === searchVariants[tool])),
+    )
     const completed = calls.some(call => call.status === 'completed' || events.some(event =>
-      event.type === 'tool_call_update' && event.toolCallId === call.toolCallId && event.status === 'completed',
+      call.toolCallId && event.type === 'tool_call_update'
+        && event.toolCallId === call.toolCallId && event.status === 'completed',
     ))
     if (!completed) throw new Error(`Grok did not report a completed ${tool} call.`)
   }
@@ -40,7 +48,7 @@ function readSearchResult(stdout: string, tools: string[]) {
   return text
 }
 
-export async function runGrokSearch(request: XaiSearchRequest, signal: AbortSignal) {
+export async function runGrokSearch(request: XaiSearchRequest<string | undefined>, signal: AbortSignal) {
   if (request.maxOutputTokens !== undefined || request.tools.some(tool => Object.keys(tool).length > 1)) {
     throw new Error('Exact filters and output-token limits require the xAI API route. Remove those options to use the Grok sign-in.')
   }
@@ -53,8 +61,8 @@ export async function runGrokSearch(request: XaiSearchRequest, signal: AbortSign
   const args = [
     '--no-auto-update', '--no-memory', '--no-subagents', '--sandbox', 'read-only',
     '--permission-mode', 'dontAsk', '--output-format', 'streaming-json',
-    '--model', request.model,
   ]
+  if (request.model !== undefined) args.push('--model', request.model)
   if (request.maxTurns !== undefined) args.push('--max-turns', String(request.maxTurns))
 
   const cwd = await mkdtemp(join(tmpdir(), 'codex-xai-search-'))

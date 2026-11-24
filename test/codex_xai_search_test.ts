@@ -83,13 +83,22 @@ test('Codex uses a completed Grok X search without an API key', { timeout: 5_000
   mkdirSync(join(grokHome, 'bin'))
   writeFileSync(join(grokHome, 'bin/grok'), `#!/bin/sh
 case " $* " in
-  *" --model grok-build --agent "*) ;;
+  *" --model grok-4.7-build-fast --agent "*) expected="Find a post with the specified model" ;;
+  *" --model "*) exit 1 ;;
+  *" --agent "*) expected="Find a recent post" ;;
   *) exit 1 ;;
 esac
 while [ "$1" != "--agent" ] && [ "$#" -gt 0 ]; do shift; done
 grep -Fq 'tools: ["x_search"]' "$2" || exit 1
 while [ "$1" != "--prompt-file" ] && [ "$#" -gt 0 ]; do shift; done
-[ "$(cat "$2")" = "Find a recent post" ] || exit 1
+[ "$(cat "$2")" = "$expected" ] || exit 1
+if [ "$expected" = "Find a recent post" ]; then
+  printf '%s\\n' '{"type":"tool_call","toolName":"X search:","toolCallId":"x","rawInput":{"variant":"XSearch","backend":true}}'
+  printf '%s\\n' '{"type":"tool_call_update","toolCallId":"x","status":"completed"}'
+  printf '%s\\n' '{"type":"text","data":"Found https://x.com/example/status/1"}'
+  printf '%s\\n' '{"type":"end","stopReason":"end_turn"}'
+  exit 0
+fi
 printf '%s\\n' \
   '{"type":"tool_call","toolName":"x_search","toolCallId":"x"}' \
   '{"type":"tool_call_update","toolCallId":"x","status":"completed"}' \
@@ -105,4 +114,10 @@ printf '%s\\n' \
   const filter = await rpc(2, 'tools/call', { name: TOOL_NAME, arguments: { query: 'Find a post', allowed_x_handles: ['example'] } })
   assert.equal(filter.result.isError, true)
   assert.match(filter.result.content[0].text, /Exact filters/)
+
+  const override = await rpc(3, 'tools/call', {
+    name: TOOL_NAME,
+    arguments: { query: 'Find a post with the specified model', model: 'grok-4.7-build-fast' },
+  })
+  assert.equal(override.result.isError, false)
 })

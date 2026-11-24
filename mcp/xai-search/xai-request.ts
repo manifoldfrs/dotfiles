@@ -24,8 +24,8 @@ export interface XaiSearchParams {
   max_output_tokens?: number;
 }
 
-export interface XaiSearchRequest {
-  model: string;
+export interface XaiSearchRequest<Model extends string | undefined = string> {
+  model: Model;
   query: string;
   sources: XaiSearchSource[];
   tools: Record<string, unknown>[];
@@ -112,12 +112,15 @@ function requireSource(sources: readonly XaiSearchSource[], source: XaiSearchSou
 }
 
 // xAI applies from_date from 00:00 UTC and treats to_date as exclusive, so dates pass through unchanged.
-export function buildXaiSearchRequest(params: XaiSearchParams, defaultModel: string): XaiSearchRequest {
+export function buildXaiSearchRequest<DefaultModel extends string | undefined>(
+  params: XaiSearchParams,
+  defaultModel: DefaultModel,
+): XaiSearchRequest<string | DefaultModel> {
   const query = params.query.trim();
   if (!query) throw new Error("query must not be empty");
 
-  const model = (params.model ?? defaultModel).trim();
-  if (!model) throw new Error("model must not be empty");
+  const model = params.model?.trim() ?? (typeof defaultModel === "string" ? defaultModel.trim() : defaultModel);
+  if (model === "") throw new Error("model must not be empty");
 
   const fromDate = normalizeDate(params.from_date, "from_date");
   const toDate = normalizeDate(params.to_date, "to_date");

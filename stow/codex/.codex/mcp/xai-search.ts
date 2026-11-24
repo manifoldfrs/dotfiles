@@ -40,13 +40,13 @@ async function callTool(id: RequestId, params: Request['params']) {
   pending.set(id, controller)
   try {
     const key = process.env.XAI_API_KEY?.trim()
-    const request = buildXaiSearchRequest(call, key ? DEFAULT_MODEL : 'grok-build')
     if (!key) {
-      const text = await runGrokSearch(request, controller.signal)
+      const text = await runGrokSearch(buildXaiSearchRequest(call, undefined), controller.signal)
       if (!controller.signal.aborted) replyTool(id, text, false)
       return
     }
 
+    const request = buildXaiSearchRequest(call, DEFAULT_MODEL)
     const runtime = { baseUrl: XAI_API_BASE_URL, bearer: new XaiBearerToken(key) }
     const response = await postXaiSearch(runtime, request, { fetch, signal: controller.signal })
     const searched = request.sources.length === 2 ? 'both' : request.sources[0]

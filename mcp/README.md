@@ -66,6 +66,7 @@ For existing installations, copy the desired server changes from the template in
   Other Jev tools, including `jev_gate` and `jev_review`, follow Codex's normal MCP approval behavior.
   Send only the evidence the judgment needs and follow the Jev skill's data handling rules.
 - **`xai-search`:** Make `node` available on Codex's launch PATH, install [Grok Build](https://x.ai/build), and run `grok login` to use the signed-in CLI from Codex.
+  The signed-in CLI uses the default reported by `grok models` unless the caller supplies a model.
   The Grok Build route requires a completed search event for every requested source.
   For exact date, handle, media, or domain filters and output-token caps, set `XAI_API_KEY` in Codex's launch environment to select the direct [xAI Responses API](https://docs.x.ai/developers/tools/x-search) route.
   The API route defaults to `grok-4.7` and uses API billing.
