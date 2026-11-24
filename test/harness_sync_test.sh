@@ -33,7 +33,7 @@ cat >> "$codex" <<'TOML'
 [mcp_servers.jev.tools.fixture]
 approval_mode = "approve"
 
-[mcp_servers.hey.tools.fixture]
+[mcp_servers.superlogical.tools.fixture]
 approval_mode = "approve"
 
 [mcp_servers.node_repl]
@@ -46,11 +46,11 @@ enabled = false
 TOML
 
 # Removing a shared server removes its generated copies.
-jq 'del(.mcpServers.hey) | .mcpServers.jev.args = ["-y", "@jkudish/jev-mcp@fixture"] | .mcpServers.docs = {url: "https://docs.test/mcp", headers: {"x-team": "dotfiles"}, exposure: "direct"}' "$shared_mcp" > "$shared_mcp.new"
+jq 'del(.mcpServers.superlogical) | .mcpServers.jev.args = ["-y", "@jkudish/jev-mcp@fixture"] | .mcpServers.docs = {url: "https://docs.test/mcp", headers: {"x-team": "dotfiles"}, exposure: "direct"}' "$shared_mcp" > "$shared_mcp.new"
 mv "$shared_mcp.new" "$shared_mcp"
 printf '\n// changed in shared Jev\n' >> "$test_dir/mcp/shared/jev.ts"
 bash "$sync" >/dev/null
-grep -Eq '^\[mcp_servers\.hey(\.|\])' "$codex" && fail "Codex kept a removed shared server"
+grep -Eq '^\[mcp_servers\.superlogical(\.|\])' "$codex" && fail "Codex kept a removed shared server"
 grep -A1 -F '[mcp_servers.jev.tools.fixture]' "$codex" | grep -qx 'approval_mode = "approve"' || fail "Codex lost a tool approval"
 grep -q '^\[mcp_servers.docs.http_headers\]' "$codex" || fail "Codex is missing a literal header table"
 awk '/^\[/{section=$0} section=="[mcp_servers.docs]" && $0=="omit_tools_from = [\"deferred\"]" {found=1} END {exit !found}' "$codex" \

@@ -30,11 +30,6 @@
       "timeout": 60,
       "exposure": "codemode"
     },
-    "hey": {
-      "command": "hey",
-      "args": ["mcp"],
-      "exposure": "codemode"
-    },
     "superlogical": {
       "type": "http",
       "url": "https://www.superlogical.com/rex/community-mcp",

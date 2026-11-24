@@ -38,11 +38,6 @@ args = ["-y","chrome-devtools-mcp@latest","--isolated","--no-usage-statistics"]
 tool_timeout_sec = 60
 omit_tools_from = ["direct","deferred"]
 
-[mcp_servers.hey]
-command = "hey"
-args = ["mcp"]
-omit_tools_from = ["direct","deferred"]
-
 [mcp_servers.superlogical]
 url = "https://www.superlogical.com/rex/community-mcp"
 omit_tools_from = ["direct","deferred"]

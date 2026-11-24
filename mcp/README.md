@@ -26,13 +26,8 @@ The Exposure column describes Codex.
 | **Exa** | General web search and page fetching | Direct (and Code Mode) | `EXA_API_KEY` |
 | **Jev** | Typed judgments from TypeSafe's Jev model | Code Mode | `TYPESAFE_API_KEY`; Codex pins the MCP package |
 | **Chrome DevTools** | Isolated browser inspection, console, network, screenshots | Code Mode | Isolated Chrome with usage statistics disabled; never attaches to your personal browser profile |
-| **HEY** | Mail, calendars, todos, and contacts via `hey mcp` | Code Mode | Keychain credentials from `hey auth login`; read/write by default |
 | **Superlogical** | Rex Beta docs, changelog, and community feedback | Code Mode | OAuth via `/mcp` after registering |
 | **xai-search** (Codex) | Live X posts and web search | Direct (and Code Mode) | Grok Build sign-in or `XAI_API_KEY` |
-
-To restrict HEY to read-only access, change its `args` to `["mcp", "--read-only"]` in `shared/servers.json`, run `./scripts/harness_sync.sh`, and re-import Claude Code after running `claude mcp remove --scope user hey`.
-If HEY is registered in a machine-local `~/.codex/config.toml`, also set `args = ["mcp", "--read-only"]` in its `[mcp_servers.hey]` block.
-Restart each affected Codex or Claude Code session before relying on read-only access.
 
 ## API keys
 
@@ -62,7 +57,8 @@ codex mcp list
 For existing installations, copy the desired server changes from the template into the local file, then restart Codex.
 
 - **Code Mode:** Codex enables native Code Mode (`features.code_mode`).
-  Ref and Exa are exposed both directly and in Code Mode; Jev, Chrome DevTools, HEY, and Superlogical are exposed only in Code Mode.
+  Ref and Exa are exposed both directly and in Code Mode.
+  Jev, Chrome DevTools, and Superlogical are exposed only in Code Mode.
   Do not disable Codex Code Mode and expect Code-Mode-only MCP tools to remain callable.
 - **Jev:** To update the pinned package, edit the Codex-owned server entry in the template and copy its `args` to the existing local entry.
   Fetch and screen external text in one Code Mode call before returning screened content to the model.
