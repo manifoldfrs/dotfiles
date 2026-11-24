@@ -96,7 +96,7 @@ Shared skills live in `stow/codex/skills/shared/`.
 Stow apply repairs old shared skill links that still point to the retired Pi package.
 
 Use `$bro` to simplify the previous reply in the current chat.
-In Codex, use the standalone `$bro-neon` skill to get a prompt with the original question and relevant facts, then paste it into an Antigravity session running `agy --model gemini-4-neon-high`.
+In Codex, use the standalone `$bro-neon` skill to gather context, ask Gemini 4 Neon Medium through the signed-in Antigravity CLI, and get the explanation back in the current chat.
 
 - Ownership and archive exclusions are recorded in `stow/codex/skills/shared/.skill-sources.tsv`; see [CONTEXT.md](../CONTEXT.md) for the ownership terms.
 - `local` skills are never overwritten by sync, and `excluded` skills are never restored.
