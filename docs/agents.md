@@ -72,7 +72,7 @@ Opus 5.5 High runs in Claude Code with its writer sandbox, and the runner explic
 A worktree is a separate checkout and does not itself restrict filesystem access.
 
 Gemini 4 Neon High is pinned through the signed-in Antigravity CLI as `gemini-4-neon-high`.
-It handles read-only exploration and is Arena's first cross-judge.
+It handles read-only exploration, fills the `judgment and prose` role for multi-phase planning, and is Arena's first cross-judge.
 Open Pstack's Antigravity adapter has read-only and full-access writer modes.
 Its writer mode cannot confine writes to the assigned worktree, including shared Git state.
 The model sheet gives Neon read-only roles so the full-access writer option stays unused.
@@ -94,6 +94,9 @@ Reload or restart active sessions after editing them.
 Shared skills live in `stow/codex/skills/shared/`.
 `scripts/stow.sh` links each skill folder into `~/.agents/skills/` (read by Codex) and `~/.claude/skills/` (read by Claude Code).
 Stow apply repairs old shared skill links that still point to the retired Pi package.
+
+Use `$bro` to simplify the previous reply in the current chat.
+Use `$bro neon` to get a prompt with the original question and relevant facts, then paste it into an Antigravity session running `agy --model gemini-4-neon-high`.
 
 - Ownership and archive exclusions are recorded in `stow/codex/skills/shared/.skill-sources.tsv`; see [CONTEXT.md](../CONTEXT.md) for the ownership terms.
 - `local` skills are never overwritten by sync, and `excluded` skills are never restored.

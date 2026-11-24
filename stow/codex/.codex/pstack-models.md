@@ -6,7 +6,7 @@ feature, refactoring: codex:gpt-6.2-sol@high
 bug-fix: codex:gpt-6.2-sol@high
 perf-issue: codex:gpt-6.2-sol@high
 hillclimb: codex:gpt-6.2-sol@high
-judgment and prose: claude:claude-opus-5-5@high
+judgment and prose: agy:gemini-4-neon-high@default
 hardest tasks: claude:claude-opus-5-5@high
 how explorer: agy:gemini-4-neon-high@default
 how explainer: claude:claude-opus-5-5@high
