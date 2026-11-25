@@ -50,17 +50,24 @@ Google documents [consumer-plan limits on using Antigravity from other agents](h
 Prefix the arguments with a minimum score (for example, `$council 9.5 review this diff`) to require that score from every reviewer.
 Council repeats the review after authorized fixes.
 
-### pstack in Codex
+### pstack in Codex and Claude Code
 
 See the [Open Pstack skill catalog](pstack-skills.md) for the installed skills and their descriptions.
 
 [Open Pstack](https://github.com/ericlitman/open-pstack) provides Poteto Mode, Arena, and Interrogate as a native Codex plugin.
-Codex hosts this plugin directly.
-To install it on another machine:
+To install the Codex plugin on another machine:
 
 ```bash
 codex plugin marketplace add https://github.com/ericlitman/open-pstack --ref main
 codex plugin add pstack@open-pstack
+```
+
+Claude Code uses the native plugin from the same marketplace.
+To install it:
+
+```bash
+claude plugin marketplace add ericlitman/open-pstack --scope user
+claude plugin install pstack@open-pstack --scope user
 ```
 
 In Codex, run the pstack PR watcher through `bash "${CODEX_HOME:-$HOME/.codex}/bin/pstack_watch_pr.sh" <installed-watch-pr-path> [options]`.
@@ -126,6 +133,7 @@ In Codex, use the standalone `$bro-neon` skill to gather context, ask Gemini 4 N
 ### xAI search (`xai_search`)
 
 Codex exposes `xai_search` through [Grok Build or the xAI Responses API](../mcp/README.md#codex).
+Claude Code can [register the same server](../mcp/README.md#claude-code).
 Without `XAI_API_KEY`, it uses the Grok Build CLI's own sign-in.
 Set `XAI_API_KEY` in Codex's launch environment to use exact search filters and output-token caps through the API.
 The request and response code lives in `mcp/xai-search/`.

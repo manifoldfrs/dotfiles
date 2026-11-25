@@ -74,7 +74,7 @@ For existing installations, copy the desired server changes from the template in
 
 ### Claude Code
 
-After approving a live configuration change, import the six shared servers from the tracked shared config:
+After approving a live configuration change, import the servers from the tracked shared config:
 
 ```bash
 ./mcp_setup.sh install-claude
@@ -86,6 +86,15 @@ Registrations are user-scoped and leave unrelated Claude account connectors unto
 Re-running skips identical registrations; if an existing registration differs, the import stops without overwriting it.
 Review any conflicting server before removing it with `claude mcp remove --scope user <name>` and re-running the import.
 Restart Claude Code after registering servers.
+
+To share the xAI Search server with Claude Code, install Grok Build and sign in with `grok login`.
+Register the server once in your user config:
+
+```bash
+claude mcp add --scope user xai-search -- "$(command -v node)" "$HOME/.codex/mcp/xai-search.ts"
+```
+
+Launch Claude Code from a shell with the shared MCP credentials and Grok Build on its PATH.
 
 ## Backup
 
