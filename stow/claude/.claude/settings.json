@@ -135,7 +135,7 @@
   "channelsEnabled": false,
   "timeFormat": "24-hour-utc",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "custom:tokyonight-night",
+  "theme": "custom:heliotrope-haze",
   "editorMode": "normal",
   "verbose": false,
   "preferredNotifChannel": "ghostty",
@@ -175,5 +175,6 @@
       "**Org-specific CLIs**: None configured",
       "routine under joinopto/opto2 prefix: git and bundle/rails operations scoped to this trusted repo and its origin remote"
     ]
-  }
+  },
+  "syntaxHighlightingDisabled": true
 }

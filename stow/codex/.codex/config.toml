@@ -3,7 +3,7 @@ model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 
 [tui]
-theme = "tokyonight-frsh"
+theme = "heliotrope-haze"
 status_line = ["model-with-reasoning", "current-dir", "thread-name", "context-used"]
 
 [mcp_servers.jev]

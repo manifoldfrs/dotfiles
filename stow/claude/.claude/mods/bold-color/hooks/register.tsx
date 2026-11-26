@@ -1,7 +1,7 @@
 import type { Register } from 'claude-code'
 
-const BOLD_COLOR = '#7AA2F7'
-const CODE_COLOR = '#7DCFFF'
+const BOLD_COLOR = '#7A9BF5'
+const CODE_COLOR = '#5FD0E5'
 const BOLD_SPAN = /\*\*(?=\S).+?(?<=\S)\*\*/
 const INLINE_TOKEN = /(\*\*(?=\S).+?(?<=\S)\*\*|`[^`\n]+`|\[[^\]\n]+\]\([^)\s]+\))/
 const LINK = /^\[([^\]]+)\]\(([^)]+)\)$/

@@ -1655,7 +1655,7 @@
 	QXQiOjgxNTUyNDUxOS4yOTMxMjR9XQ==
 	</data>
 	<key>Workspace.darkThemeID</key>
-	<string>custom-84D9FA72-A109-4384-AF29-CFED1DDDCE3A</string>
+	<string>heliotrope-haze</string>
 	<key>Workspace.inactivePaneFadeMode</key>
 	<string>both</string>
 	<key>Workspace.interfaceStyle</key>
@@ -1663,7 +1663,7 @@
 	<key>Workspace.lightThemeID</key>
 	<string>merino-light</string>
 	<key>Workspace.shellIconTheme</key>
-	<string>themedAlt</string>
+	<string>themed</string>
 	<key>Workspace.sidebarCollapsed</key>
 	<false/>
 	<key>Workspace.sidebarPosition</key>

@@ -52,17 +52,16 @@ return {
     mini_icons.setup(vim.tbl_extend("force", opts, { directory = directory }))
   end,
   init = function()
-    -- Catppuccin Macchiato, to match Cursor's catppuccin-macchiato icon theme.
     local icon_colors = {
-      MiniIconsAzure = "#7dc4e4",
-      MiniIconsBlue = "#8aadf4",
-      MiniIconsCyan = "#8bd5ca",
-      MiniIconsGreen = "#a6da95",
-      MiniIconsGrey = "#cad3f5",
-      MiniIconsOrange = "#f5a97f",
-      MiniIconsPurple = "#c6a0f6",
-      MiniIconsRed = "#ed8796",
-      MiniIconsYellow = "#eed49f",
+      MiniIconsAzure = "#97b2f8",
+      MiniIconsBlue = "#7a9bf5",
+      MiniIconsCyan = "#82e0ef",
+      MiniIconsGreen = "#72e0aa",
+      MiniIconsGrey = "#dcd2ee",
+      MiniIconsOrange = "#fed98c",
+      MiniIconsPurple = "#da9ff6",
+      MiniIconsRed = "#f66e93",
+      MiniIconsYellow = "#fdca6a",
     }
 
     local function apply_icon_colors()
@@ -73,7 +72,7 @@ return {
 
     apply_icon_colors()
     vim.api.nvim_create_autocmd("ColorScheme", {
-      group = vim.api.nvim_create_augroup("mini_icons_catppuccin", { clear = true }),
+      group = vim.api.nvim_create_augroup("mini_icons_palette", { clear = true }),
       callback = apply_icon_colors,
     })
 

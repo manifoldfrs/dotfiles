@@ -1,7 +1,7 @@
 # AGENTS.md - Neovim Configuration
 
 ## Package Identity
-Neovim config using lazy.nvim with Tokyo Night.
+Neovim config using lazy.nvim with Heliotrope Haze colors through Tokyo Night's highlight definitions.
 Requires Neovim >= 0.11.0 for `vim.lsp.config()`.
 
 ## Setup & Run

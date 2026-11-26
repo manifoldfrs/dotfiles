@@ -8,7 +8,6 @@ set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 STOW_DIR="$DOTFILES_DIR/stow"
-CODEX_THEME_FILE="tokyonight-frsh.tmTheme"
 STOW_PACKAGES=(bash git ghostty rex nvim bin antigravity claude codex cursor)
 STOW_FLAGS=(--no-folding -v -t "$HOME" -d "$STOW_DIR")
 OS_NAME="$(uname -s)"
@@ -25,7 +24,8 @@ CODEX_BACKUP_TARGETS=(
     "$HOME/.codex/hooks.json"
     "$HOME/.codex/hooks/block-dangerous-bash.sh"
     "$HOME/.codex/hooks/block-generated-edits.sh"
-    "$HOME/.codex/themes/$CODEX_THEME_FILE"
+    "$HOME/.codex/themes/tokyonight-frsh.tmTheme"
+    "$HOME/.codex/themes/heliotrope-haze.tmTheme"
 )
 ANTIGRAVITY_BACKUP_TARGETS=(
     "$HOME/.gemini/config/hooks.json"

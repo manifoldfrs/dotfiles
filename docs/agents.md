@@ -146,12 +146,19 @@ The request and response code lives in `mcp/xai-search/`.
 - **`cua-driver`:** used for native macOS apps and desktop automation (installed via `Brewfile`).
   Grant Accessibility and Screen Recording permissions with `cua-driver permissions grant`.
 
+### Terminal colors
+
+Rex provides the Heliotrope Haze terminal palette.
+Codex uses the matching `heliotrope-haze` syntax theme, and Claude Code uses the `Heliotrope Haze` custom theme.
+Claude Code's separate Monokai syntax highlighting is disabled so code uses the custom theme's text and diff colors.
+Antigravity CLI inherits Rex's colors when **Color Scheme** is set to **terminal** in `/config`.
+
 ### Claude Code mods
 
 - **`codemode`:** runs JavaScript tool calls in Claude Code.
   Scripts run in a Node child under `--permission` and call tools through `$.tool.call` so hooks and permission checks still apply.
   Test with `claude plugin test` and `node --test runner/runner.test.mjs` inside the mod folder.
-- **`bold-color`:** draws bold reply text in Tokyo Night blue.
+- **`bold-color`:** draws bold reply text in Heliotrope Haze blue.
 - **`tool-row-color`:** keeps running and folded tool rows in the main text color instead of grey.
 - **`session-relaunch`:** works with the `claude` shell wrapper to resume sessions cleanly.
 

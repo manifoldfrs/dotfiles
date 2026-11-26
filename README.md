@@ -26,7 +26,9 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 | Primary agent harness | Codex | Owns global rules and guardrail hooks in `stow/codex/.codex/` and shared skills in `stow/codex/skills/shared/` |
 | Council reviewers | Codex CLI, Claude Code, Antigravity CLI | Codex runs each model through its own command-line tool |
 
-Everything uses **Tokyo Night** with **MonoLisaCode 14 pt** where the app allows it.
+Rex, Neovim, Codex, Claude Code and Antigravity CLI use **Heliotrope Haze** colors.
+Antigravity CLI inherits the Rex palette with its **Terminal** color scheme.
+The terminal font is **MonoLisaCode 14 pt** where the app allows it.
 Rex is the exception because its theme and font live in app settings rather than `init.lua` (see [docs/rex.md](docs/rex.md#app-settings-one-time-per-machine)).
 
 ## Quick start
