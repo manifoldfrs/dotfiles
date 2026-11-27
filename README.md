@@ -9,6 +9,7 @@ Each folder under `stow/` is a package that mirrors `$HOME`, so `stow/nvim/.conf
 
 | Guide | What it covers |
 | --- | --- |
+| [docs/macos-preferences.md](docs/macos-preferences.md) | Personal macOS settings and Mac App Store utilities to restore on a new Mac. |
 | [docs/rex.md](docs/rex.md) | Rex keybindings, app settings, `agentbox` remote server, `agentbox-auth`, iOS setup, and beta gaps. |
 | [docs/agents.md](docs/agents.md) | Codex, Council, Claude Code, Antigravity, shared rules and skills, and guardrails. |
 | [docs/skills.md](docs/skills.md) | Generated catalog of shared agent skills and ownership. |
@@ -63,6 +64,7 @@ export TYPESAFE_API_KEY="..."
 ```
 
 3. Open a new Bash login pane, sign in to Codex, Claude Code, and Antigravity, and review the Codex hooks with `/hooks`.
+4. Restore personal system preferences from the [macOS preferences checklist](docs/macos-preferences.md).
 
 ### `agentbox` (Ubuntu)
 
